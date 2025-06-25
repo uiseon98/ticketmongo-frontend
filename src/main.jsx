@@ -1,23 +1,18 @@
-// import { StrictMode } from 'react'
-// import { createRoot } from 'react-dom/client'
-// import './index.css'
-// import App from './App.jsx'
-//
-// createRoot(document.getElementById('root')).render(
-//   <StrictMode>
-//     <App />
-//   </StrictMode>,
-// )
-// src/main.jsx
+// React 앱의 진입점 역할
 import React from 'react';
-import { createRoot } from 'react-dom/client';
-import './index.css'; // 전역 스타일
-import App from '/src/App.jsx'; // 기존 App 컴포넌트
-import Home from '/src/pages/Home.jsx'; // 새로 만든 Home 컴포넌트 임포트
+import ReactDOM from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom'; // BrowserRouter 임포트
+import App from './App.jsx'; // 메인 App 컴포넌트 임포트
+import './index.css'; // 전역 CSS 파일
 
-createRoot(document.getElementById('root')).render(
+ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
-        {/* <App /> 대신 Home 컴포넌트를 렌더링합니다. */}
-        <Home />
+        {/*
+      BrowserRouter는 애플리케이션 전체를 감싸서 라우팅 기능을 활성화합니다.
+      이는 HTML5 History API를 사용하여 URL을 관리합니다.
+    */}
+        <BrowserRouter>
+            <App /> {/* App 컴포넌트 안에서 라우트를 정의합니다. */}
+        </BrowserRouter>
     </React.StrictMode>,
 );

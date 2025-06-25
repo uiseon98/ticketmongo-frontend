@@ -1,119 +1,86 @@
-// import { useState } from 'react'
-// import reactLogo from './assets/react.svg'
-// import viteLogo from '/vite.svg'
-// import './App.css'
-//
-// function App() {
-//   const [count, setCount] = useState(0)
-//
-//   return (
-//     <>
-//       <div>
-//         <a href="https://vite.dev" target="_blank">
-//           <img src={viteLogo} className="logo" alt="Vite logo" />
-//         </a>
-//         <a href="https://react.dev" target="_blank">
-//           <img src={reactLogo} className="logo react" alt="React logo" />
-//         </a>
-//       </div>
-//       <h1>Vite + React</h1>
-//       <div className="card">
-//         <button onClick={() => setCount((count) => count + 1)}>
-//           count is {count}
-//         </button>
-//         <p>
-//           Edit <code>src/App.jsx</code> and save to test HMR
-//         </p>
-//       </div>
-//       <p className="read-the-docs">
-//         Click on the Vite and React logos to learn more
-//       </p>
-//     </>
-//   )
-// }
-//
-// export default App
+// 애플리케이션의 주요 라우팅 규칙을 정의
+import React from 'react';
+import { Routes, Route, Link, useNavigate, useParams } from 'react-router-dom'; // 필요한 컴포넌트들 임포트
 
-// src/App.jsx 예시
-import React, { useEffect, useState } from 'react';
-import './App.css';
+// 각 페이지 컴포넌트 임포트 (src/pages 폴더에 실제 파일로 존재한다고 가정)
+import HomePage from './pages/Home.jsx'; // 콘서트 목록을 보여주는 홈 페이지
+import ConcertsPage from './pages/ConcertsPage.jsx'; // (가상의) 모든 콘서트 목록 페이지
+import ConcertDetailPage from './pages/ConcertDetailPage.jsx'; // (가상의) 콘서트 상세 페이지
+import MyPage from './pages/MyPage.jsx'; // (가상의) 마이페이지
+import LoginPage from './pages/LoginPage.jsx'; // (가상의) 로그인 페이지
+import RegisterPage from './pages/RegisterPage.jsx'; // (가상의) 회원가입 페이지
+import SellerStatusPage from './pages/SellerStatus.jsx'; // SellerStatus 페이지 임포트
 
+// App 컴포넌트: 라우팅 정의 및 네비게이션 제공
 function App() {
-    const [apiMessage, setApiMessage] = useState('API 응답 대기 중...');
-    const [wsMessage, setWsMessage] = useState('WebSocket 연결 대기 중...');
-
-    // 백엔드 API 호출 테스트
-    useEffect(() => {
-        // .env 파일에 설정된 VITE_APP_API_URL 사용
-        const apiUrl = import.meta.env.VITE_APP_API_URL || 'http://localhost:8080';
-        fetch(`${apiUrl}/api/test-endpoint`) // 백엔드에 더미 API 엔드포인트가 있다면 해당 경로로 변경해주세요. 없으면 8080 기본경로로 테스트
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.text();
-            })
-            .then(data => {
-                setApiMessage(`API 응답 성공: ${data.substring(0, 50)}...`);
-            })
-            .catch(error => {
-                setApiMessage(`API 응답 오류: ${error.message}`);
-                console.error("API 호출 오류:", error);
-            });
-    }, []);
-
-    // WebSocket 연결 테스트
-    useEffect(() => {
-        // .env 파일에 설정된 VITE_APP_WS_URL 사용
-        const wsUrl = import.meta.env.VITE_APP_WS_URL || 'ws://localhost:8080/ws'; // 백엔드 WebSocket 경로 확인 필요
-        let ws;
-        try {
-            ws = new WebSocket(wsUrl);
-
-            ws.onopen = () => {
-                setWsMessage('WebSocket 연결 성공! 🚀');
-                console.log('WebSocket 연결 성공!');
-                ws.send('Hello from Frontend!');
-            };
-
-            ws.onmessage = (event) => {
-                console.log('WebSocket 메시지 수신:', event.data);
-                setWsMessage(`WebSocket 메시지 수신: ${event.data.substring(0, 50)}...`);
-            };
-
-            ws.onerror = (error) => {
-                setWsMessage(`WebSocket 오류 발생: ${error.message}`);
-                console.error('WebSocket 오류:', error);
-            };
-
-            ws.onclose = () => {
-                console.log('WebSocket 연결 종료');
-                // setWsMessage('WebSocket 연결 종료'); // 연결 끊김 표시를 위해 주석 처리
-            };
-        } catch (e) {
-            setWsMessage(`WebSocket 연결 시도 중 오류: ${e.message}`);
-            console.error("WebSocket 연결 시도 오류:", e);
-        }
-
-        return () => {
-            if (ws) {
-                ws.close();
-            }
-        };
-    }, []);
-
     return (
-        <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-            <h1>프론트엔드 ↔ 백엔드 연동 테스트</h1>
-            <hr />
-            <h2>API 호출 테스트 결과:</h2>
-            <p style={{ color: apiMessage.includes('오류') ? 'red' : 'green' }}>{apiMessage}</p>
-            <hr />
-            <h2>WebSocket 연결 테스트 결과:</h2>
-            <p style={{ color: wsMessage.includes('오류') ? 'red' : 'blue' }}>{wsMessage}</p>
-            <p style={{ fontSize: '0.8em', color: '#666' }}>백엔드 콘솔에서도 WebSocket 연결 및 메시지 수신/송신 로그를 확인해보세요.</p>
+        <div>
+            {/* 3. 내비게이션 링크 (SPA에서 페이지 이동을 위해 사용) */}
+            <nav style={{ padding: '1rem', background: '#333', color: '#fff' }}>
+                <ul style={{ listStyle: 'none', padding: 0, display: 'flex', justifyContent: 'space-around' }}>
+                    <li><Link to="/" style={{ color: '#fff', textDecoration: 'none' }}>홈</Link></li>
+                    <li><Link to="/concerts" style={{ color: '#fff', textDecoration: 'none' }}>콘서트</Link></li>
+                    <li><Link to="/mypage" style={{ color: '#fff', textDecoration: 'none' }}>마이페이지</Link></li>
+                    <li><Link to="/login" style={{ color: '#fff', textDecoration: 'none' }}>로그인</Link></li>
+                    <li><Link to="/register" style={{ color: '#fff', textDecoration: 'none' }}>회원가입</Link></li>
+                    <li><Link to="/seller-status" style={{ color: '#fff', textDecoration: 'none' }}>판매자 상태</Link></li>
+                </ul>
+            </nav>
+
+            {/* 4. Routes와 Route를 사용하여 URL 경로에 따라 렌더링할 컴포넌트 정의 */}
+            <Routes>
+                <Route path="/" element={<HomePage />} /> {/* 홈 경로 */}
+                <Route path="/concerts" element={<ConcertsPage />} /> {/* 콘서트 목록 */}
+                <Route path="/concerts/:id" element={<ConcertDetailPage />} /> {/* 콘서트 상세 (동적 ID) */}
+                <Route path="/mypage" element={<MyPage />} /> {/* 마이페이지 */}
+                <Route path="/login" element={<LoginPage />} /> {/* 로그인 페이지 */}
+                <Route path="/register" element={<RegisterPage />} /> {/* 회원가입 페이지 */}
+                <Route path="/seller-status" element={<SellerStatusPage />} /> {/* 판매자 상태 페이지 */}
+
+
+                {/* 5. 일치하는 라우트가 없을 경우 표시할 404 페이지 */}
+                <Route path="*" element={<h2>404 - 페이지를 찾을 수 없습니다.</h2>} />
+            </Routes>
         </div>
     );
 }
 
 export default App;
+
+// 아래는 App.jsx에서 분리되어야 할 페이지 컴포넌트들 (별도 파일로 관리)
+// 이전에 App.jsx에 임시로 정의했던 HomePage, ConcertsPage, ConcertDetailPage, MyPage, LoginPage, RegisterPage, NotFoundPage 등의 함수들을 각자 src/pages 폴더의 별도 파일 (예: HomePage.jsx)로 옮겨야 합니다.
+
+/* 예시: src/pages/ConcertsPage.jsx 파일로 분리
+import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+
+const ConcertsPage = () => {
+    const navigate = useNavigate();
+    const goToConcertDetail = (id) => {
+        navigate(`/concerts/${id}`);
+    };
+
+    return (
+        <div>
+            <h2>콘서트 목록 페이지</h2>
+            <ul>
+                <li><Link to="/concerts/1">아이유 콘서트 상세</Link></li>
+                <li><Link to="/concerts/2">BTS 콘서트 상세</Link></li>
+            </ul>
+            <button onClick={() => goToConcertDetail(3)}>다른 콘서트 상세 보기</button>
+        </div>
+    );
+};
+export default ConcertsPage;
+*/
+
+/* 예시: src/pages/ConcertDetailPage.jsx 파일로 분리
+import React from 'react';
+import { useParams } from 'react-router-dom';
+
+const ConcertDetailPage = () => {
+    const { id } = useParams();
+    return <h2>콘서트 상세 페이지 - ID: {id}</h2>;
+};
+export default ConcertDetailPage;
+*/
