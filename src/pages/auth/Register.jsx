@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Eye, EyeOff, Mail, User, Lock, Phone, MapPin, UserPlus, Upload, X } from 'lucide-react';
+// authService.js에서 registerUser 함수를 임포트합니다.
+import { registerUser } from '../../features/auth/services/authService'; // 경로에 따라 상대 경로 조정 필요
+
 
 export default function TicketMonSignup() {
     const [formData, setFormData] = useState({
