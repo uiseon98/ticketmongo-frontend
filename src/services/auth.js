@@ -24,5 +24,15 @@ export const loginUser = async (data) => {
 };
 
 export const socialLoginUser = (provider) => {
+    // 소셜 로그인은 해당 URL로 리다이렉트
     window.location.href = `${BASE_URL}/oauth2/authorization/${provider}`;
+};
+
+export const registerUser = async (data) => {
+    try {
+        const response = await axios.post(`${BASE_URL}/api/auth/register`, data);
+        return response.data;
+    } catch (error) {
+        return error.response.data;
+    }
 };
