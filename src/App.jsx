@@ -1,11 +1,14 @@
+// 루트 컴포넌트
+
 // 애플리케이션의 주요 라우팅 규칙을 정의
 import React from 'react';
 import { Routes, Route, Link, useNavigate, useParams } from 'react-router-dom'; // 필요한 컴포넌트들 임포트
 import { AuthProvider } from './context/AuthContext'; // 로그인 유저 정보 전역 Provider로 감싸기
 
 // 현재 존재하는 페이지 컴포넌트 임포트
-import HomePage from './pages/Home.jsx'; // 콘서트 목록을 보여주는 홈 페이지 (이미 존재하는 파일)
-import SellerStatusPage from './pages/SellerStatus.jsx'; // 판매자 상태 페이지 (이미 존재하는 파일)
+// import HomePage from './pages/Home.jsx'; // 콘서트 목록을 보여주는 홈 페이지
+import HomePage from './pages/home/Home.jsx';
+import SellerStatusPage from './pages/admin/SellerStatus.jsx'; // 판매자 상태 페이지
 import TicketMonLogin from './pages/auth/Login.jsx';
 
 // 다른 팀원들이 구현할 예정인 페이지 컴포넌트들은 임포트를 주석 처리합니다.
@@ -13,7 +16,6 @@ import TicketMonLogin from './pages/auth/Login.jsx';
 // import ConcertsPage from './pages/ConcertsPage.jsx';
 // import ConcertDetailPage from './pages/ConcertDetailPage.jsx';
 // import MyPage from './pages/MyPage.jsx';
-// import LoginPage from './pages/LoginPage.jsx';
 // import RegisterPage from './pages/RegisterPage.jsx';
 
 // App 컴포넌트: 라우팅 정의 및 네비게이션 제공

@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { loginUser, socialLoginUser } from '../../services/auth';
+// import { loginUser, socialLoginUser } from '../../services/auth';
+import { loginUser, socialLoginUser } from '../../features/auth/services/authService';
 import { AuthContext } from '../../context/AuthContext'; // 로그인 상태 사용
 
 export default function TicketMonLogin() {

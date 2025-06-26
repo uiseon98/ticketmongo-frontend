@@ -1,7 +1,8 @@
+// 기존 src/pages/Home.jsx의 내용을 src/pages/home/Home.jsx로 옮기면서, fetchConcerts와 AuthContext의 임포트 경로를 새로운 구조에 맞게 수정합니다.
 import React, { useState, useEffect, createContext, useContext } from 'react';
-import { fetchConcerts } from '../services/api'; // api.js에서 정의한 API 함수 임포트
-import { AuthContext } from '../context/AuthContext'; // 로그인 상태 사용
-import '../App.css'; // 기본 스타일 임포트 (App.css 사용 예시)
+import { fetchConcerts } from '../../features/concert/services/concertService'; // 경로 수정
+import { AuthContext } from '../../context/AuthContext'; // 경로 수정
+import '../../App.css'; // 기본 스타일 임포트 (App.css 사용 예시)
 
 function Home() {
     const [concerts, setConcerts] = useState([]);
@@ -12,14 +13,10 @@ function Home() {
     useEffect(() => {
         async function getConcerts() {
             try {
-                // setLoading(true);
-                // setError(null);
-                // // 백엔드에서 콘서트 목록 데이터를 가져옵니다.
-                // // fetchConcerts 함수는 /api/concerts 경로로 요청을 보냅니다.
-                // const response = await fetchConcerts();
-                // // 백엔드의 SuccessResponse 구조에 따라, api.js 응답 인터셉터에서 이미 실제 데이터 부분(data 필드)이 추출되어 반환됩니다.
-                // // 따라서 response.data.content 또는 response.data를 한 번 더 확인할 필요 없이 바로 response.data를 사용합니다.
-                // setConcerts(response.data.content); // 백엔드 Page 객체 응답의 content 필드에 실제 목록이 있습니다.
+                setLoading(true);
+                setError(null);
+                const data = await fetchConcerts(); // 새 서비스 함수 호출
+                setConcerts(data); // 서비스 함수에서 content를 직접 반환하므로 바로 사용
             } catch (err) {
                 console.error('콘서트 목록을 가져오는 데 실패했습니다:', err);
                 setError(err.message || '콘서트 목록을 불러오지 못했습니다.');
