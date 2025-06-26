@@ -16,6 +16,7 @@
     cd AIBE1_FinalProject_Team03_FE
 ```
 
+---
 **2. 의존성 설치:**
 - 프로젝트에 필요한 모든 의존성을 설치합니다. (package.json 기반: react-router-dom, axios 등 포함)
 
@@ -31,6 +32,7 @@
 ```
 (이 명령은 package.json에 정의된 모든 패키지를 설치합니다.)
 
+---
 **3. Tailwind CSS (v3) 설치 및 설정:**
 - 안정적인 개발 환경을 위해 Tailwind CSS v3를 설치하고 설정합니다. (이 과정은 이미 완료되어 파일에 반영되었습니다.)
     - Tailwind CSS (v3) 및 필수 라이브러리 설치:
@@ -69,7 +71,11 @@
             @tailwind components;
             @tailwind utilities;
         ```
+    <br>
 
+    Tailwind CSS v3가 프로젝트에 기본적으로 설정되어 있습니다. 별도의 추가 설치 없이 바로 유틸리티 클래스를 사용하여 UI를 구성할 수 있습니다. 자세한 내용은 [Tailwind CSS 공식 문서](https://tailwindcss.com/docs)를 참조해주세요.
+
+---
 **4. 환경 변수 설정:**
 - 프로젝트 루트 디렉토리에 .env 파일을 생성합니다.
 - 다음 내용을 .env 파일에 추가합니다. VITE_ 접두사를 사용하는 것이 중요합니다.
@@ -132,7 +138,7 @@
 - 코드 품질 도구: ESLint
 - 스타일링: Tailwind CSS (v3), CSS Modules (또는 일반 CSS)
 
-## 📦 3. 프로젝트 구조 (Vite + React 기본) (수정중)
+## 📦 3. 프로젝트 구조 (Vite + React 기본)
 ```
 .
 ├── public/                 # 빌드 시 그대로 복사될 정적 파일 (파비콘, robots.txt 등)
@@ -140,21 +146,78 @@
 ├── src/                    # 애플리케이션의 모든 원본 소스 코드
 │   ├── assets/             # 이미지, 아이콘 등 정적 자원 (import를 통해 사용)
 │   │   └── react.svg       # React 로고 이미지 (예시)
+│   ├── context/            # React Context API를 사용하여 전역 상태를 관리하는 파일
+│   │   ├── AuthContext.jsx
+│   │   └── BookingProcessContext.jsx
+│   ├── features/           # 도메인 또는 기능별로 관련된 모든 코드를 모아둔 폴더
+│   │   ├── admin/          # 관리자 기능 (컴포넌트, 훅, 서비스, 타입 등)
+│   │   │   ├── components/
+│   │   │   ├── hooks/
+│   │   │   ├── services/
+│   │   │   └── types/
+│   │   ├── auth/           # 인증 기능 (로그인, 회원가입 관련 컴포넌트, 훅, 서비스, 타입 등)
+│   │   │   ├── components/
+│   │   │   ├── hooks/
+│   │   │   ├── services/
+│   │   │   └── types/
+│   │   ├── booking/        # 예매 기능 (좌석 선택, 결제 관련 컴포넌트, 훅, 서비스, 타입 등)
+│   │   │   ├── components/
+│   │   │   ├── hooks/
+│   │   │   ├── services/
+│   │   │   └── types/
+│   │   ├── concert/        # 콘서트 관련 기능 (목록, 상세, 리뷰 컴포넌트, 훅, 서비스, 타입 등)
+│   │   │   ├── components/
+│   │   │   ├── hooks/
+│   │   │   ├── services/
+│   │   │   └── types/
+│   │   └── user/           # 사용자 관련 기능 (프로필, 예매/결제 내역 컴포넌트, 훅, 서비스, 타입 등)
+│   │       ├── components/
+│   │       ├── hooks/
+│   │       ├── services/
+│   │       └── types/
+│   ├── pages/              # 각 라우트(경로)에 매핑될 최상위 페이지 컴포넌트들을 모아두는 폴더
+│   │   ├── admin/          # 관리자 페이지
+│   │   │   ├── ConcertManagement.jsx
+│   │   │   ├── Dashboard.jsx
+│   │   │   ├── SeatManagement.jsx
+│   │   │   ├── SellerStatus.jsx
+│   │   │   └── SystemStatus.jsx
+│   │   ├── auth/           # 인증 관련 페이지
+│   │   │   ├── Login.jsx
+│   │   │   ├── Register.jsx
+│   │   │   └── SocialCallback.jsx
+│   │   ├── booking/        # 예매 관련 페이지
+│   │   │   ├── Payment.jsx
+│   │   │   └── SeatSelection.jsx
+│   │   ├── concert/        # 콘서트 관련 페이지
+│   │   │   ├── ConcertDetail.jsx
+│   │   │   └── ConcertList.jsx
+│   │   ├── home/           # 홈 페이지
+│   │   │   └── Home.jsx
+│   │   ├── mypage/         # 마이페이지
+│   │   │   ├── BookingHistory.jsx
+│   │   │   ├── PaymentHistory.jsx
+│   │   │   └── Profile.jsx
+│   │   └── NotFound.jsx    # 404 에러 페이지
+│   ├── services/           # 애플리케이션 전반에 걸쳐 사용되는 공통 서비스 정의 (API 클라이언트 설정 등)
+│   │   ├── api.js          # 백엔드 API 클라이언트 설정 및 공통 설정
+│   │   └── config.js
+│   ├── shared/             # 여러 도메인/기능에서 공통으로 사용되는 유틸리티, UI 컴포넌트, 훅, 스토어 등
+│   │   ├── components/     # 재사용 가능한 UI 컴포넌트
+│   │   │   ├── layout/     # 공통 레이아웃 (헤더, 푸터, 사이드바 등)
+│   │   │   ├── ui/         # 범용 UI 요소 (버튼, 입력 필드 등)
+│   │   ├── hooks/          # 재사용 가능한 커스텀 훅
+│   │   ├── stores/         # Zustand 등 전역 상태 관리 스토어 (선택 사항)
+│   │   ├── types/          # 공통으로 사용되는 타입 정의
+│   │   └── utils/          # 범용 유틸리티 함수
+│   ├── styles/             # 전역 및 공통 스타일 파일
+│   │   ├── components.css
+│   │   ├── globals.css
+│   │   └── variables.css
 │   ├── App.css             # 메인 앱 컴포넌트의 스타일 정의
 │   ├── App.jsx             # 애플리케이션의 메인 컴포넌트 (라우팅 정의, 주요 레이아웃 구성)
 │   ├── index.css           # 전역 스타일 정의 (기본 HTML 요소 스타일링, reset CSS 등)
-│   ├── main.jsx            # React 앱의 진입점 (ReactDOM 렌더링 시작, BrowserRouter 설정)
-│   ├── pages/              # 각 라우트(경로)에 매핑될 페이지 컴포넌트들을 모아두는 폴더
-│   │   └── Home.jsx        # 메인 홈 화면 컴포넌트 (콘서트 목록 조회 예시 API 호출 포함)
-│   │   └── ConcertsPage.jsx # (예시) 모든 콘서트 목록을 보여줄 페이지 (App.jsx에서 임포트)
-│   │   └── ConcertDetailPage.jsx # (예시) 특정 콘서트의 상세 정보를 보여줄 페이지 (App.jsx에서 임포트)
-│   │   └── MyPage.jsx      # (예시) 사용자 마이페이지 (App.jsx에서 임포트)
-│   │   └── LoginPage.jsx   # (예시) 로그인 페이지 (App.jsx에서 임포트)
-│   │   └── RegisterPage.jsx # (예시) 회원가입 페이지 (App.jsx에서 임포트)
-│   │   └── SellerStatus.jsx # 판매자 상태 조회 페이지 (App.jsx에서 임포트)
-│   │   └── ...             # 그 외 다른 페이지 컴포넌트들
-│   └── services/           # API 호출 로직 등 백엔드 연동 관련 서비스 파일들을 모아두는 폴더
-│       └── api.js          # 백엔드 API 클라이언트 설정 및 공통 API 호출 함수 정의 (Axios 사용)
+│   └── main.jsx            # React 앱의 진입점 (ReactDOM 렌더링 시작, BrowserRouter 설정)
 ├── .env                    # 환경 변수 파일 (API URL, WS URL 등. Git 추적 제외)
 ├── .gitignore              # Git 추적 제외 파일 목록 (빌드 결과물, 환경 변수 등)
 ├── eslint.config.js        # ESLint 설정 파일 (코드 품질 및 스타일 가이드라인)
@@ -162,6 +225,8 @@
 ├── package.json            # 프로젝트 정보 및 의존성 관리 (설치된 라이브러리 목록)
 ├── package-lock.json       # 설치된 패키지의 정확한 버전 및 종속성 트리 정보
 ├── README.md               # 현재 이 문서 (프로젝트 설명, 개발 가이드)
+├── postcss.config.js       # PostCSS 설정 파일 (Tailwind CSS 통합)
+├── tailwind.config.js      # Tailwind CSS 설정 파일
 └── vite.config.js          # Vite 설정 파일 (빌드 옵션, 개발 서버 설정 등)
 ```
 
