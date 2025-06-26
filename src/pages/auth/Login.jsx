@@ -1,7 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-// import { loginUser, socialLoginUser } from '../../services/auth';
-import { loginUser, socialLoginUser } from '../../features/auth/services/authService';
+import { loginUser, socialLoginUser } from '../../features/auth/services/loginService';
 import { AuthContext } from '../../context/AuthContext'; // 로그인 상태 사용
 
 export default function TicketMonLogin() {
@@ -17,7 +16,6 @@ export default function TicketMonLogin() {
         const userData = await loginUser({ username, password });
 
         if (userData) {
-            console.log(userData);
             login(userData);
             navigate('/');
         } else {
@@ -26,7 +24,6 @@ export default function TicketMonLogin() {
     };
 
     const handleSocialLogin = (provider) => {
-        console.log(`Login with ${provider}`);
         socialLoginUser(provider);
     };
 
@@ -51,8 +48,9 @@ export default function TicketMonLogin() {
                         <h1 className="text-3xl font-bold text-white mb-8">다시 오신 것을 환영합니다</h1>
                     </div>
 
+                    {/* 로그인 유저 확인용 */}
                     {user && (
-                        <div className="card">
+                        <div className="card bg-white">
                             {user.username}님 환영합니다.
                             <button onClick={logout} style={{ marginLeft: '10px' }}>
                                 로그아웃

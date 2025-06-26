@@ -1,5 +1,7 @@
 import { createContext, useState, useEffect } from 'react';
 
+const API_BASE_URL = import.meta.env.VITE_APP_API_URL;
+
 // 1. Context 생성
 export const AuthContext = createContext();
 
@@ -12,7 +14,7 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const res = await fetch('http://localhost:8080/api/auth/me', {
+                const res = await fetch(`${API_BASE_URL}/auth/me`, {
                     credentials: 'include', // 🔥 중요! 쿠키 포함
                 });
                 if (res.ok) {
@@ -36,8 +38,9 @@ export const AuthProvider = ({ children }) => {
 
     // 로그아웃 요청 및 상태 초기화
     const logout = async () => {
+        const logoutUrl = `${import.meta.env.VITE_APP_API_URL.replace('/api', '')}/auth/logout`;
         try {
-            await fetch('http://localhost:8080/auth/logout', {
+            await fetch(logoutUrl, {
                 method: 'POST',
                 credentials: 'include',
             });

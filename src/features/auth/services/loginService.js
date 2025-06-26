@@ -69,7 +69,7 @@ export const registerUser = async (data) => {
 export const fetchCurrentUser = async () => {
     try {
         const response = await apiClient.get('/auth/me'); // apiClient 사용
-        return response.data.data; // SuccessResponse의 data 필드에서 사용자 정보 추출
+        return response.data; // SuccessResponse의 data 필드에서 사용자 정보 추출
     } catch (error) {
         console.error('Failed to fetch current user', error);
         return null;
@@ -82,7 +82,8 @@ export const fetchCurrentUser = async () => {
  */
 export const logoutUser = async () => {
     try {
-        await apiClient.post('/auth/logout'); // apiClient 사용
+        const response = await apiClient.post(`/auth/logout`); // apiClient 사용
+        console.log(response.status);
     } catch (error) {
         console.warn('Logout request failed', error); // 로그아웃 실패는 경고로 처리 (앱 동작에 치명적이지 않을 수 있음)
     }
