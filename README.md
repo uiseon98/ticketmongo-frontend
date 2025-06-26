@@ -17,7 +17,9 @@
 ```
 
 **2. 의존성 설치:**
+- 프로젝트에 필요한 모든 의존성을 설치합니다. (package.json 기반: react-router-dom, axios 등 포함)
 
+⚡️ 중요: 변경사항을 pull 받은 후에는 반드시 npm install을 다시 실행해야 합니다!
 ```bash
     npm install
     # 프로젝트에 필요한 모든 의존성을 설치합니다. (package.json 기반)
@@ -29,7 +31,46 @@
 ```
 (이 명령은 package.json에 정의된 모든 패키지를 설치합니다.)
 
-**3. 환경 변수 설정:**
+**3. Tailwind CSS (v3) 설치 및 설정:**
+- 안정적인 개발 환경을 위해 Tailwind CSS v3를 설치하고 설정합니다. (이 과정은 이미 완료되어 파일에 반영되었습니다.)
+    - Tailwind CSS (v3) 및 필수 라이브러리 설치:
+        ```Bash
+            npm install -D tailwindcss@^3.4.4 postcss autoprefixer
+        ```
+    - `postcss.config.js`** 파일 생성 및 설정:** 프로젝트 루트에 `postcss.config.js` 파일을 생성하고 아래 내용을 추가합니다. 
+        ```JavaScript
+            // postcss.config.js
+            export default {
+                plugins: {
+                    tailwindcss: {},
+                    autoprefixer: {}
+                }
+            };
+        ```
+    - `tailwind.config.js` **파일 생성 및 설정:+** 프로젝트 루트에 `tailwind.config.js` 파일을 생성하고 아래 내용을 추가합니다. `content` 경로를 정확히 설정하는 것이 중요합니다.
+        ```JavaScript
+            // tailwind.config.js
+            /** @type {import('tailwindcss').Config} */
+            export default {
+                content: [
+                    './index.html',
+                    './src/**/*.{js,jsx,ts,tsx}' // src 폴더 내의 모든 관련 파일을 스캔하도록 설정
+                ],
+                theme: {
+                    extend: {}
+                },
+                plugins: []
+            };
+        ```
+    - **메인 CSS 파일 (`src/index.css`)에 Tailwind 지시어 추가:** `src/index.css` 파일의 모든 기존 내용을 지우고 아래 내용만 남겨둡니다.
+        ```CSS
+            /* src/index.css */
+            @tailwind base;
+            @tailwind components;
+            @tailwind utilities;
+        ```
+
+**4. 환경 변수 설정:**
 - 프로젝트 루트 디렉토리에 .env 파일을 생성합니다.
 - 다음 내용을 .env 파일에 추가합니다. VITE_ 접두사를 사용하는 것이 중요합니다.
 
@@ -49,7 +90,7 @@
 ```
 - .env 파일은 .gitignore에 의해 Git 추적에서 제외되므로 절대 커밋하지 않습니다.
 
-**4. 백엔드 앱 및 인프라 실행 (백엔드 레포지토리 AIBE1_FinalProject_Team03_BE 필요)**
+**5. 백엔드 앱 및 인프라 실행 (백엔드 레포지토리 AIBE1_FinalProject_Team03_BE 필요)**
 - **백엔드 앱 (Spring Boot) 실행**: IntelliJ IDEA에서 백엔드 레포지토리(AIBE1_FinalProject_Team03_BE)를 열고 TicketmonGoApplication.java를 실행합니다. (http://localhost:8080에서 시작)
 - **Docker 컨테이너 (Redis, LocalStack, Nginx) 실행**: AIBE1_FinalProject_Team03_BE 레포지토리 루트에서 다음 명령어를 실행합니다.
     ```bash
@@ -57,7 +98,7 @@
     ```
     (Redis, LocalStack, Nginx 컨테이너가 실행됩니다. Nginx는 http://localhost를 통해 프론트엔드 앱을 서빙합니다.)
 
-**5. 프론트엔드 로컬 개발 서버 실행:**
+**6. 프론트엔드 로컬 개발 서버 실행:**
 - 이 레포지토리(AIBE1_FinalProject_Team03_FE)의 루트 디렉토리에서 다음 명령어를 실행합니다.
 ```bash
     npm run dev
@@ -89,9 +130,9 @@
 - 클라이언트 측 HTTP 통신: axios (API 연동 편의성 증대)
 - 클라이언트 측 라우팅: react-router-dom (SPA 페이지 전환 관리)
 - 코드 품질 도구: ESLint
-- 스타일링: CSS Modules (또는 일반 CSS)
+- 스타일링: Tailwind CSS (v3), CSS Modules (또는 일반 CSS)
 
-## 📦 3. 프로젝트 구조 (Vite + React 기본)
+## 📦 3. 프로젝트 구조 (Vite + React 기본) (수정중)
 ```
 .
 ├── public/                 # 빌드 시 그대로 복사될 정적 파일 (파비콘, robots.txt 등)
