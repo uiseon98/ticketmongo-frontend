@@ -44,25 +44,6 @@ export const socialLoginUser = (provider) => {
 };
 
 /**
- * 사용자 회원가입을 처리합니다.
- * @param {Object} data - 사용자 회원가입 정보
- * @returns {Promise<Object|null>} 회원가입 성공 시 응답 데이터, 실패 시 에러 응답 데이터 또는 null
- */
-export const registerUser = async (data) => {
-    try {
-        // apiClient를 사용하여 POST 요청 보냄
-        // multipart/form-data 또는 application/json 형식에 따라 data 객체를 조정해야 합니다.
-        // 현재는 JSON 형식으로 전송하는 것으로 가정합니다.
-        const response = await apiClient.post('/auth/register', data);
-        return response.data; // 백엔드의 응답 형태에 따라 .data.data 또는 다른 필드를 반환할 수 있습니다.
-    } catch (error) {
-        console.error('Register failed', error);
-        // 에러 응답 데이터를 반환하여 UI에 특정 오류 메시지를 표시할 수 있도록 합니다.
-        return error.response?.data || null;
-    }
-};
-
-/**
  * 현재 로그인된 사용자 정보를 가져옵니다.
  * @returns {Promise<Object|null>} 현재 사용자 정보 객체, 실패 시 null
  */

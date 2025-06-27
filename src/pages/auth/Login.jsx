@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { loginUser, socialLoginUser } from '../../features/auth/services/loginService';
 import { AuthContext } from '../../context/AuthContext'; // 로그인 상태 사용
 
-export default function TicketMonLogin() {
+export default function Login() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
@@ -164,7 +164,7 @@ export default function TicketMonLogin() {
                         <p className="text-gray-400 text-sm">
                             계정이 없으신가요?{' '}
                             <button
-                                onClick={() => console.log('Navigate to sign up')}
+                                onClick={() => navigate('/auth/register')}
                                 className="text-blue-400 hover:text-blue-300 underline transition-colors"
                             >
                                 회원가입

@@ -1,0 +1,56 @@
+import { Mail, User, Lock, Phone, MapPin, UserPlus } from 'lucide-react';
+
+// 회원가입 입력 항목 설정
+export const registerInputType = [
+    {
+        name: 'email',
+        type: 'email',
+        icon: Mail,
+        placeholder: '이메일',
+    },
+    {
+        name: 'username',
+        type: 'text',
+        icon: User,
+        placeholder: '아이디',
+    },
+    {
+        name: 'password',
+        type: 'password',
+        icon: Lock,
+        placeholder: '비밀번호',
+        toggle: true,
+    },
+    {
+        name: 'confirmPassword',
+        type: 'password',
+        icon: Lock,
+        placeholder: '비밀번호 확인',
+        placeholderFull: '비밀번호를 다시 입력하세요',
+        toggle: true,
+    },
+    {
+        name: 'name',
+        type: 'text',
+        icon: User,
+        placeholder: '이름',
+    },
+    {
+        name: 'nickname',
+        type: 'text',
+        icon: UserPlus,
+        placeholder: '닉네임',
+    },
+    {
+        name: 'phone',
+        type: 'tel',
+        icon: Phone,
+        placeholder: '전화번호',
+    },
+    {
+        name: 'address',
+        type: 'text',
+        icon: MapPin,
+        placeholder: '주소',
+    },
+];
