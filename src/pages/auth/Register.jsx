@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, Upload, X } from 'lucide-react';
-import { validateField, validateAllFields, formatPhoneNumber, registerUser } from '../../features/auth/services/registerService';
-import SignupInput from '../../features/auth/components/RegisterForm';
+import { registerUser } from '../../features/auth/services/registerService';
+import { AccountForm } from '../../features/auth/services/AccountForm';
+import { SignupInput } from '../../features/auth/components/RegisterForm';
 import { registerInputType } from '../../features/auth/types/registerInputType';
 
 export default function Register() {
@@ -37,7 +38,7 @@ export default function Register() {
         let value = e.target.value;
 
         if (field === 'phone') {
-            value = formatPhoneNumber(value);
+            value = AccountForm.formatPhoneNumber(value);
         }
 
         const updatedData = {
@@ -47,7 +48,7 @@ export default function Register() {
 
         setFormData(updatedData);
 
-        const error = validateField(field, value, updatedData);
+        const error = AccountForm.validateField(field, value, updatedData);
         setErrors((prev) => ({
             ...prev,
             [field]: error,
@@ -76,7 +77,7 @@ export default function Register() {
     const handleRegister = async () => {
         setErrorMessage('');
 
-        const newErrors = validateAllFields(formData);
+        const newErrors = AccountForm.validateAllFields(formData);
         setErrors(newErrors);
 
         if (Object.keys(newErrors).length > 0) {
@@ -111,17 +112,6 @@ export default function Register() {
 
     return (
         <div className="min-h-screen bg-gray-900 flex flex-col">
-            {/* Header */}
-            <header className="flex justify-between items-center p-4 bg-gray-800 border-b border-gray-700">
-                <div className="flex items-center space-x-2">
-                    <div className="w-6 h-6 bg-blue-500 rounded"></div>
-                    <span className="text-white text-lg font-semibold">TicketMon</span>
-                </div>
-                <button className="text-gray-300 hover:text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-                    홈
-                </button>
-            </header>
-
             {/* Error Message Banner */}
             {errorMessage && (
                 <div ref={errorRef} className="bg-red-600 border-l-4 border-red-700 text-white p-4 relative">
@@ -234,7 +224,7 @@ export default function Register() {
                         <p className="text-gray-400 text-sm">
                             이미 계정이 있으신가요?{' '}
                             <button
-                                onClick={() => navigate('/auth/login')}
+                                onClick={() => navigate('/login')}
                                 className="text-blue-400 hover:text-blue-300 underline transition-colors"
                             >
                                 로그인

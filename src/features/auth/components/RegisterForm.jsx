@@ -1,6 +1,6 @@
 import { Eye, EyeOff } from 'lucide-react';
 
-export default function SignupInput({
+export function SignupInput({
     icon: Icon,
     type = 'text',
     name,

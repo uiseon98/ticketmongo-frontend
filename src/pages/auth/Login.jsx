@@ -29,17 +29,6 @@ export default function Login() {
 
     return (
         <div className="min-h-screen bg-gray-900 flex flex-col">
-            {/* Header */}
-            <header className="flex justify-between items-center p-4 bg-gray-800 border-b border-gray-700">
-                <div className="flex items-center space-x-2">
-                    <div className="w-6 h-6 bg-blue-500 rounded"></div>
-                    <span className="text-white text-lg font-semibold">티켓몬GO</span>
-                </div>
-                <button className="text-gray-300 hover:text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-                    홈
-                </button>
-            </header>
-
             {/* Main Content */}
             <div className="flex-1 flex items-center justify-center px-4 py-12">
                 <div className="w-full max-w-md space-y-8">
@@ -164,7 +153,7 @@ export default function Login() {
                         <p className="text-gray-400 text-sm">
                             계정이 없으신가요?{' '}
                             <button
-                                onClick={() => navigate('/auth/register')}
+                                onClick={() => navigate('/register')}
                                 className="text-blue-400 hover:text-blue-300 underline transition-colors"
                             >
                                 회원가입

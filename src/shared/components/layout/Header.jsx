@@ -44,7 +44,7 @@ export default function Header() {
         extraLinks.push({ to: '/admin', label: 'Admin Dashboard' });
       }
       // 프로필
-      extraLinks.push({ to: '/profile', label: 'Profile' });
+      extraLinks.push({ to: '/mypage/profile', label: 'Profile' });
     }
   }
 

@@ -17,11 +17,7 @@ import HomePage from './pages/home/Home.jsx';
 import SellerStatusPage from './pages/admin/SellerStatus.jsx'; // 판매자 상태 페이지
 import LoginPage from './pages/auth/Login.jsx';
 import RegisterPage from './pages/auth/Register.jsx';
-
-// 다른 팀원들이 구현할 예정인 페이지 컴포넌트들은 임포트를 주석 처리합니다.
-// 구현이 완료되면 주석을 해제하고 해당 파일을 src/pages 폴더에 생성해주세요.
-// import MyPage from './pages/MyPage.jsx';
-// import RegisterPage from './pages/RegisterPage.jsx';
+import ProfilePage from './pages/Mypage/Profile.jsx';
 
 // 콘서트 페이지
 import ConcertListPage from './pages/concert/ConcertListPage.jsx';
@@ -79,6 +75,12 @@ export default function App() {
             ) : (
               <Navigate to="/login" replace />
             )
+          }
+        />
+        <Route
+          path="/mypage/profile"
+          element={
+            user ? <ProfilePage /> : <Navigate to="/login" replace />
           }
         />
       </Route>
