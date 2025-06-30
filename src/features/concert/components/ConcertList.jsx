@@ -267,8 +267,7 @@ const ConcertList = ({
           border: '1px solid #e5e7eb',
           borderRadius: '8px',
           padding: '16px',
-          backgroundColor: '#f9fafb',
-          animation: 'pulse 2s infinite'
+          backgroundColor: '#f9fafb'
         }}
       >
         {/* 포스터 이미지 영역 */}
@@ -469,7 +468,7 @@ const ConcertList = ({
       )}
 
       {/* 개발자용 디버그 정보 (개발 환경에서만 표시) */}
-      {process.env.NODE_ENV === 'development' && (
+      {import.meta.env.DEV && (
         <div style={{
           marginTop: '16px',
           padding: '8px',

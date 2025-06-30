@@ -529,7 +529,7 @@ const FilterPanel = ({
       )}
 
       {/* 개발자용 디버그 정보 */}
-      {process.env.NODE_ENV === 'development' && (
+      {import.meta.env.DEV && (
         <div style={{
           marginTop: '8px',
           padding: '4px',

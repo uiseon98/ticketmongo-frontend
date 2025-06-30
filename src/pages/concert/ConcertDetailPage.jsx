@@ -17,7 +17,41 @@ function ConcertDetailPage() {
   const { concertId } = useParams();
   const navigate = useNavigate();
 
+  // 콘서트 상태별 설정 (함수 상단으로 이동)
+  const statusConfig = {
+    SOLD_OUT: {
+      buttonText: '매진',
+      statusText: '매진',
+      color: 'text-red-600'
+    },
+    CANCELLED: {
+      buttonText: '취소됨',
+      statusText: '취소됨',
+      color: 'text-gray-600'
+    },
+    SCHEDULED: {
+      buttonText: '예매 대기',
+      statusText: '예매 대기',
+      color: 'text-yellow-600'
+    },
+    ON_SALE: {
+      buttonText: '예매하기',
+      statusText: '예매 중',
+      color: 'text-green-600'
+    },
+    COMPLETED: {
+      buttonText: '공연 완료',
+      statusText: '공연 완료',
+      color: 'text-gray-600'
+    }
+  };
+
   // 콘서트 상세 정보 hook
+  const parsedConcertId = parseInt(concertId);
+  if (isNaN(parsedConcertId)) {
+    return <div className="text-center text-red-500 py-10">잘못된 콘서트 ID 입니다.</div>;
+  }
+
   const {
     concert,
     aiSummary,
@@ -25,7 +59,7 @@ function ConcertDetailPage() {
     error: concertError,
     fetchAISummary,
     aiSummaryLoading
-  } = useConcertDetail(parseInt(concertId));
+  } = useConcertDetail(parsedConcertId);
 
   // 리뷰 목록 hook
   const {
@@ -39,7 +73,7 @@ function ConcertDetailPage() {
     changeSorting: changeReviewsSorting,
     sortBy: reviewsSortBy,
     sortDir: reviewsSortDir
-  } = useReviews(parseInt(concertId));
+  } = useReviews(parsedConcertId);
 
   // 기대평 목록 hook
   const {
@@ -50,7 +84,7 @@ function ConcertDetailPage() {
     totalPages: expectationsTotalPages,
     totalElements: expectationsTotal,
     goToPage: goToExpectationsPage
-  } = useExpectations(parseInt(concertId));
+  } = useExpectations(parsedConcertId);
 
   // 예매하기 버튼 클릭 핸들러
   const handleReserveClick = () => {
@@ -87,6 +121,9 @@ function ConcertDetailPage() {
       </div>
     );
   }
+
+  // 현재 콘서트 상태 확인
+  const currentStatus = statusConfig[concert.status] || statusConfig.ON_SALE;
 
   return (
     <div className="max-w-6xl mx-auto p-6 overflow-x-hidden">
@@ -179,29 +216,19 @@ function ConcertDetailPage() {
               </span>
             </div>
           ))}
+
           <button
             onClick={handleReserveClick}
-            className="w-full mt-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition hover:scale-[1.02]"
-            disabled={concert.status === 'SOLD_OUT' || concert.status === 'CANCELLED'}
+            className="w-full mt-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition hover:scale-[1.02] disabled:bg-gray-400 disabled:cursor-not-allowed"
+            disabled={concert.status === 'SOLD_OUT' || concert.status === 'CANCELLED' || concert.status === 'COMPLETED'}
           >
-            {concert.status === 'SOLD_OUT' ? '매진' :
-             concert.status === 'CANCELLED' ? '취소됨' :
-             concert.status === 'SCHEDULED' ? '예매 대기' : '예매하기'}
+            {currentStatus.buttonText}
           </button>
 
           {/* 콘서트 상태 표시 */}
           <div className="text-center text-sm text-gray-600 mt-2">
-            현재 상태: <span className={`font-semibold ${
-              concert.status === 'ON_SALE' ? 'text-green-600' :
-              concert.status === 'SOLD_OUT' ? 'text-red-600' :
-              concert.status === 'CANCELLED' ? 'text-gray-600' :
-              'text-yellow-600'
-            }`}>
-              {concert.status === 'SCHEDULED' ? '예매 대기' :
-               concert.status === 'ON_SALE' ? '예매 중' :
-               concert.status === 'SOLD_OUT' ? '매진' :
-               concert.status === 'CANCELLED' ? '취소됨' :
-               concert.status === 'COMPLETED' ? '공연 완료' : concert.status}
+            현재 상태: <span className={`font-semibold ${currentStatus.color}`}>
+              {currentStatus.statusText}
             </span>
           </div>
         </div>

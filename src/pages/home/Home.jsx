@@ -24,7 +24,7 @@ function Home() {
         // 응답 데이터 구조 확인 및 처리
         let concertData = [];
 
-        if (response && response.data) {
+         if (response?.data) {
           // SuccessResponse 구조: { success: true, message: "...", data: {...} }
           if (response.data.content) {
             // 페이지네이션 구조: { content: [...], totalElements: ..., ... }

@@ -252,6 +252,12 @@ const ConcertCard = ({
       className={`concert-card ${className}`}
       style={cardStyles}
       onClick={handleCardClick}
+      onKeyDown={(e) => {
+        if (onClick && (e.key === 'Enter' || e.key === ' ')) {
+          e.preventDefault();
+          handleCardClick();
+        }
+      }}
       // 접근성: 키보드 탐색 지원
       tabIndex={onClick ? 0 : -1}
       // 접근성: 스크린 리더를 위한 역할 정의
@@ -354,7 +360,7 @@ const ConcertCard = ({
       </div>
 
       {/* 개발자용 디버그 정보 (개발 환경에서만 표시) */}
-      {process.env.NODE_ENV === 'development' && (
+      {import.meta.env.DEV && (
         <div style={{
           marginTop: '8px',
           padding: '4px',

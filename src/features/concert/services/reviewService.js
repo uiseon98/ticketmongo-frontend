@@ -137,52 +137,58 @@ export const reviewService = {
    * @param {number} reviewData.userId - 작성자 ID (필수, 1 이상)
    * @returns {Promise<import('../types/concert.js').ApiResponse<import('../types/review.js').Review>>}
    */
+
+     /**
+      * 리뷰 데이터 유효성 검증
+     * @private
+      */
+     _validateReviewData(reviewData) {
+       // 제목 검증
+       if (!reviewData.title || reviewData.title.trim().length === 0) {
+         throw new Error('리뷰 제목은 필수입니다.');
+       }
+       if (reviewData.title.length > 100) {
+         throw new Error('리뷰 제목은 100자 이하여야 합니다.');
+       }
+
+       // 내용 검증
+       if (!reviewData.description || reviewData.description.trim().length === 0) {
+         throw new Error('리뷰 내용은 필수입니다.');
+       }
+       if (reviewData.description.length > 1000) {
+         throw new Error('리뷰 내용은 1000자 이하여야 합니다.');
+       }
+
+       // 평점 검증
+       if (!reviewData.rating || reviewData.rating < 1 || reviewData.rating > 5) {
+         throw new Error('평점은 1 이상 5 이하여야 합니다.');
+      }
+       if (!Number.isInteger(reviewData.rating)) {
+         throw new Error('평점은 정수여야 합니다.');
+       }
+
+       // 닉네임 검증
+      if (!reviewData.userNickname || reviewData.userNickname.trim().length === 0) {
+         throw new Error('작성자 닉네임은 필수입니다.');
+       }
+       if (reviewData.userNickname.length > 50) {
+         throw new Error('작성자 닉네임은 50자 이하여야 합니다.');
+       }
+
+       // 사용자 ID 검증
+       if (!reviewData.userId || reviewData.userId < 1) {
+         throw new Error('작성자 ID는 1 이상이어야 합니다.');
+       }
+     },
+
   async createReview(concertId, reviewData) {
     try {
       // concertId 유효성 검증
       if (!concertId || concertId < 1) {
         throw new Error('콘서트 ID는 1 이상의 양수여야 합니다.');
       }
-
-      // 필수 필드 검증 - 백엔드 ReviewDTO 검증과 동일한 조건 적용
-
-      // 제목 검증
-      if (!reviewData.title || reviewData.title.trim().length === 0) {
-        throw new Error('리뷰 제목은 필수입니다.');
-      }
-      if (reviewData.title.length > 100) {
-        throw new Error('리뷰 제목은 100자 이하여야 합니다.');
-      }
-
-      // 내용 검증
-      if (!reviewData.description || reviewData.description.trim().length === 0) {
-        throw new Error('리뷰 내용은 필수입니다.');
-      }
-      if (reviewData.description.length > 1000) {
-        throw new Error('리뷰 내용은 1000자 이하여야 합니다.');
-      }
-
-      // 평점 검증
-      if (!reviewData.rating || reviewData.rating < 1 || reviewData.rating > 5) {
-        throw new Error('평점은 1 이상 5 이하여야 합니다.');
-      }
-      // 평점이 정수인지 확인
-      if (!Number.isInteger(reviewData.rating)) {
-        throw new Error('평점은 정수여야 합니다.');
-      }
-
-      // 닉네임 검증
-      if (!reviewData.userNickname || reviewData.userNickname.trim().length === 0) {
-        throw new Error('작성자 닉네임은 필수입니다.');
-      }
-      if (reviewData.userNickname.length > 50) {
-        throw new Error('작성자 닉네임은 50자 이하여야 합니다.');
-      }
-
-      // 사용자 ID 검증
-      if (!reviewData.userId || reviewData.userId < 1) {
-        throw new Error('작성자 ID는 1 이상이어야 합니다.');
-      }
+      // 리뷰 데이터 유효성 검증
+       this._validateReviewData(reviewData);
 
       // 요청 바디 구성 - 백엔드 ReviewDTO 형식에 맞춤
       const payload = {
