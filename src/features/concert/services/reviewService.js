@@ -189,6 +189,7 @@ export const reviewService = {
       }
       // 리뷰 데이터 유효성 검증
        this._validateReviewData(reviewData);
+
       // 요청 바디 구성 - 백엔드 ReviewDTO 형식에 맞춤
       const payload = {
         title: reviewData.title.trim(),                   // 앞뒤 공백 제거
