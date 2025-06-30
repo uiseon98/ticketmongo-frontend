@@ -19,6 +19,32 @@ import apiClient from '../../../shared/utils/apiClient.js';
  * - PUT    /api/concerts/{concertId}/expectations/{expectationId}
  * - DELETE /api/concerts/{concertId}/expectations/{expectationId}
  */
+
+// 기대평 데이터 검증 헬퍼 함수 (모듈 레벨로 이동)
+const validateExpectationData = (expectationData) => {
+  const trimmedComment = expectationData.comment?.trim() || '';
+  const trimmedNickname = expectationData.userNickname?.trim() || '';
+
+  if (trimmedComment.length === 0) {
+    throw new Error('기대평 내용은 필수입니다.');
+  }
+  if (trimmedComment.length > 500) {
+    throw new Error('기대평 내용은 500자 이하여야 합니다.');
+  }
+  if (!expectationData.expectationRating || expectationData.expectationRating < 1 || expectationData.expectationRating > 5) {
+    throw new Error('기대 점수는 1 이상 5 이하여야 합니다.');
+  }
+  if (trimmedNickname.length === 0) {
+    throw new Error('작성자 닉네임은 필수입니다.');
+  }
+  if (trimmedNickname.length > 50) {
+    throw new Error('작성자 닉네임은 50자 이하여야 합니다.');
+  }
+  if (!expectationData.userId || expectationData.userId < 1) {
+    throw new Error('작성자 ID는 1 이상이어야 합니다.');
+  }
+};
+
 export const expectationService = {
 
   /**
@@ -90,31 +116,6 @@ export const expectationService = {
         throw new Error('콘서트 ID는 1 이상의 양수여야 합니다.');
       }
 
-    // 기대평 데이터 검증 헬퍼 함수
-    const validateExpectationData = (expectationData) => {
-      const trimmedComment = expectationData.comment?.trim() || '';
-      const trimmedNickname = expectationData.userNickname?.trim() || '';
-
-      if (trimmedComment.length === 0) {
-        throw new Error('기대평 내용은 필수입니다.');
-      }
-      if (trimmedComment.length > 500) {
-        throw new Error('기대평 내용은 500자 이하여야 합니다.');
-      }
-      if (!expectationData.expectationRating || expectationData.expectationRating < 1 || expectationData.expectationRating > 5) {
-        throw new Error('기대 점수는 1 이상 5 이하여야 합니다.');
-      }
-      if (trimmedNickname.length === 0) {
-        throw new Error('작성자 닉네임은 필수입니다.');
-      }
-      if (trimmedNickname.length > 50) {
-        throw new Error('작성자 닉네임은 50자 이하여야 합니다.');
-      }
-      if (!expectationData.userId || expectationData.userId < 1) {
-        throw new Error('작성자 ID는 1 이상이어야 합니다.');
-      }
-    };
-
       // 입력 데이터 검증
       validateExpectationData(expectationData);
 
@@ -156,7 +157,9 @@ export const expectationService = {
       }
       if (!expectationId || expectationId < 1) {
         throw new Error('기대평 ID는 1 이상의 양수여야 합니다.');
-      }      // 수정할 데이터 유효성 검증 (생성 시와 동일한 규칙)
+      }
+
+      // 수정할 데이터 유효성 검증 (생성 시와 동일한 규칙)
       validateExpectationData(expectationData);
 
       // 수정 요청 바디 구성

@@ -92,7 +92,7 @@ export const ExpectationValidation = {
  * 기대평 기본값
  */
 export const ExpectationDefaults = {
-  expectationRating: 5,
+  expectationRating: 3,
   pageSize: 10
 };
 
