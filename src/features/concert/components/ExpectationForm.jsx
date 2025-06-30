@@ -1,4 +1,4 @@
-// src/features/concert/components/ReviewForm.jsx
+// src/features/concert/components/ExpectationForm.jsx
 
 // ===== IMPORT 섹션 =====
 import React, { useState, useCallback, useEffect } from 'react';
@@ -6,43 +6,47 @@ import React, { useState, useCallback, useEffect } from 'react';
 // useCallback: 이벤트 핸들러 최적화
 // useEffect: 초기값 설정 및 수정 모드 처리
 
-// 리뷰 관련 타입과 상수들을 import
-import { RatingLabels, RatingEmojis, ReviewValidation } from '../types/review.js';
+// 기대평 관련 타입과 상수들을 import
+import { ExpectationRatingLabels, ExpectationRatingEmojis, ExpectationValidation } from '../types/expectation.js';
 
 /**
- * ===== ReviewForm 컴포넌트 =====
+ * ===== ExpectationForm 컴포넌트 =====
  *
  * 🎯 주요 역할:
- * 1. **리뷰 작성**: 새로운 콘서트 후기 작성 폼
- * 2. **리뷰 수정**: 기존 리뷰 내용 수정 폼
+ * 1. **기대평 작성**: 새로운 콘서트 관람 전 기대평 작성 폼
+ * 2. **기대평 수정**: 기존 기대평 내용 수정 폼
  * 3. **유효성 검증**: 실시간 입력 검증 및 에러 표시
- * 4. **별점 입력**: 인터랙티브한 별점 선택 UI
- * 5. **글자 수 카운터**: 제목/내용 글자 수 실시간 표시
+ * 4. **기대점수 입력**: 인터랙티브한 기대점수 선택 UI (1-5점)
+ * 5. **글자 수 카운터**: 기대평 내용 글자 수 실시간 표시
  *
  * 🔄 Hook 연동:
- * - useReviews.createReview (새 리뷰 작성)
- * - useReviews.updateReview (기존 리뷰 수정)
- * - useReviews.actionLoading (작업 중 상태)
+ * - useExpectations.createExpectation (새 기대평 작성)
+ * - useExpectations.updateExpectation (기존 기대평 수정)
+ * - useExpectations.actionLoading (작업 중 상태)
+ *
+ * 💡 리뷰 폼과의 차이점:
+ * - 기대평: 관람 **전** 작성, 기대점수(1-5), 간단한 코멘트 위주
+ * - 리뷰: 관람 **후** 작성, 평점(1-5), 제목 + 상세 내용
  *
  * 💡 사용 방법:
- * // 새 리뷰 작성
- * <ReviewForm
+ * // 새 기대평 작성
+ * <ExpectationForm
  *   mode="create"
- *   onSubmit={createReview}
+ *   onSubmit={createExpectation}
  *   loading={actionLoading}
  * />
  *
- * // 기존 리뷰 수정
- * <ReviewForm
+ * // 기존 기대평 수정
+ * <ExpectationForm
  *   mode="edit"
- *   initialData={existingReview}
- *   onSubmit={updateReview}
+ *   initialData={existingExpectation}
+ *   onSubmit={updateExpectation}
  * />
  */
-const ReviewForm = ({
+const ExpectationForm = ({
   // ===== 모드 props =====
   mode = 'create',             // 'create' | 'edit' - 작성/수정 모드
-  initialData = null,          // 수정 모드일 때 기존 리뷰 데이터
+  initialData = null,          // 수정 모드일 때 기존 기대평 데이터
 
   // ===== 필수 데이터 props =====
   concertId,                   // 콘서트 ID (필수)
@@ -50,11 +54,11 @@ const ReviewForm = ({
   userNickname,                // 작성자 닉네임 (필수)
 
   // ===== 액션 props =====
-  onSubmit,                    // 폼 제출 핸들러 (useReviews.createReview or updateReview)
+  onSubmit,                    // 폼 제출 핸들러 (useExpectations.createExpectation or updateExpectation)
   onCancel,                    // 취소 버튼 핸들러 (선택사항)
 
   // ===== 상태 props =====
-  loading = false,             // 제출 중 로딩 상태 (useReviews.actionLoading)
+  loading = false,             // 제출 중 로딩 상태 (useExpectations.actionLoading)
   disabled = false,            // 폼 비활성화
 
   // ===== UI 제어 props =====
@@ -68,12 +72,11 @@ const ReviewForm = ({
   // ===== 상태 관리 =====
 
   /**
-   * 폼 데이터 상태 (ReviewFormData 형식)
+   * 폼 데이터 상태 (ExpectationFormData 형식)
    */
   const [formData, setFormData] = useState({
-    title: initialData?.title || '',
-    description: initialData?.description || '',
-    rating: initialData?.rating || 5,
+    comment: initialData?.comment || '',
+    expectationRating: initialData?.expectationRating || 5,
     userNickname: initialData?.userNickname || userNickname || '',
     userId: initialData?.userId || userId || null
   });
@@ -82,9 +85,8 @@ const ReviewForm = ({
    * 유효성 검증 에러 상태
    */
   const [errors, setErrors] = useState({
-    title: '',
-    description: '',
-    rating: '',
+    comment: '',
+    expectationRating: '',
     userNickname: '',
     userId: ''
   });
@@ -93,14 +95,13 @@ const ReviewForm = ({
    * 폼 터치 상태 (사용자가 입력한 필드 추적)
    */
   const [touched, setTouched] = useState({
-    title: false,
-    description: false,
-    rating: false,
+    comment: false,
+    expectationRating: false,
     userNickname: false
   });
 
   /**
-   * 별점 호버 상태 (마우스 오버된 별점)
+   * 기대점수 호버 상태 (마우스 오버된 점수)
    */
   const [hoveredRating, setHoveredRating] = useState(0);
 
@@ -110,7 +111,7 @@ const ReviewForm = ({
    * 개별 필드 유효성 검증
    */
   const validateField = useCallback((fieldName, value) => {
-    const validation = ReviewValidation[fieldName];
+    const validation = ExpectationValidation[fieldName];
     if (!validation) return '';
 
     // 필수 필드 검증
@@ -127,14 +128,14 @@ const ReviewForm = ({
       return `${getFieldDisplayName(fieldName)}은(는) ${validation.minLength}자 이상이어야 합니다.`;
     }
 
-    // 숫자 범위 검증 (평점)
-    if (fieldName === 'rating') {
+    // 숫자 범위 검증 (기대점수)
+    if (fieldName === 'expectationRating') {
       const numValue = Number(value);
       if (validation.min && numValue < validation.min) {
-        return `평점은 ${validation.min}점 이상이어야 합니다.`;
+        return `기대점수는 ${validation.min}점 이상이어야 합니다.`;
       }
       if (validation.max && numValue > validation.max) {
-        return `평점은 ${validation.max}점 이하여야 합니다.`;
+        return `기대점수는 ${validation.max}점 이하여야 합니다.`;
       }
     }
 
@@ -164,9 +165,8 @@ const ReviewForm = ({
    */
   const getFieldDisplayName = useCallback((fieldName) => {
     const displayNames = {
-      title: '리뷰 제목',
-      description: '리뷰 내용',
-      rating: '평점',
+      comment: '기대평 내용',
+      expectationRating: '기대점수',
       userNickname: '닉네임',
       userId: '사용자 ID'
     };
@@ -206,36 +206,36 @@ const ReviewForm = ({
   }, [touched, validateField]);
 
   /**
-   * 별점 클릭 핸들러
+   * 기대점수 클릭 핸들러
    */
   const handleRatingClick = useCallback((rating) => {
     setFormData(prev => ({
       ...prev,
-      rating
+      expectationRating: rating
     }));
 
     setTouched(prev => ({
       ...prev,
-      rating: true
+      expectationRating: true
     }));
 
-    // 별점 유효성 검증
-    const error = validateField('rating', rating);
+    // 기대점수 유효성 검증
+    const error = validateField('expectationRating', rating);
     setErrors(prev => ({
       ...prev,
-      rating: error
+      expectationRating: error
     }));
   }, [validateField]);
 
   /**
-   * 별점 호버 핸들러
+   * 기대점수 호버 핸들러
    */
   const handleRatingHover = useCallback((rating) => {
     setHoveredRating(rating);
   }, []);
 
   /**
-   * 별점 호버 해제 핸들러
+   * 기대점수 호버 해제 핸들러
    */
   const handleRatingLeave = useCallback(() => {
     setHoveredRating(0);
@@ -249,9 +249,8 @@ const ReviewForm = ({
 
     // 모든 필드를 터치 상태로 설정 (에러 표시용)
     setTouched({
-      title: true,
-      description: true,
-      rating: true,
+      comment: true,
+      expectationRating: true,
       userNickname: true
     });
 
@@ -269,7 +268,7 @@ const ReviewForm = ({
       // 부모 컴포넌트의 제출 함수 호출
       if (onSubmit && typeof onSubmit === 'function') {
         if (mode === 'edit' && initialData?.id) {
-          // 수정 모드: reviewId와 함께 전달
+          // 수정 모드: expectationId와 함께 전달
           await onSubmit(initialData.id, formData);
         } else {
           // 작성 모드: 폼 데이터만 전달
@@ -278,7 +277,7 @@ const ReviewForm = ({
       }
     } catch (error) {
       // 에러는 상위 컴포넌트에서 처리
-      console.error('리뷰 제출 실패:', error);
+      console.error('기대평 제출 실패:', error);
     }
   }, [formData, disabled, loading, validateForm, onSubmit, mode, initialData]);
 
@@ -299,9 +298,8 @@ const ReviewForm = ({
   useEffect(() => {
     if (initialData) {
       setFormData({
-        title: initialData.title || '',
-        description: initialData.description || '',
-        rating: initialData.rating || 5,
+        comment: initialData.comment || '',
+        expectationRating: initialData.expectationRating || 5,
         userNickname: initialData.userNickname || userNickname || '',
         userId: initialData.userId || userId || null
       });
@@ -345,11 +343,11 @@ const ReviewForm = ({
   }, []);
 
   /**
-   * 별점 표시용 별 렌더링
+   * 기대점수 표시용 별 렌더링
    */
-  const renderStars = useCallback(() => {
+  const renderExpectationStars = useCallback(() => {
     const stars = [];
-    const displayRating = hoveredRating || formData.rating;
+    const displayRating = hoveredRating || formData.expectationRating;
 
     for (let i = 1; i <= 5; i++) {
       stars.push(
@@ -377,7 +375,7 @@ const ReviewForm = ({
     }
 
     return stars;
-  }, [hoveredRating, formData.rating, compact, disabled, handleRatingClick, handleRatingHover, handleRatingLeave]);
+  }, [hoveredRating, formData.expectationRating, compact, disabled, handleRatingClick, handleRatingHover, handleRatingLeave]);
 
   // ===== 스타일 정의 =====
 
@@ -389,7 +387,7 @@ const ReviewForm = ({
     borderRadius: '8px',
     border: '1px solid #e5e7eb',
     padding: compact ? '16px' : '24px',
-    maxWidth: '600px',
+    maxWidth: '500px',  // 기대평 폼은 리뷰보다 작게
     margin: '0 auto'
   };
 
@@ -401,7 +399,11 @@ const ReviewForm = ({
     fontWeight: 'bold',
     color: '#1f2937',
     marginBottom: compact ? '16px' : '20px',
-    textAlign: 'center'
+    textAlign: 'center',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '8px'
   };
 
   /**
@@ -451,8 +453,8 @@ const ReviewForm = ({
    * 텍스트영역 스타일
    */
   const textareaStyles = {
-    ...getInputStyles('description'),
-    minHeight: compact ? '80px' : '120px',
+    ...getInputStyles('comment'),
+    minHeight: compact ? '60px' : '80px',  // 기대평은 리뷰보다 작게
     resize: 'vertical'
   };
 
@@ -476,22 +478,22 @@ const ReviewForm = ({
   });
 
   /**
-   * 별점 섹션 스타일
+   * 기대점수 섹션 스타일
    */
   const ratingContainerStyles = {
     textAlign: 'center',
     padding: compact ? '12px' : '16px',
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#fef9e7',  // 기대평 전용 노란색 배경
     borderRadius: '6px',
-    border: '1px solid #e2e8f0'
+    border: '1px solid #fde68a'
   };
 
   /**
-   * 별점 라벨 스타일
+   * 기대점수 라벨 스타일
    */
   const ratingLabelStyles = {
     fontSize: compact ? '14px' : '16px',
-    color: '#1e40af',
+    color: '#a16207',  // 기대평 전용 색상
     marginTop: '8px',
     fontWeight: '600'
   };
@@ -511,11 +513,11 @@ const ReviewForm = ({
   };
 
   /**
-   * 제출 버튼 스타일
+   * 제출 버튼 스타일 (기대평 전용 색상)
    */
   const submitButtonStyles = {
     ...buttonBaseStyles,
-    backgroundColor: loading ? '#9ca3af' : '#3b82f6',
+    backgroundColor: loading ? '#9ca3af' : '#f59e0b',  // 노란색 테마
     color: '#ffffff',
     marginRight: '12px'
   };
@@ -533,95 +535,88 @@ const ReviewForm = ({
   // ===== JSX 렌더링 =====
 
   return (
-    <div className={`review-form ${className}`} style={containerStyles}>
+    <div className={`expectation-form ${className}`} style={containerStyles}>
       {/* 폼 제목 */}
       <h2 style={titleStyles}>
-        {mode === 'edit' ? '📝 리뷰 수정' : '✍️ 리뷰 작성'}
+        {mode === 'edit' ? (
+          <>✨ 기대평 수정</>
+        ) : (
+          <>✍️ 기대평 작성</>
+        )}
+        <span style={{
+          fontSize: '11px',
+          backgroundColor: '#fef3c7',
+          color: '#92400e',
+          padding: '2px 6px',
+          borderRadius: '10px',
+          fontWeight: 'normal'
+        }}>
+          관람 전
+        </span>
       </h2>
 
       <div onSubmit={handleSubmit}>
-        {/* 제목 입력 */}
+        {/* 기대점수 입력 */}
         <div style={formGroupStyles}>
-          <label htmlFor="review-title" style={labelStyles}>
-            리뷰 제목 *
+          <label style={labelStyles}>
+            기대점수 *
           </label>
-          <input
-            id="review-title"
-            type="text"
-            value={formData.title}
-            onChange={handleInputChange('title')}
-            disabled={disabled}
-            placeholder="리뷰 제목을 입력해주세요"
-            style={getInputStyles('title')}
-            maxLength={ReviewValidation.title.maxLength}
-          />
-          {touched.title && errors.title && (
-            <div style={errorStyles}>{errors.title}</div>
-          )}
-          <div style={getCounterStyles('title', ReviewValidation.title.maxLength)}>
-            {getCharacterCount(formData.title, ReviewValidation.title.maxLength)}
-          </div>
-        </div>
-
-        {/* 별점 입력 */}
-        <div style={formGroupStyles}>
-          <label style={labelStyles}>평점 *</label>
           <div style={ratingContainerStyles}>
             <div style={{ marginBottom: '8px' }}>
-              {renderStars()}
+              {renderExpectationStars()}
             </div>
             <div style={ratingLabelStyles}>
-              {RatingEmojis[hoveredRating || formData.rating]} {' '}
-              {RatingLabels[hoveredRating || formData.rating]} ({hoveredRating || formData.rating}/5)
+              {ExpectationRatingEmojis[hoveredRating || formData.expectationRating]} {' '}
+              {ExpectationRatingLabels[hoveredRating || formData.expectationRating]} ({hoveredRating || formData.expectationRating}/5)
             </div>
           </div>
-          {touched.rating && errors.rating && (
-            <div style={errorStyles}>{errors.rating}</div>
+          {touched.expectationRating && errors.expectationRating && (
+            <div style={errorStyles}>{errors.expectationRating}</div>
           )}
         </div>
 
-        {/* 내용 입력 */}
+        {/* 기대평 내용 입력 */}
         <div style={formGroupStyles}>
-          <label htmlFor="review-description" style={labelStyles}>
-            리뷰 내용 *
+          <label htmlFor="expectation-comment" style={labelStyles}>
+            기대평 내용 *
           </label>
           <textarea
-            id="review-description"
-            value={formData.description}
-            onChange={handleInputChange('description')}
+            id="expectation-comment"
+            value={formData.comment}
+            onChange={handleInputChange('comment')}
             disabled={disabled}
-            placeholder="콘서트 관람 후기를 자세히 작성해주세요"
+            placeholder="콘서트에 대한 기대감을 자유롭게 표현해주세요"
             style={textareaStyles}
-            maxLength={ReviewValidation.description.maxLength}
+            maxLength={ExpectationValidation.comment.maxLength}
           />
-          {touched.description && errors.description && (
-            <div style={errorStyles}>{errors.description}</div>
+          {touched.comment && errors.comment && (
+            <div style={errorStyles}>{errors.comment}</div>
           )}
-          <div style={getCounterStyles('description', ReviewValidation.description.maxLength)}>
-            {getCharacterCount(formData.description, ReviewValidation.description.maxLength)}
+          <div style={getCounterStyles('comment', ExpectationValidation.comment.maxLength)}>
+            {getCharacterCount(formData.comment, ExpectationValidation.comment.maxLength)}
           </div>
         </div>
 
         {/* 닉네임 입력 (수정 가능) */}
         <div style={formGroupStyles}>
-          <label htmlFor="review-nickname" style={labelStyles}>
+          <label htmlFor="expectation-nickname" style={labelStyles}>
             닉네임 *
           </label>
           <input
-            id="review-nickname"
+            id="expectation-nickname"
             type="text"
             value={formData.userNickname}
             onChange={handleInputChange('userNickname')}
             disabled={disabled}
             placeholder="닉네임을 입력해주세요"
             style={getInputStyles('userNickname')}
-            maxLength={ReviewValidation.userNickname.maxLength}
+            maxLength={ExpectationValidation.userNickname.maxLength}
           />
           {touched.userNickname && errors.userNickname && (
             <div style={errorStyles}>{errors.userNickname}</div>
           )}
-          <div style={getCounterStyles('userNickname', ReviewValidation.userNickname.maxLength)}>
-            {getCharacterCount(formData.userNickname, ReviewValidation.userNickname.maxLength)}
+          <div style={getCounterStyles('userNickname', ExpectationValidation.userNickname.maxLength)}>
+            {getCharacterCount(formData.userNickname, ExpectationValidation.userNickname.maxLength)}
           </div>
         </div>
 
@@ -633,13 +628,14 @@ const ReviewForm = ({
         }}>
           <button
             type="submit"
+            onClick={handleSubmit}
             disabled={disabled || loading}
             style={submitButtonStyles}
           >
             {loading ? (
               <>⏳ {mode === 'edit' ? '수정 중...' : '작성 중...'}</>
             ) : (
-              <>{mode === 'edit' ? '✅ 수정 완료' : '📝 리뷰 작성'}</>
+              <>{mode === 'edit' ? '✅ 수정 완료' : '✨ 기대평 작성'}</>
             )}
           </button>
 
@@ -661,13 +657,13 @@ const ReviewForm = ({
         <div style={{
           marginTop: '16px',
           padding: '12px',
-          backgroundColor: '#eff6ff',
+          backgroundColor: '#fef9e7',
           borderRadius: '6px',
           fontSize: '12px',
-          color: '#1e40af'
+          color: '#a16207'
         }}>
-          💡 작성하신 리뷰는 다른 관람객들에게 큰 도움이 됩니다.
-          정직하고 자세한 후기를 작성해주세요!
+          💡 기대평은 공연 관람 전에 작성하는 기대감 표현입니다.
+          관람 후에는 별도의 리뷰를 작성하실 수 있어요!
         </div>
       )}
 
@@ -690,7 +686,7 @@ const ReviewForm = ({
 };
 
 // ===== 기본 PROPS =====
-ReviewForm.defaultProps = {
+ExpectationForm.defaultProps = {
   mode: 'create',
   initialData: null,
   loading: false,
@@ -700,4 +696,4 @@ ReviewForm.defaultProps = {
   compact: false
 };
 
-export default ReviewForm;
+export default ExpectationForm;
