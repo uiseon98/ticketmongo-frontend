@@ -22,12 +22,16 @@ export const userService = {
     },
 
     changePassword: async (passwordData) => {
-        // 실제로는 fetch('/api/user/password', { method: 'PUT', body: JSON.stringify(passwordData) })
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve({ success: true, message: '비밀번호가 변경되었습니다.' });
-            }, 500);
-        });
+        try {
+            await apiClient.post('/mypage/changePwd', passwordData, {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+            });
+            return { success: true };
+        } catch (error) {
+            return { success: false, error: error.message || '비밀번호 변경 중 오류가 발생했습니다.' };
+        }
     },
 
     getBookingHistory: async (userId) => {
