@@ -64,7 +64,6 @@ const ReviewList = ({
 }) => {
 
   const [hoveredReviewId, setHoveredReviewId] = useState(null);
-
   // ===== 이벤트 핸들러들 =====
 
   /**

@@ -156,8 +156,7 @@ export const expectationService = {
       }
       if (!expectationId || expectationId < 1) {
         throw new Error('기대평 ID는 1 이상의 양수여야 합니다.');
-      }
-      // 수정할 데이터 유효성 검증 (생성 시와 동일한 규칙)
+      }      // 수정할 데이터 유효성 검증 (생성 시와 동일한 규칙)
       validateExpectationData(expectationData);
 
       // 수정 요청 바디 구성
