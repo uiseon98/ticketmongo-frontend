@@ -555,7 +555,7 @@ const ExpectationForm = ({
         </span>
       </h2>
 
-      <div onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit}>
         {/* 기대점수 입력 */}
         <div style={formGroupStyles}>
           <label style={labelStyles}>
@@ -650,7 +650,7 @@ const ExpectationForm = ({
             </button>
           )}
         </div>
-      </div>
+      </form>
 
       {/* 안내 메시지 */}
       {!compact && (
@@ -668,7 +668,7 @@ const ExpectationForm = ({
       )}
 
       {/* 개발자용 디버그 정보 */}
-      {process.env.NODE_ENV === 'development' && (
+      {import.meta.env.DEV && (
         <div style={{
           marginTop: '12px',
           padding: '8px',

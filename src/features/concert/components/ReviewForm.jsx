@@ -539,7 +539,7 @@ const ReviewForm = ({
         {mode === 'edit' ? '📝 리뷰 수정' : '✍️ 리뷰 작성'}
       </h2>
 
-      <div onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit}>
         {/* 제목 입력 */}
         <div style={formGroupStyles}>
           <label htmlFor="review-title" style={labelStyles}>
@@ -654,7 +654,7 @@ const ReviewForm = ({
             </button>
           )}
         </div>
-      </div>
+      </form>
 
       {/* 안내 메시지 */}
       {!compact && (
@@ -672,7 +672,7 @@ const ReviewForm = ({
       )}
 
       {/* 개발자용 디버그 정보 */}
-      {process.env.NODE_ENV === 'development' && (
+      {import.meta.env.DEV && (
         <div style={{
           marginTop: '12px',
           padding: '8px',

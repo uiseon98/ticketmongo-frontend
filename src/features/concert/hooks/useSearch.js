@@ -3,7 +3,7 @@
 // React에서 제공하는 기본 훅들을 import
 // useState: 컴포넌트의 상태(데이터)를 관리하는 훅
 // useCallback: 함수를 메모이제이션(캐싱)해서 불필요한 재생성을 방지하는 훅
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 
 // 우리가 만든 콘서트 서비스 import (실제 API 호출 로직이 들어있음)
 import { concertService } from '../services/concertService.js';
@@ -48,6 +48,8 @@ export const useSearch = () => {
   // 초기값: null (에러 없음)
   const [searchError, setSearchError] = useState(null);
 
+  const debouneTimerRef = useRef(null);
+
   // ===== 함수 정의 =====
 
   /**
@@ -57,6 +59,13 @@ export const useSearch = () => {
    * @param {string} keyword - 검색할 키워드 (선택사항, 기본값은 현재 searchTerm)
    */
   const performSearch = useCallback(async (keyword = searchTerm) => {
+      // 이전 타이머가 있으면 취소
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+     }
+
+      // 새로운 타이머 설정 (300ms 디바운스)
+      debounceTimerRef.current = setTimeout(async () => {
     try {
       // 키워드가 없거나 공백만 있으면 검색하지 않음
       const trimmedKeyword = keyword.trim();
@@ -100,6 +109,7 @@ export const useSearch = () => {
       // 성공/실패 상관없이 로딩 상태 해제
       setIsSearching(false);
     }
+      }, 300);
   }, [searchTerm]); // searchTerm이 변경되면 함수 재생성
 
   /**

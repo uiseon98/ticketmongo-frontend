@@ -181,18 +181,6 @@ const ConcertCard = ({
   };
 
   /**
-   * 호버 효과용 스타일 (마우스 올렸을 때)
-   * CSS :hover를 인라인으로 구현하기 어려우므로 생략
-   * 실제로는 CSS 클래스로 처리하는 것이 좋음
-   */
-  const hoverStyles = onClick ? {
-    ':hover': {
-      transform: 'translateY(-2px)',
-      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.15)'
-    }
-  } : {};
-
-  /**
    * 포스터 이미지 스타일
    */
   const imageStyles = {
@@ -252,6 +240,12 @@ const ConcertCard = ({
       className={`concert-card ${className}`}
       style={cardStyles}
       onClick={handleCardClick}
+      onKeyDown={(e) => {
+        if (onClick && (e.key === 'Enter' || e.key === ' ')) {
+          e.preventDefault();
+          handleCardClick();
+        }
+      }}
       // 접근성: 키보드 탐색 지원
       tabIndex={onClick ? 0 : -1}
       // 접근성: 스크린 리더를 위한 역할 정의
@@ -354,7 +348,7 @@ const ConcertCard = ({
       </div>
 
       {/* 개발자용 디버그 정보 (개발 환경에서만 표시) */}
-      {process.env.NODE_ENV === 'development' && (
+      {import.meta.env.DEV && (
         <div style={{
           marginTop: '8px',
           padding: '4px',

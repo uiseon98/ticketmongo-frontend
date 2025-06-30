@@ -1,7 +1,7 @@
 // src/features/concert/components/ReviewList.jsx
 
 // ===== IMPORT 섹션 =====
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 // useCallback: 이벤트 핸들러 최적화
 
 // 리뷰 관련 타입과 상수들을 import
@@ -62,6 +62,8 @@ const ReviewList = ({
   className = '',              // 추가 CSS 클래스
   compact = false              // 컴팩트 모드 (간소화된 UI)
 }) => {
+
+  const [hoveredReviewId, setHoveredReviewId] = useState(null);
 
   // ===== 이벤트 핸들러들 =====
 
@@ -499,20 +501,16 @@ const ReviewList = ({
         {reviews.map((review) => (
           <div
             key={review.id}
-            style={reviewCardStyles}
+            style={{
+              ...reviewCardStyles,
+              ...(hoveredReviewId === review.id && onReviewClick ? {
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                transform: 'translateY(-1px)'
+              } : {})
+            }}
             onClick={() => handleReviewClick(review)}
-            onMouseEnter={(e) => {
-              if (onReviewClick) {
-                e.target.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
-                e.target.style.transform = 'translateY(-1px)';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (onReviewClick) {
-                e.target.style.boxShadow = 'none';
-                e.target.style.transform = 'translateY(0)';
-              }
-            }}
+            onMouseEnter={() => onReviewClick && setHoveredReviewId(review.id)}
+            onMouseLeave={() => setHoveredReviewId(null)}
           >
             {/* 리뷰 헤더 */}
             <div style={{
@@ -652,7 +650,7 @@ const ReviewList = ({
       )}
 
       {/* 개발자용 디버그 정보 */}
-      {process.env.NODE_ENV === 'development' && (
+      {import.meta.env.DEV && (
         <div style={{
           marginTop: '12px',
           padding: '8px',
