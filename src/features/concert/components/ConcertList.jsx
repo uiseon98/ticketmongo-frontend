@@ -466,20 +466,6 @@ const ConcertList = ({
           {currentPage + 1} / {totalPages} 페이지
         </div>
       )}
-
-      {/* 개발자용 디버그 정보 (개발 환경에서만 표시) */}
-      {import.meta.env.DEV && (
-        <div style={{
-          marginTop: '16px',
-          padding: '8px',
-          backgroundColor: '#f3f4f6',
-          borderRadius: '4px',
-          fontSize: '12px',
-          color: '#6b7280'
-        }}>
-          DEBUG: {concerts.length}개 콘서트, 현재 {currentPage + 1}/{totalPages} 페이지
-        </div>
-      )}
     </div>
   );
 };

@@ -69,13 +69,13 @@ const ReviewList = ({
   /**
    * 정렬 변경 핸들러
    */
-  const handleSortChange = useCallback((newSortBy) => {
-    if (onSortChange && typeof onSortChange === 'function') {
-      // 같은 기준으로 정렬하면 방향 토글, 다른 기준이면 desc로 시작
-      const newSortDir = (newSortBy === sortBy && sortDir === 'desc') ? 'asc' : 'desc';
-      onSortChange(newSortBy, newSortDir);
-    }
-  }, [onSortChange, sortBy, sortDir]);
+    const handleSortChange = (newSortBy) => {
+      console.log('handleSortChange 호출됨:', newSortBy);
+      if (onSortChange && typeof onSortChange === 'function') {
+        const newSortDir = (newSortBy === sortBy && sortDir === 'desc') ? 'asc' : 'desc';
+        onSortChange(newSortBy, newSortDir);
+      }
+    };
 
   /**
    * 페이지 변경 핸들러
@@ -645,20 +645,6 @@ const ReviewList = ({
             <option value={20}>20개씩 보기</option>
             <option value={50}>50개씩 보기</option>
           </select>
-        </div>
-      )}
-
-      {/* 개발자용 디버그 정보 */}
-      {import.meta.env.DEV && (
-        <div style={{
-          marginTop: '12px',
-          padding: '8px',
-          backgroundColor: '#f3f4f6',
-          borderRadius: '4px',
-          fontSize: '10px',
-          color: '#6b7280'
-        }}>
-          DEBUG: {reviews.length}개 리뷰, {currentPage + 1}/{totalPages} 페이지, 정렬: {sortBy} {sortDir}
         </div>
       )}
     </div>

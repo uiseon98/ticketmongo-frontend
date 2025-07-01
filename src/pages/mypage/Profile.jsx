@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { User, Lock, Calendar, Eye, EyeOff, Camera, Phone, Mail, MapPin, Edit2, Save, X } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
+import { User, Lock, Calendar } from 'lucide-react';
+
 import { ProfileTab } from '../../features/user/components/ProfileTab';
 import { PasswordTab } from '../../features/user/components/PasswordTab';
 import { BookingsTab } from '../../features/user/components/BookingsTab';
 import { userService } from '../../features/user/services/userService';
 
 export default function Profile() {
+    const location = useLocation();
     const [activeTab, setActiveTab] = useState('profile');
     const [userInfo, setUserInfo] = useState(null);
     const [bookingHistory, setBookingHistory] = useState([]);
@@ -27,6 +30,12 @@ export default function Profile() {
 
         loadUserInfo();
     }, []);
+
+    useEffect(() => {
+        if (location.state?.from === 'bookingDetail') {
+            setActiveTab('bookings');
+        }
+    }, [location.state]);
 
     // 예매 내역 로드 (예매 내역 탭 선택 시)
     useEffect(() => {
@@ -61,14 +70,6 @@ export default function Profile() {
         return await userService.changePassword(passwordData);
     };
 
-    // 예매 취소
-    const handleCancelBooking = async (bookingId) => {
-        // 실제로는 API 호출
-        setBookingHistory((prev) =>
-            prev.map((booking) => (booking.id === bookingId ? { ...booking, status: 'cancelled' } : booking))
-        );
-    };
-
     const tabs = [
         {
             id: 'profile',
@@ -99,7 +100,6 @@ export default function Profile() {
             props: {
                 bookingHistory,
                 isLoading: isBookingsLoading,
-                onCancelBooking: handleCancelBooking,
             },
         },
     ];

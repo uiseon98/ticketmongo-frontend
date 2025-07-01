@@ -666,21 +666,6 @@ const ExpectationForm = ({
           관람 후에는 별도의 리뷰를 작성하실 수 있어요!
         </div>
       )}
-
-      {/* 개발자용 디버그 정보 */}
-      {import.meta.env.DEV && (
-        <div style={{
-          marginTop: '12px',
-          padding: '8px',
-          backgroundColor: '#f3f4f6',
-          borderRadius: '4px',
-          fontSize: '10px',
-          color: '#6b7280'
-        }}>
-          DEBUG: mode={mode}, loading={loading.toString()},
-          errors={Object.keys(errors).filter(key => errors[key]).length}
-        </div>
-      )}
     </div>
   );
 };
