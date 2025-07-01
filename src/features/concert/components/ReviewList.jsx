@@ -52,11 +52,16 @@ const ReviewList = ({
   onPageChange,                // 페이지 변경 핸들러 (useReviews.goToPage)
   onPageSizeChange,            // 페이지 크기 변경 핸들러 (useReviews.changePageSize)
   onRefresh,                   // 새로고침 핸들러 (useReviews.refresh)
+  currentUserId,               // 현재 사용자 ID
+  onEditClick,                 // 수정 버튼 클릭 핸들러
+  onDeleteClick,               // 삭제 버튼 클릭 핸들러
 
   // ===== UI 제어 props =====
   showSortOptions = true,      // 정렬 옵션 표시 여부
   showPagination = true,       // 페이지네이션 표시 여부
   showRefreshButton = false,   // 새로고침 버튼 표시 여부
+
+  expandedReviewId = null,
 
   // ===== 스타일 props =====
   className = '',              // 추가 CSS 클래스
@@ -69,13 +74,12 @@ const ReviewList = ({
   /**
    * 정렬 변경 핸들러
    */
-    const handleSortChange = (newSortBy) => {
-      console.log('handleSortChange 호출됨:', newSortBy);
+    const handleSortChange = useCallback((newSortBy) => {
       if (onSortChange && typeof onSortChange === 'function') {
         const newSortDir = (newSortBy === sortBy && sortDir === 'desc') ? 'asc' : 'desc';
         onSortChange(newSortBy, newSortDir);
       }
-    };
+    }, [onSortChange, sortBy, sortDir]);
 
   /**
    * 페이지 변경 핸들러
@@ -557,17 +561,77 @@ const ReviewList = ({
               {review.title}
             </h4>
 
-            {/* 리뷰 내용 */}
+            {/* 리뷰 내용 - 확장/축소 로직 적용 */}
             <p style={{
               fontSize: compact ? '13px' : '14px',
               color: '#6b7280',
               lineHeight: '1.5',
               margin: '0'
             }}>
-              {review.description.length > 100 && !compact
-                ? review.description.substring(0, 100) + '...'
-                : review.description}
+              {expandedReviewId === review.id
+                ? review.description  // 확장된 상태: 전체 내용 표시
+                : (review.description.length > 100 && !compact
+                    ? review.description.substring(0, 100) + '...'  // 축소된 상태: 100자까지만
+                    : review.description)
+              }
             </p>
+
+            {/* 수정/삭제 버튼 (작성자만) */}
+            {currentUserId === review.userId && (
+              <div style={{
+                marginTop: '8px',
+                display: 'flex',
+                gap: '8px',
+                justifyContent: 'flex-end'
+              }}>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEditClick?.(review);
+                  }}
+                  style={{
+                    padding: '4px 8px',
+                    backgroundColor: '#3b82f6',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '4px',
+                    fontSize: '12px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  ✏️ 수정
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDeleteClick?.(review);
+                  }}
+                  style={{
+                    padding: '4px 8px',
+                    backgroundColor: '#ef4444',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '4px',
+                    fontSize: '12px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  🗑️ 삭제
+                </button>
+              </div>
+            )}
+
+            {/* 더보기/접기 표시 (100자 이상일 때만) */}
+            {review.description.length > 100 && !compact && (
+              <div style={{
+                marginTop: '8px',
+                fontSize: '12px',
+                color: '#3b82f6',
+                fontWeight: '500'
+              }}>
+                {expandedReviewId === review.id ? '접기 ▲' : '더보기 ▼'}
+              </div>
+            )}
           </div>
         ))}
       </div>
