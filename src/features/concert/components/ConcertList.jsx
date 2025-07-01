@@ -1,10 +1,10 @@
 // src/features/concert/components/ConcertList.jsx
 
 // React 라이브러리에서 필요한 기능들을 import
-import React from "react";
+import React from 'react';
 
 // 우리가 만든 ConcertCard 컴포넌트 import
-import ConcertCard from "./ConcertCard.jsx";
+import ConcertCard from './ConcertCard.jsx';
 
 /**
  * ConcertList 컴포넌트
@@ -59,17 +59,18 @@ const ConcertList = ({
   totalPages = 0,
   showAiSummary = false,
   showPagination = true,
-  emptyMessage = "콘서트가 없습니다.",
-  className = "",
+  emptyMessage = '콘서트가 없습니다.',
+  className = ''
 }) => {
+
   // ===== 스타일 정의 =====
 
   /**
    * 컨테이너의 기본 스타일
    */
   const containerStyles = {
-    width: "100%",
-    padding: "16px",
+    width: '100%',
+    padding: '16px'
   };
 
   /**
@@ -77,80 +78,80 @@ const ConcertList = ({
    * CSS Grid를 사용하여 반응형 레이아웃 구현
    */
   const gridStyles = {
-    display: "grid",
+    display: 'grid',
     // 반응형 그리드: 최소 280px, 최대 1fr (가능한 공간 차지)
-    gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-    gap: "16px",
-    marginBottom: "24px",
+    gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+    gap: '16px',
+    marginBottom: '24px'
   };
 
   /**
    * 로딩 스피너 스타일
    */
   const loadingStyles = {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    minHeight: "200px",
-    fontSize: "16px",
-    color: "#6b7280",
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    minHeight: '200px',
+    fontSize: '16px',
+    color: '#6b7280'
   };
 
   /**
    * 에러 메시지 스타일
    */
   const errorStyles = {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    minHeight: "200px",
-    padding: "24px",
-    backgroundColor: "#fef2f2",
-    border: "1px solid #fecaca",
-    borderRadius: "8px",
-    margin: "16px 0",
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: '200px',
+    padding: '24px',
+    backgroundColor: '#fef2f2',
+    border: '1px solid #fecaca',
+    borderRadius: '8px',
+    margin: '16px 0'
   };
 
   /**
    * 빈 상태 메시지 스타일
    */
   const emptyStyles = {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    minHeight: "200px",
-    padding: "24px",
-    backgroundColor: "#f9fafb",
-    border: "2px dashed #d1d5db",
-    borderRadius: "8px",
-    margin: "16px 0",
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: '200px',
+    padding: '24px',
+    backgroundColor: '#f9fafb',
+    border: '2px dashed #d1d5db',
+    borderRadius: '8px',
+    margin: '16px 0'
   };
 
   /**
    * 페이지네이션 컨테이너 스타일
    */
   const paginationStyles = {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: "8px",
-    marginTop: "24px",
-    padding: "16px",
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: '8px',
+    marginTop: '24px',
+    padding: '16px'
   };
 
   /**
    * 페이지네이션 버튼 기본 스타일
    */
   const buttonBaseStyles = {
-    padding: "8px 12px",
-    border: "1px solid #d1d5db",
-    borderRadius: "4px",
-    backgroundColor: "#ffffff",
-    cursor: "pointer",
-    fontSize: "14px",
-    transition: "all 0.2s ease",
+    padding: '8px 12px',
+    border: '1px solid #d1d5db',
+    borderRadius: '4px',
+    backgroundColor: '#ffffff',
+    cursor: 'pointer',
+    fontSize: '14px',
+    transition: 'all 0.2s ease'
   };
 
   /**
@@ -158,9 +159,9 @@ const ConcertList = ({
    */
   const activeButtonStyles = {
     ...buttonBaseStyles,
-    backgroundColor: "#3b82f6",
-    color: "#ffffff",
-    borderColor: "#3b82f6",
+    backgroundColor: '#3b82f6',
+    color: '#ffffff',
+    borderColor: '#3b82f6'
   };
 
   /**
@@ -168,9 +169,9 @@ const ConcertList = ({
    */
   const disabledButtonStyles = {
     ...buttonBaseStyles,
-    backgroundColor: "#f3f4f6",
-    color: "#9ca3af",
-    cursor: "not-allowed",
+    backgroundColor: '#f3f4f6',
+    color: '#9ca3af',
+    cursor: 'not-allowed'
   };
 
   // ===== 이벤트 핸들러 =====
@@ -192,7 +193,7 @@ const ConcertList = ({
     }
 
     // 부모 컴포넌트에서 전달받은 페이지 변경 함수 실행
-    if (onPageChange && typeof onPageChange === "function") {
+    if (onPageChange && typeof onPageChange === 'function') {
       onPageChange(newPage);
     }
   };
@@ -201,7 +202,7 @@ const ConcertList = ({
    * 재시도 버튼 클릭 핸들러
    */
   const handleRetry = () => {
-    if (onRetry && typeof onRetry === "function") {
+    if (onRetry && typeof onRetry === 'function') {
       onRetry();
     }
   };
@@ -236,14 +237,14 @@ const ConcertList = ({
       if (start > 0) {
         visiblePages.unshift(0);
         if (start > 1) {
-          visiblePages.splice(1, 0, "...");
+          visiblePages.splice(1, 0, '...');
         }
       }
 
       // 마지막 페이지가 포함되지 않았으면 추가
       if (end < totalPages - 1) {
         if (end < totalPages - 2) {
-          visiblePages.push("...");
+          visiblePages.push('...');
         }
         visiblePages.push(totalPages - 1);
       }
@@ -263,68 +264,62 @@ const ConcertList = ({
       <div
         key={`skeleton-${index}`}
         style={{
-          border: "1px solid #e5e7eb",
-          borderRadius: "8px",
-          padding: "16px",
-          backgroundColor: "#f9fafb",
+          border: '1px solid #e5e7eb',
+          borderRadius: '8px',
+          padding: '16px',
+          backgroundColor: '#f9fafb'
         }}
       >
         {/* 포스터 이미지 영역 */}
-        <div
-          style={{
-            width: "100%",
-            height: "200px",
-            backgroundColor: "#e5e7eb",
-            borderRadius: "4px",
-            marginBottom: "12px",
-          }}
-        />
+        <div style={{
+          width: '100%',
+          height: '200px',
+          backgroundColor: '#e5e7eb',
+          borderRadius: '4px',
+          marginBottom: '12px'
+        }} />
 
         {/* 제목 영역 */}
-        <div
-          style={{
-            width: "80%",
-            height: "20px",
-            backgroundColor: "#e5e7eb",
-            borderRadius: "4px",
-            marginBottom: "8px",
-          }}
-        />
+        <div style={{
+          width: '80%',
+          height: '20px',
+          backgroundColor: '#e5e7eb',
+          borderRadius: '4px',
+          marginBottom: '8px'
+        }} />
 
         {/* 아티스트 영역 */}
-        <div
-          style={{
-            width: "60%",
-            height: "16px",
-            backgroundColor: "#e5e7eb",
-            borderRadius: "4px",
-            marginBottom: "8px",
-          }}
-        />
+        <div style={{
+          width: '60%',
+          height: '16px',
+          backgroundColor: '#e5e7eb',
+          borderRadius: '4px',
+          marginBottom: '8px'
+        }} />
 
         {/* 날짜/장소 영역 */}
-        <div
-          style={{
-            width: "90%",
-            height: "14px",
-            backgroundColor: "#e5e7eb",
-            borderRadius: "4px",
-            marginBottom: "6px",
-          }}
-        />
+        <div style={{
+          width: '90%',
+          height: '14px',
+          backgroundColor: '#e5e7eb',
+          borderRadius: '4px',
+          marginBottom: '6px'
+        }} />
 
-        <div
-          style={{
-            width: "70%",
-            height: "14px",
-            backgroundColor: "#e5e7eb",
-            borderRadius: "4px",
-          }}
-        />
+        <div style={{
+          width: '70%',
+          height: '14px',
+          backgroundColor: '#e5e7eb',
+          borderRadius: '4px'
+        }} />
       </div>
     ));
 
-    return <div style={gridStyles}>{skeletonCards}</div>;
+    return (
+      <div style={gridStyles}>
+        {skeletonCards}
+      </div>
+    );
   };
 
   // ===== 조건부 렌더링 =====
@@ -350,29 +345,21 @@ const ConcertList = ({
     return (
       <div className={`concert-list ${className}`} style={containerStyles}>
         <div style={errorStyles}>
-          <div style={{ fontSize: "48px", marginBottom: "16px" }}>😵</div>
-          <h3 style={{ margin: "0 0 8px 0", color: "#dc2626" }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>😵</div>
+          <h3 style={{ margin: '0 0 8px 0', color: '#dc2626' }}>
             오류가 발생했습니다
           </h3>
-          <p
-            style={{
-              margin: "0 0 16px 0",
-              color: "#6b7280",
-              textAlign: "center",
-            }}
-          >
-            {typeof error === "string"
-              ? error
-              : "콘서트 정보를 불러올 수 없습니다."}
+          <p style={{ margin: '0 0 16px 0', color: '#6b7280', textAlign: 'center' }}>
+            {typeof error === 'string' ? error : '콘서트 정보를 불러올 수 없습니다.'}
           </p>
           {onRetry && (
             <button
               onClick={handleRetry}
               style={{
                 ...buttonBaseStyles,
-                backgroundColor: "#dc2626",
-                color: "#ffffff",
-                borderColor: "#dc2626",
+                backgroundColor: '#dc2626',
+                color: '#ffffff',
+                borderColor: '#dc2626'
               }}
             >
               🔄 다시 시도
@@ -390,11 +377,11 @@ const ConcertList = ({
     return (
       <div className={`concert-list ${className}`} style={containerStyles}>
         <div style={emptyStyles}>
-          <div style={{ fontSize: "48px", marginBottom: "16px" }}>🎭</div>
-          <h3 style={{ margin: "0 0 8px 0", color: "#374151" }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🎭</div>
+          <h3 style={{ margin: '0 0 8px 0', color: '#374151' }}>
             콘서트가 없습니다
           </h3>
-          <p style={{ margin: "0", color: "#6b7280", textAlign: "center" }}>
+          <p style={{ margin: '0', color: '#6b7280', textAlign: 'center' }}>
             {emptyMessage}
           </p>
         </div>
@@ -434,9 +421,9 @@ const ConcertList = ({
           {/* 페이지 번호 버튼들 */}
           {getVisiblePageNumbers().map((pageNum, index) => {
             // "..." 표시인 경우
-            if (pageNum === "...") {
+            if (pageNum === '...') {
               return (
-                <span key={`ellipsis-${index}`} style={{ padding: "8px 4px" }}>
+                <span key={`ellipsis-${index}`} style={{ padding: '8px 4px' }}>
                   ...
                 </span>
               );
@@ -447,13 +434,9 @@ const ConcertList = ({
               <button
                 key={pageNum}
                 onClick={() => handlePageChange(pageNum)}
-                style={
-                  pageNum === currentPage
-                    ? activeButtonStyles
-                    : buttonBaseStyles
-                }
+                style={pageNum === currentPage ? activeButtonStyles : buttonBaseStyles}
                 aria-label={`${pageNum + 1}페이지`}
-                aria-current={pageNum === currentPage ? "page" : undefined}
+                aria-current={pageNum === currentPage ? 'page' : undefined}
               >
                 {pageNum + 1}
               </button>
@@ -464,11 +447,7 @@ const ConcertList = ({
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage >= totalPages - 1}
-            style={
-              currentPage >= totalPages - 1
-                ? disabledButtonStyles
-                : buttonBaseStyles
-            }
+            style={currentPage >= totalPages - 1 ? disabledButtonStyles : buttonBaseStyles}
             aria-label="다음 페이지"
           >
             다음 →
@@ -478,14 +457,12 @@ const ConcertList = ({
 
       {/* 페이지 정보 표시 (현재 페이지 / 전체 페이지) */}
       {showPagination && totalPages > 0 && (
-        <div
-          style={{
-            textAlign: "center",
-            marginTop: "8px",
-            fontSize: "14px",
-            color: "#6b7280",
-          }}
-        >
+        <div style={{
+          textAlign: 'center',
+          marginTop: '8px',
+          fontSize: '14px',
+          color: '#6b7280'
+        }}>
           {currentPage + 1} / {totalPages} 페이지
         </div>
       )}
@@ -502,8 +479,8 @@ ConcertList.defaultProps = {
   totalPages: 0,
   showAiSummary: false,
   showPagination: true,
-  emptyMessage: "콘서트가 없습니다.",
-  className: "",
+  emptyMessage: '콘서트가 없습니다.',
+  className: ''
 };
 
 // 컴포넌트를 다른 파일에서 import할 수 있도록 export

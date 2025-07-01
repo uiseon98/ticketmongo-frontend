@@ -1,8 +1,8 @@
-import React from "react";
-import { Outlet } from "react-router-dom";
-import Breadcrumb from "../ui/Breadcrumb";
-import Footer from "./Footer";
-import Header from "./Header";
+import React from 'react';
+import { Outlet } from 'react-router-dom';
+import Breadcrumb from '../ui/Breadcrumb';
+import Footer from './Footer';
+import Header from './Header';
 
 export default function MainLayout() {
   return (

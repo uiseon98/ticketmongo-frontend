@@ -1,15 +1,15 @@
 // src/pages/booking/SeatSelectionPage.jsx
-import React, { useState, useEffect, useCallback, useRef } from "react";
-import { useParams } from "react-router-dom";
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useParams } from 'react-router-dom';
 import {
   fetchAllSeatStatus,
   reserveSeat,
   releaseSeat,
-  createBookingAndPreparePayment,
-} from "../../features/booking/services/bookingService";
-import SeatMap from "../../features/booking/components/SeatMap";
-import SeatLegend from "../../features/booking/components/SeatLegend";
-import { loadTossPayments } from "@tosspayments/payment-sdk";
+  createBookingAndPreparePayment
+} from '../../features/booking/services/bookingService';
+import SeatMap from '../../features/booking/components/SeatMap';
+import SeatLegend from '../../features/booking/components/SeatLegend';
+import { loadTossPayments } from '@tosspayments/payment-sdk';
 
 export default function SeatSelectionPage() {
   const { concertId } = useParams();
@@ -30,7 +30,7 @@ export default function SeatSelectionPage() {
       const data = await fetchAllSeatStatus(concertId);
       setSeatStatuses(data);
     } catch (err) {
-      setError(err.message || "좌석 상태를 불러오지 못했습니다.");
+      setError(err.message || '좌석 상태를 불러오지 못했습니다.');
     } finally {
       setLoading(false);
     }
@@ -61,18 +61,15 @@ export default function SeatSelectionPage() {
       const response = await reserveSeat(concertId, seat.seatId);
       setSelectedSeat(response);
       if (releaseTimer) clearTimeout(releaseTimer);
-      const timer = setTimeout(
-        () => {
-          setSelectedSeat(null);
-          alert("선점 시간이 만료되었습니다. 좌석을 다시 선택해주세요.");
-          getSeatStatuses();
-        },
-        SEAT_RESERVE_TIMEOUT_MINUTES * 60 * 1000,
-      );
+      const timer = setTimeout(() => {
+        setSelectedSeat(null);
+        alert('선점 시간이 만료되었습니다. 좌석을 다시 선택해주세요.');
+        getSeatStatuses();
+      }, SEAT_RESERVE_TIMEOUT_MINUTES * 60 * 1000);
       setReleaseTimer(timer);
       getSeatStatuses();
     } catch {
-      setBookingError("좌석 선점에 실패했습니다.");
+      setBookingError('좌석 선점에 실패했습니다.');
       getSeatStatuses();
     } finally {
       setIsReserving(false);
@@ -80,7 +77,7 @@ export default function SeatSelectionPage() {
   };
 
   const handleSeatClick = async (seat) => {
-    if (seat.status === "AVAILABLE") {
+    if (seat.status === 'AVAILABLE') {
       if (selectedSeat) {
         setIsReserving(true);
         try {
@@ -96,7 +93,7 @@ export default function SeatSelectionPage() {
         await reserveNewSeat(seat);
       }
     } else if (
-      seat.status === "RESERVED" &&
+      seat.status === 'RESERVED' &&
       selectedSeat?.seatId === seat.seatId
     ) {
       setIsReserving(true);
@@ -106,7 +103,7 @@ export default function SeatSelectionPage() {
         if (releaseTimer) clearTimeout(releaseTimer);
         getSeatStatuses();
       } catch {
-        setBookingError("좌석 해제 중 오류가 발생했습니다.");
+        setBookingError('좌석 해제 중 오류가 발생했습니다.');
       } finally {
         setIsReserving(false);
       }
@@ -115,17 +112,17 @@ export default function SeatSelectionPage() {
 
   const handleProceedToPayment = async () => {
     if (!selectedSeat) {
-      setBookingError("좌석을 먼저 선택해주세요.");
+      setBookingError('좌석을 먼저 선택해주세요.');
       return;
     }
     if (isReserving) {
-      setBookingError("좌석 선점 처리 중입니다.");
+      setBookingError('좌석 선점 처리 중입니다.');
       return;
     }
     const current = seatStatuses.find((s) => s.seatId === selectedSeat.seatId);
-    if (!current || current.status !== "RESERVED") {
+    if (!current || current.status !== 'RESERVED') {
       setSelectedSeat(null);
-      setBookingError("좌석 상태가 유효하지 않습니다.");
+      setBookingError('좌석 상태가 유효하지 않습니다.');
       return;
     }
     try {
@@ -133,21 +130,21 @@ export default function SeatSelectionPage() {
       setBookingError(null);
       const bookingReq = {
         concertId: parseInt(concertId, 10),
-        concertSeatIds: [selectedSeat.seatId],
+        concertSeatIds: [selectedSeat.seatId]
       };
       const response = await createBookingAndPreparePayment(bookingReq);
       const tossPayments = await loadTossPayments(response.clientKey);
-      await tossPayments.requestPayment("카드", {
+      await tossPayments.requestPayment('카드', {
         orderId: response.orderId,
         bookingNumber: response.bookingNumber,
         orderName: response.orderName,
         amount: response.amount,
         customerName: response.customerName,
         successUrl: response.successUrl,
-        failUrl: response.failUrl,
+        failUrl: response.failUrl
       });
     } catch (err) {
-      setBookingError("결제 요청 실패: " + (err.message || "알 수 없는 오류"));
+      setBookingError('결제 요청 실패: ' + (err.message || '알 수 없는 오류'));
       await releaseSeat(concertId, selectedSeat.seatId);
       setSelectedSeat(null);
       getSeatStatuses();
@@ -196,7 +193,7 @@ export default function SeatSelectionPage() {
           </h2>
           {selectedSeat ? (
             (() => {
-              const [sec, row, num] = selectedSeat.seatInfo.split("-");
+              const [sec, row, num] = selectedSeat.seatInfo.split('-');
               return (
                 <>
                   <p className="mb-2">
@@ -222,7 +219,7 @@ export default function SeatSelectionPage() {
                 className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-[12px] text-lg transition hover:scale-[1.02]"
                 disabled={isReserving}
               >
-                {isReserving ? "결제 준비 중..." : "결제하기"}
+                {isReserving ? '결제 준비 중...' : '결제하기'}
               </button>
               <p className="text-xs text-center text-gray-500 mt-2">
                 {SEAT_RESERVE_TIMEOUT_MINUTES}분 이내에 결제해야 합니다.
