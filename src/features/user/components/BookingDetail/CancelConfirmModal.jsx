@@ -1,5 +1,5 @@
-import { RefreshCw } from "lucide-react";
-import { formatDate } from "../../services/bookingDetailService";
+import { RefreshCw } from 'lucide-react';
+import { formatDate } from '../../services/bookingDetailService';
 
 export function CancelConfirmModal({
   isLoading,
@@ -40,7 +40,7 @@ export function CancelConfirmModal({
             {isLoading ? (
               <RefreshCw size={18} className="animate-spin" />
             ) : (
-              "취소하기"
+              '취소하기'
             )}
           </button>
         </div>

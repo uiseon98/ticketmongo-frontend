@@ -1,21 +1,21 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import { User, Upload, X } from "lucide-react";
-import { registerUser } from "../../features/auth/services/registerService";
-import { AccountForm } from "../../features/auth/services/AccountForm";
-import { SignupInput } from "../../features/auth/components/RegisterForm";
-import { registerInputType } from "../../features/auth/types/registerInputType";
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { User, Upload, X } from 'lucide-react';
+import { registerUser } from '../../features/auth/services/registerService';
+import { AccountForm } from '../../features/auth/services/AccountForm';
+import { SignupInput } from '../../features/auth/components/RegisterForm';
+import { registerInputType } from '../../features/auth/types/registerInputType';
 
 export default function Register() {
   const [formData, setFormData] = useState({
-    email: "",
-    username: "",
-    password: "",
-    confirmPassword: "",
-    name: "",
-    nickname: "",
-    phone: "",
-    address: "",
+    email: '',
+    username: '',
+    password: '',
+    confirmPassword: '',
+    name: '',
+    nickname: '',
+    phone: '',
+    address: '',
   });
 
   const [showPassword, setShowPassword] = useState(false);
@@ -23,21 +23,21 @@ export default function Register() {
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
   const [errors, setErrors] = useState({});
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const errorRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (errorMessage && errorRef.current) {
-      errorRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+      errorRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   }, [errorMessage]);
 
   const handleInputChange = (field) => (e) => {
     let value = e.target.value;
 
-    if (field === "phone") {
+    if (field === 'phone') {
       value = AccountForm.formatPhoneNumber(value);
     }
 
@@ -54,11 +54,11 @@ export default function Register() {
       [field]: error,
     }));
 
-    if (field === "password" && formData.confirmPassword) {
+    if (field === 'password' && formData.confirmPassword) {
       const confirmError =
         formData.confirmPassword !== value
-          ? "비밀번호가 일치하지 않습니다."
-          : "";
+          ? '비밀번호가 일치하지 않습니다.'
+          : '';
       setErrors((prev) => ({
         ...prev,
         confirmPassword: confirmError,
@@ -78,18 +78,18 @@ export default function Register() {
   };
 
   const handleRegister = async () => {
-    setErrorMessage("");
+    setErrorMessage('');
 
     const newErrors = AccountForm.validateAllFields(formData);
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length > 0) {
-      setErrorMessage("입력 정보를 다시 확인해주세요.");
+      setErrorMessage('입력 정보를 다시 확인해주세요.');
       return;
     }
 
     if (!agreeTerms) {
-      setErrorMessage("이용약관과 개인정보처리방침에 동의해주세요.");
+      setErrorMessage('이용약관과 개인정보처리방침에 동의해주세요.');
       return;
     }
 
@@ -98,19 +98,19 @@ export default function Register() {
     try {
       const result = await registerUser(formData);
       if (result.success) {
-        navigate("/auth/login");
+        navigate('/auth/login');
       } else {
         setErrorMessage(result.error);
       }
     } catch (error) {
-      setErrorMessage(error || "회원가입 중 오류가 발생했습니다.");
+      setErrorMessage(error || '회원가입 중 오류가 발생했습니다.');
     } finally {
       setIsLoading(false);
     }
   };
 
   const closeErrorMessage = () => {
-    setErrorMessage("");
+    setErrorMessage('');
   };
 
   return (
@@ -176,16 +176,16 @@ export default function Register() {
                 onChange={handleInputChange(name)}
                 showToggle={toggle}
                 showValue={
-                  name === "password"
+                  name === 'password'
                     ? showPassword
-                    : name === "confirmPassword"
+                    : name === 'confirmPassword'
                       ? showConfirmPassword
                       : false
                 }
                 onToggle={() =>
-                  name === "password"
+                  name === 'password'
                     ? setShowPassword((prev) => !prev)
-                    : name === "confirmPassword"
+                    : name === 'confirmPassword'
                       ? setShowConfirmPassword((prev) => !prev)
                       : null
                 }
@@ -236,7 +236,7 @@ export default function Register() {
               <span className="text-blue-400 hover:text-blue-300 cursor-pointer">
                 이용약관
               </span>
-              과{" "}
+              과{' '}
               <span className="text-blue-400 hover:text-blue-300 cursor-pointer">
                 개인정보처리방침
               </span>
@@ -250,15 +250,15 @@ export default function Register() {
             disabled={isLoading}
             className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-medium py-3 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900"
           >
-            {isLoading ? "처리 중..." : "계정 만들기"}
+            {isLoading ? '처리 중...' : '계정 만들기'}
           </button>
 
           {/* Sign In Link */}
           <div className="text-center">
             <p className="text-gray-400 text-sm">
-              이미 계정이 있으신가요?{" "}
+              이미 계정이 있으신가요?{' '}
               <button
-                onClick={() => navigate("/login")}
+                onClick={() => navigate('/login')}
                 className="text-blue-400 hover:text-blue-300 underline transition-colors"
               >
                 로그인

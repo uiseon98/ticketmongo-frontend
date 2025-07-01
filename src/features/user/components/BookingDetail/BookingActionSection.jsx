@@ -1,5 +1,5 @@
-import React from "react";
-import { Download, Share2, XCircle } from "lucide-react";
+import React from 'react';
+import { Download, Share2, XCircle } from 'lucide-react';
 
 export function BookingActionSection({
   canDownloadTicket,

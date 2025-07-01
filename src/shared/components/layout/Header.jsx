@@ -1,6 +1,6 @@
-import React, { useContext } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
-import { AuthContext } from "../../../context/AuthContext"; // AuthContext 임포트
+import React, { useContext } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { AuthContext } from '../../../context/AuthContext'; // AuthContext 임포트
 
 export default function Header() {
   const { user, logout, loading } = useContext(AuthContext);
@@ -8,27 +8,27 @@ export default function Header() {
 
   const handleLogout = async () => {
     await logout();
-    navigate("/login");
+    navigate('/login');
   };
 
   // 왼쪽 영역: 로고 및 메인 네비게이션에 포함될 링크들
   const mainNavigationLinks = [
-    { to: "/", label: "Home" },
-    { to: "/concerts", label: "Concerts" },
+    { to: '/', label: 'Home' },
+    { to: '/concerts', label: 'Concerts' },
   ];
 
   // 사용자가 로그인되어 있을 때 왼쪽 네비게이션에 추가될 링크 (Admin Dashboard, Profile)
   if (!loading && user) {
     // 관리자 권한을 가진 경우 'Admin Dashboard' 링크 추가
     if (
-      user.role === "ROLE_ADMIN" ||
-      (user.roles && user.roles.includes("ROLE_ADMIN"))
+      user.role === 'ROLE_ADMIN' ||
+      (user.roles && user.roles.includes('ROLE_ADMIN'))
     ) {
       // ✨ 관리자 역할도 ROLE_ 접두사 확인
-      mainNavigationLinks.push({ to: "/admin", label: "Admin Dashboard" });
+      mainNavigationLinks.push({ to: '/admin', label: 'Admin Dashboard' });
     }
     // 로그인한 사용자에게 'Profile' 링크 추가
-    mainNavigationLinks.push({ to: "/mypage/profile", label: "Profile" });
+    mainNavigationLinks.push({ to: '/mypage/profile', label: 'Profile' });
   }
 
   return (
@@ -41,7 +41,7 @@ export default function Header() {
               key={link.to}
               to={link.to}
               className={({ isActive }) =>
-                `text-gray-300 hover:text-white ${isActive ? "underline" : ""}`
+                `text-gray-300 hover:text-white ${isActive ? 'underline' : ''}`
               }
             >
               {link.label}
@@ -59,7 +59,7 @@ export default function Header() {
               <NavLink
                 to="/seller"
                 className={({ isActive }) =>
-                  `text-gray-300 hover:text-white ${isActive ? "underline" : ""}`
+                  `text-gray-300 hover:text-white ${isActive ? 'underline' : ''}`
                 }
               >
                 판매자 페이지
@@ -80,7 +80,7 @@ export default function Header() {
               <NavLink
                 to="/login"
                 className={({ isActive }) =>
-                  `text-gray-300 hover:text-white ${isActive ? "underline" : ""}`
+                  `text-gray-300 hover:text-white ${isActive ? 'underline' : ''}`
                 }
               >
                 Login
@@ -88,7 +88,7 @@ export default function Header() {
               <NavLink
                 to="/register"
                 className={({ isActive }) =>
-                  `text-gray-300 hover:text-white ${isActive ? "underline" : ""}`
+                  `text-gray-300 hover:text-white ${isActive ? 'underline' : ''}`
                 }
               >
                 Sign Up

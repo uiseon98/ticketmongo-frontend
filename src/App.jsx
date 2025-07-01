@@ -1,40 +1,40 @@
 // 루트 컴포넌트
 
 // 애플리케이션의 주요 라우팅 규칙을 정의
-import React, { useContext } from "react";
-import { Routes, Route, Navigate, Outlet } from "react-router-dom"; // Outlet 임포트 확인
+import React, { useContext } from 'react';
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom'; // Outlet 임포트 확인
 
 // 레이아웃
-import MainLayout from "./shared/components/layout/MainLayout";
-import AuthLayout from "./shared/components/layout/AuthLayout";
-import PublicLayout from "./shared/components/layout/PublicLayout.jsx";
-import SellerLayout from "./shared/components/layout/SellerLayout";
+import MainLayout from './shared/components/layout/MainLayout';
+import AuthLayout from './shared/components/layout/AuthLayout';
+import PublicLayout from './shared/components/layout/PublicLayout.jsx';
+import SellerLayout from './shared/components/layout/SellerLayout';
 
 // Auth Context
-import { AuthContext } from "./context/AuthContext";
+import { AuthContext } from './context/AuthContext';
 
 // 홈페이지 & 인증 페이지
-import HomePage from "./pages/home/Home.jsx";
-import LoginPage from "./pages/auth/Login.jsx";
-import RegisterPage from "./pages/auth/Register.jsx";
-import ProfilePage from "./pages/mypage/Profile.jsx";
-import BookingDetailPage from "./pages/mypage/BookingDetail.jsx";
+import HomePage from './pages/home/Home.jsx';
+import LoginPage from './pages/auth/Login.jsx';
+import RegisterPage from './pages/auth/Register.jsx';
+import ProfilePage from './pages/mypage/Profile.jsx';
+import BookingDetailPage from './pages/mypage/BookingDetail.jsx';
 
 // 콘서트 페이지
-import ConcertListPage from "./pages/concert/ConcertListPage.jsx";
-import ConcertDetailPage from "./pages/concert/ConcertDetailPage.jsx";
+import ConcertListPage from './pages/concert/ConcertListPage.jsx';
+import ConcertDetailPage from './pages/concert/ConcertDetailPage.jsx';
 
 // 예매 페이지
-import SeatSelectionPage from "./pages/booking/SeatSelectionPage.jsx";
+import SeatSelectionPage from './pages/booking/SeatSelectionPage.jsx';
 
 // 판매자 페이지 (새로 만들거나 기존 페이지 재활용)
-import SellerHomePage from "./pages/seller/SellerHomePage.jsx"; // 판매자 홈 페이지
-import SellerStatusPage from "./pages/seller/SellerStatusPage.jsx"; // 판매자 상태 페이지
-import SellerApplyPage from "./pages/seller/SellerApplyPage.jsx"; // 판매자 권한 신청 페이지
-import ConcertRegisterPage from "./pages/seller/ConcertRegisterPage.jsx"; // 콘서트 등록 페이지
-import SellerConcertManagementPage from "./pages/seller/SellerConcertManagementPage.jsx"; // 판매자 콘서트
+import SellerHomePage from './pages/seller/SellerHomePage.jsx'; // 판매자 홈 페이지
+import SellerStatusPage from './pages/seller/SellerStatusPage.jsx'; // 판매자 상태 페이지
+import SellerApplyPage from './pages/seller/SellerApplyPage.jsx'; // 판매자 권한 신청 페이지
+import ConcertRegisterPage from './pages/seller/ConcertRegisterPage.jsx'; // 콘서트 등록 페이지
+import SellerConcertManagementPage from './pages/seller/SellerConcertManagementPage.jsx'; // 판매자 콘서트
 
-import NotFoundPage from "./pages/NotFoundPage.jsx";
+import NotFoundPage from './pages/NotFoundPage.jsx';
 
 // App 컴포넌트: 라우팅 정의 및 네비게이션 제공
 export default function App() {
@@ -103,20 +103,20 @@ export default function App() {
           <Route
             element={
               user &&
-              (user.role === "ROLE_SELLER" ||
-                (user.roles && user.roles.includes("ROLE_SELLER"))) ? (
+              (user.role === 'ROLE_SELLER' ||
+                (user.roles && user.roles.includes('ROLE_SELLER'))) ? (
                 <Outlet /> // 판매자 권한이 있다면 하위 라우트들을 Outlet에 렌더링
               ) : (
                 <Navigate to="/seller/apply" replace />
               ) // 권한 없으면 신청 페이지로 리다이렉트
             }
           >
-            <Route path="concerts/register" element={<ConcertRegisterPage />} />{" "}
+            <Route path="concerts/register" element={<ConcertRegisterPage />} />{' '}
             {/* 콘서트 등록 */}
             <Route
               path="concerts/manage"
               element={<SellerConcertManagementPage />}
-            />{" "}
+            />{' '}
             {/* 콘서트 관리 */}
           </Route>
         </Route>

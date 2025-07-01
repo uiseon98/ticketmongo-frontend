@@ -1,5 +1,5 @@
 // src/features/booking/components/SeatMap.jsx
-import React from "react";
+import React from 'react';
 
 export default function SeatMap({
   seatStatuses = [],
@@ -9,7 +9,7 @@ export default function SeatMap({
 }) {
   // 1) section → row → [seats] 구조로 그룹핑 (num은 숫자 타입)
   const sections = seatStatuses.reduce((acc, s) => {
-    const [sec, row, numStr] = s.seatInfo.split("-");
+    const [sec, row, numStr] = s.seatInfo.split('-');
     const num = parseInt(numStr, 10);
     if (!acc[sec]) acc[sec] = {};
     if (!acc[sec][row]) acc[sec][row] = [];
@@ -74,17 +74,17 @@ export default function SeatMap({
                           // 실제 좌석 셀
                           const isSel = selectedSeat?.seatId === seat.seatId;
                           let base =
-                            "w-10 h-10 flex items-center justify-center rounded text-sm font-bold cursor-pointer transition";
+                            'w-10 h-10 flex items-center justify-center rounded text-sm font-bold cursor-pointer transition';
                           if (isSel) {
-                            base += " bg-purple-500 ring-2 ring-purple-700";
-                          } else if (seat.status === "AVAILABLE") {
-                            base += " bg-green-500 hover:bg-green-600";
-                          } else if (seat.status === "RESERVED") {
-                            base += " bg-yellow-500 cursor-not-allowed";
-                          } else if (seat.status === "BOOKED") {
-                            base += " bg-red-500 cursor-not-allowed";
+                            base += ' bg-purple-500 ring-2 ring-purple-700';
+                          } else if (seat.status === 'AVAILABLE') {
+                            base += ' bg-green-500 hover:bg-green-600';
+                          } else if (seat.status === 'RESERVED') {
+                            base += ' bg-yellow-500 cursor-not-allowed';
+                          } else if (seat.status === 'BOOKED') {
+                            base += ' bg-red-500 cursor-not-allowed';
                           } else {
-                            base += " bg-gray-400 cursor-not-allowed";
+                            base += ' bg-gray-400 cursor-not-allowed';
                           }
 
                           return (

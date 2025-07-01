@@ -1,4 +1,4 @@
-import apiClient from "../../../shared/utils/apiClient"; // apiClient는 utils/apiClient.js에서 가져온다고 가정
+import apiClient from '../../../shared/utils/apiClient'; // apiClient는 utils/apiClient.js에서 가져온다고 가정
 
 // 특정 콘서트의 모든 좌석 상태 조회 API
 export async function fetchAllSeatStatus(concertId) {
@@ -26,7 +26,7 @@ export async function releaseSeat(concertId, seatId) {
 
 // 예매 생성 및 결제 준비 API
 export async function createBookingAndPreparePayment(bookingCreateRequest) {
-  const response = await apiClient.post("/bookings", bookingCreateRequest);
+  const response = await apiClient.post('/bookings', bookingCreateRequest);
   return response.data; // PaymentExecutionResponse
 }
 

@@ -1,7 +1,7 @@
 // src/features/concert/hooks/useSearch.js
 
-import { useState, useCallback, useRef, useEffect } from "react";
-import { concertService } from "../services/concertService.js";
+import { useState, useCallback, useRef, useEffect } from 'react';
+import { concertService } from '../services/concertService.js';
 
 /**
  * 콘서트 검색 기능을 관리하는 커스텀 React 훅 (디바운스 문제 해결 버전)
@@ -13,7 +13,7 @@ import { concertService } from "../services/concertService.js";
  */
 export const useSearch = () => {
   // ===== 상태(State) 정의 =====
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState(null);
@@ -56,7 +56,7 @@ export const useSearch = () => {
 
         // 요청이 취소되었는지 확인
         if (abortControllerRef.current.signal.aborted) {
-          console.log("검색 요청이 취소됨");
+          console.log('검색 요청이 취소됨');
           return;
         }
 
@@ -69,17 +69,17 @@ export const useSearch = () => {
           );
         } else {
           setSearchResults([]);
-          setSearchError("검색 결과를 불러올 수 없습니다.");
+          setSearchError('검색 결과를 불러올 수 없습니다.');
         }
       } catch (error) {
         // AbortError는 정상적인 취소이므로 무시
-        if (error.name === "AbortError") {
-          console.log("검색 요청 취소됨");
+        if (error.name === 'AbortError') {
+          console.log('검색 요청 취소됨');
           return;
         }
 
         console.error(`검색 실패: "${keyword}":`, error);
-        setSearchError(error.message || "검색 중 오류가 발생했습니다.");
+        setSearchError(error.message || '검색 중 오류가 발생했습니다.');
         setSearchResults([]);
       } finally {
         // 성공/실패 상관없이 로딩 상태 해제
@@ -99,19 +99,19 @@ export const useSearch = () => {
     }
 
     // 모든 상태 초기화
-    setSearchTerm("");
+    setSearchTerm('');
     setSearchResults([]);
     setSearchError(null);
     setIsSearching(false);
 
-    console.info("검색 상태가 초기화되었습니다.");
+    console.info('검색 상태가 초기화되었습니다.');
   }, []);
 
   /**
    * 검색어만 초기화하는 함수 (검색 결과는 유지)
    */
   const clearSearchTerm = useCallback(() => {
-    setSearchTerm("");
+    setSearchTerm('');
   }, []);
 
   /**

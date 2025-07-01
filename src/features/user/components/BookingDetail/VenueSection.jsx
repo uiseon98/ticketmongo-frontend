@@ -1,4 +1,4 @@
-import { MapPin, Phone, Navigation } from "lucide-react";
+import { MapPin, Phone, Navigation } from 'lucide-react';
 
 export function VenueSection({ venueName, venueAddress, onGetDirections }) {
   return (

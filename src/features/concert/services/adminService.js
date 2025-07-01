@@ -1,7 +1,7 @@
 // src/features/concert/services/adminService.js
 
 // 프로젝트 공통 API 클라이언트 import (SuccessResponse 자동 처리, 인터셉터 설정 완료)
-import apiClient from "../../../shared/utils/apiClient.js";
+import apiClient from '../../../shared/utils/apiClient.js';
 
 /**
  * 관리자 관련 API 호출 서비스
@@ -38,7 +38,7 @@ export const adminService = {
     try {
       // concertId 유효성 검증 - 필수값이고 양수여야 함
       if (!concertId || concertId < 1) {
-        throw new Error("콘서트 ID는 1 이상의 양수여야 합니다.");
+        throw new Error('콘서트 ID는 1 이상의 양수여야 합니다.');
       }
 
       // 관리자 로그 기록 - 중요한 작업이므로 상세히 로깅
@@ -55,7 +55,7 @@ export const adminService = {
       // 성공 시 생성된 AI 요약 텍스트 로깅 (처음 100자만)
       const summaryPreview =
         response.data?.length > 100
-          ? response.data.substring(0, 100) + "..."
+          ? response.data.substring(0, 100) + '...'
           : response.data;
       console.info(
         `[ADMIN] AI 요약 재생성 성공 - 콘서트 ID: ${concertId}, 요약 미리보기: "${summaryPreview}"`,
@@ -86,9 +86,9 @@ export const adminService = {
       }
 
       // 네트워크 오류나 기타 예상치 못한 에러
-      if (error.code === "NETWORK_ERROR" || error.code === "ECONNREFUSED") {
+      if (error.code === 'NETWORK_ERROR' || error.code === 'ECONNREFUSED') {
         throw new Error(
-          "서버에 연결할 수 없습니다. 네트워크 상태를 확인해주세요.",
+          '서버에 연결할 수 없습니다. 네트워크 상태를 확인해주세요.',
         );
       }
 
@@ -97,16 +97,16 @@ export const adminService = {
         const status = error.response.status;
         switch (status) {
           case 400:
-            throw new Error("잘못된 요청입니다. 콘서트 ID를 확인해주세요.");
+            throw new Error('잘못된 요청입니다. 콘서트 ID를 확인해주세요.');
           case 401:
-            throw new Error("인증이 필요합니다. 다시 로그인해주세요.");
+            throw new Error('인증이 필요합니다. 다시 로그인해주세요.');
           case 403:
-            throw new Error("관리자 권한이 필요합니다.");
+            throw new Error('관리자 권한이 필요합니다.');
           case 404:
-            throw new Error("해당 콘서트를 찾을 수 없습니다.");
+            throw new Error('해당 콘서트를 찾을 수 없습니다.');
           case 500:
             throw new Error(
-              "서버 내부 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
+              '서버 내부 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
             );
           default:
             throw new Error(
@@ -116,7 +116,7 @@ export const adminService = {
       }
 
       // 기타 예상치 못한 에러
-      throw new Error("AI 요약 재생성 중 예상치 못한 오류가 발생했습니다.");
+      throw new Error('AI 요약 재생성 중 예상치 못한 오류가 발생했습니다.');
     }
   },
 };

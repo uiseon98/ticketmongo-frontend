@@ -1,28 +1,28 @@
-import React, { useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   loginUser,
   socialLoginUser,
-} from "../../features/auth/services/loginService";
-import { AuthContext } from "../../context/AuthContext"; // 로그인 상태 사용
+} from '../../features/auth/services/loginService';
+import { AuthContext } from '../../context/AuthContext'; // 로그인 상태 사용
 
 export default function Login() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const { user, login, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setErrorMessage("");
+    setErrorMessage('');
     const userData = await loginUser({ username, password });
 
     if (userData) {
       login(userData);
-      navigate("/");
+      navigate('/');
     } else {
-      setErrorMessage("로그인 실패: 아이디 또는 비밀번호를 확인해주세요.");
+      setErrorMessage('로그인 실패: 아이디 또는 비밀번호를 확인해주세요.');
     }
   };
 
@@ -46,7 +46,7 @@ export default function Login() {
           {user && (
             <div className="card bg-white">
               {user.username}님 환영합니다.
-              <button onClick={logout} style={{ marginLeft: "10px" }}>
+              <button onClick={logout} style={{ marginLeft: '10px' }}>
                 로그아웃
               </button>
             </div>
@@ -118,7 +118,7 @@ export default function Login() {
           {/* Social Login Buttons */}
           <div className="space-y-3">
             <button
-              onClick={() => handleSocialLogin("google")}
+              onClick={() => handleSocialLogin('google')}
               className="w-full flex items-center justify-center px-4 py-3 border border-gray-700 rounded-lg text-white hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500"
             >
               <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
@@ -143,7 +143,7 @@ export default function Login() {
             </button>
 
             <button
-              onClick={() => handleSocialLogin("kakao")}
+              onClick={() => handleSocialLogin('kakao')}
               className="w-full flex items-center justify-center px-4 py-3 border border-gray-700 rounded-lg text-white hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500"
             >
               <div className="w-5 h-5 mr-3 bg-yellow-400 rounded flex items-center justify-center">
@@ -155,7 +155,7 @@ export default function Login() {
             </button>
 
             <button
-              onClick={() => handleSocialLogin("naver")}
+              onClick={() => handleSocialLogin('naver')}
               className="w-full flex items-center justify-center px-4 py-3 border border-gray-700 rounded-lg text-white hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500"
             >
               <div className="w-5 h-5 mr-3 bg-green-500 rounded flex items-center justify-center">
@@ -168,9 +168,9 @@ export default function Login() {
           {/* Sign Up Link */}
           <div className="text-center">
             <p className="text-gray-400 text-sm">
-              계정이 없으신가요?{" "}
+              계정이 없으신가요?{' '}
               <button
-                onClick={() => navigate("/register")}
+                onClick={() => navigate('/register')}
                 className="text-blue-400 hover:text-blue-300 underline transition-colors"
               >
                 회원가입

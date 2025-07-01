@@ -217,14 +217,14 @@ _(2025-07-01 업데이트)_
 
     ```javascript
     // 예시: src/features/concert/services/concertService.js
-    import apiClient from "../../../shared/utils/apiClient"; // shared/utils/apiClient 경로에 유의
+    import apiClient from '../../../shared/utils/apiClient'; // shared/utils/apiClient 경로에 유의
 
     export const fetchConcerts = async () => {
       try {
-        const response = await apiClient.get("/concerts"); // apiClient 사용
+        const response = await apiClient.get('/concerts'); // apiClient 사용
         return response.data.data; // SuccessResponse 구조에 따라
       } catch (error) {
-        console.error("Failed to fetch concerts:", error);
+        console.error('Failed to fetch concerts:', error);
         throw error;
       }
     };

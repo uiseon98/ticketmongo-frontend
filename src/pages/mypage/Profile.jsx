@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
-import { User, Lock, Calendar } from "lucide-react";
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import { User, Lock, Calendar } from 'lucide-react';
 
-import { ProfileTab } from "../../features/user/components/ProfileTab";
-import { PasswordTab } from "../../features/user/components/PasswordTab";
-import { BookingsTab } from "../../features/user/components/BookingsTab";
-import { userService } from "../../features/user/services/userService";
+import { ProfileTab } from '../../features/user/components/ProfileTab';
+import { PasswordTab } from '../../features/user/components/PasswordTab';
+import { BookingsTab } from '../../features/user/components/BookingsTab';
+import { userService } from '../../features/user/services/userService';
 
 export default function Profile() {
   const location = useLocation();
-  const [activeTab, setActiveTab] = useState("profile");
+  const [activeTab, setActiveTab] = useState('profile');
   const [userInfo, setUserInfo] = useState(null);
   const [bookingHistory, setBookingHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -22,7 +22,7 @@ export default function Profile() {
         const data = await userService.getUserInfo();
         setUserInfo(data);
       } catch (error) {
-        console.error("Failed to load user info:", error);
+        console.error('Failed to load user info:', error);
       } finally {
         setIsLoading(false);
       }
@@ -32,21 +32,21 @@ export default function Profile() {
   }, []);
 
   useEffect(() => {
-    if (location.state?.from === "bookingDetail") {
-      setActiveTab("bookings");
+    if (location.state?.from === 'bookingDetail') {
+      setActiveTab('bookings');
     }
   }, [location.state]);
 
   // 예매 내역 로드 (예매 내역 탭 선택 시)
   useEffect(() => {
-    if (activeTab === "bookings" && userInfo && bookingHistory.length === 0) {
+    if (activeTab === 'bookings' && userInfo && bookingHistory.length === 0) {
       const loadBookingHistory = async () => {
         setIsBookingsLoading(true);
         try {
           const data = await userService.getBookingHistory(userInfo.id);
           setBookingHistory(data);
         } catch (error) {
-          console.error("Failed to load booking history:", error);
+          console.error('Failed to load booking history:', error);
         } finally {
           setIsBookingsLoading(false);
         }
@@ -72,8 +72,8 @@ export default function Profile() {
 
   const tabs = [
     {
-      id: "profile",
-      label: "내 정보",
+      id: 'profile',
+      label: '내 정보',
       icon: User,
       component: ProfileTab,
       props: {
@@ -83,8 +83,8 @@ export default function Profile() {
       },
     },
     {
-      id: "password",
-      label: "비밀번호 변경",
+      id: 'password',
+      label: '비밀번호 변경',
       icon: Lock,
       component: PasswordTab,
       props: {
@@ -93,8 +93,8 @@ export default function Profile() {
       },
     },
     {
-      id: "bookings",
-      label: "예매 내역",
+      id: 'bookings',
+      label: '예매 내역',
       icon: Calendar,
       component: BookingsTab,
       props: {
@@ -132,8 +132,8 @@ export default function Profile() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center space-x-2 px-6 py-3 rounded-lg transition-all duration-200 ${
                     activeTab === tab.id
-                      ? "bg-blue-600 text-white shadow-lg"
-                      : "text-gray-300 hover:text-white hover:bg-gray-700"
+                      ? 'bg-blue-600 text-white shadow-lg'
+                      : 'text-gray-300 hover:text-white hover:bg-gray-700'
                   }`}
                 >
                   <Icon size={18} />

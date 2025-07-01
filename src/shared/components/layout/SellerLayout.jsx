@@ -1,6 +1,6 @@
-import React from "react";
-import { Outlet } from "react-router-dom";
-import SellerSidebar from "../../../features/seller/components/SellerSidebar"; // SellerSidebar 컴포넌트 임포트
+import React from 'react';
+import { Outlet } from 'react-router-dom';
+import SellerSidebar from '../../../features/seller/components/SellerSidebar'; // SellerSidebar 컴포넌트 임포트
 
 const SellerLayout = () => {
   return (

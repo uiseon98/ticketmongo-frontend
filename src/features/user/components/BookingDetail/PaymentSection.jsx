@@ -1,10 +1,10 @@
-import { CreditCard } from "lucide-react";
+import { CreditCard } from 'lucide-react';
 import {
   formatDateTime,
   formatPrice,
   PAYMENT_STATUS,
   PAYMENT_METHOD,
-} from "../../services/bookingDetailService";
+} from '../../services/bookingDetailService';
 
 export function PaymentSection({
   bookedAt,
@@ -13,12 +13,12 @@ export function PaymentSection({
   paymentMethod,
 }) {
   const paymentStatusColorMap = {
-    PENDING: "text-white",
-    DONE: "text-green-400",
-    CANCELED: "text-red-500",
-    PARTIAL_CANCELED: "text-orange-500",
-    FAILED: "text-red-500",
-    EXPIRED: "text-gray-400",
+    PENDING: 'text-white',
+    DONE: 'text-green-400',
+    CANCELED: 'text-red-500',
+    PARTIAL_CANCELED: 'text-orange-500',
+    FAILED: 'text-red-500',
+    EXPIRED: 'text-gray-400',
   };
 
   return (
@@ -34,7 +34,7 @@ export function PaymentSection({
           <div className="flex justify-between items-center py-2">
             <span className="text-gray-400">결제 상태</span>
             <span
-              className={`font-semibold ${paymentStatusColorMap[paymentStatus] || "text-white"}`}
+              className={`font-semibold ${paymentStatusColorMap[paymentStatus] || 'text-white'}`}
             >
               {PAYMENT_STATUS[paymentStatus]}
             </span>

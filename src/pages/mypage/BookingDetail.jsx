@@ -1,20 +1,20 @@
-import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { userService } from "../../features/user/services/userService.js";
-import { NotificationSection } from "../../features/user/components/BookingDetail/NotificationSection.jsx";
-import { PosterSection } from "../../features/user/components/BookingDetail/PosterSection.jsx";
-import { BookingActionSection } from "../../features/user/components/BookingDetail/BookingActionSection.jsx";
-import { VenueSection } from "../../features/user/components/BookingDetail/VenueSection.jsx";
-import { SeatInfoSection } from "../../features/user/components/BookingDetail/SeatsInfoSection.jsx";
-import { PaymentSection } from "../../features/user/components/BookingDetail/PaymentSection.jsx";
-import { CancelConfirmModal } from "../../features/user/components/BookingDetail/CancelConfirmModal.jsx";
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { userService } from '../../features/user/services/userService.js';
+import { NotificationSection } from '../../features/user/components/BookingDetail/NotificationSection.jsx';
+import { PosterSection } from '../../features/user/components/BookingDetail/PosterSection.jsx';
+import { BookingActionSection } from '../../features/user/components/BookingDetail/BookingActionSection.jsx';
+import { VenueSection } from '../../features/user/components/BookingDetail/VenueSection.jsx';
+import { SeatInfoSection } from '../../features/user/components/BookingDetail/SeatsInfoSection.jsx';
+import { PaymentSection } from '../../features/user/components/BookingDetail/PaymentSection.jsx';
+import { CancelConfirmModal } from '../../features/user/components/BookingDetail/CancelConfirmModal.jsx';
 import {
   NOTIFICATION_TYPE,
   BOOKING_STATUS,
   formatDate,
   calculateTimeUntilConcert,
-} from "../../features/user/services/bookingDetailService.js";
-import { ArrowLeft, AlertCircle, Copy, Check } from "lucide-react";
+} from '../../features/user/services/bookingDetailService.js';
+import { ArrowLeft, AlertCircle, Copy, Check } from 'lucide-react';
 
 export default function BookingDetail() {
   const navigate = useNavigate();
@@ -26,7 +26,7 @@ export default function BookingDetail() {
   const [notification, setNotification] = useState(null);
 
   // 공연까지 남은 시간 계산
-  const [timeUntilConcert, setTimeUntilConcert] = useState("");
+  const [timeUntilConcert, setTimeUntilConcert] = useState('');
 
   // 예매 정보 로드
   useEffect(() => {
@@ -37,7 +37,7 @@ export default function BookingDetail() {
         setBookingDetail(data);
       } catch (error) {
         showNotification(
-          "예매 정보를 불러오는데 실패했습니다.",
+          '예매 정보를 불러오는데 실패했습니다.',
           NOTIFICATION_TYPE.ERROR,
         );
       } finally {
@@ -89,22 +89,22 @@ export default function BookingDetail() {
   }
 
   const handleBack = () => {
-    navigate("/mypage/profile", { state: { from: "bookingDetail" } });
+    navigate('/mypage/profile', { state: { from: 'bookingDetail' } });
   };
 
   const handleCopyBookingNumber = async () => {
     try {
       await navigator.clipboard.writeText(bookingDetail.bookingNumber);
       setCopiedBookingNumber(true);
-      showNotification("예매번호가 복사되었습니다!", NOTIFICATION_TYPE.SUCCESS);
+      showNotification('예매번호가 복사되었습니다!', NOTIFICATION_TYPE.SUCCESS);
       setTimeout(() => setCopiedBookingNumber(false), 2000);
     } catch (err) {
-      showNotification("복사에 실패했습니다.", NOTIFICATION_TYPE.ERROR);
+      showNotification('복사에 실패했습니다.', NOTIFICATION_TYPE.ERROR);
     }
   };
 
   const handleCancelBooking = async () => {
-    showNotification("예매 취소 기능 구현 예정", NOTIFICATION_TYPE.ERROR);
+    showNotification('예매 취소 기능 구현 예정', NOTIFICATION_TYPE.ERROR);
     setShowCancelConfirm(false);
     return;
 
@@ -129,12 +129,12 @@ export default function BookingDetail() {
   const handleDownloadTicket = () => {
     if (bookingDetail.bookingStatus === BOOKING_STATUS.CANCELED) {
       showNotification(
-        "취소된 예매는 티켓을 다운로드할 수 없습니다.",
+        '취소된 예매는 티켓을 다운로드할 수 없습니다.',
         NOTIFICATION_TYPE.ERROR,
       );
       return;
     }
-    showNotification("티켓을 다운로드하고 있습니다...", NOTIFICATION_TYPE.INFO);
+    showNotification('티켓을 다운로드하고 있습니다...', NOTIFICATION_TYPE.INFO);
     // 실제 다운로드 로직
   };
 
@@ -149,8 +149,8 @@ export default function BookingDetail() {
           url: window.location.href,
         });
       } catch (err) {
-        if (err.name !== "AbortError") {
-          showNotification("공유에 실패했습니다.", NOTIFICATION_TYPE.ERROR);
+        if (err.name !== 'AbortError') {
+          showNotification('공유에 실패했습니다.', NOTIFICATION_TYPE.ERROR);
         }
       }
     } else {
@@ -160,12 +160,12 @@ export default function BookingDetail() {
 
   const handleGetDirections = () => {
     const query = encodeURIComponent(bookingDetail.venueAddress);
-    window.open(`https://map.kakao.com/link/search/${query}`, "_blank");
+    window.open(`https://map.kakao.com/link/search/${query}`, '_blank');
   };
 
   const canCancelBooking =
     bookingDetail.bookingStatus === BOOKING_STATUS.CONFIRMED &&
-    bookingDetail.paymentStatus === "DONE";
+    bookingDetail.paymentStatus === 'DONE';
   const canDownloadTicket =
     bookingDetail.bookingStatus === BOOKING_STATUS.CONFIRMED ||
     bookingDetail.bookingStatus === BOOKING_STATUS.COMPLETED;

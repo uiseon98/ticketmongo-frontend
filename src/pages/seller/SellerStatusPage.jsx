@@ -1,7 +1,7 @@
-import React from "react";
-import { NavLink } from "react-router-dom"; // NavLink 임포트
-import { useContext } from "react";
-import { AuthContext } from "../../context/AuthContext"; // AuthContext 임포트
+import React from 'react';
+import { NavLink } from 'react-router-dom'; // NavLink 임포트
+import { useContext } from 'react';
+import { AuthContext } from '../../context/AuthContext'; // AuthContext 임포트
 
 const SellerStatusPage = () => {
   // 이름 변경
@@ -9,8 +9,8 @@ const SellerStatusPage = () => {
   // ROLE_SELLER로 역할 판단 로직 수정
   const isSeller =
     user &&
-    (user.role === "ROLE_SELLER" ||
-      (user.roles && user.roles.includes("ROLE_SELLER")));
+    (user.role === 'ROLE_SELLER' ||
+      (user.roles && user.roles.includes('ROLE_SELLER')));
 
   return (
     // 이 컴포넌트는 SellerLayout의 Outlet에 렌더링될 실제 콘텐츠입니다.
@@ -44,12 +44,12 @@ const SellerStatusPage = () => {
         <div className="flex flex-col gap-0 items-start justify-center shrink-0 relative">
           <div className="flex flex-col gap-0 items-start justify-start shrink-0 w-[77px] relative overflow-hidden">
             <div className="text-[#ffffff] text-left font-['Inter-Medium',_sans-serif] text-base leading-6 font-medium relative self-stretch">
-              {user?.username || "Guest"}
+              {user?.username || 'Guest'}
             </div>
           </div>
           <div className="flex flex-col gap-0 items-start justify-start shrink-0 relative overflow-hidden">
             <div className="text-[#94abc7] text-left font-['Inter-Regular',_sans-serif] text-sm leading-[21px] font-normal relative self-stretch">
-              {isSeller ? "Seller (Approved)" : "Not a Seller"}
+              {isSeller ? 'Seller (Approved)' : 'Not a Seller'}
             </div>
           </div>
         </div>
@@ -81,12 +81,12 @@ const SellerStatusPage = () => {
             <div className="text-[#94abc7] text-left font-['Inter-Regular',_sans-serif] text-sm leading-[21px] font-normal relative self-stretch">
               Application Date: 2025-01-15
               <br />
-              Last Processed Date: 2025-01-20{" "}
+              Last Processed Date: 2025-01-20{' '}
             </div>
           </div>
           <div className="flex flex-col gap-0 items-start justify-start self-stretch shrink-0 relative">
             <div className="text-[#94abc7] text-left font-['Inter-Regular',_sans-serif] text-sm leading-[21px] font-normal relative self-stretch">
-              Approved{" "}
+              Approved{' '}
             </div>
           </div>
         </div>
@@ -100,11 +100,11 @@ const SellerStatusPage = () => {
                   <div
                     className="text-[#ffffff] text-center font-['Inter-Bold',_sans-serif] text-sm leading-[21px] font-bold relative self-stretch overflow-hidden"
                     style={{
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
                     }}
                   >
-                    Withdraw Application{" "}
+                    Withdraw Application{' '}
                   </div>
                 </div>
               </div>
@@ -113,11 +113,11 @@ const SellerStatusPage = () => {
                   <div
                     className="text-[#ffffff] text-center font-['Inter-Bold',_sans-serif] text-sm leading-[21px] font-bold relative self-stretch overflow-hidden"
                     style={{
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
                     }}
                   >
-                    Reapply{" "}
+                    Reapply{' '}
                   </div>
                 </div>
               </div>

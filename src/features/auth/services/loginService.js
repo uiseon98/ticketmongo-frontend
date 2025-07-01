@@ -1,5 +1,5 @@
 // 기존 src/services/auth.js의 로그인/소셜 로그인 함수와 src/context/AuthContext.jsx에서 직접 호출하던 사용자 인증 및 로그아웃 관련 API 로직을 이곳으로 통합합니다.
-import apiClient from "../../../shared/utils/apiClient"; // 공통 apiClient 임포트
+import apiClient from '../../../shared/utils/apiClient'; // 공통 apiClient 임포트
 
 /**
  * 사용자 로그인을 처리합니다.
@@ -10,14 +10,14 @@ export const loginUser = async (data) => {
   try {
     // 백엔드에서 application/x-www-form-urlencoded 타입을 기대하므로 URLSearchParams를 사용합니다.
     const formData = new URLSearchParams();
-    formData.append("username", data.username);
-    formData.append("password", data.password);
+    formData.append('username', data.username);
+    formData.append('password', data.password);
 
     // apiClient를 사용하여 로그인 요청을 보냅니다.
     // 이 요청은 로그인 성공 시 쿠키/세션 등을 설정할 수 있습니다.
-    await apiClient.post("/auth/login", formData, {
+    await apiClient.post('/auth/login', formData, {
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
       // withCredentials는 apiClient 인스턴스에 기본 설정되어 있으므로 개별 요청에선 필요 없음
     });
@@ -26,7 +26,7 @@ export const loginUser = async (data) => {
     const userData = await fetchCurrentUser(); // 기존 authService의 fetchCurrentUser 재활용
     return userData;
   } catch (error) {
-    console.error("Login failed", error);
+    console.error('Login failed', error);
     // 에러 응답이 있다면 에러 응답 데이터를 반환하거나, 특정 에러 메시지를 반환할 수 있습니다.
     return null;
   }
@@ -40,7 +40,7 @@ export const socialLoginUser = (provider) => {
   // socialLoginUser는 브라우저 리다이렉트가 필요하므로 apiClient를 직접 사용하지 않습니다.
   // .env 파일의 VITE_APP_API_URL을 활용하여 백엔드 소셜 로그인 엔드포인트로 이동합니다.
   // API URL에서 '/api' 부분을 제거하여 기본 백엔드 URL을 만듭니다.
-  window.location.href = `${import.meta.env.VITE_APP_API_URL.replace("/api", "")}/oauth2/authorization/${provider}`;
+  window.location.href = `${import.meta.env.VITE_APP_API_URL.replace('/api', '')}/oauth2/authorization/${provider}`;
 };
 
 /**
@@ -49,10 +49,10 @@ export const socialLoginUser = (provider) => {
  */
 export const fetchCurrentUser = async () => {
   try {
-    const response = await apiClient.get("/auth/me"); // apiClient 사용
+    const response = await apiClient.get('/auth/me'); // apiClient 사용
     return response.data; // SuccessResponse의 data 필드에서 사용자 정보 추출
   } catch (error) {
-    console.error("Failed to fetch current user", error);
+    console.error('Failed to fetch current user', error);
     return null;
   }
 };
@@ -66,6 +66,6 @@ export const logoutUser = async () => {
     const response = await apiClient.post(`/auth/logout`); // apiClient 사용
     console.log(response.status);
   } catch (error) {
-    console.warn("Logout request failed", error); // 로그아웃 실패는 경고로 처리 (앱 동작에 치명적이지 않을 수 있음)
+    console.warn('Logout request failed', error); // 로그아웃 실패는 경고로 처리 (앱 동작에 치명적이지 않을 수 있음)
   }
 };

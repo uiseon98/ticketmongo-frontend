@@ -1,10 +1,10 @@
-import React from "react";
-import { Calendar } from "lucide-react";
-import { BookingStatus } from "./BookingStatus";
-import { formatDate } from "../../services/bookingDetailService";
+import React from 'react';
+import { Calendar } from 'lucide-react';
+import { BookingStatus } from './BookingStatus';
+import { formatDate } from '../../services/bookingDetailService';
 
 const formatTime = (timeStr) => {
-  const [hour, minute] = timeStr.split(":");
+  const [hour, minute] = timeStr.split(':');
   return `${parseInt(hour, 10)}시 ${parseInt(minute, 10)}분`;
 };
 

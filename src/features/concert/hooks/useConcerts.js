@@ -4,10 +4,10 @@
 // useState: 컴포넌트의 상태(데이터)를 관리하는 훅
 // useEffect: 컴포넌트가 렌더링된 후 특정 작업을 수행하는 훅 (API 호출 등)
 // useCallback: 함수를 메모이제이션(캐싱)해서 불필요한 재생성을 방지하는 훅
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from 'react';
 
 // 우리가 만든 콘서트 서비스 import (실제 API 호출 로직이 들어있음)
-import { concertService } from "../services/concertService.js";
+import { concertService } from '../services/concertService.js';
 
 /**
  * 콘서트 목록 관리를 위한 커스텀 React 훅
@@ -90,14 +90,14 @@ export const useConcerts = () => {
       } else {
         // API 응답은 성공했지만 데이터 형식이 예상과 다른 경우
         setConcerts([]);
-        setError("콘서트 데이터를 불러올 수 없습니다.");
+        setError('콘서트 데이터를 불러올 수 없습니다.');
       }
     } catch (err) {
       // API 호출 실패 시 에러 처리
-      console.error("콘서트 목록 조회 실패:", err);
+      console.error('콘서트 목록 조회 실패:', err);
 
       // 사용자에게 보여줄 친화적인 에러 메시지 설정
-      setError(err.message || "콘서트 목록을 불러오는 중 오류가 발생했습니다.");
+      setError(err.message || '콘서트 목록을 불러오는 중 오류가 발생했습니다.');
 
       // 에러 발생 시 빈 배열로 초기화
       setConcerts([]);
@@ -143,11 +143,11 @@ export const useConcerts = () => {
           setPageSize(response.data.length || 20);
         } else {
           setConcerts([]);
-          setError("검색 결과를 불러올 수 없습니다.");
+          setError('검색 결과를 불러올 수 없습니다.');
         }
       } catch (err) {
-        console.error("콘서트 검색 실패:", err);
-        setError(err.message || "검색 중 오류가 발생했습니다.");
+        console.error('콘서트 검색 실패:', err);
+        setError(err.message || '검색 중 오류가 발생했습니다.');
         setConcerts([]);
       } finally {
         setLoading(false);
@@ -179,11 +179,11 @@ export const useConcerts = () => {
         setPageSize(response.data.length || 20);
       } else {
         setConcerts([]);
-        setError("필터링 결과를 불러올 수 없습니다.");
+        setError('필터링 결과를 불러올 수 없습니다.');
       }
     } catch (err) {
-      console.error("콘서트 필터링 실패:", err);
-      setError(err.message || "필터링 중 오류가 발생했습니다.");
+      console.error('콘서트 필터링 실패:', err);
+      setError(err.message || '필터링 중 오류가 발생했습니다.');
       setConcerts([]);
     } finally {
       setLoading(false);

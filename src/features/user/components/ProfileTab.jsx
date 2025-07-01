@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { Camera, Edit2, Save, X } from "lucide-react";
-import { AccountForm } from "../../auth/services/AccountForm";
-import { EditProfileForm } from "../components/ProfileForm";
-import { profileInputType } from "../types/profileInputType";
+import React, { useState, useEffect } from 'react';
+import { Camera, Edit2, Save, X } from 'lucide-react';
+import { AccountForm } from '../../auth/services/AccountForm';
+import { EditProfileForm } from '../components/ProfileForm';
+import { profileInputType } from '../types/profileInputType';
 
 export function ProfileTab({ userInfo, onUpdateUserInfo, isLoading }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -42,11 +42,11 @@ export function ProfileTab({ userInfo, onUpdateUserInfo, isLoading }) {
         setEditInfo({ ...userInfo });
       }
     } catch (error) {
-      console.error("Profile update failed:", error);
+      console.error('Profile update failed:', error);
       setErrors({
         _general:
           error.response?.data?.message ||
-          "정보 수정에 실패했습니다. 다시 시도해주세요.",
+          '정보 수정에 실패했습니다. 다시 시도해주세요.',
       });
     } finally {
       setIsSaving(false);
@@ -62,7 +62,7 @@ export function ProfileTab({ userInfo, onUpdateUserInfo, isLoading }) {
   const handleInputChange = (field) => (e) => {
     let value = e.target.value;
 
-    if (field === "phone") {
+    if (field === 'phone') {
       value = AccountForm.formatPhoneNumber(value);
     }
 
@@ -104,13 +104,13 @@ export function ProfileTab({ userInfo, onUpdateUserInfo, isLoading }) {
           <div className="relative">
             <div className="w-24 h-24 bg-gradient-to-br from-pink-400 to-purple-600 rounded-full flex items-center justify-center">
               <span className="text-2xl font-bold text-white">
-                {userInfo.name?.charAt(0) || "U"}
+                {userInfo.name?.charAt(0) || 'U'}
               </span>
             </div>
             <button
               className="absolute -bottom-2 -right-2 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors"
               onClick={() =>
-                alert("프로필 이미지 업로드 기능은 준비 중입니다.")
+                alert('프로필 이미지 업로드 기능은 준비 중입니다.')
               }
             >
               <Camera size={16} />
@@ -127,7 +127,7 @@ export function ProfileTab({ userInfo, onUpdateUserInfo, isLoading }) {
           className="flex items-center space-x-2 px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
         >
           <Edit2 size={16} />
-          <span>{isEditing ? "취소" : "수정"}</span>
+          <span>{isEditing ? '취소' : '수정'}</span>
         </button>
       </div>
 
@@ -140,7 +140,7 @@ export function ProfileTab({ userInfo, onUpdateUserInfo, isLoading }) {
             name={name}
             labelName={labelName}
             type={type}
-            value={isEditing ? editInfo[name] || "" : userInfo[name] || ""}
+            value={isEditing ? editInfo[name] || '' : userInfo[name] || ''}
             onChange={handleInputChange(name)}
             disabled={disable ? disable : !isEditing}
             error={errors[name]}
@@ -169,7 +169,7 @@ export function ProfileTab({ userInfo, onUpdateUserInfo, isLoading }) {
             ) : (
               <Save size={16} />
             )}
-            <span>{isSaving ? "저장 중..." : "저장"}</span>
+            <span>{isSaving ? '저장 중...' : '저장'}</span>
           </button>
         </div>
       )}

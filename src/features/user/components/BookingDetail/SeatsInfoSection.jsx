@@ -1,4 +1,4 @@
-import { Ticket } from "lucide-react";
+import { Ticket } from 'lucide-react';
 
 export function SeatInfoSection({ seatList = [] }) {
   if (!seatList || seatList.length === 0) {
