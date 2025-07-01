@@ -1,7 +1,7 @@
 // src/features/concert/components/ExpectationList.jsx
 
 // ===== IMPORT 섹션 =====
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 // useCallback: 이벤트 핸들러 최적화
 
 // 기대평 관련 타입과 상수들을 import
@@ -61,6 +61,8 @@ const ExpectationList = ({
   className = '',              // 추가 CSS 클래스
   compact = false              // 컴팩트 모드 (간소화된 UI)
 }) => {
+
+const [hoveredExpectationId, setHoveredExpectationId] = useState(null);
 
   // ===== 이벤트 핸들러들 =====
 
@@ -474,20 +476,16 @@ const ExpectationList = ({
         {expectations.map((expectation) => (
           <div
             key={expectation.id}
-            style={expectationCardStyles}
+            style={{
+              ...expectationCardStyles,
+              ...(hoveredExpectationId === expectation.id && onExpectationClick ? {
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                transform: 'translateY(-1px)'
+              } : {})
+            }}
             onClick={() => handleExpectationClick(expectation)}
-            onMouseEnter={(e) => {
-              if (onExpectationClick) {
-                e.target.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
-                e.target.style.transform = 'translateY(-1px)';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (onExpectationClick) {
-                e.target.style.boxShadow = 'none';
-                e.target.style.transform = 'translateY(0)';
-              }
-            }}
+            onMouseEnter={() => onExpectationClick && setHoveredExpectationId(expectation.id)}
+            onMouseLeave={() => setHoveredExpectationId(null)}
           >
             {/* 기대평 헤더 */}
             <div style={{

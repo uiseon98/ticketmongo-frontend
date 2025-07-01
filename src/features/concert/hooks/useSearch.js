@@ -48,7 +48,7 @@ export const useSearch = () => {
   // 초기값: null (에러 없음)
   const [searchError, setSearchError] = useState(null);
 
-  const debouneTimerRef = useRef(null);
+  const debounceTimerRef = useRef(null);
 
   // ===== 함수 정의 =====
 
