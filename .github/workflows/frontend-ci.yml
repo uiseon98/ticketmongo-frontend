@@ -54,6 +54,13 @@ jobs:
           VITE_APP_WS_URL: ${{ secrets.VITE_APP_WS_URL }}
         run: npm run build
 
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build-output-${{ github.sha }} # 아티팩트 이름 (커밋 SHA 포함하여 고유하게)
+          path: dist # 빌드 결과물이 생성되는 디렉토리 (Vite 기본은 'dist' 폴더)
+          retention-days: 30 # 아티팩트 보관 기간 (선택 사항, 기본 90일, 7일로 단축 권장)
+
       # --- 선택 사항 ---
       # 프론트엔드에서 테스트 코드를 사용할 경우, 아래 주석을 해제(현재는 테스트 코드 없음)
       # - name: Run Frontend Tests
