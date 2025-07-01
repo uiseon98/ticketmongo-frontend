@@ -36,6 +36,13 @@ jobs:
       - name: Install Dependencies # 의존성 설치 (캐시가 있으면 빠르게 건너뜀)
         run: npm install # package.json에 정의된 모든 의존성 설치
 
+      # --- Lint 및 Prettier 검사 스텝 (CI에서 보류) ---
+      # 나중에 팀에서 CI에 포함하기로 결정하면 주석을 풀고 사용 예정
+      # - name: Run ESLint
+      #   run: npm run lint
+      # - name: Check Code Formatting (Prettier)
+      #   run: npm run format:check
+
       - name: Build Frontend # 프론트엔드 빌드 (Vite 프로젝트는 'npm run build'가 기본)
         run: npm run build
 
