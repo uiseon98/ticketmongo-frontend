@@ -1,11 +1,11 @@
 // src/features/concert/components/ConcertDetail.jsx
 
 // ===== IMPORT 섹션 =====
-import React, { useEffect } from "react";
+import React, { useEffect } from 'react';
 // useEffect: 컴포넌트 마운트 시 콘서트 정보 로드
 
 // 콘서트 관련 타입과 상수들을 import
-import { ConcertStatusLabels, ConcertStatusColors } from "../types/concert.js";
+import { ConcertStatusLabels, ConcertStatusColors } from '../types/concert.js';
 
 /**
  * ===== ConcertDetail 컴포넌트 =====
@@ -40,7 +40,7 @@ const ConcertDetail = ({
   showRefreshButton = false, // 새로고침 버튼 표시 여부 (에러 시 자동 표시)
 
   // ===== 스타일 props =====
-  className = "", // 추가 CSS 클래스
+  className = '', // 추가 CSS 클래스
   compact = false, // 컴팩트 모드 (간소화된 정보만)
 }) => {
   // ===== 데이터 가공 함수들 =====
@@ -51,7 +51,7 @@ const ConcertDetail = ({
    */
   const formatConcertDateTime = () => {
     if (!concert?.concertDate || !concert?.startTime) {
-      return "날짜 미정";
+      return '날짜 미정';
     }
 
     try {
@@ -60,30 +60,30 @@ const ConcertDetail = ({
       const dateTime = new Date(dateTimeString);
 
       if (isNaN(dateTime.getTime())) {
-        return "날짜 형식 오류";
+        return '날짜 형식 오류';
       }
 
       // 날짜 포맷팅 (한국어)
       const dateOptions = {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        weekday: "short",
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        weekday: 'short',
       };
 
       // 시간 포맷팅 (12시간제)
       const timeOptions = {
-        hour: "2-digit",
-        minute: "2-digit",
+        hour: '2-digit',
+        minute: '2-digit',
         hour12: true,
       };
 
-      const formattedDate = dateTime.toLocaleDateString("ko-KR", dateOptions);
-      const formattedTime = dateTime.toLocaleTimeString("ko-KR", timeOptions);
+      const formattedDate = dateTime.toLocaleDateString('ko-KR', dateOptions);
+      const formattedTime = dateTime.toLocaleTimeString('ko-KR', timeOptions);
 
       return `${formattedDate} ${formattedTime}`;
     } catch (error) {
-      console.warn("날짜 형식 변환 실패:", error);
+      console.warn('날짜 형식 변환 실패:', error);
       return `${concert.concertDate} ${concert.startTime}`;
     }
   };
@@ -92,13 +92,13 @@ const ConcertDetail = ({
    * 공연 종료 시간 포맷팅
    */
   const formatEndTime = () => {
-    if (!concert?.endTime) return "";
+    if (!concert?.endTime) return '';
 
     try {
       const endDateTime = new Date(`${concert.concertDate}T${concert.endTime}`);
-      return endDateTime.toLocaleTimeString("ko-KR", {
-        hour: "2-digit",
-        minute: "2-digit",
+      return endDateTime.toLocaleTimeString('ko-KR', {
+        hour: '2-digit',
+        minute: '2-digit',
         hour12: true,
       });
     } catch (error) {
@@ -111,28 +111,28 @@ const ConcertDetail = ({
    */
   const formatBookingPeriod = () => {
     if (!concert?.bookingStartDate || !concert?.bookingEndDate) {
-      return "예매 기간 미정";
+      return '예매 기간 미정';
     }
 
     try {
       const startDate = new Date(concert.bookingStartDate);
       const endDate = new Date(concert.bookingEndDate);
 
-      const startFormatted = startDate.toLocaleDateString("ko-KR", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
+      const startFormatted = startDate.toLocaleDateString('ko-KR', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
       });
 
-      const endFormatted = endDate.toLocaleDateString("ko-KR", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
+      const endFormatted = endDate.toLocaleDateString('ko-KR', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
       });
 
       return `${startFormatted} ~ ${endFormatted}`;
     } catch (error) {
-      return "예매 기간 형식 오류";
+      return '예매 기간 형식 오류';
     }
   };
 
@@ -141,11 +141,11 @@ const ConcertDetail = ({
    */
   const handleImageError = (event) => {
     // 기본 이미지로 대체
-    event.target.src = "/images/basic-poster-image.png";
+    event.target.src = '/images/basic-poster-image.png';
 
     // 기본 이미지도 없으면 숨김
     event.target.onerror = () => {
-      event.target.style.display = "none";
+      event.target.style.display = 'none';
     };
   };
 
@@ -153,7 +153,7 @@ const ConcertDetail = ({
    * 예매 버튼 클릭 핸들러
    */
   const handleBookingClick = () => {
-    if (onBookingClick && typeof onBookingClick === "function") {
+    if (onBookingClick && typeof onBookingClick === 'function') {
       onBookingClick(concert);
     }
   };
@@ -162,7 +162,7 @@ const ConcertDetail = ({
    * 새로고침 버튼 클릭 핸들러
    */
   const handleRefreshClick = () => {
-    if (onRefresh && typeof onRefresh === "function") {
+    if (onRefresh && typeof onRefresh === 'function') {
       onRefresh();
     }
   };
@@ -174,49 +174,49 @@ const ConcertDetail = ({
    */
   const getBookingButtonInfo = () => {
     if (!concert || !showBookingButton) {
-      return { show: false, text: "", disabled: true };
+      return { show: false, text: '', disabled: true };
     }
 
     switch (concert.status) {
-      case "SCHEDULED":
+      case 'SCHEDULED':
         return {
           show: true,
-          text: "예매 대기 중",
+          text: '예매 대기 중',
           disabled: true,
-          style: { backgroundColor: "#fbbf24", color: "#92400e" },
+          style: { backgroundColor: '#fbbf24', color: '#92400e' },
         };
-      case "ON_SALE":
+      case 'ON_SALE':
         return {
           show: true,
-          text: "예매하기",
+          text: '예매하기',
           disabled: false,
-          style: { backgroundColor: "#059669", color: "#ffffff" },
+          style: { backgroundColor: '#059669', color: '#ffffff' },
         };
-      case "SOLD_OUT":
+      case 'SOLD_OUT':
         return {
           show: true,
-          text: "매진",
+          text: '매진',
           disabled: true,
-          style: { backgroundColor: "#dc2626", color: "#ffffff" },
+          style: { backgroundColor: '#dc2626', color: '#ffffff' },
         };
-      case "CANCELLED":
+      case 'CANCELLED':
         return {
           show: false,
-          text: "취소된 공연",
+          text: '취소된 공연',
           disabled: true,
         };
-      case "COMPLETED":
+      case 'COMPLETED':
         return {
           show: false,
-          text: "공연 완료",
+          text: '공연 완료',
           disabled: true,
         };
       default:
         return {
           show: true,
-          text: "상태 확인 중",
+          text: '상태 확인 중',
           disabled: true,
-          style: { backgroundColor: "#6b7280", color: "#ffffff" },
+          style: { backgroundColor: '#6b7280', color: '#ffffff' },
         };
     }
   };
@@ -227,79 +227,79 @@ const ConcertDetail = ({
    * 컨테이너 스타일
    */
   const containerStyles = {
-    maxWidth: compact ? "600px" : "800px",
-    margin: "0 auto",
-    padding: compact ? "16px" : "24px",
-    backgroundColor: "#ffffff",
-    borderRadius: "12px",
-    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-    border: "1px solid #e5e7eb",
+    maxWidth: compact ? '600px' : '800px',
+    margin: '0 auto',
+    padding: compact ? '16px' : '24px',
+    backgroundColor: '#ffffff',
+    borderRadius: '12px',
+    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+    border: '1px solid #e5e7eb',
   };
 
   /**
    * 포스터 이미지 스타일
    */
   const posterStyles = {
-    width: "100%",
-    maxWidth: compact ? "200px" : "300px",
-    height: compact ? "280px" : "400px",
-    objectFit: "cover",
-    borderRadius: "8px",
-    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
+    width: '100%',
+    maxWidth: compact ? '200px' : '300px',
+    height: compact ? '280px' : '400px',
+    objectFit: 'cover',
+    borderRadius: '8px',
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
   };
 
   /**
    * 제목 스타일
    */
   const titleStyles = {
-    fontSize: compact ? "20px" : "28px",
-    fontWeight: "bold",
-    color: "#1f2937",
-    marginBottom: "8px",
-    lineHeight: "1.2",
+    fontSize: compact ? '20px' : '28px',
+    fontWeight: 'bold',
+    color: '#1f2937',
+    marginBottom: '8px',
+    lineHeight: '1.2',
   };
 
   /**
    * 아티스트 스타일
    */
   const artistStyles = {
-    fontSize: compact ? "16px" : "20px",
-    color: "#6b7280",
-    marginBottom: "16px",
-    fontWeight: "500",
+    fontSize: compact ? '16px' : '20px',
+    color: '#6b7280',
+    marginBottom: '16px',
+    fontWeight: '500',
   };
 
   /**
    * 정보 섹션 스타일
    */
   const infoSectionStyles = {
-    marginBottom: compact ? "16px" : "20px",
+    marginBottom: compact ? '16px' : '20px',
   };
 
   /**
    * 정보 항목 스타일
    */
   const infoItemStyles = {
-    display: "flex",
-    marginBottom: "8px",
-    fontSize: compact ? "14px" : "16px",
+    display: 'flex',
+    marginBottom: '8px',
+    fontSize: compact ? '14px' : '16px',
   };
 
   /**
    * 라벨 스타일
    */
   const labelStyles = {
-    minWidth: compact ? "80px" : "100px",
-    fontWeight: "600",
-    color: "#374151",
-    marginRight: "12px",
+    minWidth: compact ? '80px' : '100px',
+    fontWeight: '600',
+    color: '#374151',
+    marginRight: '12px',
   };
 
   /**
    * 값 스타일
    */
   const valueStyles = {
-    color: "#1f2937",
+    color: '#1f2937',
     flex: 1,
   };
 
@@ -308,28 +308,28 @@ const ConcertDetail = ({
    */
   const getStatusBadgeStyles = (status) => {
     const baseStyles = {
-      display: "inline-block",
-      padding: "6px 12px",
-      borderRadius: "6px",
-      fontSize: "14px",
-      fontWeight: "bold",
-      marginBottom: "16px",
+      display: 'inline-block',
+      padding: '6px 12px',
+      borderRadius: '6px',
+      fontSize: '14px',
+      fontWeight: 'bold',
+      marginBottom: '16px',
     };
 
     // ConcertStatusColors에서 색상 정보 가져와서 CSS 스타일로 변환
     switch (status) {
-      case "SCHEDULED":
-        return { ...baseStyles, backgroundColor: "#fef3c7", color: "#92400e" };
-      case "ON_SALE":
-        return { ...baseStyles, backgroundColor: "#d1fae5", color: "#065f46" };
-      case "SOLD_OUT":
-        return { ...baseStyles, backgroundColor: "#fee2e2", color: "#991b1b" };
-      case "CANCELLED":
-        return { ...baseStyles, backgroundColor: "#f3f4f6", color: "#374151" };
-      case "COMPLETED":
-        return { ...baseStyles, backgroundColor: "#dbeafe", color: "#1e40af" };
+      case 'SCHEDULED':
+        return { ...baseStyles, backgroundColor: '#fef3c7', color: '#92400e' };
+      case 'ON_SALE':
+        return { ...baseStyles, backgroundColor: '#d1fae5', color: '#065f46' };
+      case 'SOLD_OUT':
+        return { ...baseStyles, backgroundColor: '#fee2e2', color: '#991b1b' };
+      case 'CANCELLED':
+        return { ...baseStyles, backgroundColor: '#f3f4f6', color: '#374151' };
+      case 'COMPLETED':
+        return { ...baseStyles, backgroundColor: '#dbeafe', color: '#1e40af' };
       default:
-        return { ...baseStyles, backgroundColor: "#f3f4f6", color: "#374151" };
+        return { ...baseStyles, backgroundColor: '#f3f4f6', color: '#374151' };
     }
   };
 
@@ -337,14 +337,14 @@ const ConcertDetail = ({
    * 버튼 기본 스타일
    */
   const buttonBaseStyles = {
-    padding: "12px 24px",
-    borderRadius: "8px",
-    fontSize: "16px",
-    fontWeight: "600",
-    border: "none",
-    cursor: "pointer",
-    transition: "all 0.2s ease",
-    marginRight: "12px",
+    padding: '12px 24px',
+    borderRadius: '8px',
+    fontSize: '16px',
+    fontWeight: '600',
+    border: 'none',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    marginRight: '12px',
   };
 
   // ===== 조건부 렌더링 =====
@@ -357,28 +357,28 @@ const ConcertDetail = ({
       <div className={`concert-detail ${className}`} style={containerStyles}>
         <div
           style={{
-            display: "flex",
-            flexDirection: compact ? "column" : "row",
-            gap: "24px",
-            alignItems: "center",
-            justifyContent: "center",
-            minHeight: "300px",
+            display: 'flex',
+            flexDirection: compact ? 'column' : 'row',
+            gap: '24px',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '300px',
           }}
         >
           <div
             style={{
-              width: "40px",
-              height: "40px",
-              border: "4px solid #f3f4f6",
-              borderTop: "4px solid #3b82f6",
-              borderRadius: "50%",
-              animation: "spin 1s linear infinite",
+              width: '40px',
+              height: '40px',
+              border: '4px solid #f3f4f6',
+              borderTop: '4px solid #3b82f6',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite',
             }}
           />
           <div
             style={{
-              fontSize: "18px",
-              color: "#6b7280",
+              fontSize: '18px',
+              color: '#6b7280',
             }}
           >
             콘서트 정보를 불러오는 중...
@@ -408,30 +408,30 @@ const ConcertDetail = ({
       <div className={`concert-detail ${className}`} style={containerStyles}>
         <div
           style={{
-            textAlign: "center",
-            padding: "40px 20px",
+            textAlign: 'center',
+            padding: '40px 20px',
           }}
         >
-          <div style={{ fontSize: "48px", marginBottom: "16px" }}>😵</div>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>😵</div>
           <h3
             style={{
-              color: "#dc2626",
-              marginBottom: "8px",
-              fontSize: "20px",
+              color: '#dc2626',
+              marginBottom: '8px',
+              fontSize: '20px',
             }}
           >
             콘서트 정보를 불러올 수 없습니다
           </h3>
           <p
             style={{
-              color: "#6b7280",
-              marginBottom: "20px",
-              fontSize: "16px",
+              color: '#6b7280',
+              marginBottom: '20px',
+              fontSize: '16px',
             }}
           >
-            {typeof error === "string"
+            {typeof error === 'string'
               ? error
-              : "알 수 없는 오류가 발생했습니다."}
+              : '알 수 없는 오류가 발생했습니다.'}
           </p>
 
           {/* 새로고침 버튼 */}
@@ -440,8 +440,8 @@ const ConcertDetail = ({
               onClick={handleRefreshClick}
               style={{
                 ...buttonBaseStyles,
-                backgroundColor: "#3b82f6",
-                color: "#ffffff",
+                backgroundColor: '#3b82f6',
+                color: '#ffffff',
               }}
             >
               🔄 다시 시도
@@ -460,15 +460,15 @@ const ConcertDetail = ({
       <div className={`concert-detail ${className}`} style={containerStyles}>
         <div
           style={{
-            textAlign: "center",
-            padding: "40px 20px",
+            textAlign: 'center',
+            padding: '40px 20px',
           }}
         >
-          <div style={{ fontSize: "48px", marginBottom: "16px" }}>🎭</div>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🎭</div>
           <h3
             style={{
-              color: "#6b7280",
-              fontSize: "20px",
+              color: '#6b7280',
+              fontSize: '20px',
             }}
           >
             콘서트 정보가 없습니다
@@ -488,15 +488,15 @@ const ConcertDetail = ({
       {/* 상단: 포스터 + 기본 정보 */}
       <div
         style={{
-          display: "flex",
-          flexDirection: compact ? "column" : "row",
-          gap: compact ? "16px" : "24px",
-          marginBottom: compact ? "20px" : "32px",
+          display: 'flex',
+          flexDirection: compact ? 'column' : 'row',
+          gap: compact ? '16px' : '24px',
+          marginBottom: compact ? '20px' : '32px',
         }}
       >
         {/* 포스터 이미지 */}
         {concert.posterImageUrl && (
-          <div style={{ flex: "none" }}>
+          <div style={{ flex: 'none' }}>
             <img
               src={concert.posterImageUrl}
               alt={`${concert.title} 포스터`}
@@ -524,13 +524,13 @@ const ConcertDetail = ({
           {concert.description && !compact && (
             <div
               style={{
-                marginBottom: "20px",
-                padding: "12px",
-                backgroundColor: "#f8fafc",
-                borderRadius: "6px",
-                fontSize: "14px",
-                color: "#374151",
-                lineHeight: "1.5",
+                marginBottom: '20px',
+                padding: '12px',
+                backgroundColor: '#f8fafc',
+                borderRadius: '6px',
+                fontSize: '14px',
+                color: '#374151',
+                lineHeight: '1.5',
               }}
             >
               {concert.description}
@@ -546,7 +546,7 @@ const ConcertDetail = ({
                 ...buttonBaseStyles,
                 ...bookingInfo.style,
                 opacity: bookingInfo.disabled ? 0.7 : 1,
-                cursor: bookingInfo.disabled ? "not-allowed" : "pointer",
+                cursor: bookingInfo.disabled ? 'not-allowed' : 'pointer',
               }}
             >
               {bookingInfo.text}
@@ -562,12 +562,12 @@ const ConcertDetail = ({
           <div style={infoSectionStyles}>
             <h3
               style={{
-                fontSize: "18px",
-                fontWeight: "bold",
-                color: "#1f2937",
-                marginBottom: "12px",
-                borderBottom: "2px solid #e5e7eb",
-                paddingBottom: "8px",
+                fontSize: '18px',
+                fontWeight: 'bold',
+                color: '#1f2937',
+                marginBottom: '12px',
+                borderBottom: '2px solid #e5e7eb',
+                paddingBottom: '8px',
               }}
             >
               📅 공연 정보
@@ -590,9 +590,9 @@ const ConcertDetail = ({
                 {concert.venueAddress && (
                   <div
                     style={{
-                      fontSize: "14px",
-                      color: "#6b7280",
-                      marginTop: "4px",
+                      fontSize: '14px',
+                      color: '#6b7280',
+                      marginTop: '4px',
                     }}
                   >
                     {concert.venueAddress}
@@ -604,7 +604,7 @@ const ConcertDetail = ({
             <div style={infoItemStyles}>
               <span style={labelStyles}>총 좌석</span>
               <span style={valueStyles}>
-                🎫 {concert.totalSeats?.toLocaleString() || "정보 없음"}석
+                🎫 {concert.totalSeats?.toLocaleString() || '정보 없음'}석
               </span>
             </div>
           </div>
@@ -613,12 +613,12 @@ const ConcertDetail = ({
           <div style={infoSectionStyles}>
             <h3
               style={{
-                fontSize: "18px",
-                fontWeight: "bold",
-                color: "#1f2937",
-                marginBottom: "12px",
-                borderBottom: "2px solid #e5e7eb",
-                paddingBottom: "8px",
+                fontSize: '18px',
+                fontWeight: 'bold',
+                color: '#1f2937',
+                marginBottom: '12px',
+                borderBottom: '2px solid #e5e7eb',
+                paddingBottom: '8px',
               }}
             >
               🎟️ 예매 정보
@@ -632,7 +632,7 @@ const ConcertDetail = ({
             <div style={infoItemStyles}>
               <span style={labelStyles}>연령 제한</span>
               <span style={valueStyles}>
-                {concert.minAge ? `${concert.minAge}세 이상` : "전 연령 관람가"}
+                {concert.minAge ? `${concert.minAge}세 이상` : '전 연령 관람가'}
               </span>
             </div>
 
@@ -655,7 +655,7 @@ ConcertDetail.defaultProps = {
   error: null,
   showBookingButton: true,
   showRefreshButton: false,
-  className: "",
+  className: '',
   compact: false,
 };
 

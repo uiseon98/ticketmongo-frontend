@@ -1,7 +1,7 @@
 // src/features/concert/services/expectationService.js
 
 // 프로젝트 공통 API 클라이언트 import (SuccessResponse 자동 처리, 인터셉터 설정 완료)
-import apiClient from "../../../shared/utils/apiClient.js";
+import apiClient from '../../../shared/utils/apiClient.js';
 
 /**
  * 기대평 관련 API 호출 서비스
@@ -22,30 +22,30 @@ import apiClient from "../../../shared/utils/apiClient.js";
 
 // 기대평 데이터 검증 헬퍼 함수 (모듈 레벨로 이동)
 const validateExpectationData = (expectationData) => {
-  const trimmedComment = expectationData.comment?.trim() || "";
-  const trimmedNickname = expectationData.userNickname?.trim() || "";
+  const trimmedComment = expectationData.comment?.trim() || '';
+  const trimmedNickname = expectationData.userNickname?.trim() || '';
 
   if (trimmedComment.length === 0) {
-    throw new Error("기대평 내용은 필수입니다.");
+    throw new Error('기대평 내용은 필수입니다.');
   }
   if (trimmedComment.length > 500) {
-    throw new Error("기대평 내용은 500자 이하여야 합니다.");
+    throw new Error('기대평 내용은 500자 이하여야 합니다.');
   }
   if (
     !expectationData.expectationRating ||
     expectationData.expectationRating < 1 ||
     expectationData.expectationRating > 5
   ) {
-    throw new Error("기대 점수는 1 이상 5 이하여야 합니다.");
+    throw new Error('기대 점수는 1 이상 5 이하여야 합니다.');
   }
   if (trimmedNickname.length === 0) {
-    throw new Error("작성자 닉네임은 필수입니다.");
+    throw new Error('작성자 닉네임은 필수입니다.');
   }
   if (trimmedNickname.length > 50) {
-    throw new Error("작성자 닉네임은 50자 이하여야 합니다.");
+    throw new Error('작성자 닉네임은 50자 이하여야 합니다.');
   }
   if (!expectationData.userId || expectationData.userId < 1) {
-    throw new Error("작성자 ID는 1 이상이어야 합니다.");
+    throw new Error('작성자 ID는 1 이상이어야 합니다.');
   }
 };
 
@@ -67,15 +67,15 @@ export const expectationService = {
 
       // concertId 유효성 검증 - 필수값이고 양수여야 함
       if (!concertId || concertId < 1) {
-        throw new Error("콘서트 ID는 1 이상의 양수여야 합니다.");
+        throw new Error('콘서트 ID는 1 이상의 양수여야 합니다.');
       }
 
       // 페이지네이션 파라미터 유효성 검증
       if (page < 0) {
-        throw new Error("페이지 번호는 0 이상이어야 합니다.");
+        throw new Error('페이지 번호는 0 이상이어야 합니다.');
       }
       if (size < 1 || size > 100) {
-        throw new Error("페이지 크기는 1 이상 100 이하여야 합니다.");
+        throw new Error('페이지 크기는 1 이상 100 이하여야 합니다.');
       }
 
       // API 요청: URL 경로에 concertId 포함, 쿼리 파라미터로 페이징 정보 전달
@@ -121,7 +121,7 @@ export const expectationService = {
     try {
       // concertId 유효성 검증
       if (!concertId || concertId < 1) {
-        throw new Error("콘서트 ID는 1 이상의 양수여야 합니다.");
+        throw new Error('콘서트 ID는 1 이상의 양수여야 합니다.');
       }
 
       // 입력 데이터 검증
@@ -163,10 +163,10 @@ export const expectationService = {
     try {
       // ID 파라미터 유효성 검증
       if (!concertId || concertId < 1) {
-        throw new Error("콘서트 ID는 1 이상의 양수여야 합니다.");
+        throw new Error('콘서트 ID는 1 이상의 양수여야 합니다.');
       }
       if (!expectationId || expectationId < 1) {
-        throw new Error("기대평 ID는 1 이상의 양수여야 합니다.");
+        throw new Error('기대평 ID는 1 이상의 양수여야 합니다.');
       }
 
       // 수정할 데이터 유효성 검증 (생성 시와 동일한 규칙)
@@ -207,10 +207,10 @@ export const expectationService = {
     try {
       // ID 파라미터 유효성 검증
       if (!concertId || concertId < 1) {
-        throw new Error("콘서트 ID는 1 이상의 양수여야 합니다.");
+        throw new Error('콘서트 ID는 1 이상의 양수여야 합니다.');
       }
       if (!expectationId || expectationId < 1) {
-        throw new Error("기대평 ID는 1 이상의 양수여야 합니다.");
+        throw new Error('기대평 ID는 1 이상의 양수여야 합니다.');
       }
 
       // DELETE 요청: request body 없음, URL에 필요한 ID들 포함

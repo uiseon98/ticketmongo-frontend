@@ -1,6 +1,6 @@
-import React, { useState, useContext } from "react";
-import { NavLink } from "react-router-dom";
-import { AuthContext } from "../../../context/AuthContext";
+import React, { useState, useContext } from 'react';
+import { NavLink } from 'react-router-dom';
+import { AuthContext } from '../../../context/AuthContext';
 
 // Lucide React 사용 보류
 // import { User, Settings, Plus, List, ChevronDown, ChevronUp, Home } from 'lucide-react';
@@ -12,8 +12,8 @@ const SellerSidebar = () => {
   // 판매자 권한 확인 (백엔드에서 'ROLE_SELLER'로 넘어올 것을 가정하고 수정)
   const isSeller =
     user &&
-    (user.role === "ROLE_SELLER" ||
-      (user.roles && user.roles.includes("ROLE_SELLER")));
+    (user.role === 'ROLE_SELLER' ||
+      (user.roles && user.roles.includes('ROLE_SELLER')));
 
   // 판매자가 아닌 일반 유저 (로그인된 상태에서)
   const isNormalUser = user && !isSeller;
@@ -31,7 +31,7 @@ const SellerSidebar = () => {
     // 사이드바 전체 컨테이너
     <div
       className="flex flex-col shrink-0 min-h-screen bg-[#111922] border-r border-solid border-r-[#243447] py-3 pl-4 pr-3"
-      style={{ width: "200px" }} // 사이드바 너비 조정
+      style={{ width: '200px' }} // 사이드바 너비 조정
     >
       {/* 네비게이션 메뉴 */}
       <div className="flex flex-col gap-2 py-4">
@@ -41,7 +41,7 @@ const SellerSidebar = () => {
           end // 현재 경로가 정확히 일치할 때만 활성화 (하위 라우트에서는 비활성)
           className={({ isActive }) =>
             `flex items-center gap-3 px-3 py-2 rounded-lg text-white text-sm font-medium transition-colors ${
-              isActive ? "bg-[#243447]" : "hover:bg-[#243447]"
+              isActive ? 'bg-[#243447]' : 'hover:bg-[#243447]'
             }`
           }
         >
@@ -56,7 +56,7 @@ const SellerSidebar = () => {
             to="/seller/apply"
             className={({ isActive }) =>
               `flex items-center gap-3 px-3 py-2 rounded-lg text-white text-sm font-medium transition-colors ${
-                isActive ? "bg-[#243447]" : "hover:bg-[#243447]"
+                isActive ? 'bg-[#243447]' : 'hover:bg-[#243447]'
               }`
             }
           >
@@ -78,7 +78,7 @@ const SellerSidebar = () => {
               to="/seller/status"
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2 rounded-lg text-white text-sm font-medium transition-colors ${
-                  isActive ? "bg-[#243447]" : "hover:bg-[#243447]"
+                  isActive ? 'bg-[#243447]' : 'hover:bg-[#243447]'
                 }`
               }
             >
@@ -145,7 +145,7 @@ const SellerSidebar = () => {
                     to="/seller/concerts/register"
                     className={({ isActive }) =>
                       `flex items-center gap-3 px-3 py-2 rounded-lg text-white text-sm font-medium transition-colors ${
-                        isActive ? "bg-[#243447]" : "hover:bg-[#243447]"
+                        isActive ? 'bg-[#243447]' : 'hover:bg-[#243447]'
                       }`
                     }
                   >
@@ -170,7 +170,7 @@ const SellerSidebar = () => {
                     to="/seller/concerts/manage"
                     className={({ isActive }) =>
                       `flex items-center gap-3 px-3 py-2 rounded-lg text-white text-sm font-medium transition-colors ${
-                        isActive ? "bg-[#243447]" : "hover:bg-[#243447]"
+                        isActive ? 'bg-[#243447]' : 'hover:bg-[#243447]'
                       }`
                     }
                   >

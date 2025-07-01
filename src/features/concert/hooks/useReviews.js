@@ -4,13 +4,13 @@
 // useState: 컴포넌트의 상태(데이터)를 관리하는 훅
 // useEffect: 컴포넌트가 렌더링된 후 특정 작업을 수행하는 훅 (API 호출 등)
 // useCallback: 함수를 메모이제이션(캐싱)해서 불필요한 재생성을 방지하는 훅
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from 'react';
 
 // 우리가 만든 리뷰 서비스 import (실제 API 호출 로직이 들어있음)
-import { reviewService } from "../services/reviewService.js";
+import { reviewService } from '../services/reviewService.js';
 
 // 리뷰 관련 타입과 기본값들 import
-import { ReviewDefaults } from "../types/review.js";
+import { ReviewDefaults } from '../types/review.js';
 
 /**
  * 리뷰(후기) 목록 관리를 위한 커스텀 React 훅
@@ -87,7 +87,7 @@ export const useReviews = (concertId) => {
       try {
         // concertId가 없으면 리뷰를 조회할 수 없음
         if (!concertId || concertId < 1) {
-          throw new Error("유효한 콘서트 ID가 필요합니다.");
+          throw new Error('유효한 콘서트 ID가 필요합니다.');
         }
 
         // 로딩 시작: 사용자에게 "데이터 가져오는 중"임을 표시
@@ -131,14 +131,14 @@ export const useReviews = (concertId) => {
         } else {
           // API 응답은 성공했지만 데이터 형식이 예상과 다른 경우
           setReviews([]);
-          setError("리뷰 데이터를 불러올 수 없습니다.");
+          setError('리뷰 데이터를 불러올 수 없습니다.');
         }
       } catch (err) {
         // API 호출 실패 시 에러 처리
         console.error(`리뷰 목록 조회 실패 (콘서트 ID: ${concertId}):`, err);
 
         // 사용자에게 보여줄 친화적인 에러 메시지 설정
-        setError(err.message || "리뷰 목록을 불러오는 중 오류가 발생했습니다.");
+        setError(err.message || '리뷰 목록을 불러오는 중 오류가 발생했습니다.');
 
         // 에러 발생 시 빈 배열로 초기화
         setReviews([]);
@@ -161,7 +161,7 @@ export const useReviews = (concertId) => {
       try {
         // concertId 유효성 검증
         if (!concertId || concertId < 1) {
-          throw new Error("유효한 콘서트 ID가 필요합니다.");
+          throw new Error('유효한 콘서트 ID가 필요합니다.');
         }
 
         // 개별 작업 로딩 시작 (리뷰 목록 로딩과 구분)
@@ -191,7 +191,7 @@ export const useReviews = (concertId) => {
         console.error(`리뷰 작성 실패 (콘서트 ID: ${concertId}):`, err);
 
         // 에러를 상태에 설정하고 컴포넌트로도 전달
-        setError(err.message || "리뷰 작성 중 오류가 발생했습니다.");
+        setError(err.message || '리뷰 작성 중 오류가 발생했습니다.');
         throw err; // 컴포넌트에서 에러 처리를 할 수 있도록 다시 throw
       } finally {
         // 개별 작업 로딩 해제
@@ -213,10 +213,10 @@ export const useReviews = (concertId) => {
       try {
         // ID 파라미터 유효성 검증
         if (!concertId || concertId < 1) {
-          throw new Error("유효한 콘서트 ID가 필요합니다.");
+          throw new Error('유효한 콘서트 ID가 필요합니다.');
         }
         if (!reviewId || reviewId < 1) {
-          throw new Error("유효한 리뷰 ID가 필요합니다.");
+          throw new Error('유효한 리뷰 ID가 필요합니다.');
         }
 
         // 개별 작업 로딩 시작
@@ -245,7 +245,7 @@ export const useReviews = (concertId) => {
         console.error(`리뷰 수정 실패 (리뷰 ID: ${reviewId}):`, err);
 
         // 에러를 상태에 설정하고 컴포넌트로도 전달
-        setError(err.message || "리뷰 수정 중 오류가 발생했습니다.");
+        setError(err.message || '리뷰 수정 중 오류가 발생했습니다.');
         throw err;
       } finally {
         // 개별 작업 로딩 해제
@@ -266,10 +266,10 @@ export const useReviews = (concertId) => {
       try {
         // ID 파라미터 유효성 검증
         if (!concertId || concertId < 1) {
-          throw new Error("유효한 콘서트 ID가 필요합니다.");
+          throw new Error('유효한 콘서트 ID가 필요합니다.');
         }
         if (!reviewId || reviewId < 1) {
-          throw new Error("유효한 리뷰 ID가 필요합니다.");
+          throw new Error('유효한 리뷰 ID가 필요합니다.');
         }
 
         // 개별 작업 로딩 시작
@@ -298,7 +298,7 @@ export const useReviews = (concertId) => {
         console.error(`리뷰 삭제 실패 (리뷰 ID: ${reviewId}):`, err);
 
         // 에러를 상태에 설정하고 컴포넌트로도 전달
-        setError(err.message || "리뷰 삭제 중 오류가 발생했습니다.");
+        setError(err.message || '리뷰 삭제 중 오류가 발생했습니다.');
         throw err;
       } finally {
         // 개별 작업 로딩 해제
@@ -325,7 +325,7 @@ export const useReviews = (concertId) => {
 
       // 현재 페이지와 같으면 불필요한 API 호출 방지
       if (newPage === currentPage) {
-        console.info("같은 페이지이므로 API 호출을 건너뜁니다.");
+        console.info('같은 페이지이므로 API 호출을 건너뜁니다.');
         return;
       }
 
@@ -342,16 +342,16 @@ export const useReviews = (concertId) => {
    * @param {string} newSortDir - 새로운 정렬 방향 (asc, desc)
    */
   const changeSorting = useCallback(
-    async (newSortBy, newSortDir = "desc") => {
+    async (newSortBy, newSortDir = 'desc') => {
       // 정렬 기준 유효성 검증
-      const allowedSortFields = ["createdAt", "rating", "title"];
+      const allowedSortFields = ['createdAt', 'rating', 'title'];
       if (!allowedSortFields.includes(newSortBy)) {
         console.warn(`유효하지 않은 정렬 기준: ${newSortBy}`);
         return;
       }
 
       // 정렬 방향 유효성 검증
-      const allowedSortDirections = ["asc", "desc"];
+      const allowedSortDirections = ['asc', 'desc'];
       if (!allowedSortDirections.includes(newSortDir)) {
         console.warn(`유효하지 않은 정렬 방향: ${newSortDir}`);
         return;
@@ -359,10 +359,10 @@ export const useReviews = (concertId) => {
 
       // 현재 정렬과 같으면 불필요한 API 호출 방지
       if (newSortBy === sortBy && newSortDir === sortDir) {
-        console.info("같은 정렬 방식이므로 API 호출을 건너뜁니다.");
+        console.info('같은 정렬 방식이므로 API 호출을 건너뜁니다.');
         return;
       }
-      console.log("changeSorting 호출됨:", newSortBy, newSortDir);
+      console.log('changeSorting 호출됨:', newSortBy, newSortDir);
       // 정렬 변경 시 첫 페이지부터 다시 조회
       await fetchReviews({
         page: 0, // 첫 페이지로 이동
@@ -388,7 +388,7 @@ export const useReviews = (concertId) => {
 
       // 현재 페이지 크기와 같으면 불필요한 API 호출 방지
       if (newSize === pageSize) {
-        console.info("같은 페이지 크기이므로 API 호출을 건너뜁니다.");
+        console.info('같은 페이지 크기이므로 API 호출을 건너뜁니다.');
         return;
       }
 
@@ -464,10 +464,10 @@ export const useReviews = (concertId) => {
     isLastPage: currentPage === totalPages - 1, // 마지막 페이지인지 여부
 
     // 정렬 관련 편의 기능
-    isSortedByDate: sortBy === "createdAt", // 날짜순 정렬인지
-    isSortedByRating: sortBy === "rating", // 평점순 정렬인지
-    isSortedByTitle: sortBy === "title", // 제목순 정렬인지
-    isAscending: sortDir === "asc", // 오름차순인지
-    isDescending: sortDir === "desc", // 내림차순인지
+    isSortedByDate: sortBy === 'createdAt', // 날짜순 정렬인지
+    isSortedByRating: sortBy === 'rating', // 평점순 정렬인지
+    isSortedByTitle: sortBy === 'title', // 제목순 정렬인지
+    isAscending: sortDir === 'asc', // 오름차순인지
+    isDescending: sortDir === 'desc', // 내림차순인지
   };
 };

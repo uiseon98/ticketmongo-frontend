@@ -1,25 +1,25 @@
-import React, { useState } from "react";
-import { AccountForm } from "../../auth/services/AccountForm";
-import { EditProfileForm } from "../components/ProfileForm";
-import { passwordInputType } from "../types/passwordInputType";
+import React, { useState } from 'react';
+import { AccountForm } from '../../auth/services/AccountForm';
+import { EditProfileForm } from '../components/ProfileForm';
+import { passwordInputType } from '../types/passwordInputType';
 
 export function PasswordTab({ userId, onChangePassword }) {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [isChanging, setIsChanging] = useState(false);
   const [errors, setErrors] = useState({});
-  const [changeError, setChangeError] = useState("");
-  const [changeSuccess, setChangeSuccess] = useState("");
+  const [changeError, setChangeError] = useState('');
+  const [changeSuccess, setChangeSuccess] = useState('');
   const [passwords, setPasswords] = useState({
-    curPwd: "",
-    newPwd: "",
-    confirmPwd: "",
+    curPwd: '',
+    newPwd: '',
+    confirmPwd: '',
   });
 
   const handlePasswordChange = async () => {
     setIsChanging(true);
-    setChangeError("");
-    setChangeSuccess("");
+    setChangeError('');
+    setChangeSuccess('');
 
     try {
       const result = await onChangePassword({
@@ -28,18 +28,18 @@ export function PasswordTab({ userId, onChangePassword }) {
         newPassword: passwords.newPwd,
       });
 
-      setPasswords({ curPwd: "", newPwd: "", confirmPwd: "" });
+      setPasswords({ curPwd: '', newPwd: '', confirmPwd: '' });
 
       if (result.success) {
-        setChangeSuccess("비밀번호가 성공적으로 변경되었습니다.");
+        setChangeSuccess('비밀번호가 성공적으로 변경되었습니다.');
       } else {
         setChangeError(
-          "비밀번호 변경에 실패했습니다.\n 현재 비밀번호가 올바른지 확인해주세요.",
+          '비밀번호 변경에 실패했습니다.\n 현재 비밀번호가 올바른지 확인해주세요.',
         );
       }
     } catch (error) {
       setChangeError(
-        "비밀번호 변경에 실패했습니다.\n 현재 비밀번호가 올바른지 확인해주세요.",
+        '비밀번호 변경에 실패했습니다.\n 현재 비밀번호가 올바른지 확인해주세요.',
       );
     } finally {
       setIsChanging(false);
@@ -56,28 +56,28 @@ export function PasswordTab({ userId, onChangePassword }) {
 
     setPasswords(updatedData);
 
-    if (field != "confirmPwd") {
-      const error = AccountForm.validateField("password", value, passwords);
+    if (field != 'confirmPwd') {
+      const error = AccountForm.validateField('password', value, passwords);
       setErrors((prev) => ({
         ...prev,
         [field]: error,
       }));
     }
 
-    if (field === "confirmPwd") {
+    if (field === 'confirmPwd') {
       const confirmError =
-        value !== passwords.newPwd ? "비밀번호가 일치하지 않습니다." : "";
+        value !== passwords.newPwd ? '비밀번호가 일치하지 않습니다.' : '';
       setErrors((prev) => ({
         ...prev,
         confirmPwd: confirmError,
       }));
     }
 
-    if (field === "newPwd") {
+    if (field === 'newPwd') {
       const confirmError =
         passwords.confirmPwd && passwords.confirmPwd !== value
-          ? "비밀번호가 일치하지 않습니다."
-          : "";
+          ? '비밀번호가 일치하지 않습니다.'
+          : '';
       setErrors((prev) => ({
         ...prev,
         confirmPwd: confirmError,
@@ -115,16 +115,16 @@ export function PasswordTab({ userId, onChangePassword }) {
             onChange={handleInputChange(name)}
             showToggle={toggle}
             showValue={
-              name === "curPwd"
+              name === 'curPwd'
                 ? showCurrentPassword
-                : name === "newPwd"
+                : name === 'newPwd'
                   ? showNewPassword
                   : false
             }
             onToggle={() =>
-              name === "curPwd"
+              name === 'curPwd'
                 ? setShowCurrentPassword((prev) => !prev)
-                : name === "newPwd"
+                : name === 'newPwd'
                   ? setShowNewPassword((prev) => !prev)
                   : null
             }

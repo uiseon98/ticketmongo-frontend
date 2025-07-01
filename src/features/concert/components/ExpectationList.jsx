@@ -1,7 +1,7 @@
 // src/features/concert/components/ExpectationList.jsx
 
 // ===== IMPORT 섹션 =====
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState } from 'react';
 // useCallback: 이벤트 핸들러 최적화
 
 // 기대평 관련 타입과 상수들을 import
@@ -9,7 +9,7 @@ import {
   ExpectationRatingLabels,
   ExpectationRatingEmojis,
   ExpectationRatingColors,
-} from "../types/expectation.js";
+} from '../types/expectation.js';
 
 /**
  * ===== ExpectationList 컴포넌트 =====
@@ -62,7 +62,7 @@ const ExpectationList = ({
   allowFiltering = false, // 기대점수별 필터링 허용 여부
 
   // ===== 스타일 props =====
-  className = "", // 추가 CSS 클래스
+  className = '', // 추가 CSS 클래스
   compact = false, // 컴팩트 모드 (간소화된 UI)
 }) => {
   const [hoveredExpectationId, setHoveredExpectationId] = useState(null);
@@ -74,7 +74,7 @@ const ExpectationList = ({
    */
   const handlePageChange = useCallback(
     (newPage) => {
-      if (onPageChange && typeof onPageChange === "function") {
+      if (onPageChange && typeof onPageChange === 'function') {
         onPageChange(newPage);
       }
     },
@@ -87,7 +87,7 @@ const ExpectationList = ({
   const handlePageSizeChange = useCallback(
     (event) => {
       const newSize = parseInt(event.target.value, 10);
-      if (onPageSizeChange && typeof onPageSizeChange === "function") {
+      if (onPageSizeChange && typeof onPageSizeChange === 'function') {
         onPageSizeChange(newSize);
       }
     },
@@ -99,7 +99,7 @@ const ExpectationList = ({
    */
   const handleExpectationClick = useCallback(
     (expectation) => {
-      if (onExpectationClick && typeof onExpectationClick === "function") {
+      if (onExpectationClick && typeof onExpectationClick === 'function') {
         onExpectationClick(expectation);
       }
     },
@@ -110,7 +110,7 @@ const ExpectationList = ({
    * 새로고침 핸들러
    */
   const handleRefresh = useCallback(() => {
-    if (onRefresh && typeof onRefresh === "function") {
+    if (onRefresh && typeof onRefresh === 'function') {
       onRefresh();
     }
   }, [onRefresh]);
@@ -123,10 +123,10 @@ const ExpectationList = ({
   const formatDate = useCallback((dateString) => {
     try {
       const date = new Date(dateString);
-      return date.toLocaleDateString("ko-KR", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
+      return date.toLocaleDateString('ko-KR', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
       });
     } catch (error) {
       return dateString;
@@ -144,8 +144,8 @@ const ExpectationList = ({
           <span
             key={i}
             style={{
-              color: i <= rating ? "#fbbf24" : "#e5e7eb",
-              fontSize: compact ? "14px" : "16px",
+              color: i <= rating ? '#fbbf24' : '#e5e7eb',
+              fontSize: compact ? '14px' : '16px',
             }}
           >
             ★
@@ -179,13 +179,13 @@ const ExpectationList = ({
       if (start > 0) {
         visiblePages.unshift(0);
         if (start > 1) {
-          visiblePages.splice(1, 0, "...");
+          visiblePages.splice(1, 0, '...');
         }
       }
 
       if (end < totalPages - 1) {
         if (end < totalPages - 2) {
-          visiblePages.push("...");
+          visiblePages.push('...');
         }
         visiblePages.push(totalPages - 1);
       }
@@ -200,72 +200,72 @@ const ExpectationList = ({
    * 컨테이너 스타일
    */
   const containerStyles = {
-    backgroundColor: "#ffffff",
-    borderRadius: "8px",
-    border: "1px solid #e5e7eb",
-    padding: compact ? "12px" : "16px",
+    backgroundColor: '#ffffff',
+    borderRadius: '8px',
+    border: '1px solid #e5e7eb',
+    padding: compact ? '12px' : '16px',
   };
 
   /**
    * 헤더 스타일
    */
   const headerStyles = {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: compact ? "12px" : "16px",
-    paddingBottom: "12px",
-    borderBottom: "1px solid #e5e7eb",
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: compact ? '12px' : '16px',
+    paddingBottom: '12px',
+    borderBottom: '1px solid #e5e7eb',
   };
 
   /**
    * 제목 스타일
    */
   const titleStyles = {
-    fontSize: compact ? "16px" : "18px",
-    fontWeight: "bold",
-    color: "#1f2937",
-    display: "flex",
-    alignItems: "center",
-    gap: "6px",
+    fontSize: compact ? '16px' : '18px',
+    fontWeight: 'bold',
+    color: '#1f2937',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '6px',
   };
 
   /**
    * 기대평 카드 스타일
    */
   const expectationCardStyles = {
-    padding: compact ? "12px" : "16px",
-    border: "1px solid #e5e7eb",
-    borderRadius: "6px",
-    marginBottom: "12px",
-    backgroundColor: "#ffffff",
-    cursor: onExpectationClick ? "pointer" : "default",
-    transition: "all 0.2s ease",
+    padding: compact ? '12px' : '16px',
+    border: '1px solid #e5e7eb',
+    borderRadius: '6px',
+    marginBottom: '12px',
+    backgroundColor: '#ffffff',
+    cursor: onExpectationClick ? 'pointer' : 'default',
+    transition: 'all 0.2s ease',
   };
 
   /**
    * 페이지네이션 스타일
    */
   const paginationStyles = {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: "8px",
-    marginTop: "20px",
-    padding: "12px",
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: '8px',
+    marginTop: '20px',
+    padding: '12px',
   };
 
   /**
    * 페이지 버튼 기본 스타일
    */
   const pageButtonBaseStyles = {
-    padding: "6px 12px",
-    border: "1px solid #d1d5db",
-    borderRadius: "4px",
-    backgroundColor: "#ffffff",
-    cursor: "pointer",
-    fontSize: "14px",
-    transition: "all 0.2s ease",
+    padding: '6px 12px',
+    border: '1px solid #d1d5db',
+    borderRadius: '4px',
+    backgroundColor: '#ffffff',
+    cursor: 'pointer',
+    fontSize: '14px',
+    transition: 'all 0.2s ease',
   };
 
   /**
@@ -273,9 +273,9 @@ const ExpectationList = ({
    */
   const activePageButtonStyles = {
     ...pageButtonBaseStyles,
-    backgroundColor: "#3b82f6",
-    color: "#ffffff",
-    borderColor: "#3b82f6",
+    backgroundColor: '#3b82f6',
+    color: '#ffffff',
+    borderColor: '#3b82f6',
   };
 
   // ===== 조건부 렌더링 =====
@@ -297,40 +297,40 @@ const ExpectationList = ({
               key={`skeleton-${index}`}
               style={{
                 ...expectationCardStyles,
-                cursor: "default",
+                cursor: 'default',
               }}
             >
               <div
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  marginBottom: "8px",
+                  display: 'flex',
+                  alignItems: 'center',
+                  marginBottom: '8px',
                 }}
               >
                 <div
                   style={{
-                    width: "100px",
-                    height: "16px",
-                    backgroundColor: "#e5e7eb",
-                    borderRadius: "4px",
-                    marginRight: "12px",
+                    width: '100px',
+                    height: '16px',
+                    backgroundColor: '#e5e7eb',
+                    borderRadius: '4px',
+                    marginRight: '12px',
                   }}
                 />
                 <div
                   style={{
-                    width: "60px",
-                    height: "16px",
-                    backgroundColor: "#e5e7eb",
-                    borderRadius: "4px",
+                    width: '60px',
+                    height: '16px',
+                    backgroundColor: '#e5e7eb',
+                    borderRadius: '4px',
                   }}
                 />
               </div>
               <div
                 style={{
-                  width: "100%",
-                  height: "40px",
-                  backgroundColor: "#e5e7eb",
-                  borderRadius: "4px",
+                  width: '100%',
+                  height: '40px',
+                  backgroundColor: '#e5e7eb',
+                  borderRadius: '4px',
                 }}
               />
             </div>
@@ -339,10 +339,10 @@ const ExpectationList = ({
 
         <div
           style={{
-            textAlign: "center",
-            color: "#6b7280",
-            fontSize: "14px",
-            marginTop: "16px",
+            textAlign: 'center',
+            color: '#6b7280',
+            fontSize: '14px',
+            marginTop: '16px',
           }}
         >
           기대평을 불러오는 중...
@@ -363,13 +363,13 @@ const ExpectationList = ({
             <button
               onClick={handleRefresh}
               style={{
-                padding: "6px 12px",
-                backgroundColor: "#dc2626",
-                color: "#ffffff",
-                border: "none",
-                borderRadius: "4px",
-                fontSize: "12px",
-                cursor: "pointer",
+                padding: '6px 12px',
+                backgroundColor: '#dc2626',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '4px',
+                fontSize: '12px',
+                cursor: 'pointer',
               }}
             >
               🔄 다시 시도
@@ -379,29 +379,29 @@ const ExpectationList = ({
 
         <div
           style={{
-            textAlign: "center",
-            padding: "40px 20px",
+            textAlign: 'center',
+            padding: '40px 20px',
           }}
         >
-          <div style={{ fontSize: "48px", marginBottom: "16px" }}>😵</div>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>😵</div>
           <h3
             style={{
-              color: "#dc2626",
-              marginBottom: "8px",
-              fontSize: "18px",
+              color: '#dc2626',
+              marginBottom: '8px',
+              fontSize: '18px',
             }}
           >
             기대평을 불러올 수 없습니다
           </h3>
           <p
             style={{
-              color: "#6b7280",
-              fontSize: "14px",
+              color: '#6b7280',
+              fontSize: '14px',
             }}
           >
-            {typeof error === "string"
+            {typeof error === 'string'
               ? error
-              : "알 수 없는 오류가 발생했습니다."}
+              : '알 수 없는 오류가 발생했습니다.'}
           </p>
         </div>
       </div>
@@ -419,13 +419,13 @@ const ExpectationList = ({
             ✨ 기대평 (0개)
             <span
               style={{
-                fontSize: "11px",
-                backgroundColor: "#fef3c7",
-                color: "#92400e",
-                padding: "2px 6px",
-                borderRadius: "10px",
-                fontWeight: "normal",
-                marginLeft: "8px",
+                fontSize: '11px',
+                backgroundColor: '#fef3c7',
+                color: '#92400e',
+                padding: '2px 6px',
+                borderRadius: '10px',
+                fontWeight: 'normal',
+                marginLeft: '8px',
               }}
             >
               관람 전
@@ -435,24 +435,24 @@ const ExpectationList = ({
 
         <div
           style={{
-            textAlign: "center",
-            padding: "40px 20px",
+            textAlign: 'center',
+            padding: '40px 20px',
           }}
         >
-          <div style={{ fontSize: "48px", marginBottom: "16px" }}>✨</div>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>✨</div>
           <h3
             style={{
-              color: "#6b7280",
-              marginBottom: "8px",
-              fontSize: "18px",
+              color: '#6b7280',
+              marginBottom: '8px',
+              fontSize: '18px',
             }}
           >
             아직 작성된 기대평이 없습니다
           </h3>
           <p
             style={{
-              color: "#9ca3af",
-              fontSize: "14px",
+              color: '#9ca3af',
+              fontSize: '14px',
             }}
           >
             공연 전에 기대평을 작성해보세요!
@@ -461,12 +461,12 @@ const ExpectationList = ({
           {!compact && (
             <div
               style={{
-                marginTop: "16px",
-                padding: "12px",
-                backgroundColor: "#eff6ff",
-                borderRadius: "6px",
-                fontSize: "12px",
-                color: "#1e40af",
+                marginTop: '16px',
+                padding: '12px',
+                backgroundColor: '#eff6ff',
+                borderRadius: '6px',
+                fontSize: '12px',
+                color: '#1e40af',
               }}
             >
               💡 기대평은 관람 전에 작성하는 기대감 표현입니다
@@ -487,13 +487,13 @@ const ExpectationList = ({
           ✨ 기대평 ({totalElements.toLocaleString()}개)
           <span
             style={{
-              fontSize: "11px",
-              backgroundColor: "#fef3c7",
-              color: "#92400e",
-              padding: "2px 6px",
-              borderRadius: "10px",
-              fontWeight: "normal",
-              marginLeft: "8px",
+              fontSize: '11px',
+              backgroundColor: '#fef3c7',
+              color: '#92400e',
+              padding: '2px 6px',
+              borderRadius: '10px',
+              fontWeight: 'normal',
+              marginLeft: '8px',
             }}
           >
             관람 전
@@ -505,13 +505,13 @@ const ExpectationList = ({
           <button
             onClick={handleRefresh}
             style={{
-              padding: "4px 8px",
-              backgroundColor: "transparent",
-              border: "1px solid #d1d5db",
-              borderRadius: "4px",
-              fontSize: "12px",
-              color: "#6b7280",
-              cursor: "pointer",
+              padding: '4px 8px',
+              backgroundColor: 'transparent',
+              border: '1px solid #d1d5db',
+              borderRadius: '4px',
+              fontSize: '12px',
+              color: '#6b7280',
+              cursor: 'pointer',
             }}
           >
             🔄
@@ -528,8 +528,8 @@ const ExpectationList = ({
               ...expectationCardStyles,
               ...(hoveredExpectationId === expectation.id && onExpectationClick
                 ? {
-                    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-                    transform: "translateY(-1px)",
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                    transform: 'translateY(-1px)',
                   }
                 : {}),
             }}
@@ -542,28 +542,28 @@ const ExpectationList = ({
             {/* 기대평 헤더 */}
             <div
               style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: "8px",
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '8px',
               }}
             >
               <div
-                style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
               >
                 <span
                   style={{
-                    fontSize: compact ? "12px" : "14px",
-                    fontWeight: "600",
-                    color: "#374151",
+                    fontSize: compact ? '12px' : '14px',
+                    fontWeight: '600',
+                    color: '#374151',
                   }}
                 >
                   {expectation.userNickname}
                 </span>
                 <span
                   style={{
-                    fontSize: "11px",
-                    color: "#9ca3af",
+                    fontSize: '11px',
+                    color: '#9ca3af',
                   }}
                 >
                   {formatDate(expectation.createdAt)}
@@ -571,14 +571,14 @@ const ExpectationList = ({
               </div>
 
               <div
-                style={{ display: "flex", alignItems: "center", gap: "4px" }}
+                style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
               >
                 {renderExpectationStars(expectation.expectationRating)}
                 <span
                   style={{
-                    fontSize: "12px",
-                    color: "#6b7280",
-                    marginLeft: "4px",
+                    fontSize: '12px',
+                    color: '#6b7280',
+                    marginLeft: '4px',
                   }}
                 >
                   ({expectation.expectationRating}/5)
@@ -589,20 +589,20 @@ const ExpectationList = ({
             {/* 기대평 내용 */}
             <div
               style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-                marginBottom: "8px",
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                marginBottom: '8px',
               }}
             >
-              <span style={{ fontSize: compact ? "18px" : "20px" }}>
+              <span style={{ fontSize: compact ? '18px' : '20px' }}>
                 {ExpectationRatingEmojis[expectation.expectationRating]}
               </span>
               <span
                 style={{
-                  fontSize: compact ? "13px" : "14px",
-                  fontWeight: "600",
-                  color: "#374151",
+                  fontSize: compact ? '13px' : '14px',
+                  fontWeight: '600',
+                  color: '#374151',
                 }}
               >
                 {ExpectationRatingLabels[expectation.expectationRating]}
@@ -612,14 +612,14 @@ const ExpectationList = ({
             {/* 기대평 텍스트 */}
             <p
               style={{
-                fontSize: compact ? "13px" : "14px",
-                color: "#6b7280",
-                lineHeight: "1.5",
-                margin: "0",
+                fontSize: compact ? '13px' : '14px',
+                color: '#6b7280',
+                lineHeight: '1.5',
+                margin: '0',
               }}
             >
               {expectation.comment.length > 150 && !compact
-                ? expectation.comment.substring(0, 150) + "..."
+                ? expectation.comment.substring(0, 150) + '...'
                 : expectation.comment}
             </p>
           </div>
@@ -636,7 +636,7 @@ const ExpectationList = ({
             style={{
               ...pageButtonBaseStyles,
               opacity: currentPage === 0 ? 0.5 : 1,
-              cursor: currentPage === 0 ? "not-allowed" : "pointer",
+              cursor: currentPage === 0 ? 'not-allowed' : 'pointer',
             }}
           >
             ← 이전
@@ -644,9 +644,9 @@ const ExpectationList = ({
 
           {/* 페이지 번호들 */}
           {getVisiblePageNumbers().map((pageNum, index) => {
-            if (pageNum === "...") {
+            if (pageNum === '...') {
               return (
-                <span key={`ellipsis-${index}`} style={{ padding: "6px 4px" }}>
+                <span key={`ellipsis-${index}`} style={{ padding: '6px 4px' }}>
                   ...
                 </span>
               );
@@ -674,7 +674,7 @@ const ExpectationList = ({
             style={{
               ...pageButtonBaseStyles,
               opacity: currentPage >= totalPages - 1 ? 0.5 : 1,
-              cursor: currentPage >= totalPages - 1 ? "not-allowed" : "pointer",
+              cursor: currentPage >= totalPages - 1 ? 'not-allowed' : 'pointer',
             }}
           >
             다음 →
@@ -686,19 +686,19 @@ const ExpectationList = ({
       {showPagination && totalElements > 10 && (
         <div
           style={{
-            textAlign: "center",
-            marginTop: "12px",
+            textAlign: 'center',
+            marginTop: '12px',
           }}
         >
           <select
             value={pageSize}
             onChange={handlePageSizeChange}
             style={{
-              padding: "4px 8px",
-              border: "1px solid #d1d5db",
-              borderRadius: "4px",
-              fontSize: "12px",
-              backgroundColor: "#ffffff",
+              padding: '4px 8px',
+              border: '1px solid #d1d5db',
+              borderRadius: '4px',
+              fontSize: '12px',
+              backgroundColor: '#ffffff',
             }}
           >
             <option value={10}>10개씩 보기</option>
@@ -712,15 +712,15 @@ const ExpectationList = ({
       {!compact && totalElements > 0 && (
         <div
           style={{
-            marginTop: "16px",
-            padding: "12px",
-            backgroundColor: "#fef9e7",
-            borderRadius: "6px",
-            fontSize: "12px",
-            color: "#a16207",
+            marginTop: '16px',
+            padding: '12px',
+            backgroundColor: '#fef9e7',
+            borderRadius: '6px',
+            fontSize: '12px',
+            color: '#a16207',
           }}
         >
-          💡 기대평은 공연 관람 <strong>전</strong>에 작성하는 기대감이며, 관람{" "}
+          💡 기대평은 공연 관람 <strong>전</strong>에 작성하는 기대감이며, 관람{' '}
           <strong>후</strong>에는 리뷰를 작성하실 수 있습니다.
         </div>
       )}
@@ -740,7 +740,7 @@ ExpectationList.defaultProps = {
   showPagination: true,
   showRefreshButton: false,
   allowFiltering: false,
-  className: "",
+  className: '',
   compact: false,
 };
 

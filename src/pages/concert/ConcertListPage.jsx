@@ -1,25 +1,25 @@
 // src/pages/concert/ConcertListPage.jsx
-import React from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import React from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 
 // 새로운 컴포넌트들 import
-import ConcertList from "../../features/concert/components/ConcertList.jsx";
-import SearchBar from "../../features/concert/components/SearchBar.jsx";
-import FilterPanel from "../../features/concert/components/FilterPanel.jsx";
+import ConcertList from '../../features/concert/components/ConcertList.jsx';
+import SearchBar from '../../features/concert/components/SearchBar.jsx';
+import FilterPanel from '../../features/concert/components/FilterPanel.jsx';
 
 // 새로운 hooks import
-import { useConcerts } from "../../features/concert/hooks/useConcerts.js";
+import { useConcerts } from '../../features/concert/hooks/useConcerts.js';
 
 function ConcertListPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
   // URL 쿼리 파라미터에서 값들 추출
-  const query = searchParams.get("query") || "";
-  const startDate = searchParams.get("startDate") || "";
-  const endDate = searchParams.get("endDate") || "";
-  const minPrice = searchParams.get("minPrice") || "";
-  const maxPrice = searchParams.get("maxPrice") || "";
+  const query = searchParams.get('query') || '';
+  const startDate = searchParams.get('startDate') || '';
+  const endDate = searchParams.get('endDate') || '';
+  const minPrice = searchParams.get('minPrice') || '';
+  const maxPrice = searchParams.get('maxPrice') || '';
 
   // 콘서트 목록 hook
   const {
@@ -47,14 +47,14 @@ function ConcertListPage() {
       // URL 파라미터 업데이트
       const newSearchParams = new URLSearchParams();
       if (searchKeyword && searchKeyword.trim()) {
-        newSearchParams.set("query", searchKeyword.trim());
+        newSearchParams.set('query', searchKeyword.trim());
         await searchConcerts(searchKeyword.trim());
       } else {
         await fetchConcerts();
       }
       setSearchParams(newSearchParams);
     } catch (err) {
-      console.error("검색 실패:", err);
+      console.error('검색 실패:', err);
     }
   };
 
@@ -62,13 +62,13 @@ function ConcertListPage() {
   const handleClearSearch = () => {
     // URL 파라미터에서 query 제거
     const newSearchParams = new URLSearchParams(searchParams);
-    newSearchParams.delete("query");
+    newSearchParams.delete('query');
     setSearchParams(newSearchParams);
 
     // 전체 콘서트 목록 다시 로드
     fetchConcerts();
 
-    console.log("검색 완전히 초기화됨");
+    console.log('검색 완전히 초기화됨');
   };
 
   // 필터 적용 핸들러
@@ -100,7 +100,7 @@ function ConcertListPage() {
 
       setSearchParams(newSearchParams);
     } catch (err) {
-      console.error("필터링 실패:", err);
+      console.error('필터링 실패:', err);
     }
   };
 
@@ -168,7 +168,7 @@ function ConcertListPage() {
             <div className="flex justify-between items-center">
               <div>
                 <h3 className="font-semibold text-blue-800 mb-1">
-                  {query ? `"${query}" 검색 결과` : "필터링 결과"}
+                  {query ? `"${query}" 검색 결과` : '필터링 결과'}
                 </h3>
                 <p className="text-sm text-blue-600">
                   총 {totalElements}개의 콘서트를 찾았습니다.
@@ -210,8 +210,8 @@ function ConcertListPage() {
             query
               ? `"${query}"에 대한 검색 결과가 없습니다.`
               : startDate || endDate || minPrice || maxPrice
-                ? "필터 조건에 맞는 콘서트가 없습니다."
-                : "등록된 콘서트가 없습니다."
+                ? '필터 조건에 맞는 콘서트가 없습니다.'
+                : '등록된 콘서트가 없습니다.'
           }
         />
       </div>
@@ -219,7 +219,7 @@ function ConcertListPage() {
       {/* 페이지 하단 정보 */}
       <div className="text-center text-gray-500 text-sm">
         <p>
-          총 {totalElements}개의 콘서트 중 {currentPage + 1} / {totalPages}{" "}
+          총 {totalElements}개의 콘서트 중 {currentPage + 1} / {totalPages}{' '}
           페이지
         </p>
       </div>

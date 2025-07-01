@@ -4,13 +4,13 @@
 // useState: 컴포넌트의 상태(데이터)를 관리하는 훅
 // useEffect: 컴포넌트가 렌더링된 후 특정 작업을 수행하는 훅 (API 호출 등)
 // useCallback: 함수를 메모이제이션(캐싱)해서 불필요한 재생성을 방지하는 훅
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from 'react';
 
 // 우리가 만든 기대평 서비스 import (실제 API 호출 로직이 들어있음)
-import { expectationService } from "../services/expectationService.js";
+import { expectationService } from '../services/expectationService.js';
 
 // 기대평 관련 타입과 기본값들 import
-import { ExpectationDefaults } from "../types/expectation.js";
+import { ExpectationDefaults } from '../types/expectation.js';
 
 /**
  * 기대평(Expectation Review) 목록 관리를 위한 커스텀 React 훅
@@ -81,7 +81,7 @@ export const useExpectations = (concertId) => {
       try {
         // concertId가 없으면 기대평을 조회할 수 없음
         if (!concertId || concertId < 1) {
-          throw new Error("유효한 콘서트 ID가 필요합니다.");
+          throw new Error('유효한 콘서트 ID가 필요합니다.');
         }
 
         // 로딩 시작: 사용자에게 "데이터 가져오는 중"임을 표시
@@ -120,7 +120,7 @@ export const useExpectations = (concertId) => {
         } else {
           // API 응답은 성공했지만 데이터 형식이 예상과 다른 경우
           setExpectations([]);
-          setError("기대평 데이터를 불러올 수 없습니다.");
+          setError('기대평 데이터를 불러올 수 없습니다.');
         }
       } catch (err) {
         // API 호출 실패 시 에러 처리
@@ -128,7 +128,7 @@ export const useExpectations = (concertId) => {
 
         // 사용자에게 보여줄 친화적인 에러 메시지 설정
         setError(
-          err.message || "기대평 목록을 불러오는 중 오류가 발생했습니다.",
+          err.message || '기대평 목록을 불러오는 중 오류가 발생했습니다.',
         );
 
         // 에러 발생 시 빈 배열로 초기화
@@ -152,7 +152,7 @@ export const useExpectations = (concertId) => {
       try {
         // concertId 유효성 검증
         if (!concertId || concertId < 1) {
-          throw new Error("유효한 콘서트 ID가 필요합니다.");
+          throw new Error('유효한 콘서트 ID가 필요합니다.');
         }
 
         // 개별 작업 로딩 시작 (기대평 목록 로딩과 구분)
@@ -182,7 +182,7 @@ export const useExpectations = (concertId) => {
         console.error(`기대평 작성 실패 (콘서트 ID: ${concertId}):`, err);
 
         // 에러를 상태에 설정하고 컴포넌트로도 전달
-        setError(err.message || "기대평 작성 중 오류가 발생했습니다.");
+        setError(err.message || '기대평 작성 중 오류가 발생했습니다.');
         throw err; // 컴포넌트에서 에러 처리를 할 수 있도록 다시 throw
       } finally {
         // 개별 작업 로딩 해제
@@ -204,10 +204,10 @@ export const useExpectations = (concertId) => {
       try {
         // ID 파라미터 유효성 검증
         if (!concertId || concertId < 1) {
-          throw new Error("유효한 콘서트 ID가 필요합니다.");
+          throw new Error('유효한 콘서트 ID가 필요합니다.');
         }
         if (!expectationId || expectationId < 1) {
-          throw new Error("유효한 기대평 ID가 필요합니다.");
+          throw new Error('유효한 기대평 ID가 필요합니다.');
         }
 
         // 개별 작업 로딩 시작
@@ -236,7 +236,7 @@ export const useExpectations = (concertId) => {
         console.error(`기대평 수정 실패 (기대평 ID: ${expectationId}):`, err);
 
         // 에러를 상태에 설정하고 컴포넌트로도 전달
-        setError(err.message || "기대평 수정 중 오류가 발생했습니다.");
+        setError(err.message || '기대평 수정 중 오류가 발생했습니다.');
         throw err;
       } finally {
         // 개별 작업 로딩 해제
@@ -257,10 +257,10 @@ export const useExpectations = (concertId) => {
       try {
         // ID 파라미터 유효성 검증
         if (!concertId || concertId < 1) {
-          throw new Error("유효한 콘서트 ID가 필요합니다.");
+          throw new Error('유효한 콘서트 ID가 필요합니다.');
         }
         if (!expectationId || expectationId < 1) {
-          throw new Error("유효한 기대평 ID가 필요합니다.");
+          throw new Error('유효한 기대평 ID가 필요합니다.');
         }
 
         // 개별 작업 로딩 시작
@@ -289,7 +289,7 @@ export const useExpectations = (concertId) => {
         console.error(`기대평 삭제 실패 (기대평 ID: ${expectationId}):`, err);
 
         // 에러를 상태에 설정하고 컴포넌트로도 전달
-        setError(err.message || "기대평 삭제 중 오류가 발생했습니다.");
+        setError(err.message || '기대평 삭제 중 오류가 발생했습니다.');
         throw err;
       } finally {
         // 개별 작업 로딩 해제
@@ -316,7 +316,7 @@ export const useExpectations = (concertId) => {
 
       // 현재 페이지와 같으면 불필요한 API 호출 방지
       if (newPage === currentPage) {
-        console.info("같은 페이지이므로 API 호출을 건너뜁니다.");
+        console.info('같은 페이지이므로 API 호출을 건너뜁니다.');
         return;
       }
 
@@ -341,7 +341,7 @@ export const useExpectations = (concertId) => {
 
       // 현재 페이지 크기와 같으면 불필요한 API 호출 방지
       if (newSize === pageSize) {
-        console.info("같은 페이지 크기이므로 API 호출을 건너뜁니다.");
+        console.info('같은 페이지 크기이므로 API 호출을 건너뜁니다.');
         return;
       }
 

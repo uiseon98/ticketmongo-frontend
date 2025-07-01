@@ -1,31 +1,31 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 
 export function BookingsTab({ bookingHistory, isLoading }) {
   const navigate = useNavigate();
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "CONFIRMED":
-        return "bg-green-100 text-green-800";
-      case "COMPLETED":
-        return "bg-gray-100 text-gray-800";
-      case "CANCELED":
-        return "bg-red-100 text-red-800";
+      case 'CONFIRMED':
+        return 'bg-green-100 text-green-800';
+      case 'COMPLETED':
+        return 'bg-gray-100 text-gray-800';
+      case 'CANCELED':
+        return 'bg-red-100 text-red-800';
       default:
-        return "bg-blue-100 text-blue-800";
+        return 'bg-blue-100 text-blue-800';
     }
   };
 
   const getStatusText = (status) => {
     switch (status) {
-      case "CONFIRMED":
-        return "예매 확정";
-      case "COMPLETED":
-        return "관람 완료";
-      case "CANCELED":
-        return "취소됨";
+      case 'CONFIRMED':
+        return '예매 확정';
+      case 'COMPLETED':
+        return '관람 완료';
+      case 'CANCELED':
+        return '취소됨';
       default:
-        return "대기중";
+        return '대기중';
     }
   };
 

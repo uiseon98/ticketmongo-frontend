@@ -1,7 +1,7 @@
 // src/features/concert/components/SearchBar.jsx
 
 // ===== IMPORT 섹션 =====
-import React, { useState, useRef, useCallback, useEffect } from "react";
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 
 /**
  * ===== SearchBar 컴포넌트 (한국어 입력 문제 해결 버전) =====
@@ -21,13 +21,13 @@ const SearchBar = ({
   onChange, // 검색어 변경 함수 (useSearch.setSearchTerm)
 
   // ===== 기존 props (선택적) =====
-  initialValue = "", // 내부 제어 모드에서의 초기값
-  placeholder = "콘서트나 아티스트를 검색하세요",
+  initialValue = '', // 내부 제어 모드에서의 초기값
+  placeholder = '콘서트나 아티스트를 검색하세요',
   loading = false, // useSearch.isSearching과 연동
   disabled = false,
   autoFocus = false,
   onClear, // useSearch.clearSearch와 연동
-  className = "",
+  className = '',
 }) => {
   // ===== 상태 관리 섹션 =====
 
@@ -46,7 +46,7 @@ const SearchBar = ({
 
   // ===== 외부 상태 동기화 =====
   useEffect(() => {
-    if (isExternallyControlled && value === "" && inputRef.current) {
+    if (isExternallyControlled && value === '' && inputRef.current) {
       // 필요시 포커스 유지
     }
   }, [isExternallyControlled, value]);
@@ -59,7 +59,7 @@ const SearchBar = ({
   const handleInputChange = useCallback(
     (event) => {
       const newValue = event.target.value;
-      console.log("입력값 변경:", newValue);
+      console.log('입력값 변경:', newValue);
       if (setCurrentSearchTerm) {
         setCurrentSearchTerm(newValue);
       }
@@ -83,7 +83,7 @@ const SearchBar = ({
       return;
     }
 
-    if (onSearch && typeof onSearch === "function") {
+    if (onSearch && typeof onSearch === 'function') {
       onSearch(trimmedTerm);
     }
 
@@ -95,10 +95,10 @@ const SearchBar = ({
    */
   const handleClear = useCallback(() => {
     // 내부 제어 모드이므로 내부 상태만 초기화
-    setInternalSearchTerm(""); // 또는 setCurrentSearchTerm('')
+    setInternalSearchTerm(''); // 또는 setCurrentSearchTerm('')
 
     // 외부 onClear 호출
-    if (onClear && typeof onClear === "function") {
+    if (onClear && typeof onClear === 'function') {
       onClear();
     }
 
@@ -114,12 +114,12 @@ const SearchBar = ({
   const handleKeyDown = useCallback(
     (event) => {
       // 한국어 입력 중이면 엔터키 무시
-      if (event.key === "Enter") {
+      if (event.key === 'Enter') {
         event.preventDefault();
         handleSearch();
       }
 
-      if (event.key === "Escape") {
+      if (event.key === 'Escape') {
         event.preventDefault();
         handleClear();
       }
@@ -141,57 +141,57 @@ const SearchBar = ({
   // ===== 스타일 정의 섹션 =====
 
   const containerStyles = {
-    display: "flex",
-    alignItems: "center",
-    width: "100%",
-    maxWidth: "600px",
-    position: "relative",
-    border: `2px solid ${isFocused ? "#3b82f6" : "#d1d5db"}`,
-    borderRadius: "8px",
-    backgroundColor: disabled ? "#f3f4f6" : "#ffffff",
+    display: 'flex',
+    alignItems: 'center',
+    width: '100%',
+    maxWidth: '600px',
+    position: 'relative',
+    border: `2px solid ${isFocused ? '#3b82f6' : '#d1d5db'}`,
+    borderRadius: '8px',
+    backgroundColor: disabled ? '#f3f4f6' : '#ffffff',
     boxShadow: isFocused
-      ? "0 0 0 3px rgba(59, 130, 246, 0.1)"
-      : "0 1px 3px rgba(0, 0, 0, 0.1)",
-    transition: "all 0.2s ease-in-out",
+      ? '0 0 0 3px rgba(59, 130, 246, 0.1)'
+      : '0 1px 3px rgba(0, 0, 0, 0.1)',
+    transition: 'all 0.2s ease-in-out',
     opacity: disabled ? 0.6 : 1,
-    cursor: disabled ? "not-allowed" : "text",
+    cursor: disabled ? 'not-allowed' : 'text',
   };
 
   const inputStyles = {
     flex: 1,
-    padding: "12px 16px",
-    border: "none",
-    outline: "none",
-    fontSize: "16px",
-    fontFamily: "inherit",
-    backgroundColor: "transparent",
-    color: disabled ? "#9ca3af" : "#1f2937",
+    padding: '12px 16px',
+    border: 'none',
+    outline: 'none',
+    fontSize: '16px',
+    fontFamily: 'inherit',
+    backgroundColor: 'transparent',
+    color: disabled ? '#9ca3af' : '#1f2937',
   };
 
   const buttonBaseStyles = {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: "8px",
-    margin: "0 4px",
-    width: "40px",
-    height: "40px",
-    border: "none",
-    borderRadius: "6px",
-    backgroundColor: "transparent",
-    cursor: disabled ? "not-allowed" : "pointer",
-    transition: "all 0.2s ease",
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '8px',
+    margin: '0 4px',
+    width: '40px',
+    height: '40px',
+    border: 'none',
+    borderRadius: '6px',
+    backgroundColor: 'transparent',
+    cursor: disabled ? 'not-allowed' : 'pointer',
+    transition: 'all 0.2s ease',
     opacity: disabled ? 0.5 : 1,
   };
 
   const searchButtonStyles = {
     ...buttonBaseStyles,
-    color: loading ? "#9ca3af" : "#3b82f6",
+    color: loading ? '#9ca3af' : '#3b82f6',
   };
 
   const clearButtonStyles = {
     ...buttonBaseStyles,
-    color: "#6b7280",
+    color: '#6b7280',
   };
 
   // ===== JSX 렌더링 섹션 =====
@@ -267,7 +267,7 @@ const SearchBar = ({
             strokeLinecap="round"
             strokeLinejoin="round"
             style={{
-              animation: "spin 1s linear infinite",
+              animation: 'spin 1s linear infinite',
             }}
           >
             <path d="M21 12a9 9 0 11-6.219-8.56" />
@@ -294,11 +294,11 @@ const SearchBar = ({
       <div
         id="search-help"
         style={{
-          position: "absolute",
-          left: "-9999px",
-          width: "1px",
-          height: "1px",
-          overflow: "hidden",
+          position: 'absolute',
+          left: '-9999px',
+          width: '1px',
+          height: '1px',
+          overflow: 'hidden',
         }}
         aria-hidden="true"
       >
@@ -323,12 +323,12 @@ const SearchBar = ({
 
 // ===== 기본 PROPS =====
 SearchBar.defaultProps = {
-  initialValue: "",
-  placeholder: "콘서트나 아티스트를 검색하세요",
+  initialValue: '',
+  placeholder: '콘서트나 아티스트를 검색하세요',
   loading: false,
   disabled: false,
   autoFocus: false,
-  className: "",
+  className: '',
 };
 
 export default SearchBar;

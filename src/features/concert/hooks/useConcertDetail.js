@@ -4,10 +4,10 @@
 // useState: 컴포넌트의 상태(데이터)를 관리하는 훅
 // useEffect: 컴포넌트가 렌더링된 후 특정 작업을 수행하는 훅 (API 호출 등)
 // useCallback: 함수를 메모이제이션(캐싱)해서 불필요한 재생성을 방지하는 훅
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from 'react';
 
 // 우리가 만든 콘서트 서비스 import (실제 API 호출 로직이 들어있음)
-import { concertService } from "../services/concertService.js";
+import { concertService } from '../services/concertService.js';
 
 /**
  * 콘서트 상세 정보 관리를 위한 커스텀 React 훅
@@ -67,7 +67,7 @@ export const useConcertDetail = (concertId = null) => {
       try {
         // concertId가 없으면 조회할 수 없음
         if (!id || id < 1) {
-          throw new Error("유효한 콘서트 ID가 필요합니다.");
+          throw new Error('유효한 콘서트 ID가 필요합니다.');
         }
 
         // 로딩 시작: 사용자에게 "데이터 가져오는 중"임을 표시
@@ -95,7 +95,7 @@ export const useConcertDetail = (concertId = null) => {
         } else {
           // API 응답은 성공했지만 데이터 형식이 예상과 다른 경우
           setConcert(null);
-          setError("콘서트 정보를 불러올 수 없습니다.");
+          setError('콘서트 정보를 불러올 수 없습니다.');
         }
       } catch (err) {
         // API 호출 실패 시 에러 처리
@@ -103,7 +103,7 @@ export const useConcertDetail = (concertId = null) => {
 
         // 사용자에게 보여줄 친화적인 에러 메시지 설정
         setError(
-          err.message || "콘서트 정보를 불러오는 중 오류가 발생했습니다.",
+          err.message || '콘서트 정보를 불러오는 중 오류가 발생했습니다.',
         );
 
         // 에러 발생 시 콘서트 정보 초기화
@@ -128,7 +128,7 @@ export const useConcertDetail = (concertId = null) => {
       try {
         // concertId가 없으면 조회할 수 없음
         if (!id || id < 1) {
-          throw new Error("유효한 콘서트 ID가 필요합니다.");
+          throw new Error('유효한 콘서트 ID가 필요합니다.');
         }
 
         // AI 요약 로딩 시작: 콘서트 정보 로딩과 독립적으로 관리
@@ -145,12 +145,12 @@ export const useConcertDetail = (concertId = null) => {
           // 개발/디버깅용 로그: AI 요약 내용 일부 출력 (너무 길지 않게)
           const summaryPreview =
             response.data.length > 50
-              ? response.data.substring(0, 50) + "..."
+              ? response.data.substring(0, 50) + '...'
               : response.data;
           console.info(`AI 요약 로드 완료 (ID: ${id}): "${summaryPreview}"`);
         } else {
           // AI 요약이 없는 경우 (정상적인 상황일 수 있음)
-          setAiSummary("AI 요약 정보가 아직 생성되지 않았습니다.");
+          setAiSummary('AI 요약 정보가 아직 생성되지 않았습니다.');
         }
       } catch (err) {
         // AI 요약 조회 실패 시 에러 처리
@@ -158,11 +158,11 @@ export const useConcertDetail = (concertId = null) => {
 
         // AI 요약 실패는 전체 페이지를 망가뜨리지 않음 (부분적 실패)
         // 따라서 error 상태가 아닌 aiSummary에 실패 메시지 설정
-        setAiSummary("AI 요약을 불러올 수 없습니다.");
+        setAiSummary('AI 요약을 불러올 수 없습니다.');
 
         // 개발자를 위한 상세 에러 로그
         console.warn(
-          "AI 요약 조회 실패, 하지만 콘서트 정보는 정상 표시됩니다.",
+          'AI 요약 조회 실패, 하지만 콘서트 정보는 정상 표시됩니다.',
         );
       } finally {
         // AI 요약 로딩 상태 해제
@@ -183,7 +183,7 @@ export const useConcertDetail = (concertId = null) => {
       try {
         // concertId가 없으면 새로고침할 수 없음
         if (!id || id < 1) {
-          throw new Error("유효한 콘서트 ID가 필요합니다.");
+          throw new Error('유효한 콘서트 ID가 필요합니다.');
         }
 
         // 콘서트 정보와 AI 요약을 병렬로 새로고침
@@ -215,13 +215,13 @@ export const useConcertDetail = (concertId = null) => {
     (newConcertId) => {
       // 새로운 콘서트 ID가 유효한지 확인
       if (!newConcertId || newConcertId < 1) {
-        console.warn("유효하지 않은 콘서트 ID입니다:", newConcertId);
+        console.warn('유효하지 않은 콘서트 ID입니다:', newConcertId);
         return;
       }
 
       // 현재 콘서트 ID와 같으면 불필요한 API 호출 방지
       if (newConcertId === currentConcertId) {
-        console.info("같은 콘서트 ID이므로 API 호출을 건너뜁니다.");
+        console.info('같은 콘서트 ID이므로 API 호출을 건너뜁니다.');
         return;
       }
 
@@ -265,7 +265,7 @@ export const useConcertDetail = (concertId = null) => {
     return () => {
       // 현재는 특별한 정리 작업이 필요하지 않음
       // 필요하다면 여기서 타이머 정리, 이벤트 리스너 제거 등을 수행
-      console.info("useConcertDetail 훅이 정리됩니다.");
+      console.info('useConcertDetail 훅이 정리됩니다.');
     };
   }, []); // 빈 배열이므로 컴포넌트 마운트 시 한 번만 실행
 
@@ -297,15 +297,15 @@ export const useConcertDetail = (concertId = null) => {
     hasError: !!error, // 에러가 있는지 여부
     hasAISummary:
       !!aiSummary &&
-      aiSummary !== "AI 요약 정보가 아직 생성되지 않았습니다." &&
-      aiSummary !== "AI 요약을 불러올 수 없습니다.", // 유효한 AI 요약이 있는지 여부
+      aiSummary !== 'AI 요약 정보가 아직 생성되지 않았습니다.' &&
+      aiSummary !== 'AI 요약을 불러올 수 없습니다.', // 유효한 AI 요약이 있는지 여부
     isEmpty: !concert && !loading && !error, // 데이터가 비어있는지 (로딩 중이나 에러가 아닐 때)
 
     // 콘서트 상태별 편의 속성들 (concert가 있을 때만 사용 가능)
-    isScheduled: concert?.status === "SCHEDULED", // 예매 대기 상태인지
-    isOnSale: concert?.status === "ON_SALE", // 예매 중인지
-    isSoldOut: concert?.status === "SOLD_OUT", // 매진인지
-    isCancelled: concert?.status === "CANCELLED", // 취소된지
-    isCompleted: concert?.status === "COMPLETED", // 완료된지
+    isScheduled: concert?.status === 'SCHEDULED', // 예매 대기 상태인지
+    isOnSale: concert?.status === 'ON_SALE', // 예매 중인지
+    isSoldOut: concert?.status === 'SOLD_OUT', // 매진인지
+    isCancelled: concert?.status === 'CANCELLED', // 취소된지
+    isCompleted: concert?.status === 'COMPLETED', // 완료된지
   };
 };

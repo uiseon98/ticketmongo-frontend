@@ -1,8 +1,8 @@
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff } from 'lucide-react';
 
 export function EditProfileForm({
   icon: Icon,
-  type = "text",
+  type = 'text',
   name,
   value,
   labelName,
@@ -25,13 +25,13 @@ export function EditProfileForm({
         <Icon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
         <input
           id={name}
-          type={showToggle && showValue ? "text" : type}
+          type={showToggle && showValue ? 'text' : type}
           name={name}
           value={value}
           onChange={onChange}
           disabled={disabled}
           className={`w-full pl-10 px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white disabled:opacity-50 disabled:cursor-not-allowed focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-            error ? "border-red-500" : "border-gray-700"
+            error ? 'border-red-500' : 'border-gray-700'
           }`}
         />
         {showToggle && (

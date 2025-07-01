@@ -1,6 +1,6 @@
-import React from "react";
+import React from 'react';
 // import { useContext } from 'react';
-import { AuthContext } from "../../context/AuthContext"; // AuthContext 임포트
+import { AuthContext } from '../../context/AuthContext'; // AuthContext 임포트
 
 const SellerHomePage = () => {
   // const { user } = useContext(AuthContext); // 유저 정보 활용 (현재 사용 X - 추후 확장 예정)

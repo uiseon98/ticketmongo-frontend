@@ -1,17 +1,17 @@
 // src/pages/concert/ConcertDetailPage.jsx
-import React from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import React from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 
 // 새로운 컴포넌트들 import
-import ConcertDetail from "../../features/concert/components/ConcertDetail.jsx";
-import AISummary from "../../features/concert/components/AISummary.jsx";
-import ReviewList from "../../features/concert/components/ReviewList.jsx";
-import ExpectationList from "../../features/concert/components/ExpectationList.jsx";
+import ConcertDetail from '../../features/concert/components/ConcertDetail.jsx';
+import AISummary from '../../features/concert/components/AISummary.jsx';
+import ReviewList from '../../features/concert/components/ReviewList.jsx';
+import ExpectationList from '../../features/concert/components/ExpectationList.jsx';
 
 // 새로운 hooks import
-import { useConcertDetail } from "../../features/concert/hooks/useConcertDetail.js";
-import { useReviews } from "../../features/concert/hooks/useReviews.js";
-import { useExpectations } from "../../features/concert/hooks/useExpectations.js";
+import { useConcertDetail } from '../../features/concert/hooks/useConcertDetail.js';
+import { useReviews } from '../../features/concert/hooks/useReviews.js';
+import { useExpectations } from '../../features/concert/hooks/useExpectations.js';
 
 function ConcertDetailPage() {
   const { concertId } = useParams();
@@ -20,29 +20,29 @@ function ConcertDetailPage() {
   // 콘서트 상태별 설정 (함수 상단으로 이동)
   const statusConfig = {
     SOLD_OUT: {
-      buttonText: "매진",
-      statusText: "매진",
-      color: "text-red-600",
+      buttonText: '매진',
+      statusText: '매진',
+      color: 'text-red-600',
     },
     CANCELLED: {
-      buttonText: "취소됨",
-      statusText: "취소됨",
-      color: "text-gray-600",
+      buttonText: '취소됨',
+      statusText: '취소됨',
+      color: 'text-gray-600',
     },
     SCHEDULED: {
-      buttonText: "예매 대기",
-      statusText: "예매 대기",
-      color: "text-yellow-600",
+      buttonText: '예매 대기',
+      statusText: '예매 대기',
+      color: 'text-yellow-600',
     },
     ON_SALE: {
-      buttonText: "예매하기",
-      statusText: "예매 중",
-      color: "text-green-600",
+      buttonText: '예매하기',
+      statusText: '예매 중',
+      color: 'text-green-600',
     },
     COMPLETED: {
-      buttonText: "공연 완료",
-      statusText: "공연 완료",
-      color: "text-gray-600",
+      buttonText: '공연 완료',
+      statusText: '공연 완료',
+      color: 'text-gray-600',
     },
   };
 
@@ -97,13 +97,13 @@ function ConcertDetailPage() {
 
   // 리뷰 클릭 핸들러 (상세보기나 수정 등)
   const handleReviewClick = (review) => {
-    console.log("리뷰 클릭:", review);
+    console.log('리뷰 클릭:', review);
     // 추후 리뷰 상세 모달이나 페이지로 이동 구현
   };
 
   // 기대평 클릭 핸들러
   const handleExpectationClick = (expectation) => {
-    console.log("기대평 클릭:", expectation);
+    console.log('기대평 클릭:', expectation);
     // 추후 기대평 상세 모달이나 수정 구현
   };
 
@@ -206,9 +206,9 @@ function ConcertDetailPage() {
         <div className="lg:sticky lg:top-24 lg:self-start bg-blue-50 p-6 rounded-xl shadow-md space-y-4 h-fit">
           <h2 className="text-xl font-bold text-blue-900">티켓 등급 및 가격</h2>
           {[
-            { type: "일반석", price: 50000 },
-            { type: "VIP", price: 100000 },
-            { type: "프리미엄", price: 150000 },
+            { type: '일반석', price: 50000 },
+            { type: 'VIP', price: 100000 },
+            { type: '프리미엄', price: 150000 },
           ].map((ticket) => (
             <div
               key={ticket.type}
@@ -227,9 +227,9 @@ function ConcertDetailPage() {
             onClick={handleReserveClick}
             className="w-full mt-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition hover:scale-[1.02] disabled:bg-gray-400 disabled:cursor-not-allowed"
             disabled={
-              concert.status === "SOLD_OUT" ||
-              concert.status === "CANCELLED" ||
-              concert.status === "COMPLETED"
+              concert.status === 'SOLD_OUT' ||
+              concert.status === 'CANCELLED' ||
+              concert.status === 'COMPLETED'
             }
           >
             {currentStatus.buttonText}
@@ -237,7 +237,7 @@ function ConcertDetailPage() {
 
           {/* 콘서트 상태 표시 */}
           <div className="text-center text-sm text-gray-600 mt-2">
-            현재 상태:{" "}
+            현재 상태:{' '}
             <span className={`font-semibold ${currentStatus.color}`}>
               {currentStatus.statusText}
             </span>

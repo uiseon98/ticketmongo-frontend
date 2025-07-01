@@ -1,22 +1,22 @@
 //API 클라이언트 설정 - 수정된 버전
 
-import axios from "axios";
+import axios from 'axios';
 
 // VITE_APP_API_URL이 이미 /api를 포함하고 있는지 확인하고 처리
 const API_BASE_URL = import.meta.env.VITE_APP_API_URL;
 
 // URL 중복 방지: 만약 API_BASE_URL이 이미 /api로 끝나면 중복 제거
-const cleanedBaseURL = API_BASE_URL.endsWith("/api")
+const cleanedBaseURL = API_BASE_URL.endsWith('/api')
   ? API_BASE_URL
   : `${API_BASE_URL}/api`;
 
-console.log("🔧 API Base URL:", cleanedBaseURL); // 디버깅용
+console.log('🔧 API Base URL:', cleanedBaseURL); // 디버깅용
 
 const apiClient = axios.create({
   baseURL: cleanedBaseURL,
   withCredentials: true,
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
 });
 
@@ -28,7 +28,7 @@ apiClient.interceptors.request.use(
     return config;
   },
   (error) => {
-    console.error("❌ API 요청 에러:", error);
+    console.error('❌ API 요청 에러:', error);
     return Promise.reject(error);
   },
 );
@@ -39,14 +39,14 @@ apiClient.interceptors.response.use(
 
     if (
       response.data &&
-      typeof response.data === "object" &&
-      "success" in response.data
+      typeof response.data === 'object' &&
+      'success' in response.data
     ) {
       if (response.data.success) {
         return response.data;
       } else {
         const errorMessage =
-          response.data.message || "알 수 없는 오류가 발생했습니다.";
+          response.data.message || '알 수 없는 오류가 발생했습니다.';
         const error = new Error(errorMessage);
         error.response = response;
         return Promise.reject(error);
@@ -57,7 +57,7 @@ apiClient.interceptors.response.use(
   (error) => {
     if (error.response) {
       const status = error.response.status;
-      const url = error.response.config?.url || "unknown";
+      const url = error.response.config?.url || 'unknown';
 
       // 구체적인 에러 메시지 생성
       let errorMessage = `API 호출 실패: ${status}`;
@@ -68,19 +68,19 @@ apiClient.interceptors.response.use(
         // 상태 코드별 기본 메시지
         switch (status) {
           case 400:
-            errorMessage = "잘못된 요청입니다.";
+            errorMessage = '잘못된 요청입니다.';
             break;
           case 401:
-            errorMessage = "인증이 필요합니다. 로그인해주세요.";
+            errorMessage = '인증이 필요합니다. 로그인해주세요.';
             break;
           case 403:
-            errorMessage = "접근 권한이 없습니다.";
+            errorMessage = '접근 권한이 없습니다.';
             break;
           case 404:
-            errorMessage = "요청한 리소스를 찾을 수 없습니다.";
+            errorMessage = '요청한 리소스를 찾을 수 없습니다.';
             break;
           case 500:
-            errorMessage = "서버에 오류가 발생했습니다.";
+            errorMessage = '서버에 오류가 발생했습니다.';
             break;
           default:
             errorMessage = `서버 오류 (${status})`;
@@ -100,12 +100,12 @@ apiClient.interceptors.response.use(
       return Promise.reject(new Error(errorMessage));
     } else if (error.request) {
       const networkError =
-        "네트워크 오류가 발생했습니다. 인터넷 연결을 확인해주세요.";
-      console.error("❌ API Network Error:", error.request);
+        '네트워크 오류가 발생했습니다. 인터넷 연결을 확인해주세요.';
+      console.error('❌ API Network Error:', error.request);
       return Promise.reject(new Error(networkError));
     } else {
-      const requestError = "API 요청 설정 중 오류가 발생했습니다.";
-      console.error("❌ API Request Error:", error.message);
+      const requestError = 'API 요청 설정 중 오류가 발생했습니다.';
+      console.error('❌ API Request Error:', error.message);
       return Promise.reject(new Error(requestError));
     }
   },

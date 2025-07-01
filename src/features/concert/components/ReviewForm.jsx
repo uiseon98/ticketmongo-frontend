@@ -1,7 +1,7 @@
 // src/features/concert/components/ReviewForm.jsx
 
 // ===== IMPORT 섹션 =====
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect } from 'react';
 // useState: 폼 상태 관리
 // useCallback: 이벤트 핸들러 최적화
 // useEffect: 초기값 설정 및 수정 모드 처리
@@ -11,7 +11,7 @@ import {
   RatingLabels,
   RatingEmojis,
   ReviewValidation,
-} from "../types/review.js";
+} from '../types/review.js';
 
 /**
  * ===== ReviewForm 컴포넌트 =====
@@ -45,7 +45,7 @@ import {
  */
 const ReviewForm = ({
   // ===== 모드 props =====
-  mode = "create", // 'create' | 'edit' - 작성/수정 모드
+  mode = 'create', // 'create' | 'edit' - 작성/수정 모드
   initialData = null, // 수정 모드일 때 기존 리뷰 데이터
 
   // ===== 필수 데이터 props =====
@@ -65,7 +65,7 @@ const ReviewForm = ({
   showCancelButton = true, // 취소 버튼 표시 여부
 
   // ===== 스타일 props =====
-  className = "", // 추가 CSS 클래스
+  className = '', // 추가 CSS 클래스
   compact = false, // 컴팩트 모드
 }) => {
   // ===== 상태 관리 =====
@@ -74,10 +74,10 @@ const ReviewForm = ({
    * 폼 데이터 상태 (ReviewFormData 형식)
    */
   const [formData, setFormData] = useState({
-    title: initialData?.title || "",
-    description: initialData?.description || "",
+    title: initialData?.title || '',
+    description: initialData?.description || '',
     rating: initialData?.rating || 5,
-    userNickname: initialData?.userNickname || userNickname || "",
+    userNickname: initialData?.userNickname || userNickname || '',
     userId: initialData?.userId || userId || null,
   });
 
@@ -85,11 +85,11 @@ const ReviewForm = ({
    * 유효성 검증 에러 상태
    */
   const [errors, setErrors] = useState({
-    title: "",
-    description: "",
-    rating: "",
-    userNickname: "",
-    userId: "",
+    title: '',
+    description: '',
+    rating: '',
+    userNickname: '',
+    userId: '',
   });
 
   /**
@@ -114,7 +114,7 @@ const ReviewForm = ({
    */
   const validateField = useCallback((fieldName, value) => {
     const validation = ReviewValidation[fieldName];
-    if (!validation) return "";
+    if (!validation) return '';
 
     // 필수 필드 검증
     if (
@@ -134,7 +134,7 @@ const ReviewForm = ({
     }
 
     // 숫자 범위 검증 (평점)
-    if (fieldName === "rating") {
+    if (fieldName === 'rating') {
       const numValue = Number(value);
       if (validation.min && numValue < validation.min) {
         return `평점은 ${validation.min}점 이상이어야 합니다.`;
@@ -144,7 +144,7 @@ const ReviewForm = ({
       }
     }
 
-    return "";
+    return '';
   }, []);
 
   /**
@@ -170,11 +170,11 @@ const ReviewForm = ({
    */
   const getFieldDisplayName = useCallback((fieldName) => {
     const displayNames = {
-      title: "리뷰 제목",
-      description: "리뷰 내용",
-      rating: "평점",
-      userNickname: "닉네임",
-      userId: "사용자 ID",
+      title: '리뷰 제목',
+      description: '리뷰 내용',
+      rating: '평점',
+      userNickname: '닉네임',
+      userId: '사용자 ID',
     };
     return displayNames[fieldName] || fieldName;
   }, []);
@@ -230,7 +230,7 @@ const ReviewForm = ({
       }));
 
       // 별점 유효성 검증
-      const error = validateField("rating", rating);
+      const error = validateField('rating', rating);
       setErrors((prev) => ({
         ...prev,
         rating: error,
@@ -280,8 +280,8 @@ const ReviewForm = ({
 
       try {
         // 부모 컴포넌트의 제출 함수 호출
-        if (onSubmit && typeof onSubmit === "function") {
-          if (mode === "edit" && initialData?.id) {
+        if (onSubmit && typeof onSubmit === 'function') {
+          if (mode === 'edit' && initialData?.id) {
             // 수정 모드: reviewId와 함께 전달
             await onSubmit(initialData.id, formData);
           } else {
@@ -291,7 +291,7 @@ const ReviewForm = ({
         }
       } catch (error) {
         // 에러는 상위 컴포넌트에서 처리
-        console.error("리뷰 제출 실패:", error);
+        console.error('리뷰 제출 실패:', error);
       }
     },
     [formData, disabled, loading, validateForm, onSubmit, mode, initialData],
@@ -301,7 +301,7 @@ const ReviewForm = ({
    * 취소 버튼 핸들러
    */
   const handleCancel = useCallback(() => {
-    if (onCancel && typeof onCancel === "function") {
+    if (onCancel && typeof onCancel === 'function') {
       onCancel();
     }
   }, [onCancel]);
@@ -314,10 +314,10 @@ const ReviewForm = ({
   useEffect(() => {
     if (initialData) {
       setFormData({
-        title: initialData.title || "",
-        description: initialData.description || "",
+        title: initialData.title || '',
+        description: initialData.description || '',
         rating: initialData.rating || 5,
-        userNickname: initialData.userNickname || userNickname || "",
+        userNickname: initialData.userNickname || userNickname || '',
         userId: initialData.userId || userId || null,
       });
     }
@@ -353,10 +353,10 @@ const ReviewForm = ({
     const currentLength = text ? text.length : 0;
     const percentage = currentLength / maxLength;
 
-    if (percentage >= 1) return "#dc2626"; // 빨간색 (초과)
-    if (percentage >= 0.9) return "#f59e0b"; // 주황색 (90% 이상)
-    if (percentage >= 0.7) return "#10b981"; // 초록색 (70% 이상)
-    return "#6b7280"; // 회색 (일반)
+    if (percentage >= 1) return '#dc2626'; // 빨간색 (초과)
+    if (percentage >= 0.9) return '#f59e0b'; // 주황색 (90% 이상)
+    if (percentage >= 0.7) return '#10b981'; // 초록색 (70% 이상)
+    return '#6b7280'; // 회색 (일반)
   }, []);
 
   /**
@@ -375,13 +375,13 @@ const ReviewForm = ({
           onMouseEnter={() => handleRatingHover(i)}
           onMouseLeave={handleRatingLeave}
           style={{
-            background: "none",
-            border: "none",
-            fontSize: compact ? "24px" : "32px",
-            color: i <= displayRating ? "#fbbf24" : "#e5e7eb",
-            cursor: disabled ? "not-allowed" : "pointer",
-            transition: "color 0.2s ease",
-            padding: "4px",
+            background: 'none',
+            border: 'none',
+            fontSize: compact ? '24px' : '32px',
+            color: i <= displayRating ? '#fbbf24' : '#e5e7eb',
+            cursor: disabled ? 'not-allowed' : 'pointer',
+            transition: 'color 0.2s ease',
+            padding: '4px',
           }}
           disabled={disabled}
           aria-label={`${i}점`}
@@ -408,55 +408,55 @@ const ReviewForm = ({
    * 컨테이너 스타일
    */
   const containerStyles = {
-    backgroundColor: "#ffffff",
-    borderRadius: "8px",
-    border: "1px solid #e5e7eb",
-    padding: compact ? "16px" : "24px",
-    maxWidth: "600px",
-    margin: "0 auto",
+    backgroundColor: '#ffffff',
+    borderRadius: '8px',
+    border: '1px solid #e5e7eb',
+    padding: compact ? '16px' : '24px',
+    maxWidth: '600px',
+    margin: '0 auto',
   };
 
   /**
    * 제목 스타일
    */
   const titleStyles = {
-    fontSize: compact ? "18px" : "20px",
-    fontWeight: "bold",
-    color: "#1f2937",
-    marginBottom: compact ? "16px" : "20px",
-    textAlign: "center",
+    fontSize: compact ? '18px' : '20px',
+    fontWeight: 'bold',
+    color: '#1f2937',
+    marginBottom: compact ? '16px' : '20px',
+    textAlign: 'center',
   };
 
   /**
    * 폼 그룹 스타일
    */
   const formGroupStyles = {
-    marginBottom: compact ? "16px" : "20px",
+    marginBottom: compact ? '16px' : '20px',
   };
 
   /**
    * 라벨 스타일
    */
   const labelStyles = {
-    display: "block",
-    fontSize: compact ? "14px" : "16px",
-    fontWeight: "600",
-    color: "#374151",
-    marginBottom: "6px",
+    display: 'block',
+    fontSize: compact ? '14px' : '16px',
+    fontWeight: '600',
+    color: '#374151',
+    marginBottom: '6px',
   };
 
   /**
    * 입력 필드 기본 스타일
    */
   const inputBaseStyles = {
-    width: "100%",
-    padding: compact ? "8px 12px" : "12px 16px",
-    border: "2px solid #d1d5db",
-    borderRadius: "6px",
-    fontSize: compact ? "14px" : "16px",
-    backgroundColor: disabled ? "#f3f4f6" : "#ffffff",
-    color: disabled ? "#9ca3af" : "#1f2937",
-    transition: "border-color 0.2s ease",
+    width: '100%',
+    padding: compact ? '8px 12px' : '12px 16px',
+    border: '2px solid #d1d5db',
+    borderRadius: '6px',
+    fontSize: compact ? '14px' : '16px',
+    backgroundColor: disabled ? '#f3f4f6' : '#ffffff',
+    color: disabled ? '#9ca3af' : '#1f2937',
+    transition: 'border-color 0.2s ease',
   };
 
   /**
@@ -466,7 +466,7 @@ const ReviewForm = ({
     const hasError = touched[fieldName] && errors[fieldName];
     return {
       ...inputBaseStyles,
-      borderColor: hasError ? "#ef4444" : "#d1d5db",
+      borderColor: hasError ? '#ef4444' : '#d1d5db',
     };
   };
 
@@ -474,62 +474,62 @@ const ReviewForm = ({
    * 텍스트영역 스타일
    */
   const textareaStyles = {
-    ...getInputStyles("description"),
-    minHeight: compact ? "80px" : "120px",
-    resize: "vertical",
+    ...getInputStyles('description'),
+    minHeight: compact ? '80px' : '120px',
+    resize: 'vertical',
   };
 
   /**
    * 에러 메시지 스타일
    */
   const errorStyles = {
-    fontSize: "12px",
-    color: "#ef4444",
-    marginTop: "4px",
+    fontSize: '12px',
+    color: '#ef4444',
+    marginTop: '4px',
   };
 
   /**
    * 글자 수 카운터 스타일
    */
   const getCounterStyles = (fieldName, maxLength) => ({
-    fontSize: "12px",
+    fontSize: '12px',
     color: getCharacterCountColor(formData[fieldName], maxLength),
-    textAlign: "right",
-    marginTop: "4px",
+    textAlign: 'right',
+    marginTop: '4px',
   });
 
   /**
    * 별점 섹션 스타일
    */
   const ratingContainerStyles = {
-    textAlign: "center",
-    padding: compact ? "12px" : "16px",
-    backgroundColor: "#f8fafc",
-    borderRadius: "6px",
-    border: "1px solid #e2e8f0",
+    textAlign: 'center',
+    padding: compact ? '12px' : '16px',
+    backgroundColor: '#f8fafc',
+    borderRadius: '6px',
+    border: '1px solid #e2e8f0',
   };
 
   /**
    * 별점 라벨 스타일
    */
   const ratingLabelStyles = {
-    fontSize: compact ? "14px" : "16px",
-    color: "#1e40af",
-    marginTop: "8px",
-    fontWeight: "600",
+    fontSize: compact ? '14px' : '16px',
+    color: '#1e40af',
+    marginTop: '8px',
+    fontWeight: '600',
   };
 
   /**
    * 버튼 기본 스타일
    */
   const buttonBaseStyles = {
-    padding: compact ? "8px 16px" : "12px 24px",
-    borderRadius: "6px",
-    fontSize: compact ? "14px" : "16px",
-    fontWeight: "600",
-    border: "none",
-    cursor: disabled || loading ? "not-allowed" : "pointer",
-    transition: "all 0.2s ease",
+    padding: compact ? '8px 16px' : '12px 24px',
+    borderRadius: '6px',
+    fontSize: compact ? '14px' : '16px',
+    fontWeight: '600',
+    border: 'none',
+    cursor: disabled || loading ? 'not-allowed' : 'pointer',
+    transition: 'all 0.2s ease',
     opacity: disabled ? 0.6 : 1,
   };
 
@@ -538,9 +538,9 @@ const ReviewForm = ({
    */
   const submitButtonStyles = {
     ...buttonBaseStyles,
-    backgroundColor: loading ? "#9ca3af" : "#3b82f6",
-    color: "#ffffff",
-    marginRight: "12px",
+    backgroundColor: loading ? '#9ca3af' : '#3b82f6',
+    color: '#ffffff',
+    marginRight: '12px',
   };
 
   /**
@@ -548,9 +548,9 @@ const ReviewForm = ({
    */
   const cancelButtonStyles = {
     ...buttonBaseStyles,
-    backgroundColor: "transparent",
-    color: "#6b7280",
-    border: "1px solid #d1d5db",
+    backgroundColor: 'transparent',
+    color: '#6b7280',
+    border: '1px solid #d1d5db',
   };
 
   // ===== JSX 렌더링 =====
@@ -559,7 +559,7 @@ const ReviewForm = ({
     <div className={`review-form ${className}`} style={containerStyles}>
       {/* 폼 제목 */}
       <h2 style={titleStyles}>
-        {mode === "edit" ? "📝 리뷰 수정" : "✍️ 리뷰 작성"}
+        {mode === 'edit' ? '📝 리뷰 수정' : '✍️ 리뷰 작성'}
       </h2>
 
       <form onSubmit={handleSubmit}>
@@ -572,17 +572,17 @@ const ReviewForm = ({
             id="review-title"
             type="text"
             value={formData.title}
-            onChange={handleInputChange("title")}
+            onChange={handleInputChange('title')}
             disabled={disabled}
             placeholder="리뷰 제목을 입력해주세요"
-            style={getInputStyles("title")}
+            style={getInputStyles('title')}
             maxLength={ReviewValidation.title.maxLength}
           />
           {touched.title && errors.title && (
             <div style={errorStyles}>{errors.title}</div>
           )}
           <div
-            style={getCounterStyles("title", ReviewValidation.title.maxLength)}
+            style={getCounterStyles('title', ReviewValidation.title.maxLength)}
           >
             {getCharacterCount(
               formData.title,
@@ -595,9 +595,9 @@ const ReviewForm = ({
         <div style={formGroupStyles}>
           <label style={labelStyles}>평점 *</label>
           <div style={ratingContainerStyles}>
-            <div style={{ marginBottom: "8px" }}>{renderStars()}</div>
+            <div style={{ marginBottom: '8px' }}>{renderStars()}</div>
             <div style={ratingLabelStyles}>
-              {RatingEmojis[hoveredRating || formData.rating]}{" "}
+              {RatingEmojis[hoveredRating || formData.rating]}{' '}
               {RatingLabels[hoveredRating || formData.rating]} (
               {hoveredRating || formData.rating}/5)
             </div>
@@ -615,7 +615,7 @@ const ReviewForm = ({
           <textarea
             id="review-description"
             value={formData.description}
-            onChange={handleInputChange("description")}
+            onChange={handleInputChange('description')}
             disabled={disabled}
             placeholder="콘서트 관람 후기를 자세히 작성해주세요"
             style={textareaStyles}
@@ -626,7 +626,7 @@ const ReviewForm = ({
           )}
           <div
             style={getCounterStyles(
-              "description",
+              'description',
               ReviewValidation.description.maxLength,
             )}
           >
@@ -646,10 +646,10 @@ const ReviewForm = ({
             id="review-nickname"
             type="text"
             value={formData.userNickname}
-            onChange={handleInputChange("userNickname")}
+            onChange={handleInputChange('userNickname')}
             disabled={disabled}
             placeholder="닉네임을 입력해주세요"
-            style={getInputStyles("userNickname")}
+            style={getInputStyles('userNickname')}
             maxLength={ReviewValidation.userNickname.maxLength}
           />
           {touched.userNickname && errors.userNickname && (
@@ -657,7 +657,7 @@ const ReviewForm = ({
           )}
           <div
             style={getCounterStyles(
-              "userNickname",
+              'userNickname',
               ReviewValidation.userNickname.maxLength,
             )}
           >
@@ -671,9 +671,9 @@ const ReviewForm = ({
         {/* 버튼 영역 */}
         <div
           style={{
-            display: "flex",
-            justifyContent: "center",
-            marginTop: compact ? "20px" : "24px",
+            display: 'flex',
+            justifyContent: 'center',
+            marginTop: compact ? '20px' : '24px',
           }}
         >
           <button
@@ -682,9 +682,9 @@ const ReviewForm = ({
             style={submitButtonStyles}
           >
             {loading ? (
-              <>⏳ {mode === "edit" ? "수정 중..." : "작성 중..."}</>
+              <>⏳ {mode === 'edit' ? '수정 중...' : '작성 중...'}</>
             ) : (
-              <>{mode === "edit" ? "✅ 수정 완료" : "📝 리뷰 작성"}</>
+              <>{mode === 'edit' ? '✅ 수정 완료' : '📝 리뷰 작성'}</>
             )}
           </button>
 
@@ -705,12 +705,12 @@ const ReviewForm = ({
       {!compact && (
         <div
           style={{
-            marginTop: "16px",
-            padding: "12px",
-            backgroundColor: "#eff6ff",
-            borderRadius: "6px",
-            fontSize: "12px",
-            color: "#1e40af",
+            marginTop: '16px',
+            padding: '12px',
+            backgroundColor: '#eff6ff',
+            borderRadius: '6px',
+            fontSize: '12px',
+            color: '#1e40af',
           }}
         >
           💡 작성하신 리뷰는 다른 관람객들에게 큰 도움이 됩니다. 정직하고 자세한
@@ -723,12 +723,12 @@ const ReviewForm = ({
 
 // ===== 기본 PROPS =====
 ReviewForm.defaultProps = {
-  mode: "create",
+  mode: 'create',
   initialData: null,
   loading: false,
   disabled: false,
   showCancelButton: true,
-  className: "",
+  className: '',
   compact: false,
 };
 
