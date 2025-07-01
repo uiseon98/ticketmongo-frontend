@@ -1,4 +1,4 @@
-import apiClient from '../../../shared/utils/apiClient'; // apiClient는 utils/apiClient.js에서 가져온다고 가정
+import apiClient from "../../../shared/utils/apiClient"; // apiClient는 utils/apiClient.js에서 가져온다고 가정
 
 // 특정 콘서트의 모든 좌석 상태 조회 API
 export async function fetchAllSeatStatus(concertId) {
@@ -11,7 +11,7 @@ export async function reserveSeat(concertId, seatId) {
   // 백엔드 API 명세에 따라 userId가 PathVariable이 아닌 AuthenticationPrincipal로 처리되므로,
   // 클라이언트에서는 userId를 별도로 보내지 않습니다.
   const response = await apiClient.post(
-    `/seats/concerts/${concertId}/seats/${seatId}/reserve`
+    `/seats/concerts/${concertId}/seats/${seatId}/reserve`,
   );
   return response.data; // SeatStatusResponse
 }
@@ -19,14 +19,14 @@ export async function reserveSeat(concertId, seatId) {
 // 좌석 선점 해제 API
 export async function releaseSeat(concertId, seatId) {
   const response = await apiClient.post(
-    `/seats/concerts/${concertId}/seats/${seatId}/release`
+    `/seats/concerts/${concertId}/seats/${seatId}/release`,
   );
   return response.data; // String ("SUCCESS")
 }
 
 // 예매 생성 및 결제 준비 API
 export async function createBookingAndPreparePayment(bookingCreateRequest) {
-  const response = await apiClient.post('/bookings', bookingCreateRequest);
+  const response = await apiClient.post("/bookings", bookingCreateRequest);
   return response.data; // PaymentExecutionResponse
 }
 

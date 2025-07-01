@@ -1,7 +1,7 @@
 // src/features/concert/components/SearchBar.jsx
 
 // ===== IMPORT 섹션 =====
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from "react";
 
 /**
  * ===== SearchBar 컴포넌트 (한국어 입력 문제 해결 버전) =====
@@ -14,28 +14,29 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
  */
 const SearchBar = ({
   // ===== 필수 props =====
-  onSearch,                    // 검색 실행 함수 (필수)
+  onSearch, // 검색 실행 함수 (필수)
 
   // ===== 상태 제어 관련 props =====
-  value,                       // 외부에서 관리하는 검색어 (useSearch.searchTerm)
-  onChange,                    // 검색어 변경 함수 (useSearch.setSearchTerm)
+  value, // 외부에서 관리하는 검색어 (useSearch.searchTerm)
+  onChange, // 검색어 변경 함수 (useSearch.setSearchTerm)
 
   // ===== 기존 props (선택적) =====
-  initialValue = '',           // 내부 제어 모드에서의 초기값
-  placeholder = '콘서트나 아티스트를 검색하세요',
-  loading = false,             // useSearch.isSearching과 연동
+  initialValue = "", // 내부 제어 모드에서의 초기값
+  placeholder = "콘서트나 아티스트를 검색하세요",
+  loading = false, // useSearch.isSearching과 연동
   disabled = false,
   autoFocus = false,
-  onClear,                     // useSearch.clearSearch와 연동
-  className = ''
+  onClear, // useSearch.clearSearch와 연동
+  className = "",
 }) => {
-
   // ===== 상태 관리 섹션 =====
 
   const isExternallyControlled = value !== undefined;
   const [internalSearchTerm, setInternalSearchTerm] = useState(initialValue);
   const currentSearchTerm = isExternallyControlled ? value : internalSearchTerm;
-  const setCurrentSearchTerm = isExternallyControlled ? onChange : setInternalSearchTerm;
+  const setCurrentSearchTerm = isExternallyControlled
+    ? onChange
+    : setInternalSearchTerm;
 
   // 포커스 상태
   const [isFocused, setIsFocused] = useState(false);
@@ -45,7 +46,7 @@ const SearchBar = ({
 
   // ===== 외부 상태 동기화 =====
   useEffect(() => {
-    if (isExternallyControlled && value === '' && inputRef.current) {
+    if (isExternallyControlled && value === "" && inputRef.current) {
       // 필요시 포커스 유지
     }
   }, [isExternallyControlled, value]);
@@ -55,13 +56,16 @@ const SearchBar = ({
   /**
    * 🔥 입력 값 변경 핸들러 (한국어 처리 개선)
    */
-  const handleInputChange = useCallback((event) => {
-    const newValue = event.target.value;
-    console.log('입력값 변경:', newValue);
-    if (setCurrentSearchTerm) {
-      setCurrentSearchTerm(newValue);
-    }
-  }, [setCurrentSearchTerm]);
+  const handleInputChange = useCallback(
+    (event) => {
+      const newValue = event.target.value;
+      console.log("입력값 변경:", newValue);
+      if (setCurrentSearchTerm) {
+        setCurrentSearchTerm(newValue);
+      }
+    },
+    [setCurrentSearchTerm],
+  );
 
   /**
    * 🔥 검색 실행 핸들러 (한국어 입력 중 방지)
@@ -79,7 +83,7 @@ const SearchBar = ({
       return;
     }
 
-    if (onSearch && typeof onSearch === 'function') {
+    if (onSearch && typeof onSearch === "function") {
       onSearch(trimmedTerm);
     }
 
@@ -89,36 +93,39 @@ const SearchBar = ({
   /**
    * 🔥 검색어 지우기 핸들러 (완전 수정)
    */
-    const handleClear = useCallback(() => {
-      // 내부 제어 모드이므로 내부 상태만 초기화
-      setInternalSearchTerm(''); // 또는 setCurrentSearchTerm('')
+  const handleClear = useCallback(() => {
+    // 내부 제어 모드이므로 내부 상태만 초기화
+    setInternalSearchTerm(""); // 또는 setCurrentSearchTerm('')
 
-      // 외부 onClear 호출
-      if (onClear && typeof onClear === 'function') {
-        onClear();
-      }
+    // 외부 onClear 호출
+    if (onClear && typeof onClear === "function") {
+      onClear();
+    }
 
-      // 포커스 유지
-      if (inputRef.current) {
-        inputRef.current.focus();
-      }
-    }, [onClear]);
+    // 포커스 유지
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [onClear]);
 
   /**
    * 🔥 키보드 이벤트 핸들러 (한국어 입력 고려)
    */
-  const handleKeyDown = useCallback((event) => {
-    // 한국어 입력 중이면 엔터키 무시
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      handleSearch();
-    }
+  const handleKeyDown = useCallback(
+    (event) => {
+      // 한국어 입력 중이면 엔터키 무시
+      if (event.key === "Enter") {
+        event.preventDefault();
+        handleSearch();
+      }
 
-    if (event.key === 'Escape') {
-      event.preventDefault();
-      handleClear();
-    }
-  }, [handleSearch, handleClear]);
+      if (event.key === "Escape") {
+        event.preventDefault();
+        handleClear();
+      }
+    },
+    [handleSearch, handleClear],
+  );
 
   /**
    * 포커스 관련 핸들러들
@@ -134,57 +141,57 @@ const SearchBar = ({
   // ===== 스타일 정의 섹션 =====
 
   const containerStyles = {
-    display: 'flex',
-    alignItems: 'center',
-    width: '100%',
-    maxWidth: '600px',
-    position: 'relative',
-    border: `2px solid ${isFocused ? '#3b82f6' : '#d1d5db'}`,
-    borderRadius: '8px',
-    backgroundColor: disabled ? '#f3f4f6' : '#ffffff',
+    display: "flex",
+    alignItems: "center",
+    width: "100%",
+    maxWidth: "600px",
+    position: "relative",
+    border: `2px solid ${isFocused ? "#3b82f6" : "#d1d5db"}`,
+    borderRadius: "8px",
+    backgroundColor: disabled ? "#f3f4f6" : "#ffffff",
     boxShadow: isFocused
-      ? '0 0 0 3px rgba(59, 130, 246, 0.1)'
-      : '0 1px 3px rgba(0, 0, 0, 0.1)',
-    transition: 'all 0.2s ease-in-out',
+      ? "0 0 0 3px rgba(59, 130, 246, 0.1)"
+      : "0 1px 3px rgba(0, 0, 0, 0.1)",
+    transition: "all 0.2s ease-in-out",
     opacity: disabled ? 0.6 : 1,
-    cursor: disabled ? 'not-allowed' : 'text'
+    cursor: disabled ? "not-allowed" : "text",
   };
 
   const inputStyles = {
     flex: 1,
-    padding: '12px 16px',
-    border: 'none',
-    outline: 'none',
-    fontSize: '16px',
-    fontFamily: 'inherit',
-    backgroundColor: 'transparent',
-    color: disabled ? '#9ca3af' : '#1f2937'
+    padding: "12px 16px",
+    border: "none",
+    outline: "none",
+    fontSize: "16px",
+    fontFamily: "inherit",
+    backgroundColor: "transparent",
+    color: disabled ? "#9ca3af" : "#1f2937",
   };
 
   const buttonBaseStyles = {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '8px',
-    margin: '0 4px',
-    width: '40px',
-    height: '40px',
-    border: 'none',
-    borderRadius: '6px',
-    backgroundColor: 'transparent',
-    cursor: disabled ? 'not-allowed' : 'pointer',
-    transition: 'all 0.2s ease',
-    opacity: disabled ? 0.5 : 1
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "8px",
+    margin: "0 4px",
+    width: "40px",
+    height: "40px",
+    border: "none",
+    borderRadius: "6px",
+    backgroundColor: "transparent",
+    cursor: disabled ? "not-allowed" : "pointer",
+    transition: "all 0.2s ease",
+    opacity: disabled ? 0.5 : 1,
   };
 
   const searchButtonStyles = {
     ...buttonBaseStyles,
-    color: loading ? '#9ca3af' : '#3b82f6'
+    color: loading ? "#9ca3af" : "#3b82f6",
   };
 
   const clearButtonStyles = {
     ...buttonBaseStyles,
-    color: '#6b7280'
+    color: "#6b7280",
   };
 
   // ===== JSX 렌더링 섹션 =====
@@ -202,7 +209,7 @@ const SearchBar = ({
         type="text"
         value={currentSearchTerm}
         onChange={handleInputChange}
-        onKeyDown={handleKeyDown}  // 🔥 keyPress 대신 keyDown 사용
+        onKeyDown={handleKeyDown} // 🔥 keyPress 대신 keyDown 사용
         onFocus={handleFocus}
         onBlur={handleBlur}
         placeholder={placeholder}
@@ -224,7 +231,8 @@ const SearchBar = ({
           title="검색어 지우기 (ESC)"
         >
           <svg
-            width="20" height="20"
+            width="20"
+            height="20"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -250,7 +258,8 @@ const SearchBar = ({
         {loading ? (
           // 로딩 스피너
           <svg
-            width="20" height="20"
+            width="20"
+            height="20"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -258,15 +267,16 @@ const SearchBar = ({
             strokeLinecap="round"
             strokeLinejoin="round"
             style={{
-              animation: 'spin 1s linear infinite'
+              animation: "spin 1s linear infinite",
             }}
           >
-            <path d="M21 12a9 9 0 11-6.219-8.56"/>
+            <path d="M21 12a9 9 0 11-6.219-8.56" />
           </svg>
         ) : (
           // 돋보기 아이콘
           <svg
-            width="20" height="20"
+            width="20"
+            height="20"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -284,16 +294,16 @@ const SearchBar = ({
       <div
         id="search-help"
         style={{
-          position: 'absolute',
-          left: '-9999px',
-          width: '1px',
-          height: '1px',
-          overflow: 'hidden'
+          position: "absolute",
+          left: "-9999px",
+          width: "1px",
+          height: "1px",
+          overflow: "hidden",
         }}
         aria-hidden="true"
       >
-        콘서트 제목, 아티스트명, 공연장명으로 검색할 수 있습니다.
-        엔터키를 누르거나 검색 버튼을 클릭하세요.
+        콘서트 제목, 아티스트명, 공연장명으로 검색할 수 있습니다. 엔터키를
+        누르거나 검색 버튼을 클릭하세요.
       </div>
 
       {/* CSS 애니메이션 */}
@@ -313,12 +323,12 @@ const SearchBar = ({
 
 // ===== 기본 PROPS =====
 SearchBar.defaultProps = {
-  initialValue: '',
-  placeholder: '콘서트나 아티스트를 검색하세요',
+  initialValue: "",
+  placeholder: "콘서트나 아티스트를 검색하세요",
   loading: false,
   disabled: false,
   autoFocus: false,
-  className: ''
+  className: "",
 };
 
 export default SearchBar;

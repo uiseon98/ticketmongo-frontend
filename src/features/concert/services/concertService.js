@@ -1,14 +1,13 @@
 // src/features/concert/services/concertService.js
 
 // 프로젝트 공통 API 클라이언트 import (SuccessResponse 자동 처리, 인터셉터 설정 완료)
-import apiClient from '../../../shared/utils/apiClient.js';
+import apiClient from "../../../shared/utils/apiClient.js";
 
 /**
  * 콘서트 관련 API 호출 서비스
  * 백엔드의 ConcertController, SellerConcertController와 1:1 매핑
  */
 export const concertService = {
-
   // ==================== 일반 사용자용 API ====================
 
   /**
@@ -20,13 +19,13 @@ export const concertService = {
   async getConcerts(params = { page: 0, size: 20 }) {
     try {
       // axios의 params 옵션을 사용해 쿼리 파라미터 자동 생성 (?page=0&size=20)
-      const response = await apiClient.get('/concerts', { params });
+      const response = await apiClient.get("/concerts", { params });
 
       // apiClient가 이미 SuccessResponse를 처리해서 { success, message, data } 형태로 반환
       return response;
     } catch (error) {
       // 개발/디버깅용 에러 로깅
-      console.error('콘서트 목록 조회 실패:', error);
+      console.error("콘서트 목록 조회 실패:", error);
 
       // 에러를 다시 throw해서 호출하는 쪽에서 처리할 수 있도록 함
       throw error;
@@ -60,8 +59,8 @@ export const concertService = {
   async searchConcerts(query) {
     try {
       // 쿼리 파라미터로 검색 키워드 전달
-      const response = await apiClient.get('/concerts/search', {
-        params: { query } // ?query=아이유 형태로 변환됨
+      const response = await apiClient.get("/concerts/search", {
+        params: { query }, // ?query=아이유 형태로 변환됨
       });
       return response;
     } catch (error) {
@@ -82,12 +81,12 @@ export const concertService = {
       // 여러 필터 조건을 쿼리 파라미터로 전달
       // { startDate: '2025-01-01', endDate: '2025-12-31' }
       // -> ?startDate=2025-01-01&endDate=2025-12-31
-      const response = await apiClient.get('/concerts/filter', {
-        params: filterParams
+      const response = await apiClient.get("/concerts/filter", {
+        params: filterParams,
       });
       return response;
     } catch (error) {
-      console.error('콘서트 필터링 실패:', error);
+      console.error("콘서트 필터링 실패:", error);
       throw error;
     }
   },
@@ -126,21 +125,24 @@ export const concertService = {
     try {
       // 기본값과 전달받은 파라미터를 합쳐서 쿼리 파라미터 객체 생성
       const queryParams = {
-        sellerId,                           // 필수: 판매자 ID
-        page: params.page || 0,             // 페이지 번호 (0부터 시작)
-        size: params.size || 10,            // 한 페이지당 아이템 수
-        sortBy: params.sortBy || 'createdAt', // 정렬 기준 (생성일시 기본)
-        sortDir: params.sortDir || 'desc'   // 정렬 방향 (내림차순 기본)
+        sellerId, // 필수: 판매자 ID
+        page: params.page || 0, // 페이지 번호 (0부터 시작)
+        size: params.size || 10, // 한 페이지당 아이템 수
+        sortBy: params.sortBy || "createdAt", // 정렬 기준 (생성일시 기본)
+        sortDir: params.sortDir || "desc", // 정렬 방향 (내림차순 기본)
       };
 
       // 모든 파라미터를 쿼리스트링으로 변환해서 전송
-      const response = await apiClient.get('/seller/concerts', {
-        params: queryParams
+      const response = await apiClient.get("/seller/concerts", {
+        params: queryParams,
       });
       return response;
     } catch (error) {
       // 어떤 판매자의 요청에서 실패했는지 로그에 표시
-      console.error(`판매자 콘서트 목록 조회 실패 (판매자 ID: ${sellerId}):`, error);
+      console.error(
+        `판매자 콘서트 목록 조회 실패 (판매자 ID: ${sellerId}):`,
+        error,
+      );
       throw error;
     }
   },
@@ -155,8 +157,8 @@ export const concertService = {
   async getSellerConcertsByStatus(sellerId, status) {
     try {
       // 판매자 ID와 상태를 파라미터로 전달
-      const response = await apiClient.get('/seller/concerts/status', {
-        params: { sellerId, status }
+      const response = await apiClient.get("/seller/concerts/status", {
+        params: { sellerId, status },
       });
       return response;
     } catch (error) {
@@ -175,12 +177,12 @@ export const concertService = {
   async createConcert(sellerId, concertData) {
     try {
       // POST 요청: 두 번째 인자는 request body, 세 번째 인자는 config
-      const response = await apiClient.post('/seller/concerts', concertData, {
-        params: { sellerId } // 판매자 ID는 쿼리 파라미터로 전달
+      const response = await apiClient.post("/seller/concerts", concertData, {
+        params: { sellerId }, // 판매자 ID는 쿼리 파라미터로 전달
       });
       return response;
     } catch (error) {
-      console.error('콘서트 생성 실패:', error);
+      console.error("콘서트 생성 실패:", error);
       throw error;
     }
   },
@@ -196,9 +198,13 @@ export const concertService = {
   async updateConcert(sellerId, concertId, updateData) {
     try {
       // PUT 요청으로 기존 콘서트 정보 업데이트
-      const response = await apiClient.put(`/seller/concerts/${concertId}`, updateData, {
-        params: { sellerId } // 권한 확인용 판매자 ID
-      });
+      const response = await apiClient.put(
+        `/seller/concerts/${concertId}`,
+        updateData,
+        {
+          params: { sellerId }, // 권한 확인용 판매자 ID
+        },
+      );
       return response;
     } catch (error) {
       console.error(`콘서트 수정 실패 (ID: ${concertId}):`, error);
@@ -217,7 +223,7 @@ export const concertService = {
     try {
       // DELETE 요청: 논리적 삭제 (상태를 CANCELLED로 변경)
       const response = await apiClient.delete(`/seller/concerts/${concertId}`, {
-        params: { sellerId }
+        params: { sellerId },
       });
       return response;
     } catch (error) {
@@ -237,9 +243,10 @@ export const concertService = {
   async updatePosterImage(sellerId, concertId, posterImageUrl) {
     try {
       // PATCH 요청: 포스터 이미지 URL만 부분 업데이트
-      const response = await apiClient.patch(`/seller/concerts/${concertId}/poster`,
+      const response = await apiClient.patch(
+        `/seller/concerts/${concertId}/poster`,
         { posterImageUrl }, // request body: 이미지 URL 객체
-        { params: { sellerId } } // config: 판매자 ID 파라미터
+        { params: { sellerId } }, // config: 판매자 ID 파라미터
       );
       return response;
     } catch (error) {
@@ -257,13 +264,16 @@ export const concertService = {
   async getSellerConcertCount(sellerId) {
     try {
       // 판매자의 전체 콘서트 개수 (모든 상태 포함)
-      const response = await apiClient.get('/seller/concerts/count', {
-        params: { sellerId }
+      const response = await apiClient.get("/seller/concerts/count", {
+        params: { sellerId },
       });
       return response;
     } catch (error) {
-      console.error(`판매자 콘서트 개수 조회 실패 (판매자 ID: ${sellerId}):`, error);
+      console.error(
+        `판매자 콘서트 개수 조회 실패 (판매자 ID: ${sellerId}):`,
+        error,
+      );
       throw error;
     }
-  }
+  },
 };
