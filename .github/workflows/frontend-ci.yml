@@ -23,16 +23,24 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18.x' # Node.js 18 버전 사용
-          cache: 'npm' # npm 캐시 활성화 (의존성 설치 시간 단축)
+          # cache: 'npm' # npm 캐시 활성화 (의존성 설치 시간 단축)
 
-      - name: Install Dependencies # 의존성 설치
+      - name: Cache Node Modules # 의존성 캐시 스텝 추가
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm # npm 캐시 경로
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }} # package-lock.json 기준으로 캐시 키 생성
+          restore-keys: | # 캐시가 없을 경우 유사한 이전 캐시를 복원 시도
+            ${{ runner.os }}-node-
+
+      - name: Install Dependencies # 의존성 설치 (캐시가 있으면 빠르게 건너뜀)
         run: npm install # package.json에 정의된 모든 의존성 설치
 
       - name: Build Frontend # 프론트엔드 빌드 (Vite 프로젝트는 'npm run build'가 기본)
         run: npm run build
 
       # --- 선택 사항 ---
-      # 만약 프론트엔드에 테스트 코드가 있다면 아래 주석을 풀고 사용
+      # 프론트엔드에서 테스트 코드를 사용할 경우, 아래 주석을 해제(현재는 테스트 코드 없음)
       # - name: Run Frontend Tests
       #   run: npm test # 또는 'npm run test:ci' 등 프로젝트에 맞는 테스트 명령어 사용
 
