@@ -44,6 +44,9 @@ jobs:
       #   run: npm run format:check
 
       - name: Build Frontend # 프론트엔드 빌드 (Vite 프로젝트는 'npm run build'가 기본)
+        env: # 환경 변수 주입
+          VITE_APP_API_URL: ${{ secrets.VITE_APP_API_URL }}
+          VITE_APP_WS_URL: ${{ secrets.VITE_APP_WS_URL }}
         run: npm run build
 
       # --- 선택 사항 ---
