@@ -527,20 +527,6 @@ const FilterPanel = ({
           💡 팁: 날짜와 가격을 설정한 후 "필터 적용" 버튼을 눌러주세요.
         </div>
       )}
-
-      {/* 개발자용 디버그 정보 */}
-      {import.meta.env.DEV && (
-        <div style={{
-          marginTop: '8px',
-          padding: '4px',
-          backgroundColor: '#f3f4f6',
-          fontSize: '10px',
-          color: '#6b7280',
-          borderRadius: '2px'
-        }}>
-          DEBUG: hasChanges={hasChanges.toString()}, loading={loading.toString()}, error={error ? 'true' : 'false'}
-        </div>
-      )}
     </div>
   );
 };

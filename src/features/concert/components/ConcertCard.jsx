@@ -135,7 +135,7 @@ const ConcertCard = ({
   const handleImageError = (event) => {
     // 이미지 로드 실패 시 기본 콘서트 이미지로 대체
     // 실제 환경에서는 public 폴더에 기본 이미지를 준비해야 함
-    event.target.src = '/images/default-concert-poster.jpg';
+    event.target.src = '/images/basic-poster-image.png';
 
     // 기본 이미지도 없으면 alt 텍스트 표시를 위해 이미지 숨김
     event.target.onerror = () => {
@@ -358,20 +358,6 @@ const ConcertCard = ({
           {ConcertStatusLabels[concert.status] || concert.status}
         </span>
       </div>
-
-      {/* 개발자용 디버그 정보 (개발 환경에서만 표시) */}
-      {import.meta.env.DEV && (
-        <div style={{
-          marginTop: '8px',
-          padding: '4px',
-          backgroundColor: '#f3f4f6',
-          fontSize: '10px',
-          color: '#6b7280',
-          borderRadius: '2px'
-        }}>
-          DEBUG: ID={concert.concertId}, Status={concert.status}
-        </div>
-      )}
     </div>
   );
 };

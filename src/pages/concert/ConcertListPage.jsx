@@ -9,7 +9,6 @@ import FilterPanel from '../../features/concert/components/FilterPanel.jsx';
 
 // 새로운 hooks import
 import { useConcerts } from '../../features/concert/hooks/useConcerts.js';
-import { useSearch } from '../../features/concert/hooks/useSearch.js';
 
 function ConcertListPage() {
   const navigate = useNavigate();
@@ -37,37 +36,40 @@ function ConcertListPage() {
     changePageSize
   } = useConcerts();
 
-  // 검색 hook
-  const {
-    searchTerm,
-    setSearchTerm,
-    searchResults,
-    isSearching,
-    performSearch,
-    clearSearch
-  } = useSearch();
-
   // 콘서트 카드 클릭 핸들러 (상세 페이지로 이동)
   const handleConcertClick = (concert) => {
     navigate(`/concerts/${concert.concertId}`);
   };
 
-  // 검색 실행 핸들러
-  const handleSearch = async (searchKeyword) => {
-    try {
-      // URL 파라미터 업데이트
-      const newSearchParams = new URLSearchParams();
-      if (searchKeyword && searchKeyword.trim()) {
-        newSearchParams.set('query', searchKeyword.trim());
-        await searchConcerts(searchKeyword.trim());
-      } else {
-        // 검색어가 없으면 전체 목록 조회
-        await fetchConcerts();
+    // 검색 실행 핸들러
+    const handleSearch = async (searchKeyword) => {
+      try {
+        // URL 파라미터 업데이트
+        const newSearchParams = new URLSearchParams();
+        if (searchKeyword && searchKeyword.trim()) {
+          newSearchParams.set('query', searchKeyword.trim());
+          await searchConcerts(searchKeyword.trim());
+        } else {
+          await fetchConcerts();
+        }
+        setSearchParams(newSearchParams);
+      } catch (err) {
+        console.error('검색 실패:', err);
       }
-      setSearchParams(newSearchParams);
-    } catch (err) {
-      console.error('검색 실패:', err);
-    }
+    };
+
+  // 검색어 지우기 핸들러 (추가)
+  const handleClearSearch = () => {
+
+    // URL 파라미터에서 query 제거
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.delete('query');
+    setSearchParams(newSearchParams);
+
+    // 전체 콘서트 목록 다시 로드
+    fetchConcerts();
+
+    console.log('검색 완전히 초기화됨');
   };
 
   // 필터 적용 핸들러
@@ -92,7 +94,7 @@ function ConcertListPage() {
         // 필터가 없으면 전체 목록 조회
         await fetchConcerts();
       }
-      
+
       setSearchParams(newSearchParams);
     } catch (err) {
       console.error('필터링 실패:', err);
@@ -138,10 +140,9 @@ function ConcertListPage() {
       {/* 검색 바 컴포넌트 */}
       <div className="bg-white p-4 rounded-lg shadow-md">
         <SearchBar
-          value={query} // URL의 쿼리 파라미터와 연동
-          onChange={setSearchTerm}
           onSearch={handleSearch}
-          loading={isSearching || loading}
+          onClear={handleClearSearch}  // 🔥 onClear prop 추가
+          loading={loading}
           placeholder="콘서트 제목, 아티스트, 장소 검색..."
           autoFocus={false}
         />
@@ -158,7 +159,7 @@ function ConcertListPage() {
       </div>
 
       {/* 검색/필터 결과 표시 */}
-      {(query || startDate || endDate || minPrice || maxPrice) && (
+      {(concerts.length > 0 && (query || startDate || endDate || minPrice || maxPrice)) && (
         <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
           <div className="flex justify-between items-center">
             <div>

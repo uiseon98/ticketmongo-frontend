@@ -145,7 +145,7 @@ export const useReviews = (concertId) => {
       // 성공/실패 상관없이 로딩 상태 해제
       setLoading(false);
     }
-  }, [concertId, currentPage, pageSize, sortBy, sortDir]); // 이 값들이 변경되면 함수 재생성
+  }, [concertId]); // 이 값들이 변경되면 함수 재생성
 
   /**
    * 새로운 리뷰를 작성하는 함수
@@ -337,7 +337,7 @@ export const useReviews = (concertId) => {
       console.info('같은 정렬 방식이므로 API 호출을 건너뜁니다.');
       return;
     }
-
+    console.log('changeSorting 호출됨:', newSortBy, newSortDir);
     // 정렬 변경 시 첫 페이지부터 다시 조회
     await fetchReviews({
       page: 0,           // 첫 페이지로 이동
@@ -384,14 +384,14 @@ export const useReviews = (concertId) => {
       fetchReviews({
         page: 0,                             // 첫 페이지
         size: ReviewDefaults.pageSize,       // 기본 페이지 크기
-        sortBy: ReviewDefaults.sortBy,       // 기본 정렬 기준
-        sortDir: ReviewDefaults.sortDir      // 기본 정렬 방향
+        sortBy: sortBy,       // 현재 상태 유지
+        sortDir: sortDir      // 현재 상태 유지
       });
 
       // 개발자를 위한 로그: 어떤 콘서트의 리뷰를 가져오는지 확인
       console.info(`콘서트 ID ${concertId}의 리뷰 목록을 자동 로드합니다.`);
     }
-  }, [concertId, fetchReviews]); // concertId나 fetchReviews가 변경되면 다시 실행
+  }, [concertId]); // concertID가 변경되면 다시 실행
 
   // ===== 반환값 =====
 
