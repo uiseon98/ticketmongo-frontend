@@ -44,4 +44,15 @@ export const userService = {
             throw new Error(error.message || '예매 내역을 불러오는 중 오류가 발생했습니다.');
         }
     },
+
+    getBookingDetail: async (bookingNumber) => {
+        try {
+            const response = await apiClient.get(`/mypage/bookingDetail/${bookingNumber}`);
+            if (response.data) {
+                return response.data;
+            }
+        } catch (error) {
+            throw new Error(error.message || '예매 상세 내역을 불러오는 중 오류가 발생했습니다.');
+        }
+    },
 };

@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { User, Lock, Calendar, Eye, EyeOff, Camera, Phone, Mail, MapPin, Edit2, Save, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-export function BookingsTab({ bookingHistory, isLoading, onCancelBooking }) {
+export function BookingsTab({ bookingHistory, isLoading }) {
+    const navigate = useNavigate();
+
     const getStatusColor = (status) => {
         switch (status) {
             case 'CONFIRMED':
@@ -29,18 +30,7 @@ export function BookingsTab({ bookingHistory, isLoading, onCancelBooking }) {
     };
 
     const handleDetailBooking = (bookingId) => {
-        alert(`${bookingId} 상세보기는 구현 예정입니다.`);
-    };
-
-    const handleCancelBooking = async (bookingId) => {
-        if (window.confirm('정말로 예매를 취소하시겠습니까?')) {
-            try {
-                await onCancelBooking(bookingId);
-                alert('예매가 취소되었습니다.');
-            } catch (error) {
-                alert('예매 취소에 실패했습니다.');
-            }
-        }
+        navigate(`/bookingDetail/${bookingId}`);
     };
 
     if (isLoading) {
