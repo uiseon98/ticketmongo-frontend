@@ -43,6 +43,11 @@ jobs:
       # - name: Check Code Formatting (Prettier)
       #   run: npm run format:check
 
+      - name: Run npm Audit #
+        run: npm audit --audit-level=moderate || true # 보통 수준 이상의 취약점 경고, 빌드 실패 방지
+        # '|| true'는 npm audit이 에러 코드를 반환해도 GitHub Actions 스텝이 실패로 처리되지 않도록 함
+        # 즉, 경고만 받고 파이프라인은 계속 진행
+
       - name: Build Frontend # 프론트엔드 빌드 (Vite 프로젝트는 'npm run build'가 기본)
         env: # 환경 변수 주입
           VITE_APP_API_URL: ${{ secrets.VITE_APP_API_URL }}
