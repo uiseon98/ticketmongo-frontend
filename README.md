@@ -208,7 +208,7 @@
 │   │   │   ├── ConcertManagement.jsx
 │   │   │   ├── Dashboard.jsx
 │   │   │   ├── SeatManagement.jsx
-│   │   │   ├── SellerStatus.jsx
+│   │   │   ├── SellerStatusPage.jsx
 │   │   │   └── SystemStatus.jsx
 │   │   ├── auth/           # 인증 관련 페이지
 │   │   │   ├── Login.jsx
