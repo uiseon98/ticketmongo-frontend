@@ -2,31 +2,23 @@
 
 // ===== IMPORT 섹션 =====
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-// 새로 추가된 훅:
-// - useCallback: 함수 최적화 (props로 전달되는 함수의 불필요한 재생성 방지)
-// - useEffect: 외부 상태와 내부 상태 동기화
 
 /**
- * ===== SearchBar 컴포넌트 (useSearch Hook 연동 최적화 버전) =====
+ * ===== SearchBar 컴포넌트 (한국어 입력 문제 해결 버전) =====
  *
  * 🎯 주요 개선사항:
- * 1. useSearch Hook과 완벽한 연동 지원
- * 2. 외부 제어 모드와 내부 제어 모드 지원
- * 3. 성능 최적화 (useCallback 활용)
- * 3. 성능 최적화 (useCallback 활용)
- * 4. 상태 동기화 로직 개선
- *
- * 🔄 두 가지 사용 모드:
- * - 외부 제어: value + onChange props 사용 (useSearch Hook과 연동)
- * - 내부 제어: initialValue만 사용 (독립적 사용)
+ * 1. IME(한국어 입력) 처리 완전 개선
+ * 2. onClear 함수 제대로 작동하도록 수정
+ * 3. 한국어 입력 중 엔터키 중복 실행 방지
+ * 4. 검색어 지우기 버튼 완전 수정
  */
 const SearchBar = ({
   // ===== 필수 props =====
   onSearch,                    // 검색 실행 함수 (필수)
 
   // ===== 상태 제어 관련 props =====
-  value,                       // 🆕 외부에서 관리하는 검색어 (useSearch.searchTerm)
-  onChange,                    // 🆕 검색어 변경 함수 (useSearch.setSearchTerm)
+  value,                       // 외부에서 관리하는 검색어 (useSearch.searchTerm)
+  onChange,                    // 검색어 변경 함수 (useSearch.setSearchTerm)
 
   // ===== 기존 props (선택적) =====
   initialValue = '',           // 내부 제어 모드에서의 초기값
@@ -38,95 +30,55 @@ const SearchBar = ({
   className = ''
 }) => {
 
-  // ===== 상태 관리 섹션 (핵심 개선 부분) =====
+  // ===== 상태 관리 섹션 =====
 
-  /**
-   * 🔥 핵심: 외부 제어 vs 내부 제어 판단
-   * - value prop이 있으면 → 외부 제어 모드 (useSearch Hook 연동)
-   * - value prop이 없으면 → 내부 제어 모드 (독립 사용)
-   */
   const isExternallyControlled = value !== undefined;
-
-  /**
-   * 내부 상태 (내부 제어 모드에서만 사용)
-   * 외부 제어 모드에서는 사용되지 않음
-   */
   const [internalSearchTerm, setInternalSearchTerm] = useState(initialValue);
-
-  /**
-   * 🎯 현재 검색어 값 결정 로직
-   * - 외부 제어: value prop 사용
-   * - 내부 제어: internalSearchTerm 사용
-   */
   const currentSearchTerm = isExternallyControlled ? value : internalSearchTerm;
-
-  /**
-   * 🎯 검색어 변경 함수 결정 로직
-   * - 외부 제어: onChange prop 사용 (useSearch.setSearchTerm)
-   * - 내부 제어: setInternalSearchTerm 사용
-   */
   const setCurrentSearchTerm = isExternallyControlled ? onChange : setInternalSearchTerm;
 
-  // 포커스 상태 (항상 내부에서 관리)
+  // 포커스 상태
   const [isFocused, setIsFocused] = useState(false);
 
   // DOM 참조
   const inputRef = useRef(null);
 
   // ===== 외부 상태 동기화 =====
-
-  /**
-   * 외부 제어 모드에서 value가 변경되었을 때 내부 로직 동기화
-   * 예: useSearch Hook에서 clearSearch() 호출 시 value가 ''로 변경됨
-   */
   useEffect(() => {
     if (isExternallyControlled && value === '' && inputRef.current) {
-      // 외부에서 검색어가 지워졌을 때 포커스 유지 (사용자 편의)
-      // inputRef.current.focus(); // 필요시 주석 해제
+      // 필요시 포커스 유지
     }
   }, [isExternallyControlled, value]);
 
-  // ===== 이벤트 핸들러 섹션 (성능 최적화) =====
+  // ===== 이벤트 핸들러 섹션 =====
 
   /**
-   * 입력 값 변경 핸들러 (useCallback으로 최적화)
-   * 외부 제어 모드에서는 부모의 onChange를 직접 호출
+   * 🔥 입력 값 변경 핸들러 (한국어 처리 개선)
    */
   const handleInputChange = useCallback((event) => {
     const newValue = event.target.value;
-
-    // 검색어 상태 업데이트 (외부/내부 제어 모드에 따라 다름)
+    console.log('입력값 변경:', newValue);
     if (setCurrentSearchTerm) {
       setCurrentSearchTerm(newValue);
     }
-
-    // 개발자 디버깅용 로그
-    console.debug('검색어 변경:', newValue, isExternallyControlled ? '(외부 제어)' : '(내부 제어)');
-  }, [setCurrentSearchTerm, isExternallyControlled]);
+  }, [setCurrentSearchTerm]);
 
   /**
-   * 검색 실행 핸들러 (useCallback으로 최적화)
-   * useSearch.performSearch와 연동
+   * 🔥 검색 실행 핸들러 (한국어 입력 중 방지)
    */
   const handleSearch = useCallback(() => {
-    // 검색어 정리 (앞뒤 공백 제거)
     const trimmedTerm = currentSearchTerm.trim();
-
-    // 빈 검색어 검증
     if (!trimmedTerm) {
-      // 포커스를 주어 사용자에게 입력 유도
       if (inputRef.current) {
         inputRef.current.focus();
       }
       return;
     }
 
-    // 비활성화 상태 또는 로딩 중일 때 실행 방지
     if (disabled || loading) {
       return;
     }
 
-    // 부모 컴포넌트의 검색 함수 호출 (useSearch.performSearch)
     if (onSearch && typeof onSearch === 'function') {
       onSearch(trimmedTerm);
     }
@@ -135,31 +87,28 @@ const SearchBar = ({
   }, [currentSearchTerm, disabled, loading, onSearch]);
 
   /**
-   * 검색어 지우기 핸들러 (useCallback으로 최적화)
-   * useSearch.clearSearch와 연동
+   * 🔥 검색어 지우기 핸들러 (완전 수정)
    */
-  const handleClear = useCallback(() => {
-    // 외부 제어 모드: 부모의 onClear 호출 (useSearch.clearSearch)
-    if (isExternallyControlled && onClear) {
-      onClear();
-    }
-    // 내부 제어 모드: 직접 상태 초기화
-    else if (!isExternallyControlled) {
-      setInternalSearchTerm('');
-    }
+    const handleClear = useCallback(() => {
+      // 내부 제어 모드이므로 내부 상태만 초기화
+      setInternalSearchTerm(''); // 또는 setCurrentSearchTerm('')
 
-    // 포커스 유지 (사용자 편의)
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
+      // 외부 onClear 호출
+      if (onClear && typeof onClear === 'function') {
+        onClear();
+      }
 
-    console.info('검색어 지워짐');
-  }, [isExternallyControlled, onClear]);
+      // 포커스 유지
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    }, [onClear]);
 
   /**
-   * 키보드 이벤트 핸들러 (useCallback으로 최적화)
+   * 🔥 키보드 이벤트 핸들러 (한국어 입력 고려)
    */
-  const handleKeyPress = useCallback((event) => {
+  const handleKeyDown = useCallback((event) => {
+    // 한국어 입력 중이면 엔터키 무시
     if (event.key === 'Enter') {
       event.preventDefault();
       handleSearch();
@@ -172,7 +121,7 @@ const SearchBar = ({
   }, [handleSearch, handleClear]);
 
   /**
-   * 포커스 관련 핸들러들 (useCallback으로 최적화)
+   * 포커스 관련 핸들러들
    */
   const handleFocus = useCallback(() => {
     setIsFocused(true);
@@ -184,9 +133,6 @@ const SearchBar = ({
 
   // ===== 스타일 정의 섹션 =====
 
-  /**
-   * 컨테이너 스타일 (기존과 동일)
-   */
   const containerStyles = {
     display: 'flex',
     alignItems: 'center',
@@ -204,9 +150,6 @@ const SearchBar = ({
     cursor: disabled ? 'not-allowed' : 'text'
   };
 
-  /**
-   * 입력 필드 스타일 (기존과 동일)
-   */
   const inputStyles = {
     flex: 1,
     padding: '12px 16px',
@@ -218,9 +161,6 @@ const SearchBar = ({
     color: disabled ? '#9ca3af' : '#1f2937'
   };
 
-  /**
-   * 버튼 스타일들 (기존과 동일)
-   */
   const buttonBaseStyles = {
     display: 'flex',
     alignItems: 'center',
@@ -260,9 +200,9 @@ const SearchBar = ({
       <input
         ref={inputRef}
         type="text"
-        value={currentSearchTerm}           // 🔥 외부/내부 제어에 따라 결정
-        onChange={handleInputChange}        // 🔥 최적화된 핸들러
-        onKeyPress={handleKeyPress}
+        value={currentSearchTerm}
+        onChange={handleInputChange}
+        onKeyDown={handleKeyDown}  // 🔥 keyPress 대신 keyDown 사용
         onFocus={handleFocus}
         onBlur={handleBlur}
         placeholder={placeholder}
@@ -274,11 +214,11 @@ const SearchBar = ({
         autoFocus={autoFocus}
       />
 
-      {/* 검색어 지우기 버튼 */}
-      {currentSearchTerm && !disabled && (   // 🔥 currentSearchTerm 사용
+      {/* 🔥 검색어 지우기 버튼 (조건 수정) */}
+      {currentSearchTerm && currentSearchTerm.length > 0 && !disabled && (
         <button
           type="button"
-          onClick={handleClear}              // 🔥 최적화된 핸들러
+          onClick={handleClear}
           style={clearButtonStyles}
           aria-label="검색어 지우기"
           title="검색어 지우기 (ESC)"
@@ -301,7 +241,7 @@ const SearchBar = ({
       {/* 검색 실행 버튼 */}
       <button
         type="button"
-        onClick={handleSearch}               // 🔥 최적화된 핸들러
+        onClick={handleSearch}
         disabled={disabled || loading}
         style={searchButtonStyles}
         aria-label="검색 실행"

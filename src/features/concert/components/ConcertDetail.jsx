@@ -142,7 +142,7 @@ const ConcertDetail = ({
    */
   const handleImageError = (event) => {
     // 기본 이미지로 대체
-    event.target.src = '/images/default-concert-poster.jpg';
+    event.target.src = '/images/basic-poster-image.png';
 
     // 기본 이미지도 없으면 숨김
     event.target.onerror = () => {
@@ -617,20 +617,6 @@ const ConcertDetail = ({
             </div>
           </div>
         </>
-      )}
-
-      {/* 개발자용 디버그 정보 */}
-      {import.meta.env.DEV && (
-        <div style={{
-          marginTop: '20px',
-          padding: '8px',
-          backgroundColor: '#f3f4f6',
-          borderRadius: '4px',
-          fontSize: '12px',
-          color: '#6b7280'
-        }}>
-          DEBUG: ID={concert.concertId}, Status={concert.status}, Seller={concert.sellerId}
-        </div>
       )}
     </div>
   );

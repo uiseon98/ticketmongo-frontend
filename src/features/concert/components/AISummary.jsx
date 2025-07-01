@@ -358,20 +358,6 @@ const AISummary = ({
           💡 이 요약은 실제 관람객들의 후기를 바탕으로 AI가 자동 생성했습니다
         </div>
       )}
-
-      {/* 개발자용 디버그 정보 */}
-      {import.meta.env.DEV && (
-        <div style={{
-          marginTop: '8px',
-          padding: '4px',
-          backgroundColor: '#f3f4f6',
-          fontSize: '10px',
-          color: '#6b7280',
-          borderRadius: '2px'
-        }}>
-          DEBUG: length={summary?.length || 0}, truncated={shouldTruncate()}, expanded={isExpanded}
-        </div>
-      )}
     </div>
   );
 };

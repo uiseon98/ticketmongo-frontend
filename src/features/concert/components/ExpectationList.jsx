@@ -646,20 +646,6 @@ const [hoveredExpectationId, setHoveredExpectationId] = useState(null);
           관람 <strong>후</strong>에는 리뷰를 작성하실 수 있습니다.
         </div>
       )}
-
-      {/* 개발자용 디버그 정보 */}
-      {import.meta.env.DEV && (
-        <div style={{
-          marginTop: '12px',
-          padding: '8px',
-          backgroundColor: '#f3f4f6',
-          borderRadius: '4px',
-          fontSize: '10px',
-          color: '#6b7280'
-        }}>
-          DEBUG: {expectations.length}개 기대평, {currentPage + 1}/{totalPages} 페이지
-        </div>
-      )}
     </div>
   );
 };
