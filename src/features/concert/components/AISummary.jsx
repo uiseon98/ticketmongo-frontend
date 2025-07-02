@@ -29,21 +29,20 @@ import React, { useState, useCallback } from 'react';
  */
 const AISummary = ({
   // ===== 필수 props =====
-  summary,                     // AI 요약 텍스트 (useConcertDetail.aiSummary)
-  loading = false,             // AI 요약 로딩 상태 (useConcertDetail.aiSummaryLoading)
+  summary, // AI 요약 텍스트 (useConcertDetail.aiSummary)
+  loading = false, // AI 요약 로딩 상태 (useConcertDetail.aiSummaryLoading)
 
   // ===== 액션 props =====
-  onRefresh,                   // 새로고침 함수 (useConcertDetail.fetchAISummary)
+  onRefresh, // 새로고침 함수 (useConcertDetail.fetchAISummary)
 
   // ===== UI 제어 props =====
-  showRefreshButton = true,    // 새로고침 버튼 표시 여부
-  maxLength = 200,             // 접기 상태에서 최대 표시 길이
+  showRefreshButton = true, // 새로고침 버튼 표시 여부
+  maxLength = 200, // 접기 상태에서 최대 표시 길이
 
   // ===== 스타일 props =====
-  className = '',              // 추가 CSS 클래스
-  compact = false              // 컴팩트 모드
+  className = '', // 추가 CSS 클래스
+  compact = false, // 컴팩트 모드
 }) => {
-
   // ===== 상태 관리 =====
 
   /**
@@ -85,8 +84,10 @@ const AISummary = ({
     if (!summary) return 'empty';
 
     // 백엔드에서 오는 특정 메시지들 확인
-    if (summary === 'AI 요약 정보가 아직 생성되지 않았습니다.' ||
-        summary === 'AI 요약을 불러올 수 없습니다.') {
+    if (
+      summary === 'AI 요약 정보가 아직 생성되지 않았습니다.' ||
+      summary === 'AI 요약을 불러올 수 없습니다.'
+    ) {
       return 'unavailable';
     }
 
@@ -121,7 +122,7 @@ const AISummary = ({
     backgroundColor: '#f8fafc',
     border: '1px solid #e2e8f0',
     borderRadius: '8px',
-    marginBottom: compact ? '12px' : '16px'
+    marginBottom: compact ? '12px' : '16px',
   };
 
   /**
@@ -131,7 +132,7 @@ const AISummary = ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: '12px'
+    marginBottom: '12px',
   };
 
   /**
@@ -143,7 +144,7 @@ const AISummary = ({
     color: '#1e40af',
     display: 'flex',
     alignItems: 'center',
-    gap: '6px'
+    gap: '6px',
   };
 
   /**
@@ -158,7 +159,7 @@ const AISummary = ({
     color: '#64748b',
     cursor: loading ? 'not-allowed' : 'pointer',
     transition: 'all 0.2s ease',
-    opacity: loading ? 0.6 : 1
+    opacity: loading ? 0.6 : 1,
   };
 
   /**
@@ -168,7 +169,7 @@ const AISummary = ({
     fontSize: compact ? '13px' : '14px',
     lineHeight: '1.6',
     color: '#374151',
-    marginBottom: shouldTruncate() ? '8px' : '0'
+    marginBottom: shouldTruncate() ? '8px' : '0',
   };
 
   /**
@@ -181,7 +182,7 @@ const AISummary = ({
     color: '#3b82f6',
     fontSize: '12px',
     cursor: 'pointer',
-    textDecoration: 'underline'
+    textDecoration: 'underline',
   };
 
   /**
@@ -192,7 +193,7 @@ const AISummary = ({
     backgroundColor: '#e2e8f0',
     borderRadius: '4px',
     marginBottom: '8px',
-    animation: 'pulse 2s infinite'
+    animation: 'pulse 2s infinite',
   };
 
   // ===== 조건부 렌더링 =====
@@ -204,9 +205,7 @@ const AISummary = ({
     return (
       <div className={`ai-summary ${className}`} style={containerStyles}>
         <div style={headerStyles}>
-          <div style={titleStyles}>
-            🤖 AI 요약
-          </div>
+          <div style={titleStyles}>🤖 AI 요약</div>
         </div>
 
         {/* 로딩 스켈레톤 */}
@@ -216,20 +215,27 @@ const AISummary = ({
           <div style={{ ...skeletonStyles, width: '92%' }} />
         </div>
 
-        <div style={{
-          fontSize: '12px',
-          color: '#64748b',
-          textAlign: 'center',
-          marginTop: '8px'
-        }}>
+        <div
+          style={{
+            fontSize: '12px',
+            color: '#64748b',
+            textAlign: 'center',
+            marginTop: '8px',
+          }}
+        >
           AI 요약을 생성하는 중...
         </div>
 
         {/* CSS 애니메이션 */}
         <style jsx>{`
           @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+            0%,
+            100% {
+              opacity: 1;
+            }
+            50% {
+              opacity: 0.5;
+            }
           }
         `}</style>
       </div>
@@ -245,9 +251,7 @@ const AISummary = ({
     return (
       <div className={`ai-summary ${className}`} style={containerStyles}>
         <div style={headerStyles}>
-          <div style={titleStyles}>
-            🤖 AI 요약
-          </div>
+          <div style={titleStyles}>🤖 AI 요약</div>
           {showRefreshButton && onRefresh && (
             <button
               onClick={handleRefresh}
@@ -260,16 +264,16 @@ const AISummary = ({
           )}
         </div>
 
-        <div style={{
-          textAlign: 'center',
-          padding: '20px',
-          color: '#6b7280'
-        }}>
+        <div
+          style={{
+            textAlign: 'center',
+            padding: '20px',
+            color: '#6b7280',
+          }}
+        >
           <div style={{ fontSize: '32px', marginBottom: '8px' }}>🤷‍♂️</div>
           <div style={{ fontSize: '14px', marginBottom: '4px' }}>
-            {summaryStatus === 'empty'
-              ? 'AI 요약 정보가 없습니다'
-              : summary}
+            {summaryStatus === 'empty' ? 'AI 요약 정보가 없습니다' : summary}
           </div>
           <div style={{ fontSize: '12px', color: '#9ca3af' }}>
             리뷰가 충분히 쌓이면 AI 요약이 자동으로 생성됩니다
@@ -287,14 +291,16 @@ const AISummary = ({
       <div style={headerStyles}>
         <div style={titleStyles}>
           🤖 AI 요약
-          <span style={{
-            fontSize: '11px',
-            backgroundColor: '#dbeafe',
-            color: '#1e40af',
-            padding: '2px 6px',
-            borderRadius: '10px',
-            fontWeight: 'normal'
-          }}>
+          <span
+            style={{
+              fontSize: '11px',
+              backgroundColor: '#dbeafe',
+              color: '#1e40af',
+              padding: '2px 6px',
+              borderRadius: '10px',
+              fontWeight: 'normal',
+            }}
+          >
             자동 생성
           </span>
         </div>
@@ -305,13 +311,13 @@ const AISummary = ({
             style={refreshButtonStyles}
             aria-label="AI 요약 새로고침"
             disabled={loading}
-            onMouseEnter={(e) => {
+            onMouseEnter={e => {
               if (!loading) {
                 e.target.style.backgroundColor = '#f1f5f9';
                 e.target.style.borderColor = '#94a3b8';
               }
             }}
-            onMouseLeave={(e) => {
+            onMouseLeave={e => {
               if (!loading) {
                 e.target.style.backgroundColor = 'transparent';
                 e.target.style.borderColor = '#cbd5e1';
@@ -347,14 +353,16 @@ const AISummary = ({
 
       {/* AI 요약 설명 */}
       {!compact && (
-        <div style={{
-          marginTop: '12px',
-          padding: '8px',
-          backgroundColor: '#eff6ff',
-          borderRadius: '4px',
-          fontSize: '11px',
-          color: '#1e40af'
-        }}>
+        <div
+          style={{
+            marginTop: '12px',
+            padding: '8px',
+            backgroundColor: '#eff6ff',
+            borderRadius: '4px',
+            fontSize: '11px',
+            color: '#1e40af',
+          }}
+        >
           💡 이 요약은 실제 관람객들의 후기를 바탕으로 AI가 자동 생성했습니다
         </div>
       )}
@@ -368,7 +376,7 @@ AISummary.defaultProps = {
   showRefreshButton: true,
   maxLength: 200,
   className: '',
-  compact: false
+  compact: false,
 };
 
 export default AISummary;

@@ -60,9 +60,8 @@ const ConcertList = ({
   showAiSummary = false,
   showPagination = true,
   emptyMessage = '콘서트가 없습니다.',
-  className = ''
+  className = '',
 }) => {
-
   // ===== 스타일 정의 =====
 
   /**
@@ -70,7 +69,7 @@ const ConcertList = ({
    */
   const containerStyles = {
     width: '100%',
-    padding: '16px'
+    padding: '16px',
   };
 
   /**
@@ -82,7 +81,7 @@ const ConcertList = ({
     // 반응형 그리드: 최소 280px, 최대 1fr (가능한 공간 차지)
     gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
     gap: '16px',
-    marginBottom: '24px'
+    marginBottom: '24px',
   };
 
   /**
@@ -94,7 +93,7 @@ const ConcertList = ({
     alignItems: 'center',
     minHeight: '200px',
     fontSize: '16px',
-    color: '#6b7280'
+    color: '#6b7280',
   };
 
   /**
@@ -110,7 +109,7 @@ const ConcertList = ({
     backgroundColor: '#fef2f2',
     border: '1px solid #fecaca',
     borderRadius: '8px',
-    margin: '16px 0'
+    margin: '16px 0',
   };
 
   /**
@@ -126,7 +125,7 @@ const ConcertList = ({
     backgroundColor: '#f9fafb',
     border: '2px dashed #d1d5db',
     borderRadius: '8px',
-    margin: '16px 0'
+    margin: '16px 0',
   };
 
   /**
@@ -138,7 +137,7 @@ const ConcertList = ({
     alignItems: 'center',
     gap: '8px',
     marginTop: '24px',
-    padding: '16px'
+    padding: '16px',
   };
 
   /**
@@ -151,7 +150,7 @@ const ConcertList = ({
     backgroundColor: '#ffffff',
     cursor: 'pointer',
     fontSize: '14px',
-    transition: 'all 0.2s ease'
+    transition: 'all 0.2s ease',
   };
 
   /**
@@ -161,7 +160,7 @@ const ConcertList = ({
     ...buttonBaseStyles,
     backgroundColor: '#3b82f6',
     color: '#ffffff',
-    borderColor: '#3b82f6'
+    borderColor: '#3b82f6',
   };
 
   /**
@@ -171,7 +170,7 @@ const ConcertList = ({
     ...buttonBaseStyles,
     backgroundColor: '#f3f4f6',
     color: '#9ca3af',
-    cursor: 'not-allowed'
+    cursor: 'not-allowed',
   };
 
   // ===== 이벤트 핸들러 =====
@@ -181,7 +180,7 @@ const ConcertList = ({
    *
    * @param {number} newPage - 이동할 페이지 번호
    */
-  const handlePageChange = (newPage) => {
+  const handlePageChange = newPage => {
     // 유효한 페이지 범위인지 확인
     if (newPage < 0 || newPage >= totalPages) {
       return;
@@ -267,59 +266,65 @@ const ConcertList = ({
           border: '1px solid #e5e7eb',
           borderRadius: '8px',
           padding: '16px',
-          backgroundColor: '#f9fafb'
+          backgroundColor: '#f9fafb',
         }}
       >
         {/* 포스터 이미지 영역 */}
-        <div style={{
-          width: '100%',
-          height: '200px',
-          backgroundColor: '#e5e7eb',
-          borderRadius: '4px',
-          marginBottom: '12px'
-        }} />
+        <div
+          style={{
+            width: '100%',
+            height: '200px',
+            backgroundColor: '#e5e7eb',
+            borderRadius: '4px',
+            marginBottom: '12px',
+          }}
+        />
 
         {/* 제목 영역 */}
-        <div style={{
-          width: '80%',
-          height: '20px',
-          backgroundColor: '#e5e7eb',
-          borderRadius: '4px',
-          marginBottom: '8px'
-        }} />
+        <div
+          style={{
+            width: '80%',
+            height: '20px',
+            backgroundColor: '#e5e7eb',
+            borderRadius: '4px',
+            marginBottom: '8px',
+          }}
+        />
 
         {/* 아티스트 영역 */}
-        <div style={{
-          width: '60%',
-          height: '16px',
-          backgroundColor: '#e5e7eb',
-          borderRadius: '4px',
-          marginBottom: '8px'
-        }} />
+        <div
+          style={{
+            width: '60%',
+            height: '16px',
+            backgroundColor: '#e5e7eb',
+            borderRadius: '4px',
+            marginBottom: '8px',
+          }}
+        />
 
         {/* 날짜/장소 영역 */}
-        <div style={{
-          width: '90%',
-          height: '14px',
-          backgroundColor: '#e5e7eb',
-          borderRadius: '4px',
-          marginBottom: '6px'
-        }} />
+        <div
+          style={{
+            width: '90%',
+            height: '14px',
+            backgroundColor: '#e5e7eb',
+            borderRadius: '4px',
+            marginBottom: '6px',
+          }}
+        />
 
-        <div style={{
-          width: '70%',
-          height: '14px',
-          backgroundColor: '#e5e7eb',
-          borderRadius: '4px'
-        }} />
+        <div
+          style={{
+            width: '70%',
+            height: '14px',
+            backgroundColor: '#e5e7eb',
+            borderRadius: '4px',
+          }}
+        />
       </div>
     ));
 
-    return (
-      <div style={gridStyles}>
-        {skeletonCards}
-      </div>
-    );
+    return <div style={gridStyles}>{skeletonCards}</div>;
   };
 
   // ===== 조건부 렌더링 =====
@@ -349,8 +354,16 @@ const ConcertList = ({
           <h3 style={{ margin: '0 0 8px 0', color: '#dc2626' }}>
             오류가 발생했습니다
           </h3>
-          <p style={{ margin: '0 0 16px 0', color: '#6b7280', textAlign: 'center' }}>
-            {typeof error === 'string' ? error : '콘서트 정보를 불러올 수 없습니다.'}
+          <p
+            style={{
+              margin: '0 0 16px 0',
+              color: '#6b7280',
+              textAlign: 'center',
+            }}
+          >
+            {typeof error === 'string'
+              ? error
+              : '콘서트 정보를 불러올 수 없습니다.'}
           </p>
           {onRetry && (
             <button
@@ -359,7 +372,7 @@ const ConcertList = ({
                 ...buttonBaseStyles,
                 backgroundColor: '#dc2626',
                 color: '#ffffff',
-                borderColor: '#dc2626'
+                borderColor: '#dc2626',
               }}
             >
               🔄 다시 시도
@@ -395,7 +408,7 @@ const ConcertList = ({
     <div className={`concert-list ${className}`} style={containerStyles}>
       {/* 콘서트 카드들의 격자 레이아웃 */}
       <div style={gridStyles}>
-        {concerts.map((concert) => (
+        {concerts.map(concert => (
           <ConcertCard
             key={concert.concertId}
             concert={concert}
@@ -434,7 +447,11 @@ const ConcertList = ({
               <button
                 key={pageNum}
                 onClick={() => handlePageChange(pageNum)}
-                style={pageNum === currentPage ? activeButtonStyles : buttonBaseStyles}
+                style={
+                  pageNum === currentPage
+                    ? activeButtonStyles
+                    : buttonBaseStyles
+                }
                 aria-label={`${pageNum + 1}페이지`}
                 aria-current={pageNum === currentPage ? 'page' : undefined}
               >
@@ -447,7 +464,11 @@ const ConcertList = ({
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage >= totalPages - 1}
-            style={currentPage >= totalPages - 1 ? disabledButtonStyles : buttonBaseStyles}
+            style={
+              currentPage >= totalPages - 1
+                ? disabledButtonStyles
+                : buttonBaseStyles
+            }
             aria-label="다음 페이지"
           >
             다음 →
@@ -457,12 +478,14 @@ const ConcertList = ({
 
       {/* 페이지 정보 표시 (현재 페이지 / 전체 페이지) */}
       {showPagination && totalPages > 0 && (
-        <div style={{
-          textAlign: 'center',
-          marginTop: '8px',
-          fontSize: '14px',
-          color: '#6b7280'
-        }}>
+        <div
+          style={{
+            textAlign: 'center',
+            marginTop: '8px',
+            fontSize: '14px',
+            color: '#6b7280',
+          }}
+        >
           {currentPage + 1} / {totalPages} 페이지
         </div>
       )}
@@ -480,7 +503,7 @@ ConcertList.defaultProps = {
   showAiSummary: false,
   showPagination: true,
   emptyMessage: '콘서트가 없습니다.',
-  className: ''
+  className: '',
 };
 
 // 컴포넌트를 다른 파일에서 import할 수 있도록 export

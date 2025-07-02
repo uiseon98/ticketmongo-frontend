@@ -5,7 +5,13 @@ import React, { useCallback, useState } from 'react';
 // useCallback: 이벤트 핸들러 최적화
 
 // 리뷰 관련 타입과 상수들을 import
-import { RatingLabels, RatingEmojis, RatingColors, ReviewSortOptions, SortDirectionOptions } from '../types/review.js';
+import {
+  RatingLabels,
+  RatingEmojis,
+  RatingColors,
+  ReviewSortOptions,
+  SortDirectionOptions,
+} from '../types/review.js';
 
 /**
  * ===== ReviewList 컴포넌트 =====
@@ -32,82 +38,94 @@ import { RatingLabels, RatingEmojis, RatingColors, ReviewSortOptions, SortDirect
  */
 const ReviewList = ({
   // ===== 데이터 props (useReviews hook에서) =====
-  reviews = [],                // 리뷰 목록 (useReviews.reviews)
-  loading = false,             // 로딩 상태 (useReviews.loading)
-  error = null,                // 에러 상태 (useReviews.error)
+  reviews = [], // 리뷰 목록 (useReviews.reviews)
+  loading = false, // 로딩 상태 (useReviews.loading)
+  error = null, // 에러 상태 (useReviews.error)
 
   // ===== 페이지네이션 props =====
-  currentPage = 0,             // 현재 페이지 (useReviews.currentPage)
-  totalPages = 0,              // 전체 페이지 수 (useReviews.totalPages)
-  totalElements = 0,           // 전체 리뷰 수 (useReviews.totalElements)
-  pageSize = 10,               // 페이지 크기 (useReviews.pageSize)
+  currentPage = 0, // 현재 페이지 (useReviews.currentPage)
+  totalPages = 0, // 전체 페이지 수 (useReviews.totalPages)
+  totalElements = 0, // 전체 리뷰 수 (useReviews.totalElements)
+  pageSize = 10, // 페이지 크기 (useReviews.pageSize)
 
   // ===== 정렬 props =====
-  sortBy = 'createdAt',        // 정렬 기준 (useReviews.sortBy)
-  sortDir = 'desc',            // 정렬 방향 (useReviews.sortDir)
+  sortBy = 'createdAt', // 정렬 기준 (useReviews.sortBy)
+  sortDir = 'desc', // 정렬 방향 (useReviews.sortDir)
 
   // ===== 액션 props =====
-  onReviewClick,               // 리뷰 클릭 핸들러 (상세보기)
-  onSortChange,                // 정렬 변경 핸들러 (useReviews.changeSorting)
-  onPageChange,                // 페이지 변경 핸들러 (useReviews.goToPage)
-  onPageSizeChange,            // 페이지 크기 변경 핸들러 (useReviews.changePageSize)
-  onRefresh,                   // 새로고침 핸들러 (useReviews.refresh)
-  currentUserId,               // 현재 사용자 ID
-  onEditClick,                 // 수정 버튼 클릭 핸들러
-  onDeleteClick,               // 삭제 버튼 클릭 핸들러
+  onReviewClick, // 리뷰 클릭 핸들러 (상세보기)
+  onSortChange, // 정렬 변경 핸들러 (useReviews.changeSorting)
+  onPageChange, // 페이지 변경 핸들러 (useReviews.goToPage)
+  onPageSizeChange, // 페이지 크기 변경 핸들러 (useReviews.changePageSize)
+  onRefresh, // 새로고침 핸들러 (useReviews.refresh)
+  currentUserId, // 현재 사용자 ID
+  onEditClick, // 수정 버튼 클릭 핸들러
+  onDeleteClick, // 삭제 버튼 클릭 핸들러
 
   // ===== UI 제어 props =====
-  showSortOptions = true,      // 정렬 옵션 표시 여부
-  showPagination = true,       // 페이지네이션 표시 여부
-  showRefreshButton = false,   // 새로고침 버튼 표시 여부
+  showSortOptions = true, // 정렬 옵션 표시 여부
+  showPagination = true, // 페이지네이션 표시 여부
+  showRefreshButton = false, // 새로고침 버튼 표시 여부
 
   expandedReviewId = null,
 
   // ===== 스타일 props =====
-  className = '',              // 추가 CSS 클래스
-  compact = false              // 컴팩트 모드 (간소화된 UI)
+  className = '', // 추가 CSS 클래스
+  compact = false, // 컴팩트 모드 (간소화된 UI)
 }) => {
-
   const [hoveredReviewId, setHoveredReviewId] = useState(null);
   // ===== 이벤트 핸들러들 =====
 
   /**
    * 정렬 변경 핸들러
    */
-    const handleSortChange = useCallback((newSortBy) => {
+  const handleSortChange = useCallback(
+    newSortBy => {
       if (onSortChange && typeof onSortChange === 'function') {
-        const newSortDir = (newSortBy === sortBy && sortDir === 'desc') ? 'asc' : 'desc';
+        const newSortDir =
+          newSortBy === sortBy && sortDir === 'desc' ? 'asc' : 'desc';
         onSortChange(newSortBy, newSortDir);
       }
-    }, [onSortChange, sortBy, sortDir]);
+    },
+    [onSortChange, sortBy, sortDir]
+  );
 
   /**
    * 페이지 변경 핸들러
    */
-  const handlePageChange = useCallback((newPage) => {
-    if (onPageChange && typeof onPageChange === 'function') {
-      onPageChange(newPage);
-    }
-  }, [onPageChange]);
+  const handlePageChange = useCallback(
+    newPage => {
+      if (onPageChange && typeof onPageChange === 'function') {
+        onPageChange(newPage);
+      }
+    },
+    [onPageChange]
+  );
 
   /**
    * 페이지 크기 변경 핸들러
    */
-  const handlePageSizeChange = useCallback((event) => {
-    const newSize = parseInt(event.target.value, 10);
-    if (onPageSizeChange && typeof onPageSizeChange === 'function') {
-      onPageSizeChange(newSize);
-    }
-  }, [onPageSizeChange]);
+  const handlePageSizeChange = useCallback(
+    event => {
+      const newSize = parseInt(event.target.value, 10);
+      if (onPageSizeChange && typeof onPageSizeChange === 'function') {
+        onPageSizeChange(newSize);
+      }
+    },
+    [onPageSizeChange]
+  );
 
   /**
    * 리뷰 클릭 핸들러
    */
-  const handleReviewClick = useCallback((review) => {
-    if (onReviewClick && typeof onReviewClick === 'function') {
-      onReviewClick(review);
-    }
-  }, [onReviewClick]);
+  const handleReviewClick = useCallback(
+    review => {
+      if (onReviewClick && typeof onReviewClick === 'function') {
+        onReviewClick(review);
+      }
+    },
+    [onReviewClick]
+  );
 
   /**
    * 새로고침 핸들러
@@ -123,13 +141,13 @@ const ReviewList = ({
   /**
    * 날짜 포맷팅 함수
    */
-  const formatDate = useCallback((dateString) => {
+  const formatDate = useCallback(dateString => {
     try {
       const date = new Date(dateString);
       return date.toLocaleDateString('ko-KR', {
         year: 'numeric',
         month: 'short',
-        day: 'numeric'
+        day: 'numeric',
       });
     } catch (error) {
       return dateString;
@@ -139,23 +157,26 @@ const ReviewList = ({
   /**
    * 평점 별 표시 함수
    */
-  const renderStars = useCallback((rating) => {
-    const stars = [];
-    for (let i = 1; i <= 5; i++) {
-      stars.push(
-        <span
-          key={i}
-          style={{
-            color: i <= rating ? '#fbbf24' : '#e5e7eb',
-            fontSize: compact ? '14px' : '16px'
-          }}
-        >
-          ★
-        </span>
-      );
-    }
-    return stars;
-  }, [compact]);
+  const renderStars = useCallback(
+    rating => {
+      const stars = [];
+      for (let i = 1; i <= 5; i++) {
+        stars.push(
+          <span
+            key={i}
+            style={{
+              color: i <= rating ? '#fbbf24' : '#e5e7eb',
+              fontSize: compact ? '14px' : '16px',
+            }}
+          >
+            ★
+          </span>
+        );
+      }
+      return stars;
+    },
+    [compact]
+  );
 
   /**
    * 표시할 페이지 번호 배열 생성
@@ -203,7 +224,7 @@ const ReviewList = ({
     backgroundColor: '#ffffff',
     borderRadius: '8px',
     border: '1px solid #e5e7eb',
-    padding: compact ? '12px' : '16px'
+    padding: compact ? '12px' : '16px',
   };
 
   /**
@@ -215,7 +236,7 @@ const ReviewList = ({
     alignItems: 'center',
     marginBottom: compact ? '12px' : '16px',
     paddingBottom: '12px',
-    borderBottom: '1px solid #e5e7eb'
+    borderBottom: '1px solid #e5e7eb',
   };
 
   /**
@@ -224,7 +245,7 @@ const ReviewList = ({
   const titleStyles = {
     fontSize: compact ? '16px' : '18px',
     fontWeight: 'bold',
-    color: '#1f2937'
+    color: '#1f2937',
   };
 
   /**
@@ -233,13 +254,13 @@ const ReviewList = ({
   const sortContainerStyles = {
     display: 'flex',
     alignItems: 'center',
-    gap: '8px'
+    gap: '8px',
   };
 
   /**
    * 정렬 버튼 스타일
    */
-  const getSortButtonStyles = (isActive) => ({
+  const getSortButtonStyles = isActive => ({
     padding: '4px 8px',
     backgroundColor: isActive ? '#3b82f6' : 'transparent',
     color: isActive ? '#ffffff' : '#6b7280',
@@ -247,7 +268,7 @@ const ReviewList = ({
     borderRadius: '4px',
     fontSize: '12px',
     cursor: 'pointer',
-    transition: 'all 0.2s ease'
+    transition: 'all 0.2s ease',
   });
 
   /**
@@ -260,7 +281,7 @@ const ReviewList = ({
     marginBottom: '12px',
     backgroundColor: '#ffffff',
     cursor: onReviewClick ? 'pointer' : 'default',
-    transition: 'all 0.2s ease'
+    transition: 'all 0.2s ease',
   };
 
   /**
@@ -272,7 +293,7 @@ const ReviewList = ({
     alignItems: 'center',
     gap: '8px',
     marginTop: '20px',
-    padding: '12px'
+    padding: '12px',
   };
 
   /**
@@ -285,7 +306,7 @@ const ReviewList = ({
     backgroundColor: '#ffffff',
     cursor: 'pointer',
     fontSize: '14px',
-    transition: 'all 0.2s ease'
+    transition: 'all 0.2s ease',
   };
 
   /**
@@ -295,7 +316,7 @@ const ReviewList = ({
     ...pageButtonBaseStyles,
     backgroundColor: '#3b82f6',
     color: '#ffffff',
-    borderColor: '#3b82f6'
+    borderColor: '#3b82f6',
   };
 
   // ===== 조건부 렌더링 =====
@@ -313,52 +334,67 @@ const ReviewList = ({
         {/* 로딩 스켈레톤 */}
         <div>
           {Array.from({ length: 3 }, (_, index) => (
-            <div key={`skeleton-${index}`} style={{
-              ...reviewCardStyles,
-              cursor: 'default'
-            }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                marginBottom: '8px'
-              }}>
-                <div style={{
-                  width: '100px',
+            <div
+              key={`skeleton-${index}`}
+              style={{
+                ...reviewCardStyles,
+                cursor: 'default',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  marginBottom: '8px',
+                }}
+              >
+                <div
+                  style={{
+                    width: '100px',
+                    height: '16px',
+                    backgroundColor: '#e5e7eb',
+                    borderRadius: '4px',
+                    marginRight: '12px',
+                  }}
+                />
+                <div
+                  style={{
+                    width: '60px',
+                    height: '16px',
+                    backgroundColor: '#e5e7eb',
+                    borderRadius: '4px',
+                  }}
+                />
+              </div>
+              <div
+                style={{
+                  width: '80%',
+                  height: '20px',
+                  backgroundColor: '#e5e7eb',
+                  borderRadius: '4px',
+                  marginBottom: '8px',
+                }}
+              />
+              <div
+                style={{
+                  width: '100%',
                   height: '16px',
                   backgroundColor: '#e5e7eb',
                   borderRadius: '4px',
-                  marginRight: '12px'
-                }} />
-                <div style={{
-                  width: '60px',
-                  height: '16px',
-                  backgroundColor: '#e5e7eb',
-                  borderRadius: '4px'
-                }} />
-              </div>
-              <div style={{
-                width: '80%',
-                height: '20px',
-                backgroundColor: '#e5e7eb',
-                borderRadius: '4px',
-                marginBottom: '8px'
-              }} />
-              <div style={{
-                width: '100%',
-                height: '16px',
-                backgroundColor: '#e5e7eb',
-                borderRadius: '4px'
-              }} />
+                }}
+              />
             </div>
           ))}
         </div>
 
-        <div style={{
-          textAlign: 'center',
-          color: '#6b7280',
-          fontSize: '14px',
-          marginTop: '16px'
-        }}>
+        <div
+          style={{
+            textAlign: 'center',
+            color: '#6b7280',
+            fontSize: '14px',
+            marginTop: '16px',
+          }}
+        >
           리뷰를 불러오는 중...
         </div>
       </div>
@@ -383,7 +419,7 @@ const ReviewList = ({
                 border: 'none',
                 borderRadius: '4px',
                 fontSize: '12px',
-                cursor: 'pointer'
+                cursor: 'pointer',
               }}
             >
               🔄 다시 시도
@@ -391,23 +427,31 @@ const ReviewList = ({
           )}
         </div>
 
-        <div style={{
-          textAlign: 'center',
-          padding: '40px 20px'
-        }}>
+        <div
+          style={{
+            textAlign: 'center',
+            padding: '40px 20px',
+          }}
+        >
           <div style={{ fontSize: '48px', marginBottom: '16px' }}>😵</div>
-          <h3 style={{
-            color: '#dc2626',
-            marginBottom: '8px',
-            fontSize: '18px'
-          }}>
+          <h3
+            style={{
+              color: '#dc2626',
+              marginBottom: '8px',
+              fontSize: '18px',
+            }}
+          >
             리뷰를 불러올 수 없습니다
           </h3>
-          <p style={{
-            color: '#6b7280',
-            fontSize: '14px'
-          }}>
-            {typeof error === 'string' ? error : '알 수 없는 오류가 발생했습니다.'}
+          <p
+            style={{
+              color: '#6b7280',
+              fontSize: '14px',
+            }}
+          >
+            {typeof error === 'string'
+              ? error
+              : '알 수 없는 오류가 발생했습니다.'}
           </p>
         </div>
       </div>
@@ -424,22 +468,28 @@ const ReviewList = ({
           <div style={titleStyles}>📝 관람 후기 (0개)</div>
         </div>
 
-        <div style={{
-          textAlign: 'center',
-          padding: '40px 20px'
-        }}>
+        <div
+          style={{
+            textAlign: 'center',
+            padding: '40px 20px',
+          }}
+        >
           <div style={{ fontSize: '48px', marginBottom: '16px' }}>📝</div>
-          <h3 style={{
-            color: '#6b7280',
-            marginBottom: '8px',
-            fontSize: '18px'
-          }}>
+          <h3
+            style={{
+              color: '#6b7280',
+              marginBottom: '8px',
+              fontSize: '18px',
+            }}
+          >
             아직 작성된 후기가 없습니다
           </h3>
-          <p style={{
-            color: '#9ca3af',
-            fontSize: '14px'
-          }}>
+          <p
+            style={{
+              color: '#9ca3af',
+              fontSize: '14px',
+            }}
+          >
             첫 번째 후기를 작성해보세요!
           </p>
         </div>
@@ -462,7 +512,7 @@ const ReviewList = ({
           {showSortOptions && (
             <div style={sortContainerStyles}>
               <span style={{ fontSize: '12px', color: '#6b7280' }}>정렬:</span>
-              {ReviewSortOptions.map((option) => (
+              {ReviewSortOptions.map(option => (
                 <button
                   key={option.value}
                   onClick={() => handleSortChange(option.value)}
@@ -490,7 +540,7 @@ const ReviewList = ({
                 borderRadius: '4px',
                 fontSize: '12px',
                 color: '#6b7280',
-                cursor: 'pointer'
+                cursor: 'pointer',
               }}
             >
               🔄
@@ -501,91 +551,110 @@ const ReviewList = ({
 
       {/* 리뷰 목록 */}
       <div>
-        {reviews.map((review) => (
+        {reviews.map(review => (
           <div
             key={review.id}
             style={{
               ...reviewCardStyles,
-              ...(hoveredReviewId === review.id && onReviewClick ? {
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-                transform: 'translateY(-1px)'
-              } : {})
+              ...(hoveredReviewId === review.id && onReviewClick
+                ? {
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                    transform: 'translateY(-1px)',
+                  }
+                : {}),
             }}
             onClick={() => handleReviewClick(review)}
             onMouseEnter={() => onReviewClick && setHoveredReviewId(review.id)}
             onMouseLeave={() => setHoveredReviewId(null)}
           >
             {/* 리뷰 헤더 */}
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '8px'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{
-                  fontSize: compact ? '12px' : '14px',
-                  fontWeight: '600',
-                  color: '#374151'
-                }}>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '8px',
+              }}
+            >
+              <div
+                style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+              >
+                <span
+                  style={{
+                    fontSize: compact ? '12px' : '14px',
+                    fontWeight: '600',
+                    color: '#374151',
+                  }}
+                >
                   {review.userNickname}
                 </span>
-                <span style={{
-                  fontSize: '11px',
-                  color: '#9ca3af'
-                }}>
+                <span
+                  style={{
+                    fontSize: '11px',
+                    color: '#9ca3af',
+                  }}
+                >
                   {formatDate(review.createdAt)}
                 </span>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <div
+                style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
+              >
                 {renderStars(review.rating)}
-                <span style={{
-                  fontSize: '12px',
-                  color: '#6b7280',
-                  marginLeft: '4px'
-                }}>
+                <span
+                  style={{
+                    fontSize: '12px',
+                    color: '#6b7280',
+                    marginLeft: '4px',
+                  }}
+                >
                   ({review.rating}/5)
                 </span>
               </div>
             </div>
 
             {/* 리뷰 제목 */}
-            <h4 style={{
-              fontSize: compact ? '14px' : '16px',
-              fontWeight: '600',
-              color: '#1f2937',
-              marginBottom: '6px',
-              lineHeight: '1.4'
-            }}>
+            <h4
+              style={{
+                fontSize: compact ? '14px' : '16px',
+                fontWeight: '600',
+                color: '#1f2937',
+                marginBottom: '6px',
+                lineHeight: '1.4',
+              }}
+            >
               {review.title}
             </h4>
 
             {/* 리뷰 내용 - 확장/축소 로직 적용 */}
-            <p style={{
-              fontSize: compact ? '13px' : '14px',
-              color: '#6b7280',
-              lineHeight: '1.5',
-              margin: '0'
-            }}>
+            <p
+              style={{
+                fontSize: compact ? '13px' : '14px',
+                color: '#6b7280',
+                lineHeight: '1.5',
+                margin: '0',
+              }}
+            >
               {expandedReviewId === review.id
-                ? review.description  // 확장된 상태: 전체 내용 표시
-                : (review.description.length > 100 && !compact
-                    ? review.description.substring(0, 100) + '...'  // 축소된 상태: 100자까지만
-                    : review.description)
-              }
+                ? review.description // 확장된 상태: 전체 내용 표시
+                : review.description.length > 100 && !compact
+                  ? review.description.substring(0, 100) + '...' // 축소된 상태: 100자까지만
+                  : review.description}
             </p>
 
             {/* 수정/삭제 버튼 (작성자만) */}
             {currentUserId === review.userId && (
-              <div style={{
-                marginTop: '8px',
-                display: 'flex',
-                gap: '8px',
-                justifyContent: 'flex-end'
-              }}>
+              <div
+                style={{
+                  marginTop: '8px',
+                  display: 'flex',
+                  gap: '8px',
+                  justifyContent: 'flex-end',
+                }}
+              >
                 <button
-                  onClick={(e) => {
+                  onClick={e => {
                     e.stopPropagation();
                     onEditClick?.(review);
                   }}
@@ -596,13 +665,13 @@ const ReviewList = ({
                     border: 'none',
                     borderRadius: '4px',
                     fontSize: '12px',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
                   }}
                 >
                   ✏️ 수정
                 </button>
                 <button
-                  onClick={(e) => {
+                  onClick={e => {
                     e.stopPropagation();
                     onDeleteClick?.(review);
                   }}
@@ -613,7 +682,7 @@ const ReviewList = ({
                     border: 'none',
                     borderRadius: '4px',
                     fontSize: '12px',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
                   }}
                 >
                   🗑️ 삭제
@@ -623,12 +692,14 @@ const ReviewList = ({
 
             {/* 더보기/접기 표시 (100자 이상일 때만) */}
             {review.description.length > 100 && !compact && (
-              <div style={{
-                marginTop: '8px',
-                fontSize: '12px',
-                color: '#3b82f6',
-                fontWeight: '500'
-              }}>
+              <div
+                style={{
+                  marginTop: '8px',
+                  fontSize: '12px',
+                  color: '#3b82f6',
+                  fontWeight: '500',
+                }}
+              >
                 {expandedReviewId === review.id ? '접기 ▲' : '더보기 ▼'}
               </div>
             )}
@@ -646,7 +717,7 @@ const ReviewList = ({
             style={{
               ...pageButtonBaseStyles,
               opacity: currentPage === 0 ? 0.5 : 1,
-              cursor: currentPage === 0 ? 'not-allowed' : 'pointer'
+              cursor: currentPage === 0 ? 'not-allowed' : 'pointer',
             }}
           >
             ← 이전
@@ -666,7 +737,11 @@ const ReviewList = ({
               <button
                 key={pageNum}
                 onClick={() => handlePageChange(pageNum)}
-                style={pageNum === currentPage ? activePageButtonStyles : pageButtonBaseStyles}
+                style={
+                  pageNum === currentPage
+                    ? activePageButtonStyles
+                    : pageButtonBaseStyles
+                }
               >
                 {pageNum + 1}
               </button>
@@ -680,7 +755,7 @@ const ReviewList = ({
             style={{
               ...pageButtonBaseStyles,
               opacity: currentPage >= totalPages - 1 ? 0.5 : 1,
-              cursor: currentPage >= totalPages - 1 ? 'not-allowed' : 'pointer'
+              cursor: currentPage >= totalPages - 1 ? 'not-allowed' : 'pointer',
             }}
           >
             다음 →
@@ -690,10 +765,12 @@ const ReviewList = ({
 
       {/* 페이지 크기 선택 */}
       {showPagination && totalElements > 10 && (
-        <div style={{
-          textAlign: 'center',
-          marginTop: '12px'
-        }}>
+        <div
+          style={{
+            textAlign: 'center',
+            marginTop: '12px',
+          }}
+        >
           <select
             value={pageSize}
             onChange={handlePageSizeChange}
@@ -702,7 +779,7 @@ const ReviewList = ({
               border: '1px solid #d1d5db',
               borderRadius: '4px',
               fontSize: '12px',
-              backgroundColor: '#ffffff'
+              backgroundColor: '#ffffff',
             }}
           >
             <option value={10}>10개씩 보기</option>
@@ -730,7 +807,7 @@ ReviewList.defaultProps = {
   showPagination: true,
   showRefreshButton: false,
   className: '',
-  compact: false
+  compact: false,
 };
 
 export default ReviewList;

@@ -42,7 +42,7 @@ export const RatingLabels = {
   2: '그저그래요',
   3: '보통이에요',
   4: '좋아요',
-  5: '최고예요'
+  5: '최고예요',
 };
 
 /**
@@ -53,7 +53,7 @@ export const RatingEmojis = {
   2: '😐',
   3: '🙂',
   4: '😊',
-  5: '🤩'
+  5: '🤩',
 };
 
 /**
@@ -64,7 +64,7 @@ export const RatingColors = {
   2: 'text-orange-500',
   3: 'text-yellow-500',
   4: 'text-blue-500',
-  5: 'text-green-500'
+  5: 'text-green-500',
 };
 
 /**
@@ -73,7 +73,7 @@ export const RatingColors = {
 export const ReviewSortOptions = [
   { value: 'createdAt', label: '최신순' },
   { value: 'rating', label: '평점순' },
-  { value: 'title', label: '제목순' }
+  { value: 'title', label: '제목순' },
 ];
 
 /**
@@ -81,7 +81,7 @@ export const ReviewSortOptions = [
  */
 export const SortDirectionOptions = [
   { value: 'desc', label: '내림차순' },
-  { value: 'asc', label: '오름차순' }
+  { value: 'asc', label: '오름차순' },
 ];
 
 /**
@@ -91,27 +91,27 @@ export const ReviewValidation = {
   title: {
     required: true,
     maxLength: 100,
-    minLength: 1
+    minLength: 1,
   },
   description: {
     required: true,
     maxLength: 1000,
-    minLength: 1
+    minLength: 1,
   },
   rating: {
     required: true,
     min: 1,
-    max: 5
+    max: 5,
   },
   userNickname: {
     required: true,
     maxLength: 50,
-    minLength: 1
+    minLength: 1,
   },
   userId: {
     required: true,
-    min: 1
-  }
+    min: 1,
+  },
 };
 
 /**
@@ -121,5 +121,5 @@ export const ReviewDefaults = {
   rating: 5,
   sortBy: 'createdAt',
   sortDir: 'desc',
-  pageSize: 10
+  pageSize: 10,
 };

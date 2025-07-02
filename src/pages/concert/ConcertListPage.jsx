@@ -33,34 +33,33 @@ function ConcertListPage() {
     searchConcerts,
     filterConcerts,
     goToPage,
-    changePageSize
+    changePageSize,
   } = useConcerts();
 
   // 콘서트 카드 클릭 핸들러 (상세 페이지로 이동)
-  const handleConcertClick = (concert) => {
+  const handleConcertClick = concert => {
     navigate(`/concerts/${concert.concertId}`);
   };
 
-    // 검색 실행 핸들러
-    const handleSearch = async (searchKeyword) => {
-      try {
-        // URL 파라미터 업데이트
-        const newSearchParams = new URLSearchParams();
-        if (searchKeyword && searchKeyword.trim()) {
-          newSearchParams.set('query', searchKeyword.trim());
-          await searchConcerts(searchKeyword.trim());
-        } else {
-          await fetchConcerts();
-        }
-        setSearchParams(newSearchParams);
-      } catch (err) {
-        console.error('검색 실패:', err);
+  // 검색 실행 핸들러
+  const handleSearch = async searchKeyword => {
+    try {
+      // URL 파라미터 업데이트
+      const newSearchParams = new URLSearchParams();
+      if (searchKeyword && searchKeyword.trim()) {
+        newSearchParams.set('query', searchKeyword.trim());
+        await searchConcerts(searchKeyword.trim());
+      } else {
+        await fetchConcerts();
       }
-    };
+      setSearchParams(newSearchParams);
+    } catch (err) {
+      console.error('검색 실패:', err);
+    }
+  };
 
   // 검색어 지우기 핸들러 (추가)
   const handleClearSearch = () => {
-
     // URL 파라미터에서 query 제거
     const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.delete('query');
@@ -73,14 +72,18 @@ function ConcertListPage() {
   };
 
   // 필터 적용 핸들러
-  const handleFilter = async (filterParams) => {
+  const handleFilter = async filterParams => {
     try {
       // 빈 값들 제거
       const cleanFilterParams = {};
-      if (filterParams.startDate) cleanFilterParams.startDate = filterParams.startDate;
-      if (filterParams.endDate) cleanFilterParams.endDate = filterParams.endDate;
-      if (filterParams.priceMin) cleanFilterParams.priceMin = parseInt(filterParams.priceMin);
-      if (filterParams.priceMax) cleanFilterParams.priceMax = parseInt(filterParams.priceMax);
+      if (filterParams.startDate)
+        cleanFilterParams.startDate = filterParams.startDate;
+      if (filterParams.endDate)
+        cleanFilterParams.endDate = filterParams.endDate;
+      if (filterParams.priceMin)
+        cleanFilterParams.priceMin = parseInt(filterParams.priceMin);
+      if (filterParams.priceMax)
+        cleanFilterParams.priceMax = parseInt(filterParams.priceMax);
 
       // URL 파라미터 업데이트
       const newSearchParams = new URLSearchParams();
@@ -102,7 +105,7 @@ function ConcertListPage() {
   };
 
   // 페이지 변경 핸들러
-  const handlePageChange = (newPage) => {
+  const handlePageChange = newPage => {
     goToPage(newPage);
   };
 
@@ -128,7 +131,7 @@ function ConcertListPage() {
     startDate: startDate,
     endDate: endDate,
     priceMin: minPrice,
-    priceMax: maxPrice
+    priceMax: maxPrice,
   };
 
   return (
@@ -141,7 +144,7 @@ function ConcertListPage() {
       <div className="bg-white p-4 rounded-lg shadow-md">
         <SearchBar
           onSearch={handleSearch}
-          onClear={handleClearSearch}  // 🔥 onClear prop 추가
+          onClear={handleClearSearch} // 🔥 onClear prop 추가
           loading={loading}
           placeholder="콘서트 제목, 아티스트, 장소 검색..."
           autoFocus={false}
@@ -159,33 +162,36 @@ function ConcertListPage() {
       </div>
 
       {/* 검색/필터 결과 표시 */}
-      {(concerts.length > 0 && (query || startDate || endDate || minPrice || maxPrice)) && (
-        <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
-          <div className="flex justify-between items-center">
-            <div>
-              <h3 className="font-semibold text-blue-800 mb-1">
-                {query ? `"${query}" 검색 결과` : '필터링 결과'}
-              </h3>
-              <p className="text-sm text-blue-600">
-                총 {totalElements}개의 콘서트를 찾았습니다.
-                {startDate && ` | 시작일: ${startDate}`}
-                {endDate && ` | 종료일: ${endDate}`}
-                {minPrice && ` | 최소가격: ${parseInt(minPrice).toLocaleString()}원`}
-                {maxPrice && ` | 최대가격: ${parseInt(maxPrice).toLocaleString()}원`}
-              </p>
+      {concerts.length > 0 &&
+        (query || startDate || endDate || minPrice || maxPrice) && (
+          <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="font-semibold text-blue-800 mb-1">
+                  {query ? `"${query}" 검색 결과` : '필터링 결과'}
+                </h3>
+                <p className="text-sm text-blue-600">
+                  총 {totalElements}개의 콘서트를 찾았습니다.
+                  {startDate && ` | 시작일: ${startDate}`}
+                  {endDate && ` | 종료일: ${endDate}`}
+                  {minPrice &&
+                    ` | 최소가격: ${parseInt(minPrice).toLocaleString()}원`}
+                  {maxPrice &&
+                    ` | 최대가격: ${parseInt(maxPrice).toLocaleString()}원`}
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setSearchParams(new URLSearchParams());
+                  fetchConcerts();
+                }}
+                className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+              >
+                전체 보기
+              </button>
             </div>
-            <button
-              onClick={() => {
-                setSearchParams(new URLSearchParams());
-                fetchConcerts();
-              }}
-              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-            >
-              전체 보기
-            </button>
           </div>
-        </div>
-      )}
+        )}
 
       {/* 콘서트 목록 컴포넌트 */}
       <div className="bg-white rounded-lg shadow-md">
@@ -201,9 +207,9 @@ function ConcertListPage() {
           showAiSummary={true} // AI 요약 표시
           showPagination={true}
           emptyMessage={
-            query 
+            query
               ? `"${query}"에 대한 검색 결과가 없습니다.`
-              : (startDate || endDate || minPrice || maxPrice)
+              : startDate || endDate || minPrice || maxPrice
                 ? '필터 조건에 맞는 콘서트가 없습니다.'
                 : '등록된 콘서트가 없습니다.'
           }
@@ -213,7 +219,8 @@ function ConcertListPage() {
       {/* 페이지 하단 정보 */}
       <div className="text-center text-gray-500 text-sm">
         <p>
-          총 {totalElements}개의 콘서트 중 {currentPage + 1} / {totalPages} 페이지
+          총 {totalElements}개의 콘서트 중 {currentPage + 1} / {totalPages}{' '}
+          페이지
         </p>
       </div>
     </div>

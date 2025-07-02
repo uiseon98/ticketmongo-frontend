@@ -62,55 +62,60 @@ export const useConcertDetail = (concertId = null) => {
    *
    * @param {number} id - 가져올 콘서트 ID (선택사항, 기본값은 currentConcertId)
    */
-  const fetchConcertDetail = useCallback(async (id = currentConcertId) => {
-    try {
-      // concertId가 없으면 조회할 수 없음
-      if (!id || id < 1) {
-        throw new Error('유효한 콘서트 ID가 필요합니다.');
-      }
+  const fetchConcertDetail = useCallback(
+    async (id = currentConcertId) => {
+      try {
+        // concertId가 없으면 조회할 수 없음
+        if (!id || id < 1) {
+          throw new Error('유효한 콘서트 ID가 필요합니다.');
+        }
 
-      // 로딩 시작: 사용자에게 "데이터 가져오는 중"임을 표시
-      setLoading(true);
+        // 로딩 시작: 사용자에게 "데이터 가져오는 중"임을 표시
+        setLoading(true);
 
-      // 이전 에러 상태 초기화: 새로운 요청이므로 기존 에러 제거
-      setError(null);
+        // 이전 에러 상태 초기화: 새로운 요청이므로 기존 에러 제거
+        setError(null);
 
-      // 현재 조회 중인 콘서트 ID 업데이트
-      setCurrentConcertId(id);
+        // 현재 조회 중인 콘서트 ID 업데이트
+        setCurrentConcertId(id);
 
-      // 실제 API 호출: concertService의 getConcertById 메서드 사용
-      // 백엔드에서 특정 콘서트의 상세 정보를 받아옴
-      const response = await concertService.getConcertById(id);
+        // 실제 API 호출: concertService의 getConcertById 메서드 사용
+        // 백엔드에서 특정 콘서트의 상세 정보를 받아옴
+        const response = await concertService.getConcertById(id);
 
-      // API 호출 성공 시 받아온 데이터로 상태 업데이트
-      if (response && response.data) {
-        // 콘서트 상세 정보 설정
-        setConcert(response.data);
+        // API 호출 성공 시 받아온 데이터로 상태 업데이트
+        if (response && response.data) {
+          // 콘서트 상세 정보 설정
+          setConcert(response.data);
 
-        // 개발/디버깅용 로그: 어떤 콘서트 정보를 받았는지 확인
-        console.info(`콘서트 상세 정보 로드 완료: ${response.data.title} (ID: ${id})`);
-      } else {
-        // API 응답은 성공했지만 데이터 형식이 예상과 다른 경우
+          // 개발/디버깅용 로그: 어떤 콘서트 정보를 받았는지 확인
+          console.info(
+            `콘서트 상세 정보 로드 완료: ${response.data.title} (ID: ${id})`
+          );
+        } else {
+          // API 응답은 성공했지만 데이터 형식이 예상과 다른 경우
+          setConcert(null);
+          setError('콘서트 정보를 불러올 수 없습니다.');
+        }
+      } catch (err) {
+        // API 호출 실패 시 에러 처리
+        console.error(`콘서트 상세 조회 실패 (ID: ${id}):`, err);
+
+        // 사용자에게 보여줄 친화적인 에러 메시지 설정
+        setError(
+          err.message || '콘서트 정보를 불러오는 중 오류가 발생했습니다.'
+        );
+
+        // 에러 발생 시 콘서트 정보 초기화
         setConcert(null);
-        setError('콘서트 정보를 불러올 수 없습니다.');
+      } finally {
+        // 성공/실패 상관없이 로딩 상태 해제
+        // finally 블록은 try나 catch 실행 후 반드시 실행됨
+        setLoading(false);
       }
-
-    } catch (err) {
-      // API 호출 실패 시 에러 처리
-      console.error(`콘서트 상세 조회 실패 (ID: ${id}):`, err);
-
-      // 사용자에게 보여줄 친화적인 에러 메시지 설정
-      setError(err.message || '콘서트 정보를 불러오는 중 오류가 발생했습니다.');
-
-      // 에러 발생 시 콘서트 정보 초기화
-      setConcert(null);
-
-    } finally {
-      // 성공/실패 상관없이 로딩 상태 해제
-      // finally 블록은 try나 catch 실행 후 반드시 실행됨
-      setLoading(false);
-    }
-  }, [currentConcertId]); // currentConcertId가 변경되면 함수 재생성
+    },
+    [currentConcertId]
+  ); // currentConcertId가 변경되면 함수 재생성
 
   /**
    * AI 요약 정보를 가져오는 함수
@@ -118,50 +123,54 @@ export const useConcertDetail = (concertId = null) => {
    *
    * @param {number} id - AI 요약을 가져올 콘서트 ID (선택사항, 기본값은 currentConcertId)
    */
-  const fetchAISummary = useCallback(async (id = currentConcertId) => {
-    try {
-      // concertId가 없으면 조회할 수 없음
-      if (!id || id < 1) {
-        throw new Error('유효한 콘서트 ID가 필요합니다.');
+  const fetchAISummary = useCallback(
+    async (id = currentConcertId) => {
+      try {
+        // concertId가 없으면 조회할 수 없음
+        if (!id || id < 1) {
+          throw new Error('유효한 콘서트 ID가 필요합니다.');
+        }
+
+        // AI 요약 로딩 시작: 콘서트 정보 로딩과 독립적으로 관리
+        setAiSummaryLoading(true);
+
+        // 실제 API 호출: concertService의 getAISummary 메서드 사용
+        const response = await concertService.getAISummary(id);
+
+        // API 호출 성공 시 받아온 데이터로 상태 업데이트
+        if (response && response.data) {
+          // AI 요약 정보 설정
+          setAiSummary(response.data);
+
+          // 개발/디버깅용 로그: AI 요약 내용 일부 출력 (너무 길지 않게)
+          const summaryPreview =
+            response.data.length > 50
+              ? response.data.substring(0, 50) + '...'
+              : response.data;
+          console.info(`AI 요약 로드 완료 (ID: ${id}): "${summaryPreview}"`);
+        } else {
+          // AI 요약이 없는 경우 (정상적인 상황일 수 있음)
+          setAiSummary('AI 요약 정보가 아직 생성되지 않았습니다.');
+        }
+      } catch (err) {
+        // AI 요약 조회 실패 시 에러 처리
+        console.error(`AI 요약 조회 실패 (ID: ${id}):`, err);
+
+        // AI 요약 실패는 전체 페이지를 망가뜨리지 않음 (부분적 실패)
+        // 따라서 error 상태가 아닌 aiSummary에 실패 메시지 설정
+        setAiSummary('AI 요약을 불러올 수 없습니다.');
+
+        // 개발자를 위한 상세 에러 로그
+        console.warn(
+          'AI 요약 조회 실패, 하지만 콘서트 정보는 정상 표시됩니다.'
+        );
+      } finally {
+        // AI 요약 로딩 상태 해제
+        setAiSummaryLoading(false);
       }
-
-      // AI 요약 로딩 시작: 콘서트 정보 로딩과 독립적으로 관리
-      setAiSummaryLoading(true);
-
-      // 실제 API 호출: concertService의 getAISummary 메서드 사용
-      const response = await concertService.getAISummary(id);
-
-      // API 호출 성공 시 받아온 데이터로 상태 업데이트
-      if (response && response.data) {
-        // AI 요약 정보 설정
-        setAiSummary(response.data);
-
-        // 개발/디버깅용 로그: AI 요약 내용 일부 출력 (너무 길지 않게)
-        const summaryPreview = response.data.length > 50
-          ? response.data.substring(0, 50) + '...'
-          : response.data;
-        console.info(`AI 요약 로드 완료 (ID: ${id}): "${summaryPreview}"`);
-      } else {
-        // AI 요약이 없는 경우 (정상적인 상황일 수 있음)
-        setAiSummary('AI 요약 정보가 아직 생성되지 않았습니다.');
-      }
-
-    } catch (err) {
-      // AI 요약 조회 실패 시 에러 처리
-      console.error(`AI 요약 조회 실패 (ID: ${id}):`, err);
-
-      // AI 요약 실패는 전체 페이지를 망가뜨리지 않음 (부분적 실패)
-      // 따라서 error 상태가 아닌 aiSummary에 실패 메시지 설정
-      setAiSummary('AI 요약을 불러올 수 없습니다.');
-
-      // 개발자를 위한 상세 에러 로그
-      console.warn('AI 요약 조회 실패, 하지만 콘서트 정보는 정상 표시됩니다.');
-
-    } finally {
-      // AI 요약 로딩 상태 해제
-      setAiSummaryLoading(false);
-    }
-  }, [currentConcertId]); // currentConcertId가 변경되면 함수 재생성
+    },
+    [currentConcertId]
+  ); // currentConcertId가 변경되면 함수 재생성
 
   /**
    * 콘서트 정보와 AI 요약을 모두 새로고침하는 함수
@@ -169,30 +178,32 @@ export const useConcertDetail = (concertId = null) => {
    *
    * @param {number} id - 새로고침할 콘서트 ID (선택사항, 기본값은 currentConcertId)
    */
-  const refreshConcert = useCallback(async (id = currentConcertId) => {
-    try {
-      // concertId가 없으면 새로고침할 수 없음
-      if (!id || id < 1) {
-        throw new Error('유효한 콘서트 ID가 필요합니다.');
+  const refreshConcert = useCallback(
+    async (id = currentConcertId) => {
+      try {
+        // concertId가 없으면 새로고침할 수 없음
+        if (!id || id < 1) {
+          throw new Error('유효한 콘서트 ID가 필요합니다.');
+        }
+
+        // 콘서트 정보와 AI 요약을 병렬로 새로고침
+        // Promise.all을 사용해서 두 API를 동시에 호출 (성능 향상)
+        await Promise.all([
+          fetchConcertDetail(id), // 콘서트 상세 정보 새로고침
+          fetchAISummary(id), // AI 요약 새로고침
+        ]);
+
+        console.info(`콘서트 전체 정보 새로고침 완료 (ID: ${id})`);
+      } catch (err) {
+        // 새로고침 실패 시 에러 로그
+        console.error(`콘서트 새로고침 실패 (ID: ${id}):`, err);
+
+        // 에러는 각각의 fetchConcertDetail, fetchAISummary에서 처리되므로
+        // 여기서는 추가적인 에러 처리 없이 로그만 남김
       }
-
-      // 콘서트 정보와 AI 요약을 병렬로 새로고침
-      // Promise.all을 사용해서 두 API를 동시에 호출 (성능 향상)
-      await Promise.all([
-        fetchConcertDetail(id),  // 콘서트 상세 정보 새로고침
-        fetchAISummary(id)       // AI 요약 새로고침
-      ]);
-
-      console.info(`콘서트 전체 정보 새로고침 완료 (ID: ${id})`);
-
-    } catch (err) {
-      // 새로고침 실패 시 에러 로그
-      console.error(`콘서트 새로고침 실패 (ID: ${id}):`, err);
-
-      // 에러는 각각의 fetchConcertDetail, fetchAISummary에서 처리되므로
-      // 여기서는 추가적인 에러 처리 없이 로그만 남김
-    }
-  }, [fetchConcertDetail, fetchAISummary, currentConcertId]); // 의존하는 함수들이 변경되면 재생성
+    },
+    [fetchConcertDetail, fetchAISummary, currentConcertId]
+  ); // 의존하는 함수들이 변경되면 재생성
 
   /**
    * 콘서트 ID를 변경하는 함수
@@ -200,30 +211,33 @@ export const useConcertDetail = (concertId = null) => {
    *
    * @param {number} newConcertId - 새로운 콘서트 ID
    */
-  const setConcertId = useCallback((newConcertId) => {
-    // 새로운 콘서트 ID가 유효한지 확인
-    if (!newConcertId || newConcertId < 1) {
-      console.warn('유효하지 않은 콘서트 ID입니다:', newConcertId);
-      return;
-    }
+  const setConcertId = useCallback(
+    newConcertId => {
+      // 새로운 콘서트 ID가 유효한지 확인
+      if (!newConcertId || newConcertId < 1) {
+        console.warn('유효하지 않은 콘서트 ID입니다:', newConcertId);
+        return;
+      }
 
-    // 현재 콘서트 ID와 같으면 불필요한 API 호출 방지
-    if (newConcertId === currentConcertId) {
-      console.info('같은 콘서트 ID이므로 API 호출을 건너뜁니다.');
-      return;
-    }
+      // 현재 콘서트 ID와 같으면 불필요한 API 호출 방지
+      if (newConcertId === currentConcertId) {
+        console.info('같은 콘서트 ID이므로 API 호출을 건너뜁니다.');
+        return;
+      }
 
-    // 이전 데이터 초기화 (새로운 콘서트를 로드하기 전에)
-    setConcert(null);
-    setAiSummary(null);
-    setError(null);
+      // 이전 데이터 초기화 (새로운 콘서트를 로드하기 전에)
+      setConcert(null);
+      setAiSummary(null);
+      setError(null);
 
-    // 새로운 콘서트 ID 설정
-    setCurrentConcertId(newConcertId);
+      // 새로운 콘서트 ID 설정
+      setCurrentConcertId(newConcertId);
 
-    // 새로운 콘서트 정보 자동 로드
-    // useEffect에서 currentConcertId 변경을 감지해서 자동으로 호출됨
-  }, [currentConcertId]); // currentConcertId가 변경되면 함수 재생성
+      // 새로운 콘서트 정보 자동 로드
+      // useEffect에서 currentConcertId 변경을 감지해서 자동으로 호출됨
+    },
+    [currentConcertId]
+  ); // currentConcertId가 변경되면 함수 재생성
 
   // ===== 부수 효과(Side Effect) =====
 
@@ -263,32 +277,35 @@ export const useConcertDetail = (concertId = null) => {
    */
   return {
     // 📊 데이터 상태
-    concert,              // 현재 로드된 콘서트 상세 정보 객체
-    aiSummary,           // AI 생성 요약 텍스트
-    loading,             // 콘서트 정보 로딩 중인지 여부 (true/false)
-    aiSummaryLoading,    // AI 요약 로딩 중인지 여부 (true/false)
-    error,               // 에러 메시지 (문자열 또는 null)
+    concert, // 현재 로드된 콘서트 상세 정보 객체
+    aiSummary, // AI 생성 요약 텍스트
+    loading, // 콘서트 정보 로딩 중인지 여부 (true/false)
+    aiSummaryLoading, // AI 요약 로딩 중인지 여부 (true/false)
+    error, // 에러 메시지 (문자열 또는 null)
 
     // 🆔 상태 정보
-    currentConcertId,    // 현재 조회 중인 콘서트 ID
+    currentConcertId, // 현재 조회 중인 콘서트 ID
 
     // 🔧 액션 함수들 (컴포넌트에서 호출해서 상태 변경)
-    fetchConcertDetail,  // 콘서트 상세 정보만 새로고침
-    fetchAISummary,      // AI 요약만 새로고침
-    refreshConcert,      // 콘서트 정보와 AI 요약 모두 새로고침
-    setConcertId,        // 콘서트 ID 변경 (자동으로 새 정보 로드)
+    fetchConcertDetail, // 콘서트 상세 정보만 새로고침
+    fetchAISummary, // AI 요약만 새로고침
+    refreshConcert, // 콘서트 정보와 AI 요약 모두 새로고침
+    setConcertId, // 콘서트 ID 변경 (자동으로 새 정보 로드)
 
     // 🎛️ 편의 기능들
-    isReady: !!concert && !loading,              // 콘서트 정보가 준비되었는지 여부
-    hasError: !!error,                           // 에러가 있는지 여부
-    hasAISummary: !!aiSummary && aiSummary !== 'AI 요약 정보가 아직 생성되지 않았습니다.' && aiSummary !== 'AI 요약을 불러올 수 없습니다.', // 유효한 AI 요약이 있는지 여부
-    isEmpty: !concert && !loading && !error,     // 데이터가 비어있는지 (로딩 중이나 에러가 아닐 때)
+    isReady: !!concert && !loading, // 콘서트 정보가 준비되었는지 여부
+    hasError: !!error, // 에러가 있는지 여부
+    hasAISummary:
+      !!aiSummary &&
+      aiSummary !== 'AI 요약 정보가 아직 생성되지 않았습니다.' &&
+      aiSummary !== 'AI 요약을 불러올 수 없습니다.', // 유효한 AI 요약이 있는지 여부
+    isEmpty: !concert && !loading && !error, // 데이터가 비어있는지 (로딩 중이나 에러가 아닐 때)
 
     // 콘서트 상태별 편의 속성들 (concert가 있을 때만 사용 가능)
     isScheduled: concert?.status === 'SCHEDULED', // 예매 대기 상태인지
-    isOnSale: concert?.status === 'ON_SALE',     // 예매 중인지
-    isSoldOut: concert?.status === 'SOLD_OUT',   // 매진인지
+    isOnSale: concert?.status === 'ON_SALE', // 예매 중인지
+    isSoldOut: concert?.status === 'SOLD_OUT', // 매진인지
     isCancelled: concert?.status === 'CANCELLED', // 취소된지
-    isCompleted: concert?.status === 'COMPLETED'  // 완료된지
+    isCompleted: concert?.status === 'COMPLETED', // 완료된지
   };
 };

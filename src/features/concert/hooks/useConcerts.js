@@ -83,16 +83,15 @@ export const useConcerts = () => {
         setConcerts(response.data.content || []);
 
         // 페이지네이션 정보 업데이트
-        setCurrentPage(response.data.number || 0);        // 현재 페이지
-        setTotalPages(response.data.totalPages || 0);     // 전체 페이지 수
+        setCurrentPage(response.data.number || 0); // 현재 페이지
+        setTotalPages(response.data.totalPages || 0); // 전체 페이지 수
         setTotalElements(response.data.totalElements || 0); // 전체 항목 수
-        setPageSize(response.data.size || 20);            // 페이지 크기
+        setPageSize(response.data.size || 20); // 페이지 크기
       } else {
         // API 응답은 성공했지만 데이터 형식이 예상과 다른 경우
         setConcerts([]);
         setError('콘서트 데이터를 불러올 수 없습니다.');
       }
-
     } catch (err) {
       // API 호출 실패 시 에러 처리
       console.error('콘서트 목록 조회 실패:', err);
@@ -102,7 +101,6 @@ export const useConcerts = () => {
 
       // 에러 발생 시 빈 배열로 초기화
       setConcerts([]);
-
     } finally {
       // 성공/실패 상관없이 로딩 상태 해제
       // finally 블록은 try나 catch 실행 후 반드시 실행됨
@@ -116,45 +114,47 @@ export const useConcerts = () => {
    *
    * @param {string} keyword - 검색할 키워드
    */
-  const searchConcerts = useCallback(async (keyword) => {
-    try {
-      // 검색 시작: 로딩 상태 활성화
-      setLoading(true);
-      setError(null);
+  const searchConcerts = useCallback(
+    async keyword => {
+      try {
+        // 검색 시작: 로딩 상태 활성화
+        setLoading(true);
+        setError(null);
 
-      // 키워드가 비어있는지 확인
-      if (!keyword || keyword.trim().length === 0) {
-        // 빈 키워드면 전체 목록 조회
-        await fetchConcerts(0, pageSize);
-        return;
-      }
+        // 키워드가 비어있는지 확인
+        if (!keyword || keyword.trim().length === 0) {
+          // 빈 키워드면 전체 목록 조회
+          await fetchConcerts(0, pageSize);
+          return;
+        }
 
-      // 실제 검색 API 호출
-      const response = await concertService.searchConcerts(keyword.trim());
+        // 실제 검색 API 호출
+        const response = await concertService.searchConcerts(keyword.trim());
 
-      // 검색 결과 처리
-      if (response && response.data) {
-        // 검색 결과는 배열 형태 (페이지네이션 없음)
-        setConcerts(response.data);
+        // 검색 결과 처리
+        if (response && response.data) {
+          // 검색 결과는 배열 형태 (페이지네이션 없음)
+          setConcerts(response.data);
 
-        // 검색 결과에는 페이지네이션 정보가 없으므로 기본값 설정
-        setCurrentPage(0);
-        setTotalPages(1); // 검색 결과는 한 페이지에 모두 표시
-        setTotalElements(response.data.length);
-        setPageSize(response.data.length || 20);
-      } else {
+          // 검색 결과에는 페이지네이션 정보가 없으므로 기본값 설정
+          setCurrentPage(0);
+          setTotalPages(1); // 검색 결과는 한 페이지에 모두 표시
+          setTotalElements(response.data.length);
+          setPageSize(response.data.length || 20);
+        } else {
+          setConcerts([]);
+          setError('검색 결과를 불러올 수 없습니다.');
+        }
+      } catch (err) {
+        console.error('콘서트 검색 실패:', err);
+        setError(err.message || '검색 중 오류가 발생했습니다.');
         setConcerts([]);
-        setError('검색 결과를 불러올 수 없습니다.');
+      } finally {
+        setLoading(false);
       }
-
-    } catch (err) {
-      console.error('콘서트 검색 실패:', err);
-      setError(err.message || '검색 중 오류가 발생했습니다.');
-      setConcerts([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [fetchConcerts, pageSize]); // fetchConcerts와 pageSize에 의존
+    },
+    [fetchConcerts, pageSize]
+  ); // fetchConcerts와 pageSize에 의존
 
   /**
    * 콘서트 필터링 함수
@@ -162,7 +162,7 @@ export const useConcerts = () => {
    *
    * @param {Object} filterParams - 필터 조건 객체
    */
-  const filterConcerts = useCallback(async (filterParams) => {
+  const filterConcerts = useCallback(async filterParams => {
     try {
       setLoading(true);
       setError(null);
@@ -181,7 +181,6 @@ export const useConcerts = () => {
         setConcerts([]);
         setError('필터링 결과를 불러올 수 없습니다.');
       }
-
     } catch (err) {
       console.error('콘서트 필터링 실패:', err);
       setError(err.message || '필터링 중 오류가 발생했습니다.');
@@ -197,12 +196,15 @@ export const useConcerts = () => {
    *
    * @param {number} newPage - 이동할 페이지 번호
    */
-  const goToPage = useCallback(async (newPage) => {
-    // 페이지 번호가 유효한지 확인
-    if (newPage >= 0 && newPage < totalPages) {
-      await fetchConcerts(newPage, pageSize);
-    }
-  }, [fetchConcerts, totalPages, pageSize]); // 이 변수들이 변경되면 함수 재생성
+  const goToPage = useCallback(
+    async newPage => {
+      // 페이지 번호가 유효한지 확인
+      if (newPage >= 0 && newPage < totalPages) {
+        await fetchConcerts(newPage, pageSize);
+      }
+    },
+    [fetchConcerts, totalPages, pageSize]
+  ); // 이 변수들이 변경되면 함수 재생성
 
   /**
    * 페이지 크기 변경 함수
@@ -210,14 +212,17 @@ export const useConcerts = () => {
    *
    * @param {number} newSize - 새로운 페이지 크기
    */
-  const changePageSize = useCallback(async (newSize) => {
-    // 유효한 페이지 크기인지 확인 (1~100)
-    if (newSize >= 1 && newSize <= 100) {
-      setPageSize(newSize);
-      // 첫 페이지부터 새로운 크기로 데이터 가져오기
-      await fetchConcerts(0, newSize);
-    }
-  }, [fetchConcerts]);
+  const changePageSize = useCallback(
+    async newSize => {
+      // 유효한 페이지 크기인지 확인 (1~100)
+      if (newSize >= 1 && newSize <= 100) {
+        setPageSize(newSize);
+        // 첫 페이지부터 새로운 크기로 데이터 가져오기
+        await fetchConcerts(0, newSize);
+      }
+    },
+    [fetchConcerts]
+  );
 
   // ===== 부수 효과(Side Effect) =====
 
@@ -238,27 +243,27 @@ export const useConcerts = () => {
    */
   return {
     // 📊 데이터 상태
-    concerts,           // 현재 로드된 콘서트 목록 배열
-    loading,            // 로딩 중인지 여부 (true/false)
-    error,              // 에러 메시지 (문자열 또는 null)
+    concerts, // 현재 로드된 콘서트 목록 배열
+    loading, // 로딩 중인지 여부 (true/false)
+    error, // 에러 메시지 (문자열 또는 null)
 
     // 📄 페이지네이션 상태
-    currentPage,        // 현재 페이지 번호
-    totalPages,         // 전체 페이지 수
-    totalElements,      // 전체 콘서트 개수
-    pageSize,           // 한 페이지당 항목 수
+    currentPage, // 현재 페이지 번호
+    totalPages, // 전체 페이지 수
+    totalElements, // 전체 콘서트 개수
+    pageSize, // 한 페이지당 항목 수
 
     // 🔧 액션 함수들 (컴포넌트에서 호출해서 상태 변경)
-    fetchConcerts,      // 콘서트 목록 새로고침
-    searchConcerts,     // 키워드로 검색
-    filterConcerts,     // 조건으로 필터링
-    goToPage,           // 특정 페이지로 이동
-    changePageSize,     // 페이지 크기 변경
+    fetchConcerts, // 콘서트 목록 새로고침
+    searchConcerts, // 키워드로 검색
+    filterConcerts, // 조건으로 필터링
+    goToPage, // 특정 페이지로 이동
+    changePageSize, // 페이지 크기 변경
 
     // 🎛️ 편의 기능들
     refresh: () => fetchConcerts(currentPage, pageSize), // 현재 페이지 새로고침
-    hasNextPage: currentPage < totalPages - 1,           // 다음 페이지 있는지 여부
-    hasPrevPage: currentPage > 0,                        // 이전 페이지 있는지 여부
-    isEmpty: concerts.length === 0 && !loading,          // 데이터가 비어있는지 (로딩 중이 아닐 때)
+    hasNextPage: currentPage < totalPages - 1, // 다음 페이지 있는지 여부
+    hasPrevPage: currentPage > 0, // 이전 페이지 있는지 여부
+    isEmpty: concerts.length === 0 && !loading, // 데이터가 비어있는지 (로딩 중이 아닐 때)
   };
 };

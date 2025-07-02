@@ -27,20 +27,19 @@ import React, { useState, useCallback, useEffect } from 'react';
  */
 const FilterPanel = ({
   // ===== 필수 props =====
-  onFilter,                    // 필터 적용 함수 (useConcerts.filterConcerts)
+  onFilter, // 필터 적용 함수 (useConcerts.filterConcerts)
 
   // ===== 초기값 props =====
-  initialFilters = {},         // 초기 필터 값
+  initialFilters = {}, // 초기 필터 값
 
   // ===== UI 제어 props =====
-  loading = false,             // 필터링 중인지 여부 (useConcerts.loading)
-  disabled = false,            // 전체 비활성화
+  loading = false, // 필터링 중인지 여부 (useConcerts.loading)
+  disabled = false, // 전체 비활성화
 
   // ===== 스타일 props =====
-  className = '',              // 추가 CSS 클래스
-  compact = false              // 컴팩트 모드 (좁은 공간용)
+  className = '', // 추가 CSS 클래스
+  compact = false, // 컴팩트 모드 (좁은 공간용)
 }) => {
-
   // ===== 상태 관리 섹션 =====
 
   /**
@@ -201,7 +200,7 @@ const FilterPanel = ({
   /**
    * 시작일 변경 핸들러
    */
-  const handleStartDateChange = useCallback((event) => {
+  const handleStartDateChange = useCallback(event => {
     setStartDate(event.target.value);
     setHasChanges(true);
     setError(''); // 입력 시 에러 메시지 제거
@@ -210,7 +209,7 @@ const FilterPanel = ({
   /**
    * 종료일 변경 핸들러
    */
-  const handleEndDateChange = useCallback((event) => {
+  const handleEndDateChange = useCallback(event => {
     setEndDate(event.target.value);
     setHasChanges(true);
     setError(''); // 입력 시 에러 메시지 제거
@@ -219,7 +218,7 @@ const FilterPanel = ({
   /**
    * 최소 가격 변경 핸들러
    */
-  const handlePriceMinChange = useCallback((event) => {
+  const handlePriceMinChange = useCallback(event => {
     const value = event.target.value;
     // 숫자와 소수점만 허용
     if (value === '' || /^\d*\.?\d*$/.test(value)) {
@@ -232,7 +231,7 @@ const FilterPanel = ({
   /**
    * 최대 가격 변경 핸들러
    */
-  const handlePriceMaxChange = useCallback((event) => {
+  const handlePriceMaxChange = useCallback(event => {
     const value = event.target.value;
     // 숫자와 소수점만 허용
     if (value === '' || /^\d*\.?\d*$/.test(value)) {
@@ -267,14 +266,14 @@ const FilterPanel = ({
     borderRadius: '8px',
     backgroundColor: '#ffffff',
     boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-    opacity: disabled ? 0.6 : 1
+    opacity: disabled ? 0.6 : 1,
   };
 
   /**
    * 섹션 스타일
    */
   const sectionStyles = {
-    marginBottom: compact ? '12px' : '16px'
+    marginBottom: compact ? '12px' : '16px',
   };
 
   /**
@@ -285,7 +284,7 @@ const FilterPanel = ({
     fontSize: compact ? '13px' : '14px',
     fontWeight: '600',
     color: '#374151',
-    marginBottom: '6px'
+    marginBottom: '6px',
   };
 
   /**
@@ -298,7 +297,7 @@ const FilterPanel = ({
     borderRadius: '4px',
     fontSize: compact ? '13px' : '14px',
     backgroundColor: disabled ? '#f3f4f6' : '#ffffff',
-    color: disabled ? '#9ca3af' : '#1f2937'
+    color: disabled ? '#9ca3af' : '#1f2937',
   };
 
   /**
@@ -311,7 +310,7 @@ const FilterPanel = ({
     padding: '8px',
     backgroundColor: '#fef2f2',
     borderRadius: '4px',
-    border: '1px solid #fecaca'
+    border: '1px solid #fecaca',
   };
 
   /**
@@ -325,7 +324,7 @@ const FilterPanel = ({
     cursor: disabled || loading ? 'not-allowed' : 'pointer',
     transition: 'all 0.2s ease',
     border: 'none',
-    opacity: disabled || loading ? 0.6 : 1
+    opacity: disabled || loading ? 0.6 : 1,
   };
 
   /**
@@ -335,7 +334,7 @@ const FilterPanel = ({
     ...buttonBaseStyles,
     backgroundColor: '#3b82f6',
     color: '#ffffff',
-    marginRight: '8px'
+    marginRight: '8px',
   };
 
   /**
@@ -344,7 +343,7 @@ const FilterPanel = ({
   const resetButtonStyles = {
     ...buttonBaseStyles,
     backgroundColor: '#6b7280',
-    color: '#ffffff'
+    color: '#ffffff',
   };
 
   // ===== JSX 렌더링 =====
@@ -358,21 +357,25 @@ const FilterPanel = ({
     >
       {/* 📅 날짜 필터 섹션 */}
       <div style={sectionStyles}>
-        <h3 style={{
-          ...labelStyles,
-          fontSize: compact ? '14px' : '16px',
-          marginBottom: compact ? '8px' : '12px',
-          color: '#1f2937'
-        }}>
+        <h3
+          style={{
+            ...labelStyles,
+            fontSize: compact ? '14px' : '16px',
+            marginBottom: compact ? '8px' : '12px',
+            color: '#1f2937',
+          }}
+        >
           📅 공연 날짜
         </h3>
 
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr auto 1fr',
-          gap: '8px',
-          alignItems: 'end'
-        }}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr auto 1fr',
+            gap: '8px',
+            alignItems: 'end',
+          }}
+        >
           {/* 시작일 */}
           <div>
             <label htmlFor="startDate" style={labelStyles}>
@@ -389,11 +392,13 @@ const FilterPanel = ({
           </div>
 
           {/* 구분선 */}
-          <div style={{
-            color: '#6b7280',
-            fontSize: compact ? '14px' : '16px',
-            paddingBottom: '8px'
-          }}>
+          <div
+            style={{
+              color: '#6b7280',
+              fontSize: compact ? '14px' : '16px',
+              paddingBottom: '8px',
+            }}
+          >
             ~
           </div>
 
@@ -416,21 +421,25 @@ const FilterPanel = ({
 
       {/* 💰 가격 필터 섹션 */}
       <div style={sectionStyles}>
-        <h3 style={{
-          ...labelStyles,
-          fontSize: compact ? '14px' : '16px',
-          marginBottom: compact ? '8px' : '12px',
-          color: '#1f2937'
-        }}>
+        <h3
+          style={{
+            ...labelStyles,
+            fontSize: compact ? '14px' : '16px',
+            marginBottom: compact ? '8px' : '12px',
+            color: '#1f2937',
+          }}
+        >
           💰 가격 범위 (원)
         </h3>
 
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr auto 1fr',
-          gap: '8px',
-          alignItems: 'end'
-        }}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr auto 1fr',
+            gap: '8px',
+            alignItems: 'end',
+          }}
+        >
           {/* 최소 가격 */}
           <div>
             <label htmlFor="priceMin" style={labelStyles}>
@@ -448,11 +457,13 @@ const FilterPanel = ({
           </div>
 
           {/* 구분선 */}
-          <div style={{
-            color: '#6b7280',
-            fontSize: compact ? '14px' : '16px',
-            paddingBottom: '8px'
-          }}>
+          <div
+            style={{
+              color: '#6b7280',
+              fontSize: compact ? '14px' : '16px',
+              paddingBottom: '8px',
+            }}
+          >
             ~
           </div>
 
@@ -475,19 +486,17 @@ const FilterPanel = ({
       </div>
 
       {/* ⚠️ 에러 메시지 */}
-      {error && (
-        <div style={errorStyles}>
-          ⚠️ {error}
-        </div>
-      )}
+      {error && <div style={errorStyles}>⚠️ {error}</div>}
 
       {/* 🔧 버튼 영역 */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'flex-end',
-        gap: '8px',
-        marginTop: compact ? '12px' : '16px'
-      }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'flex-end',
+          gap: '8px',
+          marginTop: compact ? '12px' : '16px',
+        }}
+      >
         {/* 초기화 버튼 */}
         <button
           type="button"
@@ -495,7 +504,7 @@ const FilterPanel = ({
           disabled={disabled || !hasChanges}
           style={{
             ...resetButtonStyles,
-            opacity: (!hasChanges || disabled) ? 0.4 : 1
+            opacity: !hasChanges || disabled ? 0.4 : 1,
           }}
           aria-label="필터 초기화"
         >
@@ -516,14 +525,16 @@ const FilterPanel = ({
 
       {/* 💡 도움말 (컴팩트가 아닐 때만) */}
       {!compact && (
-        <div style={{
-          marginTop: '12px',
-          padding: '8px',
-          backgroundColor: '#f8fafc',
-          borderRadius: '4px',
-          fontSize: '12px',
-          color: '#6b7280'
-        }}>
+        <div
+          style={{
+            marginTop: '12px',
+            padding: '8px',
+            backgroundColor: '#f8fafc',
+            borderRadius: '4px',
+            fontSize: '12px',
+            color: '#6b7280',
+          }}
+        >
           💡 팁: 날짜와 가격을 설정한 후 "필터 적용" 버튼을 눌러주세요.
         </div>
       )}
@@ -537,7 +548,7 @@ FilterPanel.defaultProps = {
   loading: false,
   disabled: false,
   className: '',
-  compact: false
+  compact: false,
 };
 
 export default FilterPanel;

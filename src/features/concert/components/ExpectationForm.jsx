@@ -7,7 +7,11 @@ import React, { useState, useCallback, useEffect } from 'react';
 // useEffect: 초기값 설정 및 수정 모드 처리
 
 // 기대평 관련 타입과 상수들을 import
-import { ExpectationRatingLabels, ExpectationRatingEmojis, ExpectationValidation } from '../types/expectation.js';
+import {
+  ExpectationRatingLabels,
+  ExpectationRatingEmojis,
+  ExpectationValidation,
+} from '../types/expectation.js';
 
 /**
  * ===== ExpectationForm 컴포넌트 =====
@@ -45,30 +49,29 @@ import { ExpectationRatingLabels, ExpectationRatingEmojis, ExpectationValidation
  */
 const ExpectationForm = ({
   // ===== 모드 props =====
-  mode = 'create',             // 'create' | 'edit' - 작성/수정 모드
-  initialData = null,          // 수정 모드일 때 기존 기대평 데이터
+  mode = 'create', // 'create' | 'edit' - 작성/수정 모드
+  initialData = null, // 수정 모드일 때 기존 기대평 데이터
 
   // ===== 필수 데이터 props =====
-  concertId,                   // 콘서트 ID (필수)
-  userId,                      // 작성자 사용자 ID (필수)
-  userNickname,                // 작성자 닉네임 (필수)
+  concertId, // 콘서트 ID (필수)
+  userId, // 작성자 사용자 ID (필수)
+  userNickname, // 작성자 닉네임 (필수)
 
   // ===== 액션 props =====
-  onSubmit,                    // 폼 제출 핸들러 (useExpectations.createExpectation or updateExpectation)
-  onCancel,                    // 취소 버튼 핸들러 (선택사항)
+  onSubmit, // 폼 제출 핸들러 (useExpectations.createExpectation or updateExpectation)
+  onCancel, // 취소 버튼 핸들러 (선택사항)
 
   // ===== 상태 props =====
-  loading = false,             // 제출 중 로딩 상태 (useExpectations.actionLoading)
-  disabled = false,            // 폼 비활성화
+  loading = false, // 제출 중 로딩 상태 (useExpectations.actionLoading)
+  disabled = false, // 폼 비활성화
 
   // ===== UI 제어 props =====
-  showCancelButton = true,     // 취소 버튼 표시 여부
+  showCancelButton = true, // 취소 버튼 표시 여부
 
   // ===== 스타일 props =====
-  className = '',              // 추가 CSS 클래스
-  compact = false              // 컴팩트 모드
+  className = '', // 추가 CSS 클래스
+  compact = false, // 컴팩트 모드
 }) => {
-
   // ===== 상태 관리 =====
 
   /**
@@ -78,7 +81,7 @@ const ExpectationForm = ({
     comment: initialData?.comment || '',
     expectationRating: initialData?.expectationRating || 5,
     userNickname: initialData?.userNickname || userNickname || '',
-    userId: initialData?.userId || userId || null
+    userId: initialData?.userId || userId || null,
   });
 
   /**
@@ -88,7 +91,7 @@ const ExpectationForm = ({
     comment: '',
     expectationRating: '',
     userNickname: '',
-    userId: ''
+    userId: '',
   });
 
   /**
@@ -97,7 +100,7 @@ const ExpectationForm = ({
   const [touched, setTouched] = useState({
     comment: false,
     expectationRating: false,
-    userNickname: false
+    userNickname: false,
   });
 
   /**
@@ -115,7 +118,10 @@ const ExpectationForm = ({
     if (!validation) return '';
 
     // 필수 필드 검증
-    if (validation.required && (!value || value.toString().trim().length === 0)) {
+    if (
+      validation.required &&
+      (!value || value.toString().trim().length === 0)
+    ) {
       return `${getFieldDisplayName(fieldName)}은(는) 필수입니다.`;
     }
 
@@ -163,12 +169,12 @@ const ExpectationForm = ({
   /**
    * 필드 표시명 반환
    */
-  const getFieldDisplayName = useCallback((fieldName) => {
+  const getFieldDisplayName = useCallback(fieldName => {
     const displayNames = {
       comment: '기대평 내용',
       expectationRating: '기대점수',
       userNickname: '닉네임',
-      userId: '사용자 ID'
+      userId: '사용자 ID',
     };
     return displayNames[fieldName] || fieldName;
   }, []);
@@ -178,59 +184,65 @@ const ExpectationForm = ({
   /**
    * 텍스트 입력 필드 변경 핸들러
    */
-  const handleInputChange = useCallback((fieldName) => {
-    return (event) => {
-      const value = event.target.value;
+  const handleInputChange = useCallback(
+    fieldName => {
+      return event => {
+        const value = event.target.value;
 
-      // 폼 데이터 업데이트
-      setFormData(prev => ({
-        ...prev,
-        [fieldName]: value
-      }));
-
-      // 터치 상태 업데이트
-      setTouched(prev => ({
-        ...prev,
-        [fieldName]: true
-      }));
-
-      // 실시간 유효성 검증 (터치된 필드만)
-      if (touched[fieldName]) {
-        const error = validateField(fieldName, value);
-        setErrors(prev => ({
+        // 폼 데이터 업데이트
+        setFormData(prev => ({
           ...prev,
-          [fieldName]: error
+          [fieldName]: value,
         }));
-      }
-    };
-  }, [touched, validateField]);
+
+        // 터치 상태 업데이트
+        setTouched(prev => ({
+          ...prev,
+          [fieldName]: true,
+        }));
+
+        // 실시간 유효성 검증 (터치된 필드만)
+        if (touched[fieldName]) {
+          const error = validateField(fieldName, value);
+          setErrors(prev => ({
+            ...prev,
+            [fieldName]: error,
+          }));
+        }
+      };
+    },
+    [touched, validateField]
+  );
 
   /**
    * 기대점수 클릭 핸들러
    */
-  const handleRatingClick = useCallback((rating) => {
-    setFormData(prev => ({
-      ...prev,
-      expectationRating: rating
-    }));
+  const handleRatingClick = useCallback(
+    rating => {
+      setFormData(prev => ({
+        ...prev,
+        expectationRating: rating,
+      }));
 
-    setTouched(prev => ({
-      ...prev,
-      expectationRating: true
-    }));
+      setTouched(prev => ({
+        ...prev,
+        expectationRating: true,
+      }));
 
-    // 기대점수 유효성 검증
-    const error = validateField('expectationRating', rating);
-    setErrors(prev => ({
-      ...prev,
-      expectationRating: error
-    }));
-  }, [validateField]);
+      // 기대점수 유효성 검증
+      const error = validateField('expectationRating', rating);
+      setErrors(prev => ({
+        ...prev,
+        expectationRating: error,
+      }));
+    },
+    [validateField]
+  );
 
   /**
    * 기대점수 호버 핸들러
    */
-  const handleRatingHover = useCallback((rating) => {
+  const handleRatingHover = useCallback(rating => {
     setHoveredRating(rating);
   }, []);
 
@@ -244,42 +256,38 @@ const ExpectationForm = ({
   /**
    * 폼 제출 핸들러
    */
-  const handleSubmit = useCallback(async (event) => {
-    event.preventDefault();
-
-    // 모든 필드를 터치 상태로 설정 (에러 표시용)
-    setTouched({
-      comment: true,
-      expectationRating: true,
-      userNickname: true
-    });
-
-    // 전체 폼 유효성 검증
-    if (!validateForm()) {
-      return;
-    }
-
-    // 비활성화 상태이거나 로딩 중이면 제출하지 않음
-    if (disabled || loading) {
-      return;
-    }
-
-    try {
-      // 부모 컴포넌트의 제출 함수 호출
-      if (onSubmit && typeof onSubmit === 'function') {
-        if (mode === 'edit' && initialData?.id) {
-          // 수정 모드: expectationId와 함께 전달
-          await onSubmit(initialData.id, formData);
-        } else {
-          // 작성 모드: 폼 데이터만 전달
+  const handleSubmit = useCallback(
+    async event => {
+      event.preventDefault();
+      // 모든 필드를 터치 상태로 설정 (에러 표시용)
+      setTouched({
+        title: true,
+        description: true,
+        rating: true,
+        userNickname: true,
+      });
+      // 전체 폼 유효성 검증
+      if (!validateForm()) {
+        return;
+      }
+      // 비활성화 상태이거나 로딩 중이면 제출하지 않음
+      if (disabled || loading) {
+        return;
+      }
+      try {
+        // 부모 컴포넌트의 제출 함수 호출
+        if (onSubmit && typeof onSubmit === 'function') {
+          // 🔧 수정: 항상 formData만 전달하도록 변경
+          // 수정/작성 모드 구분은 부모 컴포넌트에서 처리
           await onSubmit(formData);
         }
+      } catch (error) {
+        // 에러는 상위 컴포넌트에서 처리
+        console.error('리뷰 제출 실패:', error);
       }
-    } catch (error) {
-      // 에러는 상위 컴포넌트에서 처리
-      console.error('기대평 제출 실패:', error);
-    }
-  }, [formData, disabled, loading, validateForm, onSubmit, mode, initialData]);
+    },
+    [formData, disabled, loading, validateForm, onSubmit]
+  );
 
   /**
    * 취소 버튼 핸들러
@@ -301,7 +309,7 @@ const ExpectationForm = ({
         comment: initialData.comment || '',
         expectationRating: initialData.expectationRating || 5,
         userNickname: initialData.userNickname || userNickname || '',
-        userId: initialData.userId || userId || null
+        userId: initialData.userId || userId || null,
       });
     }
   }, [initialData, userNickname, userId]);
@@ -314,7 +322,7 @@ const ExpectationForm = ({
       setFormData(prev => ({
         ...prev,
         userNickname: userNickname || prev.userNickname,
-        userId: userId || prev.userId
+        userId: userId || prev.userId,
       }));
     }
   }, [userNickname, userId, initialData]);
@@ -336,10 +344,10 @@ const ExpectationForm = ({
     const currentLength = text ? text.length : 0;
     const percentage = currentLength / maxLength;
 
-    if (percentage >= 1) return '#dc2626';      // 빨간색 (초과)
-    if (percentage >= 0.9) return '#f59e0b';    // 주황색 (90% 이상)
-    if (percentage >= 0.7) return '#10b981';    // 초록색 (70% 이상)
-    return '#6b7280';                           // 회색 (일반)
+    if (percentage >= 1) return '#dc2626'; // 빨간색 (초과)
+    if (percentage >= 0.9) return '#f59e0b'; // 주황색 (90% 이상)
+    if (percentage >= 0.7) return '#10b981'; // 초록색 (70% 이상)
+    return '#6b7280'; // 회색 (일반)
   }, []);
 
   /**
@@ -364,7 +372,7 @@ const ExpectationForm = ({
             color: i <= displayRating ? '#fbbf24' : '#e5e7eb',
             cursor: disabled ? 'not-allowed' : 'pointer',
             transition: 'color 0.2s ease',
-            padding: '4px'
+            padding: '4px',
           }}
           disabled={disabled}
           aria-label={`${i}점`}
@@ -375,7 +383,15 @@ const ExpectationForm = ({
     }
 
     return stars;
-  }, [hoveredRating, formData.expectationRating, compact, disabled, handleRatingClick, handleRatingHover, handleRatingLeave]);
+  }, [
+    hoveredRating,
+    formData.expectationRating,
+    compact,
+    disabled,
+    handleRatingClick,
+    handleRatingHover,
+    handleRatingLeave,
+  ]);
 
   // ===== 스타일 정의 =====
 
@@ -387,8 +403,8 @@ const ExpectationForm = ({
     borderRadius: '8px',
     border: '1px solid #e5e7eb',
     padding: compact ? '16px' : '24px',
-    maxWidth: '500px',  // 기대평 폼은 리뷰보다 작게
-    margin: '0 auto'
+    maxWidth: '500px', // 기대평 폼은 리뷰보다 작게
+    margin: '0 auto',
   };
 
   /**
@@ -403,14 +419,14 @@ const ExpectationForm = ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: '8px'
+    gap: '8px',
   };
 
   /**
    * 폼 그룹 스타일
    */
   const formGroupStyles = {
-    marginBottom: compact ? '16px' : '20px'
+    marginBottom: compact ? '16px' : '20px',
   };
 
   /**
@@ -421,7 +437,7 @@ const ExpectationForm = ({
     fontSize: compact ? '14px' : '16px',
     fontWeight: '600',
     color: '#374151',
-    marginBottom: '6px'
+    marginBottom: '6px',
   };
 
   /**
@@ -435,17 +451,17 @@ const ExpectationForm = ({
     fontSize: compact ? '14px' : '16px',
     backgroundColor: disabled ? '#f3f4f6' : '#ffffff',
     color: disabled ? '#9ca3af' : '#1f2937',
-    transition: 'border-color 0.2s ease'
+    transition: 'border-color 0.2s ease',
   };
 
   /**
    * 에러 상태 입력 필드 스타일
    */
-  const getInputStyles = (fieldName) => {
+  const getInputStyles = fieldName => {
     const hasError = touched[fieldName] && errors[fieldName];
     return {
       ...inputBaseStyles,
-      borderColor: hasError ? '#ef4444' : '#d1d5db'
+      borderColor: hasError ? '#ef4444' : '#d1d5db',
     };
   };
 
@@ -454,8 +470,8 @@ const ExpectationForm = ({
    */
   const textareaStyles = {
     ...getInputStyles('comment'),
-    minHeight: compact ? '60px' : '80px',  // 기대평은 리뷰보다 작게
-    resize: 'vertical'
+    minHeight: compact ? '60px' : '80px', // 기대평은 리뷰보다 작게
+    resize: 'vertical',
   };
 
   /**
@@ -464,7 +480,7 @@ const ExpectationForm = ({
   const errorStyles = {
     fontSize: '12px',
     color: '#ef4444',
-    marginTop: '4px'
+    marginTop: '4px',
   };
 
   /**
@@ -474,7 +490,7 @@ const ExpectationForm = ({
     fontSize: '12px',
     color: getCharacterCountColor(formData[fieldName], maxLength),
     textAlign: 'right',
-    marginTop: '4px'
+    marginTop: '4px',
   });
 
   /**
@@ -483,9 +499,9 @@ const ExpectationForm = ({
   const ratingContainerStyles = {
     textAlign: 'center',
     padding: compact ? '12px' : '16px',
-    backgroundColor: '#fef9e7',  // 기대평 전용 노란색 배경
+    backgroundColor: '#fef9e7', // 기대평 전용 노란색 배경
     borderRadius: '6px',
-    border: '1px solid #fde68a'
+    border: '1px solid #fde68a',
   };
 
   /**
@@ -493,9 +509,9 @@ const ExpectationForm = ({
    */
   const ratingLabelStyles = {
     fontSize: compact ? '14px' : '16px',
-    color: '#a16207',  // 기대평 전용 색상
+    color: '#a16207', // 기대평 전용 색상
     marginTop: '8px',
-    fontWeight: '600'
+    fontWeight: '600',
   };
 
   /**
@@ -509,7 +525,7 @@ const ExpectationForm = ({
     border: 'none',
     cursor: disabled || loading ? 'not-allowed' : 'pointer',
     transition: 'all 0.2s ease',
-    opacity: disabled ? 0.6 : 1
+    opacity: disabled ? 0.6 : 1,
   };
 
   /**
@@ -517,9 +533,9 @@ const ExpectationForm = ({
    */
   const submitButtonStyles = {
     ...buttonBaseStyles,
-    backgroundColor: loading ? '#9ca3af' : '#f59e0b',  // 노란색 테마
+    backgroundColor: loading ? '#9ca3af' : '#f59e0b', // 노란색 테마
     color: '#ffffff',
-    marginRight: '12px'
+    marginRight: '12px',
   };
 
   /**
@@ -529,7 +545,7 @@ const ExpectationForm = ({
     ...buttonBaseStyles,
     backgroundColor: 'transparent',
     color: '#6b7280',
-    border: '1px solid #d1d5db'
+    border: '1px solid #d1d5db',
   };
 
   // ===== JSX 렌더링 =====
@@ -538,19 +554,17 @@ const ExpectationForm = ({
     <div className={`expectation-form ${className}`} style={containerStyles}>
       {/* 폼 제목 */}
       <h2 style={titleStyles}>
-        {mode === 'edit' ? (
-          <>✨ 기대평 수정</>
-        ) : (
-          <>✍️ 기대평 작성</>
-        )}
-        <span style={{
-          fontSize: '11px',
-          backgroundColor: '#fef3c7',
-          color: '#92400e',
-          padding: '2px 6px',
-          borderRadius: '10px',
-          fontWeight: 'normal'
-        }}>
+        {mode === 'edit' ? <>✨ 기대평 수정</> : <>✍️ 기대평 작성</>}
+        <span
+          style={{
+            fontSize: '11px',
+            backgroundColor: '#fef3c7',
+            color: '#92400e',
+            padding: '2px 6px',
+            borderRadius: '10px',
+            fontWeight: 'normal',
+          }}
+        >
           관람 전
         </span>
       </h2>
@@ -558,16 +572,23 @@ const ExpectationForm = ({
       <form onSubmit={handleSubmit}>
         {/* 기대점수 입력 */}
         <div style={formGroupStyles}>
-          <label style={labelStyles}>
-            기대점수 *
-          </label>
+          <label style={labelStyles}>기대점수 *</label>
           <div style={ratingContainerStyles}>
             <div style={{ marginBottom: '8px' }}>
               {renderExpectationStars()}
             </div>
             <div style={ratingLabelStyles}>
-              {ExpectationRatingEmojis[hoveredRating || formData.expectationRating]} {' '}
-              {ExpectationRatingLabels[hoveredRating || formData.expectationRating]} ({hoveredRating || formData.expectationRating}/5)
+              {
+                ExpectationRatingEmojis[
+                  hoveredRating || formData.expectationRating
+                ]
+              }{' '}
+              {
+                ExpectationRatingLabels[
+                  hoveredRating || formData.expectationRating
+                ]
+              }{' '}
+              ({hoveredRating || formData.expectationRating}/5)
             </div>
           </div>
           {touched.expectationRating && errors.expectationRating && (
@@ -592,8 +613,16 @@ const ExpectationForm = ({
           {touched.comment && errors.comment && (
             <div style={errorStyles}>{errors.comment}</div>
           )}
-          <div style={getCounterStyles('comment', ExpectationValidation.comment.maxLength)}>
-            {getCharacterCount(formData.comment, ExpectationValidation.comment.maxLength)}
+          <div
+            style={getCounterStyles(
+              'comment',
+              ExpectationValidation.comment.maxLength
+            )}
+          >
+            {getCharacterCount(
+              formData.comment,
+              ExpectationValidation.comment.maxLength
+            )}
           </div>
         </div>
 
@@ -615,17 +644,27 @@ const ExpectationForm = ({
           {touched.userNickname && errors.userNickname && (
             <div style={errorStyles}>{errors.userNickname}</div>
           )}
-          <div style={getCounterStyles('userNickname', ExpectationValidation.userNickname.maxLength)}>
-            {getCharacterCount(formData.userNickname, ExpectationValidation.userNickname.maxLength)}
+          <div
+            style={getCounterStyles(
+              'userNickname',
+              ExpectationValidation.userNickname.maxLength
+            )}
+          >
+            {getCharacterCount(
+              formData.userNickname,
+              ExpectationValidation.userNickname.maxLength
+            )}
           </div>
         </div>
 
         {/* 버튼 영역 */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          marginTop: compact ? '20px' : '24px'
-        }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            marginTop: compact ? '20px' : '24px',
+          }}
+        >
           <button
             type="submit"
             onClick={handleSubmit}
@@ -654,16 +693,18 @@ const ExpectationForm = ({
 
       {/* 안내 메시지 */}
       {!compact && (
-        <div style={{
-          marginTop: '16px',
-          padding: '12px',
-          backgroundColor: '#fef9e7',
-          borderRadius: '6px',
-          fontSize: '12px',
-          color: '#a16207'
-        }}>
-          💡 기대평은 공연 관람 전에 작성하는 기대감 표현입니다.
-          관람 후에는 별도의 리뷰를 작성하실 수 있어요!
+        <div
+          style={{
+            marginTop: '16px',
+            padding: '12px',
+            backgroundColor: '#fef9e7',
+            borderRadius: '6px',
+            fontSize: '12px',
+            color: '#a16207',
+          }}
+        >
+          💡 기대평은 공연 관람 전에 작성하는 기대감 표현입니다. 관람 후에는
+          별도의 리뷰를 작성하실 수 있어요!
         </div>
       )}
     </div>
@@ -678,7 +719,7 @@ ExpectationForm.defaultProps = {
   disabled: false,
   showCancelButton: true,
   className: '',
-  compact: false
+  compact: false,
 };
 
 export default ExpectationForm;

@@ -5,7 +5,11 @@ import React, { useCallback, useState } from 'react';
 // useCallback: 이벤트 핸들러 최적화
 
 // 기대평 관련 타입과 상수들을 import
-import { ExpectationRatingLabels, ExpectationRatingEmojis, ExpectationRatingColors } from '../types/expectation.js';
+import {
+  ExpectationRatingLabels,
+  ExpectationRatingEmojis,
+  ExpectationRatingColors,
+} from '../types/expectation.js';
 
 /**
  * ===== ExpectationList 컴포넌트 =====
@@ -36,66 +40,74 @@ import { ExpectationRatingLabels, ExpectationRatingEmojis, ExpectationRatingColo
  */
 const ExpectationList = ({
   // ===== 데이터 props (useExpectations hook에서) =====
-  expectations = [],           // 기대평 목록 (useExpectations.expectations)
-  loading = false,             // 로딩 상태 (useExpectations.loading)
-  error = null,                // 에러 상태 (useExpectations.error)
+  expectations = [], // 기대평 목록 (useExpectations.expectations)
+  loading = false, // 로딩 상태 (useExpectations.loading)
+  error = null, // 에러 상태 (useExpectations.error)
 
   // ===== 페이지네이션 props =====
-  currentPage = 0,             // 현재 페이지 (useExpectations.currentPage)
-  totalPages = 0,              // 전체 페이지 수 (useExpectations.totalPages)
-  totalElements = 0,           // 전체 기대평 수 (useExpectations.totalElements)
-  pageSize = 10,               // 페이지 크기 (useExpectations.pageSize)
+  currentPage = 0, // 현재 페이지 (useExpectations.currentPage)
+  totalPages = 0, // 전체 페이지 수 (useExpectations.totalPages)
+  totalElements = 0, // 전체 기대평 수 (useExpectations.totalElements)
+  pageSize = 10, // 페이지 크기 (useExpectations.pageSize)
 
   // ===== 액션 props =====
-  onExpectationClick,          // 기대평 클릭 핸들러 (상세보기 또는 수정)
-  onPageChange,                // 페이지 변경 핸들러 (useExpectations.goToPage)
-  onPageSizeChange,            // 페이지 크기 변경 핸들러 (useExpectations.changePageSize)
-  onRefresh,                   // 새로고침 핸들러 (useExpectations.refresh)
-  currentUserId,               // 현재 사용자 ID
-  onEditClick,                 // 수정 버튼 클릭 핸들러
-  onDeleteClick,               // 삭제 버튼 클릭 핸들러
+  onExpectationClick, // 기대평 클릭 핸들러 (상세보기 또는 수정)
+  onPageChange, // 페이지 변경 핸들러 (useExpectations.goToPage)
+  onPageSizeChange, // 페이지 크기 변경 핸들러 (useExpectations.changePageSize)
+  onRefresh, // 새로고침 핸들러 (useExpectations.refresh)
+  currentUserId, // 현재 사용자 ID
+  onEditClick, // 수정 버튼 클릭 핸들러
+  onDeleteClick, // 삭제 버튼 클릭 핸들러
 
   // ===== UI 제어 props =====
-  showPagination = true,       // 페이지네이션 표시 여부
-  showRefreshButton = false,   // 새로고침 버튼 표시 여부
-  allowFiltering = false,      // 기대점수별 필터링 허용 여부
+  showPagination = true, // 페이지네이션 표시 여부
+  showRefreshButton = false, // 새로고침 버튼 표시 여부
+  allowFiltering = false, // 기대점수별 필터링 허용 여부
 
   // ===== 스타일 props =====
-  className = '',              // 추가 CSS 클래스
-  compact = false              // 컴팩트 모드 (간소화된 UI)
+  className = '', // 추가 CSS 클래스
+  compact = false, // 컴팩트 모드 (간소화된 UI)
 }) => {
-
-const [hoveredExpectationId, setHoveredExpectationId] = useState(null);
+  const [hoveredExpectationId, setHoveredExpectationId] = useState(null);
 
   // ===== 이벤트 핸들러들 =====
 
   /**
    * 페이지 변경 핸들러
    */
-  const handlePageChange = useCallback((newPage) => {
-    if (onPageChange && typeof onPageChange === 'function') {
-      onPageChange(newPage);
-    }
-  }, [onPageChange]);
+  const handlePageChange = useCallback(
+    newPage => {
+      if (onPageChange && typeof onPageChange === 'function') {
+        onPageChange(newPage);
+      }
+    },
+    [onPageChange]
+  );
 
   /**
    * 페이지 크기 변경 핸들러
    */
-  const handlePageSizeChange = useCallback((event) => {
-    const newSize = parseInt(event.target.value, 10);
-    if (onPageSizeChange && typeof onPageSizeChange === 'function') {
-      onPageSizeChange(newSize);
-    }
-  }, [onPageSizeChange]);
+  const handlePageSizeChange = useCallback(
+    event => {
+      const newSize = parseInt(event.target.value, 10);
+      if (onPageSizeChange && typeof onPageSizeChange === 'function') {
+        onPageSizeChange(newSize);
+      }
+    },
+    [onPageSizeChange]
+  );
 
   /**
    * 기대평 클릭 핸들러
    */
-  const handleExpectationClick = useCallback((expectation) => {
-    if (onExpectationClick && typeof onExpectationClick === 'function') {
-      onExpectationClick(expectation);
-    }
-  }, [onExpectationClick]);
+  const handleExpectationClick = useCallback(
+    expectation => {
+      if (onExpectationClick && typeof onExpectationClick === 'function') {
+        onExpectationClick(expectation);
+      }
+    },
+    [onExpectationClick]
+  );
 
   /**
    * 새로고침 핸들러
@@ -111,13 +123,13 @@ const [hoveredExpectationId, setHoveredExpectationId] = useState(null);
   /**
    * 날짜 포맷팅 함수
    */
-  const formatDate = useCallback((dateString) => {
+  const formatDate = useCallback(dateString => {
     try {
       const date = new Date(dateString);
       return date.toLocaleDateString('ko-KR', {
         year: 'numeric',
         month: 'short',
-        day: 'numeric'
+        day: 'numeric',
       });
     } catch (error) {
       return dateString;
@@ -127,23 +139,26 @@ const [hoveredExpectationId, setHoveredExpectationId] = useState(null);
   /**
    * 기대점수 별 표시 함수
    */
-  const renderExpectationStars = useCallback((rating) => {
-    const stars = [];
-    for (let i = 1; i <= 5; i++) {
-      stars.push(
-        <span
-          key={i}
-          style={{
-            color: i <= rating ? '#fbbf24' : '#e5e7eb',
-            fontSize: compact ? '14px' : '16px'
-          }}
-        >
-          ★
-        </span>
-      );
-    }
-    return stars;
-  }, [compact]);
+  const renderExpectationStars = useCallback(
+    rating => {
+      const stars = [];
+      for (let i = 1; i <= 5; i++) {
+        stars.push(
+          <span
+            key={i}
+            style={{
+              color: i <= rating ? '#fbbf24' : '#e5e7eb',
+              fontSize: compact ? '14px' : '16px',
+            }}
+          >
+            ★
+          </span>
+        );
+      }
+      return stars;
+    },
+    [compact]
+  );
 
   /**
    * 표시할 페이지 번호 배열 생성
@@ -191,7 +206,7 @@ const [hoveredExpectationId, setHoveredExpectationId] = useState(null);
     backgroundColor: '#ffffff',
     borderRadius: '8px',
     border: '1px solid #e5e7eb',
-    padding: compact ? '12px' : '16px'
+    padding: compact ? '12px' : '16px',
   };
 
   /**
@@ -203,7 +218,7 @@ const [hoveredExpectationId, setHoveredExpectationId] = useState(null);
     alignItems: 'center',
     marginBottom: compact ? '12px' : '16px',
     paddingBottom: '12px',
-    borderBottom: '1px solid #e5e7eb'
+    borderBottom: '1px solid #e5e7eb',
   };
 
   /**
@@ -215,7 +230,7 @@ const [hoveredExpectationId, setHoveredExpectationId] = useState(null);
     color: '#1f2937',
     display: 'flex',
     alignItems: 'center',
-    gap: '6px'
+    gap: '6px',
   };
 
   /**
@@ -228,7 +243,7 @@ const [hoveredExpectationId, setHoveredExpectationId] = useState(null);
     marginBottom: '12px',
     backgroundColor: '#ffffff',
     cursor: onExpectationClick ? 'pointer' : 'default',
-    transition: 'all 0.2s ease'
+    transition: 'all 0.2s ease',
   };
 
   /**
@@ -240,7 +255,7 @@ const [hoveredExpectationId, setHoveredExpectationId] = useState(null);
     alignItems: 'center',
     gap: '8px',
     marginTop: '20px',
-    padding: '12px'
+    padding: '12px',
   };
 
   /**
@@ -253,7 +268,7 @@ const [hoveredExpectationId, setHoveredExpectationId] = useState(null);
     backgroundColor: '#ffffff',
     cursor: 'pointer',
     fontSize: '14px',
-    transition: 'all 0.2s ease'
+    transition: 'all 0.2s ease',
   };
 
   /**
@@ -263,7 +278,7 @@ const [hoveredExpectationId, setHoveredExpectationId] = useState(null);
     ...pageButtonBaseStyles,
     backgroundColor: '#3b82f6',
     color: '#ffffff',
-    borderColor: '#3b82f6'
+    borderColor: '#3b82f6',
   };
 
   // ===== 조건부 렌더링 =====
@@ -281,45 +296,58 @@ const [hoveredExpectationId, setHoveredExpectationId] = useState(null);
         {/* 로딩 스켈레톤 */}
         <div>
           {Array.from({ length: 3 }, (_, index) => (
-            <div key={`skeleton-${index}`} style={{
-              ...expectationCardStyles,
-              cursor: 'default'
-            }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                marginBottom: '8px'
-              }}>
-                <div style={{
-                  width: '100px',
-                  height: '16px',
+            <div
+              key={`skeleton-${index}`}
+              style={{
+                ...expectationCardStyles,
+                cursor: 'default',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  marginBottom: '8px',
+                }}
+              >
+                <div
+                  style={{
+                    width: '100px',
+                    height: '16px',
+                    backgroundColor: '#e5e7eb',
+                    borderRadius: '4px',
+                    marginRight: '12px',
+                  }}
+                />
+                <div
+                  style={{
+                    width: '60px',
+                    height: '16px',
+                    backgroundColor: '#e5e7eb',
+                    borderRadius: '4px',
+                  }}
+                />
+              </div>
+              <div
+                style={{
+                  width: '100%',
+                  height: '40px',
                   backgroundColor: '#e5e7eb',
                   borderRadius: '4px',
-                  marginRight: '12px'
-                }} />
-                <div style={{
-                  width: '60px',
-                  height: '16px',
-                  backgroundColor: '#e5e7eb',
-                  borderRadius: '4px'
-                }} />
-              </div>
-              <div style={{
-                width: '100%',
-                height: '40px',
-                backgroundColor: '#e5e7eb',
-                borderRadius: '4px'
-              }} />
+                }}
+              />
             </div>
           ))}
         </div>
 
-        <div style={{
-          textAlign: 'center',
-          color: '#6b7280',
-          fontSize: '14px',
-          marginTop: '16px'
-        }}>
+        <div
+          style={{
+            textAlign: 'center',
+            color: '#6b7280',
+            fontSize: '14px',
+            marginTop: '16px',
+          }}
+        >
           기대평을 불러오는 중...
         </div>
       </div>
@@ -344,7 +372,7 @@ const [hoveredExpectationId, setHoveredExpectationId] = useState(null);
                 border: 'none',
                 borderRadius: '4px',
                 fontSize: '12px',
-                cursor: 'pointer'
+                cursor: 'pointer',
               }}
             >
               🔄 다시 시도
@@ -352,23 +380,31 @@ const [hoveredExpectationId, setHoveredExpectationId] = useState(null);
           )}
         </div>
 
-        <div style={{
-          textAlign: 'center',
-          padding: '40px 20px'
-        }}>
+        <div
+          style={{
+            textAlign: 'center',
+            padding: '40px 20px',
+          }}
+        >
           <div style={{ fontSize: '48px', marginBottom: '16px' }}>😵</div>
-          <h3 style={{
-            color: '#dc2626',
-            marginBottom: '8px',
-            fontSize: '18px'
-          }}>
+          <h3
+            style={{
+              color: '#dc2626',
+              marginBottom: '8px',
+              fontSize: '18px',
+            }}
+          >
             기대평을 불러올 수 없습니다
           </h3>
-          <p style={{
-            color: '#6b7280',
-            fontSize: '14px'
-          }}>
-            {typeof error === 'string' ? error : '알 수 없는 오류가 발생했습니다.'}
+          <p
+            style={{
+              color: '#6b7280',
+              fontSize: '14px',
+            }}
+          >
+            {typeof error === 'string'
+              ? error
+              : '알 수 없는 오류가 발생했습니다.'}
           </p>
         </div>
       </div>
@@ -384,48 +420,58 @@ const [hoveredExpectationId, setHoveredExpectationId] = useState(null);
         <div style={headerStyles}>
           <div style={titleStyles}>
             ✨ 기대평 (0개)
-            <span style={{
-              fontSize: '11px',
-              backgroundColor: '#fef3c7',
-              color: '#92400e',
-              padding: '2px 6px',
-              borderRadius: '10px',
-              fontWeight: 'normal',
-              marginLeft: '8px'
-            }}>
+            <span
+              style={{
+                fontSize: '11px',
+                backgroundColor: '#fef3c7',
+                color: '#92400e',
+                padding: '2px 6px',
+                borderRadius: '10px',
+                fontWeight: 'normal',
+                marginLeft: '8px',
+              }}
+            >
               관람 전
             </span>
           </div>
         </div>
 
-        <div style={{
-          textAlign: 'center',
-          padding: '40px 20px'
-        }}>
+        <div
+          style={{
+            textAlign: 'center',
+            padding: '40px 20px',
+          }}
+        >
           <div style={{ fontSize: '48px', marginBottom: '16px' }}>✨</div>
-          <h3 style={{
-            color: '#6b7280',
-            marginBottom: '8px',
-            fontSize: '18px'
-          }}>
+          <h3
+            style={{
+              color: '#6b7280',
+              marginBottom: '8px',
+              fontSize: '18px',
+            }}
+          >
             아직 작성된 기대평이 없습니다
           </h3>
-          <p style={{
-            color: '#9ca3af',
-            fontSize: '14px'
-          }}>
+          <p
+            style={{
+              color: '#9ca3af',
+              fontSize: '14px',
+            }}
+          >
             공연 전에 기대평을 작성해보세요!
           </p>
 
           {!compact && (
-            <div style={{
-              marginTop: '16px',
-              padding: '12px',
-              backgroundColor: '#eff6ff',
-              borderRadius: '6px',
-              fontSize: '12px',
-              color: '#1e40af'
-            }}>
+            <div
+              style={{
+                marginTop: '16px',
+                padding: '12px',
+                backgroundColor: '#eff6ff',
+                borderRadius: '6px',
+                fontSize: '12px',
+                color: '#1e40af',
+              }}
+            >
               💡 기대평은 관람 전에 작성하는 기대감 표현입니다
             </div>
           )}
@@ -442,15 +488,17 @@ const [hoveredExpectationId, setHoveredExpectationId] = useState(null);
       <div style={headerStyles}>
         <div style={titleStyles}>
           ✨ 기대평 ({totalElements.toLocaleString()}개)
-          <span style={{
-            fontSize: '11px',
-            backgroundColor: '#fef3c7',
-            color: '#92400e',
-            padding: '2px 6px',
-            borderRadius: '10px',
-            fontWeight: 'normal',
-            marginLeft: '8px'
-          }}>
+          <span
+            style={{
+              fontSize: '11px',
+              backgroundColor: '#fef3c7',
+              color: '#92400e',
+              padding: '2px 6px',
+              borderRadius: '10px',
+              fontWeight: 'normal',
+              marginLeft: '8px',
+            }}
+          >
             관람 전
           </span>
         </div>
@@ -466,7 +514,7 @@ const [hoveredExpectationId, setHoveredExpectationId] = useState(null);
               borderRadius: '4px',
               fontSize: '12px',
               color: '#6b7280',
-              cursor: 'pointer'
+              cursor: 'pointer',
             }}
           >
             🔄
@@ -476,95 +524,119 @@ const [hoveredExpectationId, setHoveredExpectationId] = useState(null);
 
       {/* 기대평 목록 */}
       <div>
-        {expectations.map((expectation) => (
+        {expectations.map(expectation => (
           <div
             key={expectation.id}
             style={{
               ...expectationCardStyles,
-              ...(hoveredExpectationId === expectation.id && onExpectationClick ? {
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-                transform: 'translateY(-1px)'
-              } : {})
+              ...(hoveredExpectationId === expectation.id && onExpectationClick
+                ? {
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                    transform: 'translateY(-1px)',
+                  }
+                : {}),
             }}
             onClick={() => handleExpectationClick(expectation)}
-            onMouseEnter={() => onExpectationClick && setHoveredExpectationId(expectation.id)}
+            onMouseEnter={() =>
+              onExpectationClick && setHoveredExpectationId(expectation.id)
+            }
             onMouseLeave={() => setHoveredExpectationId(null)}
           >
             {/* 기대평 헤더 */}
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '8px'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{
-                  fontSize: compact ? '12px' : '14px',
-                  fontWeight: '600',
-                  color: '#374151'
-                }}>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '8px',
+              }}
+            >
+              <div
+                style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+              >
+                <span
+                  style={{
+                    fontSize: compact ? '12px' : '14px',
+                    fontWeight: '600',
+                    color: '#374151',
+                  }}
+                >
                   {expectation.userNickname}
                 </span>
-                <span style={{
-                  fontSize: '11px',
-                  color: '#9ca3af'
-                }}>
+                <span
+                  style={{
+                    fontSize: '11px',
+                    color: '#9ca3af',
+                  }}
+                >
                   {formatDate(expectation.createdAt)}
                 </span>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <div
+                style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
+              >
                 {renderExpectationStars(expectation.expectationRating)}
-                <span style={{
-                  fontSize: '12px',
-                  color: '#6b7280',
-                  marginLeft: '4px'
-                }}>
+                <span
+                  style={{
+                    fontSize: '12px',
+                    color: '#6b7280',
+                    marginLeft: '4px',
+                  }}
+                >
                   ({expectation.expectationRating}/5)
                 </span>
               </div>
             </div>
 
             {/* 기대평 내용 */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              marginBottom: '8px'
-            }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                marginBottom: '8px',
+              }}
+            >
               <span style={{ fontSize: compact ? '18px' : '20px' }}>
                 {ExpectationRatingEmojis[expectation.expectationRating]}
               </span>
-              <span style={{
-                fontSize: compact ? '13px' : '14px',
-                fontWeight: '600',
-                color: '#374151'
-              }}>
+              <span
+                style={{
+                  fontSize: compact ? '13px' : '14px',
+                  fontWeight: '600',
+                  color: '#374151',
+                }}
+              >
                 {ExpectationRatingLabels[expectation.expectationRating]}
               </span>
             </div>
 
             {/* 기대평 텍스트 */}
-            <p style={{
-              fontSize: compact ? '13px' : '14px',
-              color: '#6b7280',
-              lineHeight: '1.5',
-              margin: '0'
-            }}>
+            <p
+              style={{
+                fontSize: compact ? '13px' : '14px',
+                color: '#6b7280',
+                lineHeight: '1.5',
+                margin: '0',
+              }}
+            >
               {expectation.comment.length > 150 && !compact
                 ? expectation.comment.substring(0, 150) + '...'
                 : expectation.comment}
             </p>
             {/* 수정/삭제 버튼 (작성자만) */}
             {currentUserId === expectation.userId && (
-              <div style={{
-                marginTop: '8px',
-                display: 'flex',
-                gap: '8px',
-                justifyContent: 'flex-end'
-              }}>
+              <div
+                style={{
+                  marginTop: '8px',
+                  display: 'flex',
+                  gap: '8px',
+                  justifyContent: 'flex-end',
+                }}
+              >
                 <button
-                  onClick={(e) => {
+                  onClick={e => {
                     e.stopPropagation();
                     onEditClick?.(expectation);
                   }}
@@ -575,13 +647,13 @@ const [hoveredExpectationId, setHoveredExpectationId] = useState(null);
                     border: 'none',
                     borderRadius: '4px',
                     fontSize: '12px',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
                   }}
                 >
                   ✏️ 수정
                 </button>
                 <button
-                  onClick={(e) => {
+                  onClick={e => {
                     e.stopPropagation();
                     onDeleteClick?.(expectation);
                   }}
@@ -592,7 +664,7 @@ const [hoveredExpectationId, setHoveredExpectationId] = useState(null);
                     border: 'none',
                     borderRadius: '4px',
                     fontSize: '12px',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
                   }}
                 >
                   🗑️ 삭제
@@ -613,7 +685,7 @@ const [hoveredExpectationId, setHoveredExpectationId] = useState(null);
             style={{
               ...pageButtonBaseStyles,
               opacity: currentPage === 0 ? 0.5 : 1,
-              cursor: currentPage === 0 ? 'not-allowed' : 'pointer'
+              cursor: currentPage === 0 ? 'not-allowed' : 'pointer',
             }}
           >
             ← 이전
@@ -633,7 +705,11 @@ const [hoveredExpectationId, setHoveredExpectationId] = useState(null);
               <button
                 key={pageNum}
                 onClick={() => handlePageChange(pageNum)}
-                style={pageNum === currentPage ? activePageButtonStyles : pageButtonBaseStyles}
+                style={
+                  pageNum === currentPage
+                    ? activePageButtonStyles
+                    : pageButtonBaseStyles
+                }
               >
                 {pageNum + 1}
               </button>
@@ -647,7 +723,7 @@ const [hoveredExpectationId, setHoveredExpectationId] = useState(null);
             style={{
               ...pageButtonBaseStyles,
               opacity: currentPage >= totalPages - 1 ? 0.5 : 1,
-              cursor: currentPage >= totalPages - 1 ? 'not-allowed' : 'pointer'
+              cursor: currentPage >= totalPages - 1 ? 'not-allowed' : 'pointer',
             }}
           >
             다음 →
@@ -657,10 +733,12 @@ const [hoveredExpectationId, setHoveredExpectationId] = useState(null);
 
       {/* 페이지 크기 선택 */}
       {showPagination && totalElements > 10 && (
-        <div style={{
-          textAlign: 'center',
-          marginTop: '12px'
-        }}>
+        <div
+          style={{
+            textAlign: 'center',
+            marginTop: '12px',
+          }}
+        >
           <select
             value={pageSize}
             onChange={handlePageSizeChange}
@@ -669,7 +747,7 @@ const [hoveredExpectationId, setHoveredExpectationId] = useState(null);
               border: '1px solid #d1d5db',
               borderRadius: '4px',
               fontSize: '12px',
-              backgroundColor: '#ffffff'
+              backgroundColor: '#ffffff',
             }}
           >
             <option value={10}>10개씩 보기</option>
@@ -681,16 +759,18 @@ const [hoveredExpectationId, setHoveredExpectationId] = useState(null);
 
       {/* 기대평 vs 리뷰 안내 */}
       {!compact && totalElements > 0 && (
-        <div style={{
-          marginTop: '16px',
-          padding: '12px',
-          backgroundColor: '#fef9e7',
-          borderRadius: '6px',
-          fontSize: '12px',
-          color: '#a16207'
-        }}>
-          💡 기대평은 공연 관람 <strong>전</strong>에 작성하는 기대감이며,
-          관람 <strong>후</strong>에는 리뷰를 작성하실 수 있습니다.
+        <div
+          style={{
+            marginTop: '16px',
+            padding: '12px',
+            backgroundColor: '#fef9e7',
+            borderRadius: '6px',
+            fontSize: '12px',
+            color: '#a16207',
+          }}
+        >
+          💡 기대평은 공연 관람 <strong>전</strong>에 작성하는 기대감이며, 관람{' '}
+          <strong>후</strong>에는 리뷰를 작성하실 수 있습니다.
         </div>
       )}
     </div>
@@ -710,7 +790,7 @@ ExpectationList.defaultProps = {
   showRefreshButton: false,
   allowFiltering: false,
   className: '',
-  compact: false
+  compact: false,
 };
 
 export default ExpectationList;

@@ -10,26 +10,25 @@ import React, { useEffect } from 'react';
  */
 const Modal = ({
   // ===== 필수 props =====
-  isOpen = false,              // 모달 열림/닫힘 상태
-  onClose,                     // 모달 닫기 핸들러
-  children,                    // 모달 내용
+  isOpen = false, // 모달 열림/닫힘 상태
+  onClose, // 모달 닫기 핸들러
+  children, // 모달 내용
 
   // ===== 선택적 props =====
-  title = '',                  // 모달 제목
-  showCloseButton = true,      // X 버튼 표시 여부
-  closeOnBackdrop = true,      // 배경 클릭 시 닫기
-  closeOnEsc = true,           // ESC 키로 닫기
+  title = '', // 모달 제목
+  showCloseButton = true, // X 버튼 표시 여부
+  closeOnBackdrop = true, // 배경 클릭 시 닫기
+  closeOnEsc = true, // ESC 키로 닫기
 
   // ===== 스타일 props =====
-  size = 'medium',             // 'small' | 'medium' | 'large'
-  className = ''               // 추가 CSS 클래스
+  size = 'medium', // 'small' | 'medium' | 'large'
+  className = '', // 추가 CSS 클래스
 }) => {
-
   // ESC 키 이벤트 처리
   useEffect(() => {
     if (!isOpen || !closeOnEsc) return;
 
-    const handleEscKey = (event) => {
+    const handleEscKey = event => {
       if (event.key === 'Escape') {
         onClose?.();
       }
@@ -56,7 +55,7 @@ const Modal = ({
   if (!isOpen) return null;
 
   // 배경 클릭 핸들러
-  const handleBackdropClick = (event) => {
+  const handleBackdropClick = event => {
     if (closeOnBackdrop && event.target === event.currentTarget) {
       onClose?.();
     }
@@ -88,7 +87,7 @@ const Modal = ({
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 1000,
-        padding: '20px'
+        padding: '20px',
       }}
       onClick={handleBackdropClick}
       className={`modal-backdrop ${className}`}
@@ -97,13 +96,14 @@ const Modal = ({
         style={{
           backgroundColor: '#ffffff',
           borderRadius: '12px',
-          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+          boxShadow:
+            '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
           maxHeight: '90vh',
           overflow: 'auto',
           position: 'relative',
-          ...getSizeStyles()
+          ...getSizeStyles(),
         }}
-        onClick={(e) => e.stopPropagation()}
+        onClick={e => e.stopPropagation()}
         className="modal-content"
       >
         {/* 모달 헤더 */}
@@ -114,7 +114,7 @@ const Modal = ({
               alignItems: 'center',
               justifyContent: 'space-between',
               padding: '20px 24px',
-              borderBottom: '1px solid #e5e7eb'
+              borderBottom: '1px solid #e5e7eb',
             }}
           >
             {title && (
@@ -123,7 +123,7 @@ const Modal = ({
                   fontSize: '18px',
                   fontWeight: 'bold',
                   color: '#1f2937',
-                  margin: 0
+                  margin: 0,
                 }}
               >
                 {title}
@@ -140,10 +140,10 @@ const Modal = ({
                   cursor: 'pointer',
                   padding: '4px',
                   borderRadius: '4px',
-                  transition: 'color 0.2s ease'
+                  transition: 'color 0.2s ease',
                 }}
-                onMouseEnter={(e) => e.target.style.color = '#374151'}
-                onMouseLeave={(e) => e.target.style.color = '#6b7280'}
+                onMouseEnter={e => (e.target.style.color = '#374151')}
+                onMouseLeave={e => (e.target.style.color = '#6b7280')}
                 aria-label="모달 닫기"
               >
                 ✕
@@ -155,7 +155,7 @@ const Modal = ({
         {/* 모달 본문 */}
         <div
           style={{
-            padding: title || showCloseButton ? '24px' : '24px'
+            padding: title || showCloseButton ? '24px' : '24px',
           }}
         >
           {children}

@@ -4,7 +4,7 @@ export default function SeatLegend() {
     { label: 'Reserved', color: 'bg-yellow-500' },
     { label: 'Booked', color: 'bg-red-500' },
     { label: 'Unavailable', color: 'bg-gray-400' },
-    { label: 'Selected', color: 'bg-purple-500 ring-2 ring-purple-700' }
+    { label: 'Selected', color: 'bg-purple-500 ring-2 ring-purple-700' },
   ];
 
   return (

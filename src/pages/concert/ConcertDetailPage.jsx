@@ -1,5 +1,5 @@
 // src/pages/concert/ConcertDetailPage.jsx
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
 // 새로운 컴포넌트들 import
@@ -20,92 +20,100 @@ function ConcertDetailPage() {
   const { concertId } = useParams();
   const navigate = useNavigate();
   const [expandedReviewId, setExpandedReviewId] = useState(null);
-    // 모달 상태들
-    const [showReviewForm, setShowReviewForm] = useState(false);
-    const [editingReview, setEditingReview] = useState(null);
-    const [showExpectationForm, setShowExpectationForm] = useState(false);
-    const [deleteConfirm, setDeleteConfirm] = useState(null);
+  // 모달 상태들
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [editingReview, setEditingReview] = useState(null);
+  const [showExpectationForm, setShowExpectationForm] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
 
-    // 현재 사용자 정보 (임시)
-    const currentUser = { id: 2003, nickname: 'seoul_concert' };
-    const [editingExpectation, setEditingExpectation] = useState(null);
+  // 현재 사용자 정보 (임시)
+  const currentUser = { id: 2003, nickname: 'seoul_concert' };
+  const [editingExpectation, setEditingExpectation] = useState(null);
 
   // 콘서트 상태별 설정 (함수 상단으로 이동)
   const statusConfig = {
     SOLD_OUT: {
       buttonText: '매진',
       statusText: '매진',
-      color: 'text-red-600'
+      color: 'text-red-600',
     },
     CANCELLED: {
       buttonText: '취소됨',
       statusText: '취소됨',
-      color: 'text-gray-600'
+      color: 'text-gray-600',
     },
     SCHEDULED: {
       buttonText: '예매 대기',
       statusText: '예매 대기',
-      color: 'text-yellow-600'
+      color: 'text-yellow-600',
     },
     ON_SALE: {
       buttonText: '예매하기',
       statusText: '예매 중',
-      color: 'text-green-600'
+      color: 'text-green-600',
     },
     COMPLETED: {
       buttonText: '공연 완료',
       statusText: '공연 완료',
-      color: 'text-gray-600'
-    }
+      color: 'text-gray-600',
+    },
   };
 
   // 콘서트 상세 정보 hook
   const parsedConcertId = parseInt(concertId);
   if (isNaN(parsedConcertId)) {
-    return <div className="text-center text-red-500 py-10">잘못된 콘서트 ID 입니다.</div>;
+    return (
+      <div className="text-center text-red-500 py-10">
+        잘못된 콘서트 ID 입니다.
+      </div>
+    );
   }
 
-const {
-  concert,
-  aiSummary,
-  loading: concertLoading,
-  error: concertError,
-  fetchAISummary,
-  aiSummaryLoading
-} = useConcertDetail(parsedConcertId);
+  const {
+    concert,
+    aiSummary,
+    loading: concertLoading,
+    error: concertError,
+    fetchAISummary,
+    aiSummaryLoading,
+  } = useConcertDetail(parsedConcertId);
 
   // 리뷰 목록 hook
-const {
-  reviews,
-  loading: reviewsLoading,
-  error: reviewsError,
-  currentPage: reviewsPage,
-  totalPages: reviewsTotalPages,
-  totalElements: reviewsTotal,
-  goToPage: goToReviewsPage,
-  changeSorting: changeReviewsSorting,
-  sortBy: reviewsSortBy,
-  sortDir: reviewsSortDir,
-  createReview,
-  updateReview,
-  deleteReview,
-  actionLoading: reviewActionLoading
-} = useReviews(parsedConcertId);
+  const {
+    reviews,
+    loading: reviewsLoading,
+    error: reviewsError,
+    currentPage: reviewsPage,
+    totalPages: reviewsTotalPages,
+    totalElements: reviewsTotal,
+    goToPage: goToReviewsPage,
+    changeSorting: changeReviewsSorting,
+    sortBy: reviewsSortBy,
+    sortDir: reviewsSortDir,
+    createReview,
+    updateReview,
+    deleteReview,
+    actionLoading: reviewActionLoading,
+  } = useReviews(parsedConcertId);
+
+  // 🔍 디버깅: updateReview 함수 확인
+  console.log('🔍 ConcertDetailPage - updateReview 함수:', updateReview);
+  console.log('🔍 ConcertDetailPage - updateReview 타입:', typeof updateReview);
 
   // 기대평 목록 hook
-const {
-  expectations,
-  loading: expectationsLoading,
-  error: expectationsError,
-  currentPage: expectationsPage,
-  totalPages: expectationsTotalPages,
-  totalElements: expectationsTotal,
-  goToPage: goToExpectationsPage,
-  createExpectation,
-  updateExpectation,
-  deleteExpectation,
-  actionLoading: expectationActionLoading
-} = useExpectations(parsedConcertId);
+  const {
+    expectations,
+    loading: expectationsLoading,
+    error: expectationsError,
+    currentPage: expectationsPage,
+    totalPages: expectationsTotalPages,
+    totalElements: expectationsTotal,
+    goToPage: goToExpectationsPage,
+    createExpectation,
+    updateExpectation,
+    deleteExpectation,
+    actionLoading: expectationActionLoading,
+  } = useExpectations(parsedConcertId);
 
   // 예매하기 버튼 클릭 핸들러
   const handleReserveClick = () => {
@@ -113,54 +121,60 @@ const {
   };
 
   // 리뷰 클릭 핸들러 (상세보기나 수정 등)
-  const handleReviewClick = (review) => {
+  const handleReviewClick = review => {
     console.log('리뷰 클릭:', review);
     setExpandedReviewId(expandedReviewId === review.id ? null : review.id);
   };
 
   // 기대평 클릭 핸들러
-  const handleExpectationClick = (expectation) => {
+  const handleExpectationClick = expectation => {
     console.log('기대평 클릭:', expectation);
     // 추후 기대평 상세 모달이나 수정 구현
   };
 
-    // ===== 리뷰 관련 핸들러들 =====
-    const handleCreateReview = () => {
-      setEditingReview(null);
-      setShowReviewForm(true);
-    };
+  // ===== 리뷰 관련 핸들러들 =====
+  const handleCreateReview = () => {
+    setEditingReview(null);
+    setShowReviewForm(true);
+  };
 
-    const handleEditReview = (review) => {
-      setEditingReview(review);
-      setShowReviewForm(true);
-    };
+  const handleEditReview = review => {
+    // 🔍 디버깅: 수정할 리뷰 확인
+    console.log('🔍 handleEditReview 호출됨');
+    console.log('🔍 받은 review:', review);
+    console.log('🔍 review.id:', review?.id);
+    console.log('🔍 typeof review:', typeof review);
 
-    const handleDeleteReview = (review) => {
-      setDeleteConfirm({
-        type: 'review',
-        id: review.id,
-        title: review.title
-      });
-    };
+    setEditingReview(review);
+    setShowReviewForm(true);
+  };
 
-    // ===== 기대평 관련 핸들러들 =====
-    const handleCreateExpectation = () => {
-      setEditingExpectation(null);
-      setShowExpectationForm(true);
-    };
+  const handleDeleteReview = review => {
+    setDeleteConfirm({
+      type: 'review',
+      id: review.id,
+      title: review.title,
+    });
+  };
 
-    const handleEditExpectation = (expectation) => {
-      setEditingExpectation(expectation);
-      setShowExpectationForm(true);
-    };
+  // ===== 기대평 관련 핸들러들 =====
+  const handleCreateExpectation = () => {
+    setEditingExpectation(null);
+    setShowExpectationForm(true);
+  };
 
-    const handleDeleteExpectation = (expectation) => {
-      setDeleteConfirm({
-        type: 'expectation',
-        id: expectation.id,
-        title: expectation.comment.substring(0, 50) + '...'
-      });
-    };
+  const handleEditExpectation = expectation => {
+    setEditingExpectation(expectation);
+    setShowExpectationForm(true);
+  };
+
+  const handleDeleteExpectation = expectation => {
+    setDeleteConfirm({
+      type: 'expectation',
+      id: expectation.id,
+      title: expectation.comment.substring(0, 50) + '...',
+    });
+  };
 
   // 콘서트 정보 로딩 중이면 로딩 표시
   if (concertLoading) {
@@ -169,7 +183,9 @@ const {
 
   // 콘서트 정보 에러 시 에러 표시
   if (concertError) {
-    return <div className="text-center text-red-500 py-10">에러: {concertError}</div>;
+    return (
+      <div className="text-center text-red-500 py-10">에러: {concertError}</div>
+    );
   }
 
   // 콘서트 정보가 없으면 안내 메시지
@@ -287,8 +303,8 @@ const {
           {[
             { type: '일반석', price: 50000 },
             { type: 'VIP', price: 100000 },
-            { type: '프리미엄', price: 150000 }
-          ].map((ticket) => (
+            { type: '프리미엄', price: 150000 },
+          ].map(ticket => (
             <div
               key={ticket.type}
               className="flex justify-between bg-white px-4 py-3 rounded-lg shadow-sm"
@@ -305,118 +321,140 @@ const {
           <button
             onClick={handleReserveClick}
             className="w-full mt-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition hover:scale-[1.02] disabled:bg-gray-400 disabled:cursor-not-allowed"
-            disabled={concert.status === 'SOLD_OUT' || concert.status === 'CANCELLED' || concert.status === 'COMPLETED'}
+            disabled={
+              concert.status === 'SOLD_OUT' ||
+              concert.status === 'CANCELLED' ||
+              concert.status === 'COMPLETED'
+            }
           >
             {currentStatus.buttonText}
           </button>
 
-            {/* 콘서트 상태 표시 */}
-                    <div className="text-center text-sm text-gray-600 mt-2">
-                      현재 상태: <span className={`font-semibold ${currentStatus.color}`}>
-                        {currentStatus.statusText}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* ===== 모달들 ===== */}
-
-                {/* 리뷰 작성/수정 모달 */}
-                <Modal
-                  isOpen={showReviewForm}
-                  onClose={() => setShowReviewForm(false)}
-                  title={editingReview ? "리뷰 수정" : "리뷰 작성"}
-                >
-                  <ReviewForm
-                    mode={editingReview ? 'edit' : 'create'}
-                    initialData={editingReview}
-                    concertId={parsedConcertId}
-                    userId={currentUser.id}
-                    userNickname={currentUser.nickname}
-                    onSubmit={async (formData) => {
-                      if (editingReview) {
-                        await updateReview(editingReview.id, formData);
-                      } else {
-                        await createReview(formData);
-                      }
-                      setShowReviewForm(false);
-                      setEditingReview(null);
-                    }}
-                    loading={reviewActionLoading}
-                  />
-                </Modal>
-
-                {/* 기대평 작성/수정 모달 */}
-                <Modal
-                  isOpen={showExpectationForm}
-                  onClose={() => setShowExpectationForm(false)}
-                  title={editingExpectation ? "기대평 수정" : "기대평 작성"}
-                >
-                  <ExpectationForm
-                    mode={editingExpectation ? 'edit' : 'create'}
-                    initialData={editingExpectation}
-                    concertId={parsedConcertId}
-                    userId={currentUser.id}
-                    userNickname={currentUser.nickname}
-                    onSubmit={async (formData) => {
-                      if (editingExpectation) {
-                        await updateExpectation(editingExpectation.id, formData);
-                      } else {
-                        await createExpectation(formData);
-                      }
-                      setShowExpectationForm(false);
-                      setEditingExpectation(null);
-                    }}
-                    loading={expectationActionLoading}
-                  />
-                </Modal>
-
-                {/* 삭제 확인 모달 */}
-                <Modal
-                  isOpen={!!deleteConfirm}
-                  onClose={() => setDeleteConfirm(null)}
-                  title="삭제 확인"
-                >
-                  {deleteConfirm && (
-                    <div className="text-center">
-                      <div className="text-6xl mb-4">🗑️</div>
-                      <h3 className="text-lg font-bold text-gray-900 mb-2">
-                        {deleteConfirm.type === 'review' ? '리뷰를' : '기대평을'} 삭제하시겠습니까?
-                      </h3>
-                      <p className="text-gray-600 mb-6">
-                        "{deleteConfirm.title}"
-                      </p>
-                      <p className="text-sm text-red-600 mb-6">
-                        삭제된 내용은 복구할 수 없습니다.
-                      </p>
-
-                      <div className="flex gap-3 justify-center">
-                        <button
-                          onClick={() => setDeleteConfirm(null)}
-                          className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition"
-                        >
-                          취소
-                        </button>
-                        <button
-                          onClick={async () => {
-                            if (deleteConfirm.type === 'review') {
-                              await deleteReview(deleteConfirm.id);
-                            } else {
-                              await deleteExpectation(deleteConfirm.id);
-                            }
-                            setDeleteConfirm(null);
-                          }}
-                          className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
-                          disabled={reviewActionLoading || expectationActionLoading}
-                        >
-                          {(reviewActionLoading || expectationActionLoading) ? '삭제 중...' : '삭제'}
-                        </button>
-                      </div>
-                    </div>
-              )}
-            </Modal>
+          {/* 콘서트 상태 표시 */}
+          <div className="text-center text-sm text-gray-600 mt-2">
+            현재 상태:{' '}
+            <span className={`font-semibold ${currentStatus.color}`}>
+              {currentStatus.statusText}
+            </span>
           </div>
-        );
-      }
+        </div>
+      </div>
 
-      export default ConcertDetailPage;
+      {/* ===== 모달들 ===== */}
+
+      {/* 리뷰 작성/수정 모달 */}
+      <Modal
+        isOpen={showReviewForm}
+        onClose={() => setShowReviewForm(false)}
+        title={editingReview ? '리뷰 수정' : '리뷰 작성'}
+      >
+        <ReviewForm
+          mode={editingReview ? 'edit' : 'create'}
+          initialData={editingReview}
+          concertId={parsedConcertId}
+          userId={currentUser.id}
+          userNickname={currentUser.nickname}
+          onSubmit={async formData => {
+            // 🔍 디버깅: Modal onSubmit 호출
+            console.log('🔍 Modal onSubmit 호출됨');
+            console.log('🔍 editingReview:', editingReview);
+            console.log('🔍 editingReview?.id:', editingReview?.id);
+            console.log('🔍 formData:', formData);
+            console.log('🔍 typeof formData:', typeof formData);
+
+            if (editingReview) {
+              console.log('🔍 updateReview 호출 - 파라미터들:');
+              console.log('  - editingReview.id:', editingReview.id);
+              console.log('  - formData:', formData);
+
+              await updateReview(editingReview.id, formData);
+            } else {
+              await createReview(formData);
+            }
+            setShowReviewForm(false);
+            setEditingReview(null);
+          }}
+          onCancel={() => {
+            // ← 이 줄만 추가
+            setShowReviewForm(false);
+            setEditingReview(null);
+          }}
+          loading={reviewActionLoading}
+        />
+      </Modal>
+
+      {/* 기대평 작성/수정 모달 */}
+      <Modal
+        isOpen={showExpectationForm}
+        onClose={() => setShowExpectationForm(false)}
+        title={editingExpectation ? '기대평 수정' : '기대평 작성'}
+      >
+        <ExpectationForm
+          mode={editingExpectation ? 'edit' : 'create'}
+          initialData={editingExpectation}
+          concertId={parsedConcertId}
+          userId={currentUser.id}
+          userNickname={currentUser.nickname}
+          onSubmit={async formData => {
+            if (editingExpectation) {
+              await updateExpectation(editingExpectation.id, formData);
+            } else {
+              await createExpectation(formData);
+            }
+            setShowExpectationForm(false);
+            setEditingExpectation(null);
+          }}
+          loading={expectationActionLoading}
+        />
+      </Modal>
+
+      {/* 삭제 확인 모달 */}
+      <Modal
+        isOpen={!!deleteConfirm}
+        onClose={() => setDeleteConfirm(null)}
+        title="삭제 확인"
+      >
+        {deleteConfirm && (
+          <div className="text-center">
+            <div className="text-6xl mb-4">🗑️</div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">
+              {deleteConfirm.type === 'review' ? '리뷰를' : '기대평을'}{' '}
+              삭제하시겠습니까?
+            </h3>
+            <p className="text-gray-600 mb-6">"{deleteConfirm.title}"</p>
+            <p className="text-sm text-red-600 mb-6">
+              삭제된 내용은 복구할 수 없습니다.
+            </p>
+
+            <div className="flex gap-3 justify-center">
+              <button
+                onClick={() => setDeleteConfirm(null)}
+                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition"
+              >
+                취소
+              </button>
+              <button
+                onClick={async () => {
+                  if (deleteConfirm.type === 'review') {
+                    await deleteReview(deleteConfirm.id);
+                  } else {
+                    await deleteExpectation(deleteConfirm.id);
+                  }
+                  setDeleteConfirm(null);
+                }}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+                disabled={reviewActionLoading || expectationActionLoading}
+              >
+                {reviewActionLoading || expectationActionLoading
+                  ? '삭제 중...'
+                  : '삭제'}
+              </button>
+            </div>
+          </div>
+        )}
+      </Modal>
+    </div>
+  );
+}
+
+export default ConcertDetailPage;

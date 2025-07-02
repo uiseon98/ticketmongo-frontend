@@ -5,11 +5,11 @@
  * @typedef {"SCHEDULED"|"ON_SALE"|"SOLD_OUT"|"CANCELLED"|"COMPLETED"} ConcertStatus
  */
 export const ConcertStatus = {
-  SCHEDULED: 'SCHEDULED',   // 예정됨 (예매 시작 전)
-  ON_SALE: 'ON_SALE',      // 예매 중
-  SOLD_OUT: 'SOLD_OUT',    // 매진됨
-  CANCELLED: 'CANCELLED',   // 취소됨
-  COMPLETED: 'COMPLETED'    // 완료됨
+  SCHEDULED: 'SCHEDULED', // 예정됨 (예매 시작 전)
+  ON_SALE: 'ON_SALE', // 예매 중
+  SOLD_OUT: 'SOLD_OUT', // 매진됨
+  CANCELLED: 'CANCELLED', // 취소됨
+  COMPLETED: 'COMPLETED', // 완료됨
 };
 
 /**
@@ -20,7 +20,7 @@ export const ConcertStatusLabels = {
   [ConcertStatus.ON_SALE]: '예매 중',
   [ConcertStatus.SOLD_OUT]: '매진',
   [ConcertStatus.CANCELLED]: '취소됨',
-  [ConcertStatus.COMPLETED]: '공연 완료'
+  [ConcertStatus.COMPLETED]: '공연 완료',
 };
 
 /**
@@ -31,7 +31,7 @@ export const ConcertStatusColors = {
   [ConcertStatus.ON_SALE]: 'bg-green-100 text-green-800',
   [ConcertStatus.SOLD_OUT]: 'bg-red-100 text-red-800',
   [ConcertStatus.CANCELLED]: 'bg-gray-100 text-gray-800',
-  [ConcertStatus.COMPLETED]: 'bg-blue-100 text-blue-800'
+  [ConcertStatus.COMPLETED]: 'bg-blue-100 text-blue-800',
 };
 
 /**

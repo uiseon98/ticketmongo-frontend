@@ -38,7 +38,7 @@ export const ExpectationRatingLabels = {
   2: '조금 기대됨',
   3: '보통',
   4: '많이 기대됨',
-  5: '정말 기대됨'
+  5: '정말 기대됨',
 };
 
 /**
@@ -49,7 +49,7 @@ export const ExpectationRatingEmojis = {
   2: '🙂',
   3: '😊',
   4: '😍',
-  5: '🤩'
+  5: '🤩',
 };
 
 /**
@@ -60,7 +60,7 @@ export const ExpectationRatingColors = {
   2: 'text-yellow-500',
   3: 'text-blue-500',
   4: 'text-purple-500',
-  5: 'text-pink-500'
+  5: 'text-pink-500',
 };
 
 /**
@@ -70,22 +70,22 @@ export const ExpectationValidation = {
   comment: {
     required: true,
     maxLength: 500,
-    minLength: 1
+    minLength: 1,
   },
   expectationRating: {
     required: true,
     min: 1,
-    max: 5
+    max: 5,
   },
   userNickname: {
     required: true,
     maxLength: 50,
-    minLength: 1
+    minLength: 1,
   },
   userId: {
     required: true,
-    min: 1
-  }
+    min: 1,
+  },
 };
 
 /**
@@ -93,7 +93,7 @@ export const ExpectationValidation = {
  */
 export const ExpectationDefaults = {
   expectationRating: 3,
-  pageSize: 10
+  pageSize: 10,
 };
 
 /**
@@ -104,12 +104,12 @@ export const ExpectationVsReviewInfo = {
     title: '기대평',
     description: '콘서트 관람 전에 작성하는 기대감',
     icon: '✨',
-    timing: '관람 전'
+    timing: '관람 전',
   },
   review: {
     title: '후기',
     description: '콘서트 관람 후에 작성하는 실제 후기',
     icon: '📝',
-    timing: '관람 후'
-  }
+    timing: '관람 후',
+  },
 };

@@ -41,19 +41,21 @@ const ConcertCard = ({
   concert,
   onClick,
   showAiSummary = false,
-  className = ''
+  className = '',
 }) => {
   // ===== 데이터 유효성 검증 =====
 
   // concert 객체가 전달되지 않았거나 유효하지 않으면 에러 표시
   if (!concert) {
     return (
-      <div style={{
-        border: '1px solid #ff0000',
-        padding: '16px',
-        color: '#ff0000',
-        backgroundColor: '#fff5f5'
-      }}>
+      <div
+        style={{
+          border: '1px solid #ff0000',
+          padding: '16px',
+          color: '#ff0000',
+          backgroundColor: '#fff5f5',
+        }}
+      >
         ⚠️ 콘서트 정보를 불러올 수 없습니다.
       </div>
     );
@@ -89,13 +91,13 @@ const ConcertCard = ({
         year: 'numeric',
         month: 'long',
         day: 'numeric',
-        weekday: 'short' // 요일 추가
+        weekday: 'short', // 요일 추가
       };
 
       const timeOptions = {
         hour: '2-digit',
         minute: '2-digit',
-        hour12: true // 오전/오후 표시
+        hour12: true, // 오전/오후 표시
       };
 
       const formattedDate = dateTime.toLocaleDateString('ko-KR', dateOptions);
@@ -132,7 +134,7 @@ const ConcertCard = ({
    *
    * @param {Event} event - 이미지 에러 이벤트
    */
-  const handleImageError = (event) => {
+  const handleImageError = event => {
     // 이미지 로드 실패 시 기본 콘서트 이미지로 대체
     // 실제 환경에서는 public 폴더에 기본 이미지를 준비해야 함
     event.target.src = '/images/basic-poster-image.png';
@@ -177,7 +179,7 @@ const ConcertCard = ({
 
     // 반응형 레이아웃
     maxWidth: '300px',
-    width: '100%'
+    width: '100%',
   };
 
   /**
@@ -185,12 +187,14 @@ const ConcertCard = ({
    * CSS :hover를 인라인으로 구현하기 어려우므로 생략
    * 실제로는 CSS 클래스로 처리하는 것이 좋음
    */
-  const hoverStyles = onClick ? {
-    ':hover': {
-      transform: 'translateY(-2px)',
-      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.15)'
-    }
-  } : {};
+  const hoverStyles = onClick
+    ? {
+        ':hover': {
+          transform: 'translateY(-2px)',
+          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.15)',
+        },
+      }
+    : {};
 
   /**
    * 포스터 이미지 스타일
@@ -201,7 +205,7 @@ const ConcertCard = ({
     objectFit: 'cover', // 이미지 비율 유지하면서 영역 채우기
     borderRadius: '4px',
     marginBottom: '12px',
-    backgroundColor: '#f5f5f5' // 이미지 로딩 중 배경색
+    backgroundColor: '#f5f5f5', // 이미지 로딩 중 배경색
   };
 
   /**
@@ -217,7 +221,7 @@ const ConcertCard = ({
     marginTop: '8px',
     // ConcertStatusColors에서 해당 상태의 색상 가져오기
     // 기본값으로 회색 설정
-    ...getStatusColor(concert.status)
+    ...getStatusColor(concert.status),
   };
 
   /**
@@ -252,7 +256,7 @@ const ConcertCard = ({
       className={`concert-card ${className}`}
       style={cardStyles}
       onClick={handleCardClick}
-      onKeyDown={(e) => {
+      onKeyDown={e => {
         if (onClick && (e.key === 'Enter' || e.key === ' ')) {
           e.preventDefault();
           handleCardClick();
@@ -282,51 +286,61 @@ const ConcertCard = ({
       {/* 콘서트 기본 정보 섹션 */}
       <div style={{ marginBottom: '12px' }}>
         {/* 콘서트 제목 */}
-        <h3 style={{
-          margin: '0 0 8px 0',
-          fontSize: '18px',
-          fontWeight: 'bold',
-          color: '#1f2937',
-          lineHeight: '1.4'
-        }}>
+        <h3
+          style={{
+            margin: '0 0 8px 0',
+            fontSize: '18px',
+            fontWeight: 'bold',
+            color: '#1f2937',
+            lineHeight: '1.4',
+          }}
+        >
           {concert.title}
         </h3>
 
         {/* 아티스트명 */}
-        <p style={{
-          margin: '0 0 8px 0',
-          fontSize: '14px',
-          color: '#6b7280',
-          fontWeight: '500'
-        }}>
+        <p
+          style={{
+            margin: '0 0 8px 0',
+            fontSize: '14px',
+            color: '#6b7280',
+            fontWeight: '500',
+          }}
+        >
           {concert.artist}
         </p>
 
         {/* 공연 날짜와 시간 */}
-        <p style={{
-          margin: '0 0 8px 0',
-          fontSize: '14px',
-          color: '#374151'
-        }}>
+        <p
+          style={{
+            margin: '0 0 8px 0',
+            fontSize: '14px',
+            color: '#374151',
+          }}
+        >
           📅 {formatDateTime()}
         </p>
 
         {/* 공연장 정보 */}
-        <p style={{
-          margin: '0 0 8px 0',
-          fontSize: '14px',
-          color: '#374151'
-        }}>
+        <p
+          style={{
+            margin: '0 0 8px 0',
+            fontSize: '14px',
+            color: '#374151',
+          }}
+        >
           📍 {concert.venueName}
         </p>
 
         {/* 총 좌석 수 (있는 경우에만 표시) */}
         {concert.totalSeats && (
-          <p style={{
-            margin: '0 0 8px 0',
-            fontSize: '12px',
-            color: '#6b7280'
-          }}>
+          <p
+            style={{
+              margin: '0 0 8px 0',
+              fontSize: '12px',
+              color: '#6b7280',
+            }}
+          >
             🎫 총 {concert.totalSeats.toLocaleString()}석
           </p>
         )}
@@ -334,19 +348,23 @@ const ConcertCard = ({
 
       {/* AI 요약 섹션 (showAiSummary가 true이고 요약이 있을 때만 표시) */}
       {showAiSummary && concert.aiSummary && (
-        <div style={{
-          marginBottom: '12px',
-          padding: '8px',
-          backgroundColor: '#f8fafc',
-          borderRadius: '4px',
-          borderLeft: '3px solid #3b82f6'
-        }}>
-          <p style={{
-            margin: '0',
-            fontSize: '12px',
-            color: '#475569',
-            lineHeight: '1.4'
-          }}>
+        <div
+          style={{
+            marginBottom: '12px',
+            padding: '8px',
+            backgroundColor: '#f8fafc',
+            borderRadius: '4px',
+            borderLeft: '3px solid #3b82f6',
+          }}
+        >
+          <p
+            style={{
+              margin: '0',
+              fontSize: '12px',
+              color: '#475569',
+              lineHeight: '1.4',
+            }}
+          >
             🤖 {truncateAiSummary(concert.aiSummary)}
           </p>
         </div>
@@ -377,7 +395,7 @@ const ConcertCard = ({
 ConcertCard.defaultProps = {
   showAiSummary: false,
   className: '',
-  onClick: null
+  onClick: null,
 };
 
 // 컴포넌트를 다른 파일에서 import할 수 있도록 export

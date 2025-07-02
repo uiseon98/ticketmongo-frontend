@@ -5,7 +5,7 @@ export default function SeatMap({
   seatStatuses = [],
   selectedSeat,
   onSeatClick,
-  isReserving
+  isReserving,
 }) {
   // 1) section → row → [seats] 구조로 그룹핑 (num은 숫자 타입)
   const sections = seatStatuses.reduce((acc, s) => {
@@ -21,7 +21,7 @@ export default function SeatMap({
     <div className="space-y-12">
       {Object.keys(sections)
         .sort() // 섹션 A, B, …
-        .map((sec) => {
+        .map(sec => {
           const rows = sections[sec];
 
           return (
@@ -32,17 +32,17 @@ export default function SeatMap({
 
               {/* 각 행(Row)별 렌더링 */}
               {Object.keys(rows)
-                .map((r) => parseInt(r, 10))
+                .map(r => parseInt(r, 10))
                 .sort((a, b) => a - b) // 숫자 순 정렬
-                .map((rowNum) => {
+                .map(rowNum => {
                   const seatsInRow = rows[rowNum];
 
                   // 2) 이 행의 최대 좌석 번호(열 수)
-                  const maxCol = Math.max(...seatsInRow.map((s) => s.num));
+                  const maxCol = Math.max(...seatsInRow.map(s => s.num));
 
                   // 3) 번호별로 매핑: 빈 칸은 null
                   const seatMap = {};
-                  seatsInRow.forEach((s) => {
+                  seatsInRow.forEach(s => {
                     seatMap[s.num] = s;
                   });
 
@@ -54,7 +54,7 @@ export default function SeatMap({
                       <div
                         className="grid gap-2 justify-center"
                         style={{
-                          gridTemplateColumns: `repeat(${maxCol}, minmax(0, 1fr))`
+                          gridTemplateColumns: `repeat(${maxCol}, minmax(0, 1fr))`,
                         }}
                       >
                         {Array.from({ length: maxCol }, (_, idx) => {

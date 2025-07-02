@@ -17,14 +17,17 @@ function Home() {
 
         console.log('🎵 콘서트 목록 조회 시작...');
 
-        const response = await concertService.getConcerts({ page: 0, size: 20 });
+        const response = await concertService.getConcerts({
+          page: 0,
+          size: 20,
+        });
 
         console.log('📦 API 응답 데이터:', response);
 
         // 응답 데이터 구조 확인 및 처리
         let concertData = [];
 
-         if (response?.data) {
+        if (response?.data) {
           // SuccessResponse 구조: { success: true, message: "...", data: {...} }
           if (response.data.content) {
             // 페이지네이션 구조: { content: [...], totalElements: ..., ... }
@@ -43,7 +46,6 @@ function Home() {
 
         console.log(`✅ 콘서트 ${concertData.length}개 로드 완료`);
         setConcerts(concertData);
-
       } catch (err) {
         console.error('❌ 콘서트 목록 조회 실패:', err);
 
@@ -58,7 +60,6 @@ function Home() {
 
         setError(errorMessage);
         setConcerts([]); // 에러 시 빈 배열로 설정
-
       } finally {
         setLoading(false);
       }
@@ -76,21 +77,25 @@ function Home() {
     return (
       <div className="container">
         <div className="card">
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '10px',
-            padding: '20px'
-          }}>
-            <div style={{
-              width: '20px',
-              height: '20px',
-              border: '2px solid #f3f3f3',
-              borderTop: '2px solid #3498db',
-              borderRadius: '50%',
-              animation: 'spin 1s linear infinite'
-            }}></div>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '10px',
+              padding: '20px',
+            }}
+          >
+            <div
+              style={{
+                width: '20px',
+                height: '20px',
+                border: '2px solid #f3f3f3',
+                borderTop: '2px solid #3498db',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite',
+              }}
+            ></div>
             <span>콘서트 목록을 불러오는 중...</span>
           </div>
         </div>
@@ -108,11 +113,14 @@ function Home() {
   if (error) {
     return (
       <div className="container">
-        <div className="card" style={{
-          color: 'red',
-          textAlign: 'center',
-          padding: '20px'
-        }}>
+        <div
+          className="card"
+          style={{
+            color: 'red',
+            textAlign: 'center',
+            padding: '20px',
+          }}
+        >
           <h3>😵 오류 발생</h3>
           <p>{error}</p>
           <button
@@ -124,7 +132,7 @@ function Home() {
               color: 'white',
               border: 'none',
               borderRadius: '4px',
-              cursor: 'pointer'
+              cursor: 'pointer',
             }}
           >
             🔄 다시 시도
@@ -138,7 +146,13 @@ function Home() {
     <div className="container">
       {user && (
         <div className="card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
             <span>👋 {user.username}님 환영합니다!</span>
             <button
               onClick={logout}
@@ -148,7 +162,7 @@ function Home() {
                 color: 'white',
                 border: 'none',
                 borderRadius: '4px',
-                cursor: 'pointer'
+                cursor: 'pointer',
               }}
             >
               로그아웃
@@ -169,32 +183,43 @@ function Home() {
         </div>
       ) : (
         <>
-          <div style={{
-            marginBottom: '20px',
-            padding: '10px',
-            backgroundColor: '#f0f0f0',
-            borderRadius: '4px',
-            textAlign: 'center'
-          }}>
+          <div
+            style={{
+              marginBottom: '20px',
+              padding: '10px',
+              backgroundColor: '#f0f0f0',
+              borderRadius: '4px',
+              textAlign: 'center',
+            }}
+          >
             총 <strong>{concerts.length}개</strong>의 공연이 있습니다
           </div>
 
           <ul className="concert-list">
             {concerts.map((concert, index) => (
               <li key={concert.concertId || index} className="concert-item">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                  }}
+                >
                   <div style={{ flex: 1 }}>
                     <h3 style={{ margin: '0 0 8px 0', color: '#2c3e50' }}>
                       {concert.title || '제목 없음'}
                     </h3>
                     <p style={{ margin: '4px 0' }}>
-                      🎤 <strong>아티스트:</strong> {concert.artist || '정보 없음'}
+                      🎤 <strong>아티스트:</strong>{' '}
+                      {concert.artist || '정보 없음'}
                     </p>
                     <p style={{ margin: '4px 0' }}>
-                      📍 <strong>장소:</strong> {concert.venueName || '정보 없음'}
+                      📍 <strong>장소:</strong>{' '}
+                      {concert.venueName || '정보 없음'}
                     </p>
                     <p style={{ margin: '4px 0' }}>
-                      📅 <strong>날짜:</strong> {concert.concertDate || '정보 없음'}
+                      📅 <strong>날짜:</strong>{' '}
+                      {concert.concertDate || '정보 없음'}
                     </p>
                     {concert.startTime && (
                       <p style={{ margin: '4px 0' }}>
@@ -204,14 +229,16 @@ function Home() {
                   </div>
 
                   {concert.status && (
-                    <div style={{
-                      padding: '4px 8px',
-                      borderRadius: '4px',
-                      fontSize: '12px',
-                      fontWeight: 'bold',
-                      backgroundColor: getStatusColor(concert.status).bg,
-                      color: getStatusColor(concert.status).text
-                    }}>
+                    <div
+                      style={{
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        backgroundColor: getStatusColor(concert.status).bg,
+                        color: getStatusColor(concert.status).text,
+                      }}
+                    >
                       {getStatusLabel(concert.status)}
                     </div>
                   )}
@@ -254,7 +281,7 @@ function getStatusLabel(status) {
     ON_SALE: '예매 중',
     SOLD_OUT: '매진',
     CANCELLED: '취소됨',
-    COMPLETED: '공연 완료'
+    COMPLETED: '공연 완료',
   };
   return labels[status] || status;
 }
