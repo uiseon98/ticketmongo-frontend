@@ -34,7 +34,7 @@ import { ExpectationDefaults } from '../types/expectation.js';
  * @param {number} concertId - 기대평을 관리할 콘서트 ID (필수)
  * @returns {Object} 기대평 관련 상태와 함수들이 담긴 객체
  */
-export const useExpectations = concertId => {
+export const useExpectations = (concertId) => {
   // ===== 상태(State) 정의 =====
   // React의 useState 훅을 사용해서 컴포넌트의 상태를 정의
 
@@ -115,7 +115,7 @@ export const useExpectations = concertId => {
 
           // 개발/디버깅용 로그: 몇 개의 기대평을 받았는지 확인
           console.info(
-            `기대평 목록 로드 완료: ${response.data.content?.length || 0}개 (콘서트 ID: ${concertId})`
+            `기대평 목록 로드 완료: ${response.data.content?.length || 0}개 (콘서트 ID: ${concertId})`,
           );
         } else {
           // API 응답은 성공했지만 데이터 형식이 예상과 다른 경우
@@ -128,7 +128,7 @@ export const useExpectations = concertId => {
 
         // 사용자에게 보여줄 친화적인 에러 메시지 설정
         setError(
-          err.message || '기대평 목록을 불러오는 중 오류가 발생했습니다.'
+          err.message || '기대평 목록을 불러오는 중 오류가 발생했습니다.',
         );
 
         // 에러 발생 시 빈 배열로 초기화
@@ -138,7 +138,7 @@ export const useExpectations = concertId => {
         setLoading(false);
       }
     },
-    [concertId, currentPage, pageSize]
+    [concertId, currentPage, pageSize],
   ); // 이 값들이 변경되면 함수 재생성
 
   /**
@@ -148,7 +148,7 @@ export const useExpectations = concertId => {
    * @returns {Promise<import('../types/expectation.js').ExpectationReview>} 생성된 기대평 정보
    */
   const createExpectation = useCallback(
-    async expectationData => {
+    async (expectationData) => {
       try {
         // concertId 유효성 검증
         if (!concertId || concertId < 1) {
@@ -164,7 +164,7 @@ export const useExpectations = concertId => {
         // 실제 API 호출: expectationService의 createExpectation 메서드 사용
         const response = await expectationService.createExpectation(
           concertId,
-          expectationData
+          expectationData,
         );
 
         // 기대평 작성 성공 시 목록 새로고침
@@ -173,7 +173,7 @@ export const useExpectations = concertId => {
 
         // 성공 로그
         console.info(
-          `기대평 작성 완료: 기대점수 ${expectationData.expectationRating}점 (콘서트 ID: ${concertId})`
+          `기대평 작성 완료: 기대점수 ${expectationData.expectationRating}점 (콘서트 ID: ${concertId})`,
         );
 
         // 생성된 기대평 정보 반환 (컴포넌트에서 추가 처리 가능)
@@ -189,7 +189,7 @@ export const useExpectations = concertId => {
         setActionLoading(false);
       }
     },
-    [concertId, fetchExpectations]
+    [concertId, fetchExpectations],
   ); // concertId와 fetchExpectations가 변경되면 함수 재생성
 
   /**
@@ -218,7 +218,7 @@ export const useExpectations = concertId => {
         const response = await expectationService.updateExpectation(
           concertId,
           expectationId,
-          expectationData
+          expectationData,
         );
 
         // 기대평 수정 성공 시 현재 페이지 새로고침
@@ -227,7 +227,7 @@ export const useExpectations = concertId => {
 
         // 성공 로그
         console.info(
-          `기대평 수정 완료: ID ${expectationId} (콘서트 ID: ${concertId})`
+          `기대평 수정 완료: ID ${expectationId} (콘서트 ID: ${concertId})`,
         );
 
         // 수정된 기대평 정보 반환
@@ -243,7 +243,7 @@ export const useExpectations = concertId => {
         setActionLoading(false);
       }
     },
-    [concertId, fetchExpectations]
+    [concertId, fetchExpectations],
   ); // concertId와 fetchExpectations가 변경되면 함수 재생성
 
   /**
@@ -253,7 +253,7 @@ export const useExpectations = concertId => {
    * @returns {Promise<void>}
    */
   const deleteExpectation = useCallback(
-    async expectationId => {
+    async (expectationId) => {
       try {
         // ID 파라미터 유효성 검증
         if (!concertId || concertId < 1) {
@@ -283,7 +283,7 @@ export const useExpectations = concertId => {
 
         // 성공 로그
         console.info(
-          `기대평 삭제 완료: ID ${expectationId} (콘서트 ID: ${concertId})`
+          `기대평 삭제 완료: ID ${expectationId} (콘서트 ID: ${concertId})`,
         );
       } catch (err) {
         console.error(`기대평 삭제 실패 (기대평 ID: ${expectationId}):`, err);
@@ -296,7 +296,7 @@ export const useExpectations = concertId => {
         setActionLoading(false);
       }
     },
-    [concertId, fetchExpectations, expectations.length, currentPage]
+    [concertId, fetchExpectations, expectations.length, currentPage],
   ); // 의존하는 상태들
 
   /**
@@ -305,11 +305,11 @@ export const useExpectations = concertId => {
    * @param {number} newPage - 이동할 페이지 번호
    */
   const goToPage = useCallback(
-    async newPage => {
+    async (newPage) => {
       // 페이지 번호 유효성 검증
       if (newPage < 0 || newPage >= totalPages) {
         console.warn(
-          `유효하지 않은 페이지 번호: ${newPage} (범위: 0-${totalPages - 1})`
+          `유효하지 않은 페이지 번호: ${newPage} (범위: 0-${totalPages - 1})`,
         );
         return;
       }
@@ -323,7 +323,7 @@ export const useExpectations = concertId => {
       // 새로운 페이지의 기대평 목록 가져오기
       await fetchExpectations({ page: newPage });
     },
-    [fetchExpectations, totalPages, currentPage]
+    [fetchExpectations, totalPages, currentPage],
   ); // 이 값들이 변경되면 함수 재생성
 
   /**
@@ -332,7 +332,7 @@ export const useExpectations = concertId => {
    * @param {number} newSize - 새로운 페이지 크기 (1-100)
    */
   const changePageSize = useCallback(
-    async newSize => {
+    async (newSize) => {
       // 페이지 크기 유효성 검증
       if (newSize < 1 || newSize > 100) {
         console.warn(`유효하지 않은 페이지 크기: ${newSize} (범위: 1-100)`);
@@ -351,7 +351,7 @@ export const useExpectations = concertId => {
         size: newSize, // 새로운 페이지 크기
       });
     },
-    [fetchExpectations, pageSize]
+    [fetchExpectations, pageSize],
   ); // 이 값들이 변경되면 함수 재생성
 
   /**
@@ -362,7 +362,7 @@ export const useExpectations = concertId => {
    * @returns {Array} 필터링된 기대평 목록
    */
   const filterByRating = useCallback(
-    rating => {
+    (rating) => {
       // rating이 null이면 전체 기대평 반환
       if (rating === null || rating === undefined) {
         return expectations;
@@ -370,10 +370,10 @@ export const useExpectations = concertId => {
 
       // 특정 기대점수로 필터링
       return expectations.filter(
-        expectation => expectation.expectationRating === rating
+        (expectation) => expectation.expectationRating === rating,
       );
     },
-    [expectations]
+    [expectations],
   ); // expectations가 변경되면 함수 재생성
 
   // ===== 부수 효과(Side Effect) =====

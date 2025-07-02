@@ -36,7 +36,7 @@ export default function Header() {
       <div className="container mx-auto flex items-center justify-between">
         {/* 왼쪽 영역: 로고 및 메인 네비게이션 (Profile 포함) */}
         <nav className="flex items-center space-x-6">
-          {mainNavigationLinks.map(link => (
+          {mainNavigationLinks.map((link) => (
             <NavLink
               key={link.to}
               to={link.to}

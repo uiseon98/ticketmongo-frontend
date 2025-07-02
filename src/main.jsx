@@ -17,5 +17,5 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <App /> {/* App 컴포넌트 안에서 라우트를 정의합니다. */}
       </AuthProvider>
     </BrowserRouter>
-  </React.StrictMode>
+  </React.StrictMode>,
 );
