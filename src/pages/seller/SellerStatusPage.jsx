@@ -354,7 +354,7 @@ const SellerStatusPage = () => {
                             없습니다. 아래 문구를 정확히 입력하여 동의해주세요.
                         </p>
                         <p className="text-yellow-300 font-semibold mb-3 break-words">
-                            "{confirmationPhrasePlaceholder}"
+                            {confirmationPhrasePlaceholder}
                         </p>
                         <input
                             type="text"
