@@ -69,4 +69,15 @@ export const userService = {
       );
     }
   },
+
+  cancelBooking: async (bookingId) => {
+    try {
+      const response = await apiClient.delete(
+        `/mypage/bookingDetail/cancel/${bookingId}`,
+      );
+      return response.data;
+    } catch (error) {
+      throw new Error(error.message || '예매 취소 중 오류가 발생했습니다.');
+    }
+  },
 };

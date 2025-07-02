@@ -43,7 +43,7 @@ export function PosterSection({
             <p className="font-bold text-white whitespace-nowrap">
               {formatDate(concertDate)}
             </p>
-            <p className="text-sm text-gray-400">
+            <p className="text-gray-300">
               {formatTime(startTime)} - {formatTime(endTime)}
             </p>
           </div>
