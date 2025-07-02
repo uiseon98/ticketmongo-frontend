@@ -141,7 +141,7 @@ export const concertService = {
       // 어떤 판매자의 요청에서 실패했는지 로그에 표시
       console.error(
         `판매자 콘서트 목록 조회 실패 (판매자 ID: ${sellerId}):`,
-        error,
+        error
       );
       throw error;
     }
@@ -203,7 +203,7 @@ export const concertService = {
         updateData,
         {
           params: { sellerId }, // 권한 확인용 판매자 ID
-        },
+        }
       );
       return response;
     } catch (error) {
@@ -246,7 +246,7 @@ export const concertService = {
       const response = await apiClient.patch(
         `/seller/concerts/${concertId}/poster`,
         { posterImageUrl }, // request body: 이미지 URL 객체
-        { params: { sellerId } }, // config: 판매자 ID 파라미터
+        { params: { sellerId } } // config: 판매자 ID 파라미터
       );
       return response;
     } catch (error) {
@@ -271,7 +271,7 @@ export const concertService = {
     } catch (error) {
       console.error(
         `판매자 콘서트 개수 조회 실패 (판매자 ID: ${sellerId}):`,
-        error,
+        error
       );
       throw error;
     }

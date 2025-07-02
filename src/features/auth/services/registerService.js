@@ -1,6 +1,6 @@
 import apiClient from '../../../shared/utils/apiClient'; // 공통 apiClient 임포트
 
-export const registerUser = async (data) => {
+export const registerUser = async data => {
   try {
     const response = await apiClient.post('/auth/register', data);
     return { success: true, data: response.data };

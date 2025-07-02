@@ -55,6 +55,9 @@ const ExpectationList = ({
   onPageChange, // 페이지 변경 핸들러 (useExpectations.goToPage)
   onPageSizeChange, // 페이지 크기 변경 핸들러 (useExpectations.changePageSize)
   onRefresh, // 새로고침 핸들러 (useExpectations.refresh)
+  currentUserId, // 현재 사용자 ID
+  onEditClick, // 수정 버튼 클릭 핸들러
+  onDeleteClick, // 삭제 버튼 클릭 핸들러
 
   // ===== UI 제어 props =====
   showPagination = true, // 페이지네이션 표시 여부
@@ -73,37 +76,37 @@ const ExpectationList = ({
    * 페이지 변경 핸들러
    */
   const handlePageChange = useCallback(
-    (newPage) => {
+    newPage => {
       if (onPageChange && typeof onPageChange === 'function') {
         onPageChange(newPage);
       }
     },
-    [onPageChange],
+    [onPageChange]
   );
 
   /**
    * 페이지 크기 변경 핸들러
    */
   const handlePageSizeChange = useCallback(
-    (event) => {
+    event => {
       const newSize = parseInt(event.target.value, 10);
       if (onPageSizeChange && typeof onPageSizeChange === 'function') {
         onPageSizeChange(newSize);
       }
     },
-    [onPageSizeChange],
+    [onPageSizeChange]
   );
 
   /**
    * 기대평 클릭 핸들러
    */
   const handleExpectationClick = useCallback(
-    (expectation) => {
+    expectation => {
       if (onExpectationClick && typeof onExpectationClick === 'function') {
         onExpectationClick(expectation);
       }
     },
-    [onExpectationClick],
+    [onExpectationClick]
   );
 
   /**
@@ -120,7 +123,7 @@ const ExpectationList = ({
   /**
    * 날짜 포맷팅 함수
    */
-  const formatDate = useCallback((dateString) => {
+  const formatDate = useCallback(dateString => {
     try {
       const date = new Date(dateString);
       return date.toLocaleDateString('ko-KR', {
@@ -137,7 +140,7 @@ const ExpectationList = ({
    * 기대점수 별 표시 함수
    */
   const renderExpectationStars = useCallback(
-    (rating) => {
+    rating => {
       const stars = [];
       for (let i = 1; i <= 5; i++) {
         stars.push(
@@ -149,12 +152,12 @@ const ExpectationList = ({
             }}
           >
             ★
-          </span>,
+          </span>
         );
       }
       return stars;
     },
-    [compact],
+    [compact]
   );
 
   /**
@@ -521,7 +524,7 @@ const ExpectationList = ({
 
       {/* 기대평 목록 */}
       <div>
-        {expectations.map((expectation) => (
+        {expectations.map(expectation => (
           <div
             key={expectation.id}
             style={{
@@ -622,6 +625,52 @@ const ExpectationList = ({
                 ? expectation.comment.substring(0, 150) + '...'
                 : expectation.comment}
             </p>
+            {/* 수정/삭제 버튼 (작성자만) */}
+            {currentUserId === expectation.userId && (
+              <div
+                style={{
+                  marginTop: '8px',
+                  display: 'flex',
+                  gap: '8px',
+                  justifyContent: 'flex-end',
+                }}
+              >
+                <button
+                  onClick={e => {
+                    e.stopPropagation();
+                    onEditClick?.(expectation);
+                  }}
+                  style={{
+                    padding: '4px 8px',
+                    backgroundColor: '#3b82f6',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '4px',
+                    fontSize: '12px',
+                    cursor: 'pointer',
+                  }}
+                >
+                  ✏️ 수정
+                </button>
+                <button
+                  onClick={e => {
+                    e.stopPropagation();
+                    onDeleteClick?.(expectation);
+                  }}
+                  style={{
+                    padding: '4px 8px',
+                    backgroundColor: '#ef4444',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '4px',
+                    fontSize: '12px',
+                    cursor: 'pointer',
+                  }}
+                >
+                  🗑️ 삭제
+                </button>
+              </div>
+            )}
           </div>
         ))}
       </div>

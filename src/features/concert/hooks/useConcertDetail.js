@@ -90,7 +90,7 @@ export const useConcertDetail = (concertId = null) => {
 
           // 개발/디버깅용 로그: 어떤 콘서트 정보를 받았는지 확인
           console.info(
-            `콘서트 상세 정보 로드 완료: ${response.data.title} (ID: ${id})`,
+            `콘서트 상세 정보 로드 완료: ${response.data.title} (ID: ${id})`
           );
         } else {
           // API 응답은 성공했지만 데이터 형식이 예상과 다른 경우
@@ -103,7 +103,7 @@ export const useConcertDetail = (concertId = null) => {
 
         // 사용자에게 보여줄 친화적인 에러 메시지 설정
         setError(
-          err.message || '콘서트 정보를 불러오는 중 오류가 발생했습니다.',
+          err.message || '콘서트 정보를 불러오는 중 오류가 발생했습니다.'
         );
 
         // 에러 발생 시 콘서트 정보 초기화
@@ -114,7 +114,7 @@ export const useConcertDetail = (concertId = null) => {
         setLoading(false);
       }
     },
-    [currentConcertId],
+    [currentConcertId]
   ); // currentConcertId가 변경되면 함수 재생성
 
   /**
@@ -162,14 +162,14 @@ export const useConcertDetail = (concertId = null) => {
 
         // 개발자를 위한 상세 에러 로그
         console.warn(
-          'AI 요약 조회 실패, 하지만 콘서트 정보는 정상 표시됩니다.',
+          'AI 요약 조회 실패, 하지만 콘서트 정보는 정상 표시됩니다.'
         );
       } finally {
         // AI 요약 로딩 상태 해제
         setAiSummaryLoading(false);
       }
     },
-    [currentConcertId],
+    [currentConcertId]
   ); // currentConcertId가 변경되면 함수 재생성
 
   /**
@@ -202,7 +202,7 @@ export const useConcertDetail = (concertId = null) => {
         // 여기서는 추가적인 에러 처리 없이 로그만 남김
       }
     },
-    [fetchConcertDetail, fetchAISummary, currentConcertId],
+    [fetchConcertDetail, fetchAISummary, currentConcertId]
   ); // 의존하는 함수들이 변경되면 재생성
 
   /**
@@ -212,7 +212,7 @@ export const useConcertDetail = (concertId = null) => {
    * @param {number} newConcertId - 새로운 콘서트 ID
    */
   const setConcertId = useCallback(
-    (newConcertId) => {
+    newConcertId => {
       // 새로운 콘서트 ID가 유효한지 확인
       if (!newConcertId || newConcertId < 1) {
         console.warn('유효하지 않은 콘서트 ID입니다:', newConcertId);
@@ -236,7 +236,7 @@ export const useConcertDetail = (concertId = null) => {
       // 새로운 콘서트 정보 자동 로드
       // useEffect에서 currentConcertId 변경을 감지해서 자동으로 호출됨
     },
-    [currentConcertId],
+    [currentConcertId]
   ); // currentConcertId가 변경되면 함수 재생성
 
   // ===== 부수 효과(Side Effect) =====

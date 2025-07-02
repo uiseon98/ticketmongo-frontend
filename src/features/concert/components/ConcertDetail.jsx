@@ -139,7 +139,7 @@ const ConcertDetail = ({
   /**
    * 포스터 이미지 에러 처리
    */
-  const handleImageError = (event) => {
+  const handleImageError = event => {
     // 기본 이미지로 대체
     event.target.src = '/images/basic-poster-image.png';
 
@@ -306,7 +306,7 @@ const ConcertDetail = ({
   /**
    * 상태 배지 스타일
    */
-  const getStatusBadgeStyles = (status) => {
+  const getStatusBadgeStyles = status => {
     const baseStyles = {
       display: 'inline-block',
       padding: '6px 12px',

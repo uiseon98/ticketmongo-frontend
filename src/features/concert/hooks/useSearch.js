@@ -65,7 +65,7 @@ export const useSearch = () => {
           const results = response.data;
           setSearchResults(results);
           console.info(
-            `검색 완료: "${trimmedKeyword}" → ${results.length}개 결과`,
+            `검색 완료: "${trimmedKeyword}" → ${results.length}개 결과`
           );
         } else {
           setSearchResults([]);
@@ -86,7 +86,7 @@ export const useSearch = () => {
         setIsSearching(false);
       }
     },
-    [searchTerm],
+    [searchTerm]
   );
 
   /**
