@@ -103,27 +103,30 @@ export default function BookingDetail() {
     }
   };
 
+  // 예매 취소
   const handleCancelBooking = async () => {
-    showNotification('예매 취소 기능 구현 예정', NOTIFICATION_TYPE.ERROR);
-    setShowCancelConfirm(false);
-    return;
+    if (bookingDetail.bookingStatus === BOOKING_STATUS.CANCELED) {
+      showNotification('이미 취소된 예매입니다.', NOTIFICATION_TYPE.ERROR);
+      return;
+    }
 
-    // TODO. 구현 예정
-    // if (bookingDetail.bookingStatus === BOOKING_STATUS.CANCELED) {
-    //     showNotification('이미 취소된 예매입니다.', NOTIFICATION_TYPE.ERROR);
-    //     return;
-    // }
+    setIsLoading(true);
+    try {
+      const result = await userService.cancelBooking(bookingDetail.bookingId);
 
-    // setIsLoading(true);
-    // try {
-    //     await new Promise((resolve) => setTimeout(resolve, 1500));
-    //     showNotification('예매가 취소되었습니다.', NOTIFICATION_TYPE.SUCCESS);
-    //     setShowCancelConfirm(false);
-    // } catch (error) {
-    //     showNotification('예매 취소에 실패했습니다.', NOTIFICATION_TYPE.ERROR);
-    // } finally {
-    //     setIsLoading(false);
-    // }
+      const updated = await userService.getBookingDetail(bookingNumber);
+      setBookingDetail(updated);
+
+      showNotification('예매가 취소되었습니다.', NOTIFICATION_TYPE.SUCCESS);
+    } catch (error) {
+      showNotification(
+        `${error}` || '예매 취소 중 오류가 발생했습니다.',
+        NOTIFICATION_TYPE.ERROR,
+      );
+    } finally {
+      setIsLoading(false);
+      setShowCancelConfirm(false);
+    }
   };
 
   const handleDownloadTicket = () => {
