@@ -51,7 +51,13 @@ const SellerSidebar = () => {
                         alt="홈 아이콘"
                         className="w-6 h-6"
                     />
-                    홈 (판매자)
+                    {user
+                        ? user.role === 'ROLE_ADMIN'
+                            ? '홈 (관리자)'
+                            : user.role === 'ROLE_SELLER'
+                              ? '홈 (판매자)'
+                              : '홈 (일반 유저)'
+                        : '홈 (일반 유저)'}
                 </NavLink>
 
                 {/* 1. 일반 유저에게만 보이는 '판매자 권한 신청' 탭 */}
@@ -70,7 +76,7 @@ const SellerSidebar = () => {
                             alt="판매자 권한 신청"
                             className="w-6 h-6"
                         />
-                        판매자 권한 신청
+                        {isSeller ? '판매자 상태 관리' : '판매자 권한 신청'}
                     </NavLink>
                 )}
 
