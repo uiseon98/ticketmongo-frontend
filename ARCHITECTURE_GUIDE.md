@@ -153,7 +153,7 @@ _(2025-07-01 업데이트)_
         - **(예시)판매자 페이지 관련**: `src/pages/seller/` 아래에 `SellerHomePage.jsx` (판매자 대시보드 홈), `SellerApplyPage.jsx` (판매자 권한 신청), `SellerStatusPage.jsx` (판매자 권한 상태), `ConcertRegisterPage.jsx` (콘서트 등록), `SellerConcertManagementPage.jsx` (콘서트 관리) 등이 포함됩니다.
     - **유의사항**: 페이지 컴포넌트 자체는 가급적 UI 로직(데이터 페칭, 상태 관리)을 직접 구현하기보다, `features` 폴더의 하위 컴포넌트나 훅을 조합하여 페이지를 구성하는 역할을 합니다.
 
-        <br>
+          <br>
 
 - **`src/features/[도메인명]/`**: (예: `auth`, `concert`, `user`, `admin`, `booking`, `seller`)
     - **역할**: 특정 도메인(기능)과 관련된 모든 코드(컴포넌트, 훅, 서비스, 타입 정의)를 응집시켜 관리합니다. 이 폴더는 해당 기능의 '작은 애플리케이션'이라고 생각할 수 있습니다.
@@ -164,7 +164,7 @@ _(2025-07-01 업데이트)_
         - `types/`: 해당 도메인에 특화된 데이터 타입 정의.
     - **유의사항**: 새로운 기능을 개발할 때는 해당 기능이 속하는 도메인(`features/[도메인명]`) 아래에 파일을 생성하는 것을 최우선으로 고려해주세요.
 
-        <br>
+          <br>
 
 - **`src/shared/`**:
     - **역할**: 프로젝트의 여러 도메인(`features`)에서 **공통적으로 재사용**되는 유틸리티, UI 컴포넌트, 훅, 전역 스토어 등을 모아둡니다.
@@ -177,20 +177,20 @@ _(2025-07-01 업데이트)_
         - `utils/`: 범용 유틸리티 함수 (예: `apiClient.js`, `validation.js`, `helpers.js`).
     - **유의사항**: `shared` 폴더의 코드는 어떤 `features` 폴더에도 의존해서는 안 됩니다. 즉, `shared`는 `features`에 있는 파일을 임포트할 수 없습니다.
 
-        <br>
+          <br>
 
 - **`src/context/`**:
     - **역할**: React Context API를 사용하여 전역 상태를 관리하는 Provider 컴포넌트들을 모아둡니다.
     - **파일 생성**: `[Context명]Context.jsx` 형태로 생성합니다.
         - 예: `src/context/AuthContext.jsx`
 
-        <br>
+          <br>
 
 - **`src/assets/`**:
     - **역할**: 이미지, 아이콘, 폰트 등 정적 자원들을 모아둡니다.
     - **유의사항**: CSS 파일에서 `url()`로 직접 참조하거나, JS/JSX 파일에서 `import`하여 사용합니다. `public` 폴더에 직접적으로 배포되는 `vector-xx.svg` 같은 아이콘들도 이와 관련된 정적 자원으로 관리됩니다.
 
-        <br>
+          <br>
 
 - **`src/styles/`**:
     - **역할**: 전역 및 공통 스타일 파일들을 모아둡니다.
