@@ -1,34 +1,89 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react'; // useState 추가
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
+import apiClient from '../../shared/utils/apiClient';
+import LoadingSpinner from '../../shared/components/ui/LoadingSpinner';
+import ErrorMessage from '../../shared/components/ui/ErrorMessage';
 
 const SellerApplyPage = () => {
-    const { user } = useContext(AuthContext); // user 정보 가져오기
+    const { user } = useContext(AuthContext);
     const navigate = useNavigate();
 
-    useEffect(() => {
-        // 로그인되지 않은 경우 (App.jsx에서 이미 처리되지만, 컴포넌트 자체 로직 강화)
-        if (!user) {
-            navigate('/unauthorized', { replace: true });
-            return;
-        }
+    const [sellerStatus, setSellerStatus] = useState(null); // 판매자 상태 데이터를 위한 새로운 state
+    const [loading, setLoading] = useState(true); // 로딩 상태
+    const [error, setError] = useState(null); // 에러 상태
 
-        // 판매자 권한 신청이 불가능한 상태 (이미 신청 대기 중이거나 승인된 경우)에는 리다이렉트
-        // (null, REJECTED, WITHDRAWN, REVOKED 상태일 때만 신청/재신청 가능)
-        const currentApprovalStatus = user.approvalStatus;
-        if (
-            currentApprovalStatus === 'PENDING' ||
-            currentApprovalStatus === 'APPROVED'
-        ) {
-            alert('현재 상태에서는 판매자 권한 신청/재신청을 할 수 없습니다.');
-            navigate('/seller/status', { replace: true }); // 판매자 권한 상태 페이지로 리다이렉트
-        }
+    useEffect(() => {
+        const fetchSellerStatusAndControlAccess = async () => {
+            if (!user) {
+                navigate('/unauthorized', { replace: true });
+                return;
+            }
+
+            setLoading(true);
+            setError(null);
+            try {
+                const response = await apiClient.get('/users/me/seller-status'); // 최신 판매자 상태 조회
+                const currentStatus = response.data.approvalStatus; // API 응답에서 approvalStatus 가져오기
+                setSellerStatus(response.data); // 필요하면 전체 데이터 저장
+
+                // 판매자 권한 신청이 불가능한 상태 (이미 신청 대기 중이거나 승인된 경우)에는 리다이렉트
+                // (null, REJECTED, WITHDRAWN, REVOKED 상태일 때만 신청/재신청 가능)
+                if (
+                    currentStatus === 'PENDING' ||
+                    currentStatus === 'APPROVED'
+                ) {
+                    //
+                    alert(
+                        '현재 상태에서는 판매자 권한 신청/재신청을 할 수 없습니다.',
+                    );
+                    navigate('/seller/status', { replace: true });
+                }
+            } catch (err) {
+                console.error('판매자 상태 조회 실패 (SellerApplyPage):', err);
+                setError(
+                    err.response?.data?.message ||
+                        '판매자 상태를 불러오는데 실패했습니다. (권한 확인 불가)',
+                );
+                // 에러 발생 시에도 접근을 막는 것이 안전
+                navigate('/seller/status', { replace: true }); // 상태를 알 수 없으므로 상태 페이지로 리다이렉트
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchSellerStatusAndControlAccess();
     }, [user, navigate]);
 
     // 뒤로가기 핸들러
     const handleGoBack = () => {
-        navigate('/seller/status'); // 판매자 권한 상태 페이지로 이동
+        navigate('/seller/status');
     };
+
+    if (loading) {
+        return <LoadingSpinner />;
+    }
+
+    if (error) {
+        return <ErrorMessage message={error} />;
+    }
+
+    // sellerStatus가 로드되었지만, 위 useEffect에서 리다이렉트되지 않았다면
+    // 이제 양식 자체는 표시 가능
+    // (실제로 양식은 아래 TODO 부분에 구현될 예정)
+    if (
+        !sellerStatus ||
+        (sellerStatus.approvalStatus !== null &&
+            sellerStatus.approvalStatus !== 'REJECTED' &&
+            sellerStatus.approvalStatus !== 'WITHDRAWN' &&
+            sellerStatus.approvalStatus !== 'REVOKED')
+    ) {
+        // 이미 위 useEffect에서 처리되었겠지만, 만약을 위한 추가 방어 로직.
+        // 이 부분은 실제 양식이 복잡해지면 필요할 수 있으나 현재는 위에 useEffect로 충분.
+        return (
+            <ErrorMessage message="판매자 권한 신청/재신청이 불가능한 상태입니다." />
+        );
+    }
 
     return (
         <div className="p-6 bg-[#111922] text-white min-h-[calc(100vh-64px)]">
@@ -51,7 +106,6 @@ const SellerApplyPage = () => {
                     회사명, 사업자 등록 번호, 담당자 정보, 사업자 등록증 파일
                     업로드 등)
                 </p>
-                {/* 따옴표 에러 해결을 위해 텍스트를 JavaScript 표현식으로 감싸고 HTML 엔티티 사용 권장 */}
                 <p className="text-gray-400 mt-2">
                     {`현재 로그인 유저의 \`approvalStatus\`가 'PENDING' 또는 'APPROVED'인 경우 이 페이지에 접근할 수 없습니다.`}
                 </p>
