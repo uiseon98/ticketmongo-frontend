@@ -11,7 +11,10 @@ const SellerSidebar = () => {
     const location = useLocation(); // 현재 라우트 정보 가져오기
 
     // 판매자 권한 확인
-    const isAdmin = user && (user.role === 'ROLE_ADMIN' || (user.roles && user.roles.includes('ROLE_ADMIN')));
+    const isAdmin =
+        user &&
+        (user.role === 'ROLE_ADMIN' ||
+            (user.roles && user.roles.includes('ROLE_ADMIN')));
     const isSeller =
         user &&
         (user.role === 'ROLE_SELLER' ||
@@ -21,10 +24,9 @@ const SellerSidebar = () => {
     // const isNormalUser = user && !isSeller && !isAdmin;
 
     // '판매자 권한 상태' 탭의 동적 텍스트 결정
-    const sellerStatusTabText =
-        location.pathname.startsWith('/seller/apply')
-            ? '판매자 권한 신청' // /seller/apply 페이지에 있을 때
-            : '판매자 권한 상태'; // 그 외 (주로 /seller/status 페이지에 있을 때)
+    const sellerStatusTabText = location.pathname.startsWith('/seller/apply')
+        ? '판매자 권한 신청' // /seller/apply 페이지에 있을 때
+        : '판매자 권한 상태'; // 그 외 (주로 /seller/status 페이지에 있을 때)
 
     // 콘서트 관리 메뉴 토글 함수
     const toggleConcertMenu = () => {
@@ -67,7 +69,10 @@ const SellerSidebar = () => {
                         className={({ isActive }) =>
                             `flex items-center gap-3 px-3 py-2 rounded-lg text-white text-sm font-medium transition-colors ${
                                 // 현재 경로가 /seller/status이거나 /seller/apply일 때 활성화 (두 페이지 모두 이 탭과 관련됨)
-                                isActive || location.pathname.startsWith('/seller/apply') ? 'bg-[#243447]' : 'hover:bg-[#243447]'
+                                isActive ||
+                                location.pathname.startsWith('/seller/apply')
+                                    ? 'bg-[#243447]'
+                                    : 'hover:bg-[#243447]'
                             }`
                         }
                     >
