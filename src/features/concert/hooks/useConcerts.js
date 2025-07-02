@@ -115,7 +115,7 @@ export const useConcerts = () => {
    * @param {string} keyword - 검색할 키워드
    */
   const searchConcerts = useCallback(
-    async (keyword) => {
+    async keyword => {
       try {
         // 검색 시작: 로딩 상태 활성화
         setLoading(true);
@@ -153,7 +153,7 @@ export const useConcerts = () => {
         setLoading(false);
       }
     },
-    [fetchConcerts, pageSize],
+    [fetchConcerts, pageSize]
   ); // fetchConcerts와 pageSize에 의존
 
   /**
@@ -162,7 +162,7 @@ export const useConcerts = () => {
    *
    * @param {Object} filterParams - 필터 조건 객체
    */
-  const filterConcerts = useCallback(async (filterParams) => {
+  const filterConcerts = useCallback(async filterParams => {
     try {
       setLoading(true);
       setError(null);
@@ -197,13 +197,13 @@ export const useConcerts = () => {
    * @param {number} newPage - 이동할 페이지 번호
    */
   const goToPage = useCallback(
-    async (newPage) => {
+    async newPage => {
       // 페이지 번호가 유효한지 확인
       if (newPage >= 0 && newPage < totalPages) {
         await fetchConcerts(newPage, pageSize);
       }
     },
-    [fetchConcerts, totalPages, pageSize],
+    [fetchConcerts, totalPages, pageSize]
   ); // 이 변수들이 변경되면 함수 재생성
 
   /**
@@ -213,7 +213,7 @@ export const useConcerts = () => {
    * @param {number} newSize - 새로운 페이지 크기
    */
   const changePageSize = useCallback(
-    async (newSize) => {
+    async newSize => {
       // 유효한 페이지 크기인지 확인 (1~100)
       if (newSize >= 1 && newSize <= 100) {
         setPageSize(newSize);
@@ -221,7 +221,7 @@ export const useConcerts = () => {
         await fetchConcerts(0, newSize);
       }
     },
-    [fetchConcerts],
+    [fetchConcerts]
   );
 
   // ===== 부수 효과(Side Effect) =====

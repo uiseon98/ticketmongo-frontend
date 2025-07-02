@@ -180,7 +180,7 @@ const ConcertList = ({
    *
    * @param {number} newPage - 이동할 페이지 번호
    */
-  const handlePageChange = (newPage) => {
+  const handlePageChange = newPage => {
     // 유효한 페이지 범위인지 확인
     if (newPage < 0 || newPage >= totalPages) {
       return;
@@ -408,7 +408,7 @@ const ConcertList = ({
     <div className={`concert-list ${className}`} style={containerStyles}>
       {/* 콘서트 카드들의 격자 레이아웃 */}
       <div style={gridStyles}>
-        {concerts.map((concert) => (
+        {concerts.map(concert => (
           <ConcertCard
             key={concert.concertId}
             concert={concert}

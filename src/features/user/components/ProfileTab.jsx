@@ -59,7 +59,7 @@ export function ProfileTab({ userInfo, onUpdateUserInfo, isLoading }) {
     setErrors({});
   };
 
-  const handleInputChange = (field) => (e) => {
+  const handleInputChange = field => e => {
     let value = e.target.value;
 
     if (field === 'phone') {
@@ -74,7 +74,7 @@ export function ProfileTab({ userInfo, onUpdateUserInfo, isLoading }) {
     setEditInfo(updatedData);
 
     const error = AccountForm.validateField(field, value, updatedData);
-    setErrors((prev) => ({
+    setErrors(prev => ({
       ...prev,
       [field]: error,
     }));

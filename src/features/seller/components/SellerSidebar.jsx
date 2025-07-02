@@ -24,7 +24,7 @@ const SellerSidebar = () => {
 
   // 콘서트 관리 메뉴 토글 함수
   const toggleConcertMenu = () => {
-    setIsConcertMenuOpen((prev) => !prev);
+    setIsConcertMenuOpen(prev => !prev);
   };
 
   return (

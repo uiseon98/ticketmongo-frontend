@@ -57,14 +57,14 @@ const SearchBar = ({
    * 🔥 입력 값 변경 핸들러 (한국어 처리 개선)
    */
   const handleInputChange = useCallback(
-    (event) => {
+    event => {
       const newValue = event.target.value;
       console.log('입력값 변경:', newValue);
       if (setCurrentSearchTerm) {
         setCurrentSearchTerm(newValue);
       }
     },
-    [setCurrentSearchTerm],
+    [setCurrentSearchTerm]
   );
 
   /**
@@ -112,7 +112,7 @@ const SearchBar = ({
    * 🔥 키보드 이벤트 핸들러 (한국어 입력 고려)
    */
   const handleKeyDown = useCallback(
-    (event) => {
+    event => {
       // 한국어 입력 중이면 엔터키 무시
       if (event.key === 'Enter') {
         event.preventDefault();
@@ -124,7 +124,7 @@ const SearchBar = ({
         handleClear();
       }
     },
-    [handleSearch, handleClear],
+    [handleSearch, handleClear]
   );
 
   /**
