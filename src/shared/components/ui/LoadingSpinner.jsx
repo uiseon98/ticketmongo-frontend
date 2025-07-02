@@ -10,8 +10,15 @@ const LoadingSpinner = ({
     return (
         <div className="flex flex-col items-center justify-center min-h-[300px] bg-[#111922] text-white p-4">
             <div
-                className={`animate-spin rounded-full border-t-2 border-b-2 ${color} ${spinnerSizeClass}`}
-                style={{ borderColor: color.replace('text-', '') }} // Tailwind 색상 클래스에서 실제 색상 추출 시도 (완벽하진 않음)
+                className={`animate-spin rounded-full border-t-2 border-b-2 ${spinnerSizeClass}`}
+                style={{
+                    borderTopColor: color.startsWith('#') ? color : '#3B82F6',
+                    borderBottomColor: color.startsWith('#')
+                        ? color
+                        : '#3B82F6',
+                    borderLeftColor: 'transparent',
+                    borderRightColor: 'transparent',
+                }}
             ></div>
             <p className="mt-4 text-lg text-gray-400">{message}</p>
         </div>
