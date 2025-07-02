@@ -20,15 +20,9 @@ const SellerStatusPage = () => {
         useState(false); // 철회 불가 모달 표시 여부
     const [confirmationInput, setConfirmationInput] = useState(''); // 확인 문구 입력 값
 
-    // 사용자 권한 확인 (AuthContext의 user.role 사용)
-    const isSellerApproved =
-        user &&
-        user.role === 'ROLE_SELLER' &&
-        user.approvalStatus === 'APPROVED'; // user.role이 ROLE_SELLER이고 approvalStatus가 APPROVED인 경우
-
     // 판매자 상태 API 호출
     useEffect(() => {
-        console.log('SellerStatusPage: User in context:', user);
+        // console.log('SellerStatusPage: User in context:', user);
 
         const fetchSellerStatus = async () => {
             if (!user) {
@@ -64,7 +58,7 @@ const SellerStatusPage = () => {
         navigate('/seller/apply');
     };
 
-    // 권한 철회 버튼 클릭 로직
+    // 권한 철회 버튼 클릭 핸들러
     const handleWithdrawClick = () => {
         if (!sellerStatus) return;
 
@@ -93,7 +87,7 @@ const SellerStatusPage = () => {
             );
             setShowWithdrawalModal(false);
             setConfirmationInput('');
-            // 상태를 다시 불러와 UI 업데이트
+            // 철회 성공 후 상태를 다시 불러와 UI 업데이트
             // fetchSellerStatus(); // 실제 API 호출 후 이 함수를 다시 호출하여 상태 업데이트
         } catch (err) {
             console.error('판매자 권한 철회 실패:', err);
@@ -116,7 +110,7 @@ const SellerStatusPage = () => {
     };
 
     if (loading) {
-        return <LoadingSpinner />; // 로딩 중 스피너 표시
+        return <LoadingSpinner message="판매자 상태 정보를 불러오는 중..." />; // 로딩 중 스피너 표시
     }
 
     if (error) {
@@ -140,13 +134,15 @@ const SellerStatusPage = () => {
         );
     }
 
+    // API로부터 받은 실제 데이터에서 속성들을 구조 분해 할당
+    // processedDate 대신 lastProcessedDate 사용
     const {
         approvalStatus,
         lastReason,
         canReapply,
         // canWithdraw, // handleWithdrawClick 함수 내에서 sellerStatus.canWithdraw 형태로 직접 사용 중
         applicationDate,
-        processedDate,
+        lastProcessedDate,
     } = sellerStatus;
 
     // approvalStatus 값에 따른 상태 메시지 결정
@@ -218,12 +214,13 @@ const SellerStatusPage = () => {
                     </div>
                     <div className="flex flex-col gap-0 items-start justify-start shrink-0 relative overflow-hidden">
                         <div className="text-[#94abc7] text-left font-['Inter-Regular',_sans-serif] text-sm leading-[21px] font-normal relative self-stretch">
+                            {/* API 응답의 role과 statusMessage를 사용하여 표시 */}
                             역할:{' '}
-                            {user?.role === 'ROLE_ADMIN'
+                            {sellerStatus.role === 'ADMIN'
                                 ? '관리자'
-                                : isSellerApproved
-                                  ? '판매자 (승인됨)'
-                                  : '일반 유저'}
+                                : sellerStatus.role === 'SELLER'
+                                  ? `판매자 (${statusMessage})`
+                                  : `일반 유저 (${statusMessage})`}
                         </div>
                     </div>
                 </div>
@@ -257,7 +254,8 @@ const SellerStatusPage = () => {
                         <div className="text-[#94abc7] text-left font-['Inter-Regular',_sans-serif] text-sm leading-[21px] font-normal relative self-stretch">
                             신청 일시: {formatDate(applicationDate)}
                             <br />
-                            최종 처리 일시: {formatDate(processedDate)}
+                            최종 처리 일시: {formatDate(lastProcessedDate)}{' '}
+                            {/* processedDate -> lastProcessedDate */}
                         </div>
                     </div>
                     {lastReason && approvalStatus === 'REJECTED' && (
@@ -402,4 +400,4 @@ const SellerStatusPage = () => {
     );
 };
 
-export default SellerStatusPage; // 이름 변경
+export default SellerStatusPage;
