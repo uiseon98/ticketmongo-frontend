@@ -28,6 +28,8 @@ const SellerStatusPage = () => {
 
     // 판매자 상태 API 호출
     useEffect(() => {
+        console.log('SellerStatusPage: User in context:', user);
+
         const fetchSellerStatus = async () => {
             if (!user) {
                 // 유저 정보 없으면 호출할 필요 없음 (로그인 안 된 경우 App.jsx에서 Unauthorized로 리다이렉트되지만, 혹시 모를 상황 대비)
@@ -40,7 +42,9 @@ const SellerStatusPage = () => {
             setError(null);
             try {
                 const response = await apiClient.get('/users/me/seller-status');
-                setSellerStatus(response.data.data); // SuccessResponse.of("message", data) 형태이므로 data.data
+                // 수정: response.data.data 에서 response.data 로 변경
+                setSellerStatus(response.data); // SuccessResponse.of("message", data) 형태이므로 response.data 자체가 실제 데이터 객체
+                console.log('API 응답 데이터 (sellerStatus):', response.data); // 디버깅용
             } catch (err) {
                 console.error('판매자 상태 조회 실패:', err);
                 setError(
