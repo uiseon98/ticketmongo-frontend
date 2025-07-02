@@ -26,6 +26,7 @@ import ConcertListPage from './pages/concert/ConcertListPage.jsx';
 import ConcertDetailPage from './pages/concert/ConcertDetailPage.jsx';
 
 // 예매 페이지
+import WaitingPage from './pages/booking/WaitingPage.jsx';
 import SeatSelectionPage from './pages/booking/SeatSelectionPage.jsx';
 
 // 판매자 페이지 (새로 만들거나 기존 페이지 재활용)
@@ -90,6 +91,16 @@ export default function App() {
 
             {/** — 로그인 후 보호된 페이지 — **/}
             <Route element={<MainLayout />}>
+                <Route
+                    path="concerts/:concertId/wait" // 새로운 경로 추가
+                    element={
+                        user ? (
+                            <WaitingPage />
+                        ) : (
+                            <Navigate to="/login" replace />
+                        )
+                    }
+                />
                 <Route
                     path="concerts/:concertId/reserve"
                     element={

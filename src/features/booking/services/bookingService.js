@@ -18,7 +18,7 @@ export async function reserveSeat(concertId, seatId) {
 
 // 좌석 선점 해제 API
 export async function releaseSeat(concertId, seatId) {
-    const response = await apiClient.post(
+    const response = await apiClient.delete(
         `/seats/concerts/${concertId}/seats/${seatId}/release`,
     );
     return response.data; // String ("SUCCESS")
@@ -28,6 +28,28 @@ export async function releaseSeat(concertId, seatId) {
 export async function createBookingAndPreparePayment(bookingCreateRequest) {
     const response = await apiClient.post('/bookings', bookingCreateRequest);
     return response.data; // PaymentExecutionResponse
+}
+
+/**
+ * 콘서트 대기열 입장 요청
+ * 백엔드: POST /api/queue/enter?concertId={concertId}
+ * @param {number} concertId - 대기열에 입장할 콘서트 ID
+ * @returns {Promise<any>} - 서버에서 반환한 대기열 관련 데이터
+ */
+export async function enterWaitingQueue(concertId) {
+    try {
+        const response = await apiClient.post(
+            `/queue/enter?concertId=${concertId}`,
+        );
+        console.log('[enterWaitingQueue] Success:', response);
+        return response.data;
+    } catch (error) {
+        console.error(
+            `[enterWaitingQueue] 실패 (concertId: ${concertId}):`,
+            error,
+        );
+        throw error; // 호출자에게 에러를 전달
+    }
 }
 
 // (Toss Payments SDK를 React에서 직접 사용하는 경우를 대비하여)

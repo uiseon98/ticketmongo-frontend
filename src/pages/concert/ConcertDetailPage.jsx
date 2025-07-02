@@ -12,6 +12,7 @@ import ExpectationList from '../../features/concert/components/ExpectationList.j
 import { useConcertDetail } from '../../features/concert/hooks/useConcertDetail.js';
 import { useReviews } from '../../features/concert/hooks/useReviews.js';
 import { useExpectations } from '../../features/concert/hooks/useExpectations.js';
+import { useBookingQueue } from '../../features/booking/hooks/useBookingQueue';
 
 function ConcertDetailPage() {
     const { concertId } = useParams();
@@ -90,10 +91,7 @@ function ConcertDetailPage() {
         goToPage: goToExpectationsPage,
     } = useExpectations(parsedConcertId);
 
-    // 예매하기 버튼 클릭 핸들러
-    const handleReserveClick = () => {
-        navigate(`/concerts/${concertId}/reserve`);
-    };
+    const { enterQueue, isEntering } = useBookingQueue(concertId);
 
     // 리뷰 클릭 핸들러 (상세보기나 수정 등)
     const handleReviewClick = (review) => {
@@ -150,7 +148,8 @@ function ConcertDetailPage() {
                             concert={concert}
                             loading={concertLoading}
                             error={concertError}
-                            onBookingClick={handleReserveClick}
+                            onBookingClick={enterQueue}
+                            isBooking={isEntering}
                             showBookingButton={true}
                             compact={false}
                         />
@@ -230,15 +229,16 @@ function ConcertDetailPage() {
                     ))}
 
                     <button
-                        onClick={handleReserveClick}
+                        onClick={enterQueue}
                         className="w-full mt-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition hover:scale-[1.02] disabled:bg-gray-400 disabled:cursor-not-allowed"
                         disabled={
                             concert.status === 'SOLD_OUT' ||
                             concert.status === 'CANCELLED' ||
-                            concert.status === 'COMPLETED'
+                            concert.status === 'COMPLETED' ||
+                            isEntering
                         }
                     >
-                        {currentStatus.buttonText}
+                        {isEntering ? '처리 중...' : currentStatus.buttonText}
                     </button>
 
                     {/* 콘서트 상태 표시 */}

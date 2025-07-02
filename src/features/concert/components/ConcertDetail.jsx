@@ -33,6 +33,7 @@ const ConcertDetail = ({
 
     // ===== 액션 props =====
     onBookingClick, // 예매하기 버튼 클릭 핸들러 (선택사항)
+    isBooking = false,
     onRefresh, // 새로고침 버튼 클릭 핸들러 (선택사항)
 
     // ===== UI 제어 props =====
@@ -586,7 +587,7 @@ const ConcertDetail = ({
                     {bookingInfo.show && (
                         <button
                             onClick={handleBookingClick}
-                            disabled={bookingInfo.disabled}
+                            disabled={bookingInfo.disabled || isBooking}
                             style={{
                                 ...buttonBaseStyles,
                                 ...bookingInfo.style,
@@ -596,7 +597,7 @@ const ConcertDetail = ({
                                     : 'pointer',
                             }}
                         >
-                            {bookingInfo.text}
+                            {isBooking ? '처리 중...' : bookingInfo.text}
                         </button>
                     )}
                 </div>
