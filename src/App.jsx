@@ -18,6 +18,7 @@ import HomePage from './pages/home/Home.jsx';
 import LoginPage from './pages/auth/Login.jsx';
 import RegisterPage from './pages/auth/Register.jsx';
 import ProfilePage from './pages/mypage/Profile.jsx';
+import BookingDetailPage from './pages/mypage/BookingDetail.jsx';
 
 // 콘서트 페이지
 import ConcertListPage from './pages/concert/ConcertListPage.jsx';
@@ -77,6 +78,12 @@ export default function App() {
         <Route
           path="/mypage/profile"
           element={user ? <ProfilePage /> : <Navigate to="/login" replace />}
+        />
+        <Route
+          path="/bookingDetail/:bookingNumber"
+          element={
+            user ? <BookingDetailPage /> : <Navigate to="/login" replace />
+          }
         />
 
         {/* 판매자 페이지 그룹 라우트: SellerLayout을 사용하여 사이드바를 포함시킵니다. */}

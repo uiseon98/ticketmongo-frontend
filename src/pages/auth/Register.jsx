@@ -34,7 +34,7 @@ export default function Register() {
     }
   }, [errorMessage]);
 
-  const handleInputChange = field => e => {
+  const handleInputChange = (field) => (e) => {
     let value = e.target.value;
 
     if (field === 'phone') {
@@ -49,7 +49,7 @@ export default function Register() {
     setFormData(updatedData);
 
     const error = AccountForm.validateField(field, value, updatedData);
-    setErrors(prev => ({
+    setErrors((prev) => ({
       ...prev,
       [field]: error,
     }));
@@ -59,18 +59,18 @@ export default function Register() {
         formData.confirmPassword !== value
           ? '비밀번호가 일치하지 않습니다.'
           : '';
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
         confirmPassword: confirmError,
       }));
     }
   };
 
-  const handleFileUpload = e => {
+  const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = e => {
+      reader.onload = (e) => {
         setProfileImage(e.target.result);
       };
       reader.readAsDataURL(file);
@@ -184,13 +184,13 @@ export default function Register() {
                 }
                 onToggle={() =>
                   name === 'password'
-                    ? setShowPassword(prev => !prev)
+                    ? setShowPassword((prev) => !prev)
                     : name === 'confirmPassword'
-                      ? setShowConfirmPassword(prev => !prev)
+                      ? setShowConfirmPassword((prev) => !prev)
                       : null
                 }
               />
-            )
+            ),
           )}
 
           {/* Profile Image */}
@@ -229,7 +229,7 @@ export default function Register() {
               type="checkbox"
               id="terms"
               checked={agreeTerms}
-              onChange={e => setAgreeTerms(e.target.checked)}
+              onChange={(e) => setAgreeTerms(e.target.checked)}
               className="mt-1 w-4 h-4 text-blue-600 bg-gray-800 border-gray-600 rounded focus:ring-blue-500 focus:ring-2"
             />
             <label htmlFor="terms" className="text-sm text-gray-400 text-left">

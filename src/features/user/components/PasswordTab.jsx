@@ -34,19 +34,19 @@ export function PasswordTab({ userId, onChangePassword }) {
         setChangeSuccess('비밀번호가 성공적으로 변경되었습니다.');
       } else {
         setChangeError(
-          '비밀번호 변경에 실패했습니다.\n 현재 비밀번호가 올바른지 확인해주세요.'
+          '비밀번호 변경에 실패했습니다.\n 현재 비밀번호가 올바른지 확인해주세요.',
         );
       }
     } catch (error) {
       setChangeError(
-        '비밀번호 변경에 실패했습니다.\n 현재 비밀번호가 올바른지 확인해주세요.'
+        '비밀번호 변경에 실패했습니다.\n 현재 비밀번호가 올바른지 확인해주세요.',
       );
     } finally {
       setIsChanging(false);
     }
   };
 
-  const handleInputChange = field => e => {
+  const handleInputChange = (field) => (e) => {
     let value = e.target.value;
 
     const updatedData = {
@@ -58,7 +58,7 @@ export function PasswordTab({ userId, onChangePassword }) {
 
     if (field != 'confirmPwd') {
       const error = AccountForm.validateField('password', value, passwords);
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
         [field]: error,
       }));
@@ -67,7 +67,7 @@ export function PasswordTab({ userId, onChangePassword }) {
     if (field === 'confirmPwd') {
       const confirmError =
         value !== passwords.newPwd ? '비밀번호가 일치하지 않습니다.' : '';
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
         confirmPwd: confirmError,
       }));
@@ -78,7 +78,7 @@ export function PasswordTab({ userId, onChangePassword }) {
         passwords.confirmPwd && passwords.confirmPwd !== value
           ? '비밀번호가 일치하지 않습니다.'
           : '';
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
         confirmPwd: confirmError,
       }));
@@ -123,9 +123,9 @@ export function PasswordTab({ userId, onChangePassword }) {
             }
             onToggle={() =>
               name === 'curPwd'
-                ? setShowCurrentPassword(prev => !prev)
+                ? setShowCurrentPassword((prev) => !prev)
                 : name === 'newPwd'
-                  ? setShowNewPassword(prev => !prev)
+                  ? setShowNewPassword((prev) => !prev)
                   : null
             }
             error={errors[name]}

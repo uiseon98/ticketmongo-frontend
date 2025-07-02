@@ -1,21 +1,9 @@
-import React, { useState } from 'react';
-import {
-  User,
-  Lock,
-  Calendar,
-  Eye,
-  EyeOff,
-  Camera,
-  Phone,
-  Mail,
-  MapPin,
-  Edit2,
-  Save,
-  X,
-} from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-export function BookingsTab({ bookingHistory, isLoading, onCancelBooking }) {
-  const getStatusColor = status => {
+export function BookingsTab({ bookingHistory, isLoading }) {
+  const navigate = useNavigate();
+
+  const getStatusColor = (status) => {
     switch (status) {
       case 'CONFIRMED':
         return 'bg-green-100 text-green-800';
@@ -28,7 +16,7 @@ export function BookingsTab({ bookingHistory, isLoading, onCancelBooking }) {
     }
   };
 
-  const getStatusText = status => {
+  const getStatusText = (status) => {
     switch (status) {
       case 'CONFIRMED':
         return '예매 확정';
@@ -41,19 +29,8 @@ export function BookingsTab({ bookingHistory, isLoading, onCancelBooking }) {
     }
   };
 
-  const handleDetailBooking = bookingId => {
-    alert(`${bookingId} 상세보기는 구현 예정입니다.`);
-  };
-
-  const handleCancelBooking = async bookingId => {
-    if (window.confirm('정말로 예매를 취소하시겠습니까?')) {
-      try {
-        await onCancelBooking(bookingId);
-        alert('예매가 취소되었습니다.');
-      } catch (error) {
-        alert('예매 취소에 실패했습니다.');
-      }
-    }
+  const handleDetailBooking = (bookingId) => {
+    navigate(`/bookingDetail/${bookingId}`);
   };
 
   if (isLoading) {
@@ -81,7 +58,7 @@ export function BookingsTab({ bookingHistory, isLoading, onCancelBooking }) {
         </div>
       ) : (
         <div className="space-y-4">
-          {bookingHistory.map(booking => (
+          {bookingHistory.map((booking) => (
             <div
               key={booking.bookingNumber}
               className="bg-gray-700 rounded-xl p-6 hover:bg-gray-650 transition-colors"
@@ -90,7 +67,7 @@ export function BookingsTab({ bookingHistory, isLoading, onCancelBooking }) {
                 <h4 className="text-xl font-bold">{booking.concertTitle}</h4>
                 <span
                   className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
-                    booking.bookingStatus
+                    booking.bookingStatus,
                   )}`}
                 >
                   {getStatusText(booking.bookingStatus)}
@@ -110,7 +87,7 @@ export function BookingsTab({ bookingHistory, isLoading, onCancelBooking }) {
                 <div>
                   <span className="text-gray-400 block">좌석</span>
                   {booking.seatList && Array.isArray(booking.seatList) ? (
-                    booking.seatList.map(seat => (
+                    booking.seatList.map((seat) => (
                       <p key={seat} className="font-medium">
                         {seat}
                       </p>

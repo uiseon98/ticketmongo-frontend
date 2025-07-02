@@ -1,5 +1,5 @@
 // src/pages/concert/ConcertDetailPage.jsx
-import React, { useState } from 'react';
+import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
 // 새로운 컴포넌트들 import
@@ -7,9 +7,6 @@ import ConcertDetail from '../../features/concert/components/ConcertDetail.jsx';
 import AISummary from '../../features/concert/components/AISummary.jsx';
 import ReviewList from '../../features/concert/components/ReviewList.jsx';
 import ExpectationList from '../../features/concert/components/ExpectationList.jsx';
-import Modal from '../../shared/components/ui/Modal.jsx';
-import ReviewForm from '../../features/concert/components/ReviewForm.jsx';
-import ExpectationForm from '../../features/concert/components/ExpectationForm.jsx';
 
 // 새로운 hooks import
 import { useConcertDetail } from '../../features/concert/hooks/useConcertDetail.js';
@@ -19,16 +16,6 @@ import { useExpectations } from '../../features/concert/hooks/useExpectations.js
 function ConcertDetailPage() {
   const { concertId } = useParams();
   const navigate = useNavigate();
-  const [expandedReviewId, setExpandedReviewId] = useState(null);
-  // 모달 상태들
-  const [showReviewForm, setShowReviewForm] = useState(false);
-  const [editingReview, setEditingReview] = useState(null);
-  const [showExpectationForm, setShowExpectationForm] = useState(false);
-  const [deleteConfirm, setDeleteConfirm] = useState(null);
-
-  // 현재 사용자 정보 (임시)
-  const currentUser = { id: 2003, nickname: 'seoul_concert' };
-  const [editingExpectation, setEditingExpectation] = useState(null);
 
   // 콘서트 상태별 설정 (함수 상단으로 이동)
   const statusConfig = {
@@ -90,15 +77,7 @@ function ConcertDetailPage() {
     changeSorting: changeReviewsSorting,
     sortBy: reviewsSortBy,
     sortDir: reviewsSortDir,
-    createReview,
-    updateReview,
-    deleteReview,
-    actionLoading: reviewActionLoading,
   } = useReviews(parsedConcertId);
-
-  // 🔍 디버깅: updateReview 함수 확인
-  console.log('🔍 ConcertDetailPage - updateReview 함수:', updateReview);
-  console.log('🔍 ConcertDetailPage - updateReview 타입:', typeof updateReview);
 
   // 기대평 목록 hook
   const {
@@ -109,10 +88,6 @@ function ConcertDetailPage() {
     totalPages: expectationsTotalPages,
     totalElements: expectationsTotal,
     goToPage: goToExpectationsPage,
-    createExpectation,
-    updateExpectation,
-    deleteExpectation,
-    actionLoading: expectationActionLoading,
   } = useExpectations(parsedConcertId);
 
   // 예매하기 버튼 클릭 핸들러
@@ -121,59 +96,15 @@ function ConcertDetailPage() {
   };
 
   // 리뷰 클릭 핸들러 (상세보기나 수정 등)
-  const handleReviewClick = review => {
+  const handleReviewClick = (review) => {
     console.log('리뷰 클릭:', review);
-    setExpandedReviewId(expandedReviewId === review.id ? null : review.id);
+    // 추후 리뷰 상세 모달이나 페이지로 이동 구현
   };
 
   // 기대평 클릭 핸들러
-  const handleExpectationClick = expectation => {
+  const handleExpectationClick = (expectation) => {
     console.log('기대평 클릭:', expectation);
     // 추후 기대평 상세 모달이나 수정 구현
-  };
-
-  // ===== 리뷰 관련 핸들러들 =====
-  const handleCreateReview = () => {
-    setEditingReview(null);
-    setShowReviewForm(true);
-  };
-
-  const handleEditReview = review => {
-    // 🔍 디버깅: 수정할 리뷰 확인
-    console.log('🔍 handleEditReview 호출됨');
-    console.log('🔍 받은 review:', review);
-    console.log('🔍 review.id:', review?.id);
-    console.log('🔍 typeof review:', typeof review);
-
-    setEditingReview(review);
-    setShowReviewForm(true);
-  };
-
-  const handleDeleteReview = review => {
-    setDeleteConfirm({
-      type: 'review',
-      id: review.id,
-      title: review.title,
-    });
-  };
-
-  // ===== 기대평 관련 핸들러들 =====
-  const handleCreateExpectation = () => {
-    setEditingExpectation(null);
-    setShowExpectationForm(true);
-  };
-
-  const handleEditExpectation = expectation => {
-    setEditingExpectation(expectation);
-    setShowExpectationForm(true);
-  };
-
-  const handleDeleteExpectation = expectation => {
-    setDeleteConfirm({
-      type: 'expectation',
-      id: expectation.id,
-      title: expectation.comment.substring(0, 50) + '...',
-    });
   };
 
   // 콘서트 정보 로딩 중이면 로딩 표시
@@ -236,15 +167,6 @@ function ConcertDetailPage() {
 
           {/* 리뷰 목록 컴포넌트 */}
           <div className="bg-white rounded-xl shadow-md p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold text-gray-800">관람 후기</h3>
-              <button
-                onClick={handleCreateReview}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition"
-              >
-                📝 리뷰 작성하기
-              </button>
-            </div>
             <ReviewList
               reviews={reviews}
               loading={reviewsLoading}
@@ -260,25 +182,11 @@ function ConcertDetailPage() {
               showSortOptions={true}
               showPagination={true}
               compact={false}
-              expandedReviewId={expandedReviewId}
-              currentUserId={currentUser.id}
-              onEditClick={handleEditReview}
-              onDeleteClick={handleDeleteReview}
             />
           </div>
 
           {/* 기대평 목록 컴포넌트 */}
           <div className="bg-white rounded-xl shadow-md p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold text-gray-800">관람 기대평</h3>
-              <button
-                onClick={handleCreateExpectation}
-                className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition"
-              >
-                ✨ 기대평 작성하기
-              </button>
-            </div>
-
             <ExpectationList
               expectations={expectations}
               loading={expectationsLoading}
@@ -290,9 +198,6 @@ function ConcertDetailPage() {
               onPageChange={goToExpectationsPage}
               showPagination={true}
               compact={false}
-              currentUserId={currentUser.id}
-              onEditClick={handleEditExpectation}
-              onDeleteClick={handleDeleteExpectation}
             />
           </div>
         </div>
@@ -304,7 +209,7 @@ function ConcertDetailPage() {
             { type: '일반석', price: 50000 },
             { type: 'VIP', price: 100000 },
             { type: '프리미엄', price: 150000 },
-          ].map(ticket => (
+          ].map((ticket) => (
             <div
               key={ticket.type}
               className="flex justify-between bg-white px-4 py-3 rounded-lg shadow-sm"
@@ -339,120 +244,6 @@ function ConcertDetailPage() {
           </div>
         </div>
       </div>
-
-      {/* ===== 모달들 ===== */}
-
-      {/* 리뷰 작성/수정 모달 */}
-      <Modal
-        isOpen={showReviewForm}
-        onClose={() => setShowReviewForm(false)}
-        title={editingReview ? '리뷰 수정' : '리뷰 작성'}
-      >
-        <ReviewForm
-          mode={editingReview ? 'edit' : 'create'}
-          initialData={editingReview}
-          concertId={parsedConcertId}
-          userId={currentUser.id}
-          userNickname={currentUser.nickname}
-          onSubmit={async formData => {
-            // 🔍 디버깅: Modal onSubmit 호출
-            console.log('🔍 Modal onSubmit 호출됨');
-            console.log('🔍 editingReview:', editingReview);
-            console.log('🔍 editingReview?.id:', editingReview?.id);
-            console.log('🔍 formData:', formData);
-            console.log('🔍 typeof formData:', typeof formData);
-
-            if (editingReview) {
-              console.log('🔍 updateReview 호출 - 파라미터들:');
-              console.log('  - editingReview.id:', editingReview.id);
-              console.log('  - formData:', formData);
-
-              await updateReview(editingReview.id, formData);
-            } else {
-              await createReview(formData);
-            }
-            setShowReviewForm(false);
-            setEditingReview(null);
-          }}
-          onCancel={() => {
-            // ← 이 줄만 추가
-            setShowReviewForm(false);
-            setEditingReview(null);
-          }}
-          loading={reviewActionLoading}
-        />
-      </Modal>
-
-      {/* 기대평 작성/수정 모달 */}
-      <Modal
-        isOpen={showExpectationForm}
-        onClose={() => setShowExpectationForm(false)}
-        title={editingExpectation ? '기대평 수정' : '기대평 작성'}
-      >
-        <ExpectationForm
-          mode={editingExpectation ? 'edit' : 'create'}
-          initialData={editingExpectation}
-          concertId={parsedConcertId}
-          userId={currentUser.id}
-          userNickname={currentUser.nickname}
-          onSubmit={async formData => {
-            if (editingExpectation) {
-              await updateExpectation(editingExpectation.id, formData);
-            } else {
-              await createExpectation(formData);
-            }
-            setShowExpectationForm(false);
-            setEditingExpectation(null);
-          }}
-          loading={expectationActionLoading}
-        />
-      </Modal>
-
-      {/* 삭제 확인 모달 */}
-      <Modal
-        isOpen={!!deleteConfirm}
-        onClose={() => setDeleteConfirm(null)}
-        title="삭제 확인"
-      >
-        {deleteConfirm && (
-          <div className="text-center">
-            <div className="text-6xl mb-4">🗑️</div>
-            <h3 className="text-lg font-bold text-gray-900 mb-2">
-              {deleteConfirm.type === 'review' ? '리뷰를' : '기대평을'}{' '}
-              삭제하시겠습니까?
-            </h3>
-            <p className="text-gray-600 mb-6">"{deleteConfirm.title}"</p>
-            <p className="text-sm text-red-600 mb-6">
-              삭제된 내용은 복구할 수 없습니다.
-            </p>
-
-            <div className="flex gap-3 justify-center">
-              <button
-                onClick={() => setDeleteConfirm(null)}
-                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition"
-              >
-                취소
-              </button>
-              <button
-                onClick={async () => {
-                  if (deleteConfirm.type === 'review') {
-                    await deleteReview(deleteConfirm.id);
-                  } else {
-                    await deleteExpectation(deleteConfirm.id);
-                  }
-                  setDeleteConfirm(null);
-                }}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
-                disabled={reviewActionLoading || expectationActionLoading}
-              >
-                {reviewActionLoading || expectationActionLoading
-                  ? '삭제 중...'
-                  : '삭제'}
-              </button>
-            </div>
-          </div>
-        )}
-      </Modal>
     </div>
   );
 }

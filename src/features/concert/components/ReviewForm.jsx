@@ -155,7 +155,7 @@ const ReviewForm = ({
     let isValid = true;
 
     // 모든 필드에 대해 검증 수행
-    Object.keys(formData).forEach(fieldName => {
+    Object.keys(formData).forEach((fieldName) => {
       const error = validateField(fieldName, formData[fieldName]);
       newErrors[fieldName] = error;
       if (error) isValid = false;
@@ -168,7 +168,7 @@ const ReviewForm = ({
   /**
    * 필드 표시명 반환
    */
-  const getFieldDisplayName = useCallback(fieldName => {
+  const getFieldDisplayName = useCallback((fieldName) => {
     const displayNames = {
       title: '리뷰 제목',
       description: '리뷰 내용',
@@ -185,18 +185,18 @@ const ReviewForm = ({
    * 텍스트 입력 필드 변경 핸들러
    */
   const handleInputChange = useCallback(
-    fieldName => {
-      return event => {
+    (fieldName) => {
+      return (event) => {
         const value = event.target.value;
 
         // 폼 데이터 업데이트
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
           [fieldName]: value,
         }));
 
         // 터치 상태 업데이트
-        setTouched(prev => ({
+        setTouched((prev) => ({
           ...prev,
           [fieldName]: true,
         }));
@@ -204,45 +204,45 @@ const ReviewForm = ({
         // 실시간 유효성 검증 (터치된 필드만)
         if (touched[fieldName]) {
           const error = validateField(fieldName, value);
-          setErrors(prev => ({
+          setErrors((prev) => ({
             ...prev,
             [fieldName]: error,
           }));
         }
       };
     },
-    [touched, validateField]
+    [touched, validateField],
   );
 
   /**
    * 별점 클릭 핸들러
    */
   const handleRatingClick = useCallback(
-    rating => {
-      setFormData(prev => ({
+    (rating) => {
+      setFormData((prev) => ({
         ...prev,
         rating,
       }));
 
-      setTouched(prev => ({
+      setTouched((prev) => ({
         ...prev,
         rating: true,
       }));
 
       // 별점 유효성 검증
       const error = validateField('rating', rating);
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
         rating: error,
       }));
     },
-    [validateField]
+    [validateField],
   );
 
   /**
    * 별점 호버 핸들러
    */
-  const handleRatingHover = useCallback(rating => {
+  const handleRatingHover = useCallback((rating) => {
     setHoveredRating(rating);
   }, []);
 
@@ -253,13 +253,11 @@ const ReviewForm = ({
     setHoveredRating(0);
   }, []);
 
-  // ReviewForm.jsx의 handleSubmit 함수 수정
-
   /**
    * 폼 제출 핸들러
    */
   const handleSubmit = useCallback(
-    async event => {
+    async (event) => {
       event.preventDefault();
 
       // 모든 필드를 터치 상태로 설정 (에러 표시용)
@@ -283,16 +281,20 @@ const ReviewForm = ({
       try {
         // 부모 컴포넌트의 제출 함수 호출
         if (onSubmit && typeof onSubmit === 'function') {
-          // 🔧 수정: 항상 formData만 전달하도록 변경
-          // 수정/작성 모드 구분은 부모 컴포넌트에서 처리
-          await onSubmit(formData);
+          if (mode === 'edit' && initialData?.id) {
+            // 수정 모드: reviewId와 함께 전달
+            await onSubmit(initialData.id, formData);
+          } else {
+            // 작성 모드: 폼 데이터만 전달
+            await onSubmit(formData);
+          }
         }
       } catch (error) {
         // 에러는 상위 컴포넌트에서 처리
         console.error('리뷰 제출 실패:', error);
       }
     },
-    [formData, disabled, loading, validateForm, onSubmit]
+    [formData, disabled, loading, validateForm, onSubmit, mode, initialData],
   );
 
   /**
@@ -326,7 +328,7 @@ const ReviewForm = ({
    */
   useEffect(() => {
     if (!initialData) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         userNickname: userNickname || prev.userNickname,
         userId: userId || prev.userId,
@@ -385,7 +387,7 @@ const ReviewForm = ({
           aria-label={`${i}점`}
         >
           ★
-        </button>
+        </button>,
       );
     }
 
@@ -460,7 +462,7 @@ const ReviewForm = ({
   /**
    * 에러 상태 입력 필드 스타일
    */
-  const getInputStyles = fieldName => {
+  const getInputStyles = (fieldName) => {
     const hasError = touched[fieldName] && errors[fieldName];
     return {
       ...inputBaseStyles,
@@ -584,7 +586,7 @@ const ReviewForm = ({
           >
             {getCharacterCount(
               formData.title,
-              ReviewValidation.title.maxLength
+              ReviewValidation.title.maxLength,
             )}
           </div>
         </div>
@@ -625,12 +627,12 @@ const ReviewForm = ({
           <div
             style={getCounterStyles(
               'description',
-              ReviewValidation.description.maxLength
+              ReviewValidation.description.maxLength,
             )}
           >
             {getCharacterCount(
               formData.description,
-              ReviewValidation.description.maxLength
+              ReviewValidation.description.maxLength,
             )}
           </div>
         </div>
@@ -656,12 +658,12 @@ const ReviewForm = ({
           <div
             style={getCounterStyles(
               'userNickname',
-              ReviewValidation.userNickname.maxLength
+              ReviewValidation.userNickname.maxLength,
             )}
           >
             {getCharacterCount(
               formData.userNickname,
-              ReviewValidation.userNickname.maxLength
+              ReviewValidation.userNickname.maxLength,
             )}
           </div>
         </div>

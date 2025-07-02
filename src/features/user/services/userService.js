@@ -8,7 +8,7 @@ export const userService = {
     }
   },
 
-  updateUserInfo: async userInfo => {
+  updateUserInfo: async (userInfo) => {
     try {
       const response = await apiClient.post('/mypage/profile', userInfo, {
         headers: {
@@ -24,7 +24,7 @@ export const userService = {
     }
   },
 
-  changePassword: async passwordData => {
+  changePassword: async (passwordData) => {
     try {
       await apiClient.post('/mypage/changePwd', passwordData, {
         headers: {
@@ -40,7 +40,7 @@ export const userService = {
     }
   },
 
-  getBookingHistory: async userId => {
+  getBookingHistory: async (userId) => {
     try {
       const response = await apiClient.get('/mypage/booking', {
         params: { userId },
@@ -50,8 +50,34 @@ export const userService = {
       }
     } catch (error) {
       throw new Error(
-        error.message || '예매 내역을 불러오는 중 오류가 발생했습니다.'
+        error.message || '예매 내역을 불러오는 중 오류가 발생했습니다.',
       );
+    }
+  },
+
+  getBookingDetail: async (bookingNumber) => {
+    try {
+      const response = await apiClient.get(
+        `/mypage/bookingDetail/${bookingNumber}`,
+      );
+      if (response.data) {
+        return response.data;
+      }
+    } catch (error) {
+      throw new Error(
+        error.message || '예매 상세 내역을 불러오는 중 오류가 발생했습니다.',
+      );
+    }
+  },
+
+  cancelBooking: async (bookingId) => {
+    try {
+      const response = await apiClient.delete(
+        `/mypage/bookingDetail/cancel/${bookingId}`,
+      );
+      return response.data;
+    } catch (error) {
+      throw new Error(error.message || '예매 취소 중 오류가 발생했습니다.');
     }
   },
 };

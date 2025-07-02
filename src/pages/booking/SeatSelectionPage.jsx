@@ -54,7 +54,7 @@ export default function SeatSelectionPage() {
     };
   }, [concertId, selectedSeat, releaseTimer]);
 
-  const reserveNewSeat = async seat => {
+  const reserveNewSeat = async (seat) => {
     setIsReserving(true);
     setBookingError(null);
     try {
@@ -67,7 +67,7 @@ export default function SeatSelectionPage() {
           alert('선점 시간이 만료되었습니다. 좌석을 다시 선택해주세요.');
           getSeatStatuses();
         },
-        SEAT_RESERVE_TIMEOUT_MINUTES * 60 * 1000
+        SEAT_RESERVE_TIMEOUT_MINUTES * 60 * 1000,
       );
       setReleaseTimer(timer);
       getSeatStatuses();
@@ -79,7 +79,7 @@ export default function SeatSelectionPage() {
     }
   };
 
-  const handleSeatClick = async seat => {
+  const handleSeatClick = async (seat) => {
     if (seat.status === 'AVAILABLE') {
       if (selectedSeat) {
         setIsReserving(true);
@@ -122,7 +122,7 @@ export default function SeatSelectionPage() {
       setBookingError('좌석 선점 처리 중입니다.');
       return;
     }
-    const current = seatStatuses.find(s => s.seatId === selectedSeat.seatId);
+    const current = seatStatuses.find((s) => s.seatId === selectedSeat.seatId);
     if (!current || current.status !== 'RESERVED') {
       setSelectedSeat(null);
       setBookingError('좌석 상태가 유효하지 않습니다.');

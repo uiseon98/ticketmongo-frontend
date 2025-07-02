@@ -1,24 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import {
-  User,
-  Lock,
-  Calendar,
-  Eye,
-  EyeOff,
-  Camera,
-  Phone,
-  Mail,
-  MapPin,
-  Edit2,
-  Save,
-  X,
-} from 'lucide-react';
+import { useLocation } from 'react-router-dom';
+import { User, Lock, Calendar } from 'lucide-react';
+
 import { ProfileTab } from '../../features/user/components/ProfileTab';
 import { PasswordTab } from '../../features/user/components/PasswordTab';
 import { BookingsTab } from '../../features/user/components/BookingsTab';
 import { userService } from '../../features/user/services/userService';
 
 export default function Profile() {
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState('profile');
   const [userInfo, setUserInfo] = useState(null);
   const [bookingHistory, setBookingHistory] = useState([]);
@@ -41,6 +31,12 @@ export default function Profile() {
     loadUserInfo();
   }, []);
 
+  useEffect(() => {
+    if (location.state?.from === 'bookingDetail') {
+      setActiveTab('bookings');
+    }
+  }, [location.state]);
+
   // 예매 내역 로드 (예매 내역 탭 선택 시)
   useEffect(() => {
     if (activeTab === 'bookings' && userInfo && bookingHistory.length === 0) {
@@ -61,7 +57,7 @@ export default function Profile() {
   }, [activeTab, userInfo, bookingHistory.length]);
 
   // 사용자 정보 업데이트
-  const handleUpdateUserInfo = async updatedInfo => {
+  const handleUpdateUserInfo = async (updatedInfo) => {
     const result = await userService.updateUserInfo(updatedInfo);
     if (result.success) {
       setUserInfo(result.data);
@@ -70,18 +66,8 @@ export default function Profile() {
   };
 
   // 비밀번호 변경
-  const handleChangePassword = async passwordData => {
+  const handleChangePassword = async (passwordData) => {
     return await userService.changePassword(passwordData);
-  };
-
-  // 예매 취소
-  const handleCancelBooking = async bookingId => {
-    // 실제로는 API 호출
-    setBookingHistory(prev =>
-      prev.map(booking =>
-        booking.id === bookingId ? { ...booking, status: 'cancelled' } : booking
-      )
-    );
   };
 
   const tabs = [
@@ -114,13 +100,12 @@ export default function Profile() {
       props: {
         bookingHistory,
         isLoading: isBookingsLoading,
-        onCancelBooking: handleCancelBooking,
       },
     },
   ];
 
   const getCurrentTabComponent = () => {
-    const currentTab = tabs.find(tab => tab.id === activeTab);
+    const currentTab = tabs.find((tab) => tab.id === activeTab);
     if (!currentTab) return null;
 
     const Component = currentTab.component;
@@ -139,7 +124,7 @@ export default function Profile() {
         {/* Tab Navigation */}
         <div className="flex justify-center mb-8">
           <div className="bg-gray-800 rounded-xl p-1 flex space-x-1">
-            {tabs.map(tab => {
+            {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
                 <button

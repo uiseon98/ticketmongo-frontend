@@ -134,7 +134,7 @@ const ConcertCard = ({
    *
    * @param {Event} event - 이미지 에러 이벤트
    */
-  const handleImageError = event => {
+  const handleImageError = (event) => {
     // 이미지 로드 실패 시 기본 콘서트 이미지로 대체
     // 실제 환경에서는 public 폴더에 기본 이미지를 준비해야 함
     event.target.src = '/images/basic-poster-image.png';
@@ -256,7 +256,7 @@ const ConcertCard = ({
       className={`concert-card ${className}`}
       style={cardStyles}
       onClick={handleCardClick}
-      onKeyDown={e => {
+      onKeyDown={(e) => {
         if (onClick && (e.key === 'Enter' || e.key === ' ')) {
           e.preventDefault();
           handleCardClick();

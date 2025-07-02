@@ -43,13 +43,13 @@ export const adminService = {
 
       // 관리자 로그 기록 - 중요한 작업이므로 상세히 로깅
       console.info(
-        `[ADMIN] AI 요약 수동 재생성 시작 - 콘서트 ID: ${concertId}`
+        `[ADMIN] AI 요약 수동 재생성 시작 - 콘서트 ID: ${concertId}`,
       );
 
       // API 요청: POST 요청이지만 request body는 없음 (concertId만 URL에 포함)
       // 결과 예시: POST /api/admin/ai/concerts/123/summary/regenerate
       const response = await apiClient.post(
-        `/admin/ai/concerts/${concertId}/summary/regenerate`
+        `/admin/ai/concerts/${concertId}/summary/regenerate`,
       );
 
       // 성공 시 생성된 AI 요약 텍스트 로깅 (처음 100자만)
@@ -58,7 +58,7 @@ export const adminService = {
           ? response.data.substring(0, 100) + '...'
           : response.data;
       console.info(
-        `[ADMIN] AI 요약 재생성 성공 - 콘서트 ID: ${concertId}, 요약 미리보기: "${summaryPreview}"`
+        `[ADMIN] AI 요약 재생성 성공 - 콘서트 ID: ${concertId}, 요약 미리보기: "${summaryPreview}"`,
       );
 
       // apiClient가 SuccessResponse를 자동 처리하므로 그대로 반환
@@ -68,7 +68,7 @@ export const adminService = {
       // 관리자 작업 실패는 중요하므로 ERROR 레벨로 로깅
       console.error(
         `[ADMIN] AI 요약 재생성 실패 - 콘서트 ID: ${concertId}:`,
-        error
+        error,
       );
 
       // 백엔드에서 반환하는 구체적인 에러 메시지 확인
@@ -88,7 +88,7 @@ export const adminService = {
       // 네트워크 오류나 기타 예상치 못한 에러
       if (error.code === 'NETWORK_ERROR' || error.code === 'ECONNREFUSED') {
         throw new Error(
-          '서버에 연결할 수 없습니다. 네트워크 상태를 확인해주세요.'
+          '서버에 연결할 수 없습니다. 네트워크 상태를 확인해주세요.',
         );
       }
 
@@ -106,11 +106,11 @@ export const adminService = {
             throw new Error('해당 콘서트를 찾을 수 없습니다.');
           case 500:
             throw new Error(
-              '서버 내부 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'
+              '서버 내부 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
             );
           default:
             throw new Error(
-              `알 수 없는 오류가 발생했습니다. (상태 코드: ${status})`
+              `알 수 없는 오류가 발생했습니다. (상태 코드: ${status})`,
             );
         }
       }

@@ -21,20 +21,20 @@ const apiClient = axios.create({
 });
 
 apiClient.interceptors.request.use(
-  config => {
+  (config) => {
     console.log(
-      `🚀 API 요청: ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`
+      `🚀 API 요청: ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`,
     );
     return config;
   },
-  error => {
+  (error) => {
     console.error('❌ API 요청 에러:', error);
     return Promise.reject(error);
-  }
+  },
 );
 
 apiClient.interceptors.response.use(
-  response => {
+  (response) => {
     console.log(`✅ API 응답 성공: ${response.status} ${response.config.url}`);
 
     if (
@@ -54,7 +54,7 @@ apiClient.interceptors.response.use(
     }
     return response;
   },
-  error => {
+  (error) => {
     if (error.response) {
       const status = error.response.status;
       const url = error.response.config?.url || 'unknown';
@@ -88,7 +88,7 @@ apiClient.interceptors.response.use(
       }
 
       console.error(
-        `❌ API Error - Status: ${status}, URL: ${url}, Message: ${errorMessage}`
+        `❌ API Error - Status: ${status}, URL: ${url}, Message: ${errorMessage}`,
       );
 
       // 401, 403 에러 시 자동 리다이렉트 (필요한 경우 주석 해제)
@@ -108,7 +108,7 @@ apiClient.interceptors.response.use(
       console.error('❌ API Request Error:', error.message);
       return Promise.reject(new Error(requestError));
     }
-  }
+  },
 );
 
 export default apiClient;
