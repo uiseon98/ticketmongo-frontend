@@ -38,92 +38,119 @@ import NotFoundPage from './pages/NotFoundPage.jsx';
 
 // App 컴포넌트: 라우팅 정의 및 네비게이션 제공
 export default function App() {
-  const { user, loading } = useContext(AuthContext);
+    const { user, loading } = useContext(AuthContext);
 
-  if (loading) {
-    return <div className="text-center py-20">로딩 중…</div>;
-  }
+    if (loading) {
+        return <div className="text-center py-20">로딩 중…</div>;
+    }
 
-  return (
-    <Routes>
-      {/** — 인증 전용 — **/}
-      <Route element={<AuthLayout />}>
-        <Route
-          path="/login"
-          element={user ? <Navigate to="/" replace /> : <LoginPage />}
-        />
-        <Route
-          path="/register"
-          element={user ? <Navigate to="/" replace /> : <RegisterPage />}
-        />
-      </Route>
+    return (
+        <Routes>
+            {/** — 인증 전용 — **/}
+            <Route element={<AuthLayout />}>
+                <Route
+                    path="/login"
+                    element={user ? <Navigate to="/" replace /> : <LoginPage />}
+                />
+                <Route
+                    path="/register"
+                    element={
+                        user ? <Navigate to="/" replace /> : <RegisterPage />
+                    }
+                />
+            </Route>
 
-      {/** — 공개 페이지 — **/}
-      <Route element={<PublicLayout />}>
-        <Route path="/" element={<HomePage />} />
-        <Route path="concerts" element={<ConcertListPage />} />
-        <Route path="concerts/:concertId" element={<ConcertDetailPage />} />
-      </Route>
+            {/** — 공개 페이지 — **/}
+            <Route element={<PublicLayout />}>
+                <Route path="/" element={<HomePage />} />
+                <Route path="concerts" element={<ConcertListPage />} />
+                <Route
+                    path="concerts/:concertId"
+                    element={<ConcertDetailPage />}
+                />
+            </Route>
 
-      {/** — 로그인 후 보호된 페이지 — **/}
-      <Route element={<MainLayout />}>
-        <Route
-          path="concerts/:concertId/reserve"
-          element={
-            user ? <SeatSelectionPage /> : <Navigate to="/login" replace />
-          }
-        />
+            {/** — 로그인 후 보호된 페이지 — **/}
+            <Route element={<MainLayout />}>
+                <Route
+                    path="concerts/:concertId/reserve"
+                    element={
+                        user ? (
+                            <SeatSelectionPage />
+                        ) : (
+                            <Navigate to="/login" replace />
+                        )
+                    }
+                />
 
-        {/* 프로필 페이지 라우트는 이제 판매자 라우트 그룹 밖에 따로 둡니다. */}
-        <Route
-          path="/mypage/profile"
-          element={user ? <ProfilePage /> : <Navigate to="/login" replace />}
-        />
-        <Route
-          path="/bookingDetail/:bookingNumber"
-          element={
-            user ? <BookingDetailPage /> : <Navigate to="/login" replace />
-          }
-        />
+                {/* 프로필 페이지 라우트는 이제 판매자 라우트 그룹 밖에 따로 둡니다. */}
+                <Route
+                    path="/mypage/profile"
+                    element={
+                        user ? (
+                            <ProfilePage />
+                        ) : (
+                            <Navigate to="/login" replace />
+                        )
+                    }
+                />
+                <Route
+                    path="/bookingDetail/:bookingNumber"
+                    element={
+                        user ? (
+                            <BookingDetailPage />
+                        ) : (
+                            <Navigate to="/login" replace />
+                        )
+                    }
+                />
 
-        {/* 판매자 페이지 그룹 라우트: SellerLayout을 사용하여 사이드바를 포함시킵니다. */}
-        <Route
-          path="/seller"
-          element={
-            user ? <SellerLayout /> : <Navigate to="/login" replace /> // 로그인하면 SellerLayout 렌더링
-          }
-        >
-          {/* /seller 기본 경로: SellerHomePage (판매자 대시보드)로 연결 */}
-          <Route index element={<SellerHomePage />} />
-          {/* 판매자 권한 신청 페이지 (모든 로그인 유저 접근 가능) */}
-          <Route path="apply" element={<SellerApplyPage />} />
-          {/* 판매자 권한 상태 페이지 (모든 로그인 유저 접근 가능하도록 이동) */}
-          <Route path="status" element={<SellerStatusPage />} />
-          {/* 판매자 권한이 있는 경우에만 접근 가능한 페이지들 */}
-          <Route
-            element={
-              user &&
-              (user.role === 'ROLE_SELLER' ||
-                (user.roles && user.roles.includes('ROLE_SELLER'))) ? (
-                <Outlet /> // 판매자 권한이 있다면 하위 라우트들을 Outlet에 렌더링
-              ) : (
-                <Navigate to="/seller/apply" replace />
-              ) // 권한 없으면 신청 페이지로 리다이렉트
-            }
-          >
-            <Route path="concerts/register" element={<ConcertRegisterPage />} />{' '}
-            {/* 콘서트 등록 */}
-            <Route
-              path="concerts/manage"
-              element={<SellerConcertManagementPage />}
-            />{' '}
-            {/* 콘서트 관리 */}
-          </Route>
-        </Route>
-      </Route>
+                {/* 판매자 페이지 그룹 라우트: SellerLayout을 사용하여 사이드바를 포함시킵니다. */}
+                <Route
+                    path="/seller"
+                    element={
+                        user ? (
+                            <SellerLayout />
+                        ) : (
+                            <Navigate to="/login" replace />
+                        ) // 로그인하면 SellerLayout 렌더링
+                    }
+                >
+                    {/* /seller 기본 경로: SellerHomePage (판매자 대시보드)로 연결 */}
+                    <Route index element={<SellerHomePage />} />
+                    {/* 판매자 권한 신청 페이지 (모든 로그인 유저 접근 가능) */}
+                    <Route path="apply" element={<SellerApplyPage />} />
+                    {/* 판매자 권한 상태 페이지 (모든 로그인 유저 접근 가능하도록 이동) */}
+                    <Route path="status" element={<SellerStatusPage />} />
+                    {/* 판매자 권한이 있는 경우에만 접근 가능한 페이지들 */}
+                    <Route
+                        element={
+                            user &&
+                            (user.role === 'ROLE_SELLER' ||
+                                (user.roles &&
+                                    user.roles.includes('ROLE_SELLER'))) ? (
+                                <Outlet /> // 판매자 권한이 있다면 하위 라우트들을 Outlet에 렌더링
+                            ) : (
+                                <Navigate to="/seller/apply" replace />
+                            ) // 권한 없으면 신청 페이지로 리다이렉트
+                        }
+                    >
+                        <Route
+                            path="concerts/register"
+                            element={<ConcertRegisterPage />}
+                        />{' '}
+                        {/* 콘서트 등록 */}
+                        <Route
+                            path="concerts/manage"
+                            element={<SellerConcertManagementPage />}
+                        />{' '}
+                        {/* 콘서트 관리 */}
+                    </Route>
+                </Route>
+            </Route>
 
-      {/** — 404 처리 — **/}
-      <Route path="*" element={<NotFoundPage />} />
-    </Routes>
-  );
+            {/** — 404 처리 — **/}
+            <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+    );
 }
