@@ -140,7 +140,7 @@ const SellerStatusPage = () => {
         approvalStatus,
         lastReason,
         canReapply,
-        canWithdraw,
+        // canWithdraw, // handleWithdrawClick 함수 내에서 sellerStatus.canWithdraw 형태로 직접 사용 중
         applicationDate,
         processedDate,
     } = sellerStatus;
