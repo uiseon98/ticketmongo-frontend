@@ -51,9 +51,9 @@ const SellerApplyPage = () => {
                     회사명, 사업자 등록 번호, 담당자 정보, 사업자 등록증 파일
                     업로드 등)
                 </p>
+                {/* 따옴표 에러 해결을 위해 텍스트를 JavaScript 표현식으로 감싸고 HTML 엔티티 사용 권장 */}
                 <p className="text-gray-400 mt-2">
-                    현재 로그인 유저의 `approvalStatus`가 'PENDING' 또는
-                    'APPROVED'인 경우 이 페이지에 접근할 수 없습니다.
+                    {`현재 로그인 유저의 \`approvalStatus\`가 'PENDING' 또는 'APPROVED'인 경우 이 페이지에 접근할 수 없습니다.`}
                 </p>
             </div>
         </div>
