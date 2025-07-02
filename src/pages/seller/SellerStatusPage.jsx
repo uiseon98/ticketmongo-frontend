@@ -170,7 +170,7 @@ const SellerStatusPage = () => {
             statusMessage = '강제 해제됨';
             statusColorClass = 'text-purple-500'; // 보라색
             break;
-        case null: // 판매자 신청을 하지 않은 초기 상태
+        // case null: // 판매자 신청을 하지 않은 초기 상태
         default:
             statusMessage = '미신청';
             statusColorClass = 'text-blue-400'; // 파란색
