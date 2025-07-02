@@ -8,8 +8,14 @@ const UnauthorizedAccessPage = () => {
     const navigate = useNavigate();
 
     // 사용자 권한 확인
-    const isAdmin = user && user.role === 'ROLE_ADMIN';
-    const isSeller = user && user.role === 'ROLE_SELLER';
+    const isAdmin =
+        user &&
+        (user.role === 'ROLE_ADMIN' ||
+            (user.roles && user.roles.includes('ROLE_ADMIN')));
+    const isSeller =
+        user &&
+        (user.role === 'ROLE_SELLER' ||
+            (user.roles && user.roles.includes('ROLE_SELLER')));
     // const isNormalUser = user && user.role === 'ROLE_USER';
     const isLoggedIn = !!user; // 로그인 여부
 
