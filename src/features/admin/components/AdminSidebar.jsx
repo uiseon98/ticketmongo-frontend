@@ -1,4 +1,3 @@
-// src/features/admin/components/AdminSidebar.jsx
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 
@@ -59,4 +58,4 @@ const AdminSidebar = () => {
     );
 };
 
-export default AdminSidebar; // default export로 내보냅니다.
+export default AdminSidebar;
