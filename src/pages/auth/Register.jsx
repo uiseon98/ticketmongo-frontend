@@ -1,10 +1,15 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { User, Upload, X } from 'lucide-react';
-import { registerUser } from '../../features/auth/services/registerService';
+import {
+    registerUser,
+    oauthRegisterUser,
+} from '../../features/auth/services/registerService';
 import { AccountForm } from '../../features/auth/services/AccountForm';
 import { SignupInput } from '../../features/auth/components/RegisterForm';
 import { registerInputType } from '../../features/auth/types/registerInputType';
+import { NotificationSection } from '../../features/user/components/BookingDetail/NotificationSection';
+import { NOTIFICATION_TYPE } from '../../features/user/services/bookingDetailService';
 
 export default function Register() {
     const [formData, setFormData] = useState({
@@ -23,19 +28,47 @@ export default function Register() {
     const [agreeTerms, setAgreeTerms] = useState(false);
     const [profileImage, setProfileImage] = useState(null);
     const [errors, setErrors] = useState({});
-    const [errorMessage, setErrorMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const errorRef = useRef(null);
     const navigate = useNavigate();
+    const [params] = useSearchParams();
+    const paramError = params.get('error');
+    const [notification, setNotification] = useState(null);
 
     useEffect(() => {
-        if (errorMessage && errorRef.current) {
-            errorRef.current.scrollIntoView({
-                behavior: 'smooth',
-                block: 'center',
-            });
+        if (paramError === 'need_signup') {
+            showNotification(
+                '소셜 로그인 회원가입 필요',
+                NOTIFICATION_TYPE.INFO,
+            );
+
+            const handleOauthUserInfo = async () => {
+                try {
+                    const result = await oauthRegisterUser();
+                    if (result.success) {
+                        setFormData((prev) => ({
+                            ...prev,
+                            email: result.data.email,
+                            name: result.data.name,
+                        }));
+                    } else {
+                        showNotification(result.error, NOTIFICATION_TYPE.ERROR);
+                    }
+                } catch (error) {
+                    showNotification(
+                        '서버 오류로 사용자 정보를 불러올 수 없습니다.',
+                        NOTIFICATION_TYPE.ERROR,
+                    );
+                }
+            };
+
+            handleOauthUserInfo();
         }
-    }, [errorMessage]);
+    }, [paramError]);
+
+    const showNotification = (message, type = NOTIFICATION_TYPE.INFO) => {
+        setNotification({ message, type });
+        setTimeout(() => setNotification(null), 3000);
+    };
 
     const handleInputChange = (field) => (e) => {
         let value = e.target.value;
@@ -79,20 +112,23 @@ export default function Register() {
             reader.readAsDataURL(file);
         }
     };
-
     const handleRegister = async () => {
-        setErrorMessage('');
-
         const newErrors = AccountForm.validateAllFields(formData);
         setErrors(newErrors);
 
         if (Object.keys(newErrors).length > 0) {
-            setErrorMessage('입력 정보를 다시 확인해주세요.');
+            showNotification(
+                '입력 정보를 다시 확인해주세요.',
+                NOTIFICATION_TYPE.ERROR,
+            );
             return;
         }
 
         if (!agreeTerms) {
-            setErrorMessage('이용약관과 개인정보처리방침에 동의해주세요.');
+            showNotification(
+                '이용약관과 개인정보처리방침에 동의해주세요.',
+                NOTIFICATION_TYPE.ERROR,
+            );
             return;
         }
 
@@ -101,58 +137,25 @@ export default function Register() {
         try {
             const result = await registerUser(formData);
             if (result.success) {
-                navigate('/auth/login');
+                navigate('/login');
             } else {
-                setErrorMessage(result.error);
+                showNotification(result.error, NOTIFICATION_TYPE.ERROR);
             }
         } catch (error) {
-            setErrorMessage(error || '회원가입 중 오류가 발생했습니다.');
+            showNotification(
+                error || '회원가입 중 오류가 발생했습니다.',
+                NOTIFICATION_TYPE.ERROR,
+            );
         } finally {
             setIsLoading(false);
         }
     };
 
-    const closeErrorMessage = () => {
-        setErrorMessage('');
-    };
-
     return (
         <div className="min-h-screen bg-gray-900 flex flex-col">
             {/* Error Message Banner */}
-            {errorMessage && (
-                <div
-                    ref={errorRef}
-                    className="bg-red-600 border-l-4 border-red-700 text-white p-4 relative"
-                >
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center">
-                            <div className="flex-shrink-0">
-                                <svg
-                                    className="w-5 h-5"
-                                    fill="currentColor"
-                                    viewBox="0 0 20 20"
-                                >
-                                    <path
-                                        fillRule="evenodd"
-                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                                        clipRule="evenodd"
-                                    />
-                                </svg>
-                            </div>
-                            <div className="ml-3">
-                                <p className="text-sm font-medium">
-                                    {errorMessage}
-                                </p>
-                            </div>
-                        </div>
-                        <button
-                            onClick={closeErrorMessage}
-                            className="flex-shrink-0 ml-4 p-1 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors"
-                        >
-                            <X className="w-4 h-4" />
-                        </button>
-                    </div>
-                </div>
+            {notification && (
+                <NotificationSection notification={notification} />
             )}
 
             {/* Main Content */}
