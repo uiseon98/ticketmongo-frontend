@@ -25,6 +25,26 @@ apiClient.interceptors.request.use(
         console.log(
             `🚀 API 요청: ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`,
         );
+
+        const { url = '' } = config;
+        const securePatterns = [/^\/seats\/concerts\/(\d+)/];
+
+        for (const pattern of securePatterns) {
+            const match = url.match(pattern);
+            if (match) {
+                const concertId = match[1];
+                const key = sessionStorage.getItem(`accessKey-${concertId}`);
+                if (key) {
+                    config.headers['X-Access-Key'] = key;
+                } else {
+                    console.warn(
+                        `세션에 accessKey-${concertId}가 없습니다. URL: ${url}`,
+                    );
+                }
+                break; // 매칭되면 루프 종료
+            }
+        }
+
         return config;
     },
     (error) => {
@@ -60,6 +80,7 @@ apiClient.interceptors.response.use(
         if (error.response) {
             const status = error.response.status;
             const url = error.response.config?.url || 'unknown';
+            const originalRequest = error.config;
 
             // 구체적인 에러 메시지 생성
             let errorMessage = `API 호출 실패: ${status}`;
@@ -93,10 +114,29 @@ apiClient.interceptors.response.use(
                 `❌ API Error - Status: ${status}, URL: ${url}, Message: ${errorMessage}`,
             );
 
-            // 401, 403 에러 시 자동 리다이렉트 (필요한 경우 주석 해제)
-            if (status === 401 || status === 403) {
+            // 401 에러 시 자동 리다이렉트 (필요한 경우 주석 해제)
+            if (status === 401) {
                 // console.warn('🔒 인증 필요 - 로그인 페이지로 이동');
                 // window.location.href = '/login';
+            } else if (status === 403) {
+                if (originalRequest.url.includes('/seats/concerts')) {
+                    alert(
+                        '예매 시간이 만료되었습니다. 콘서트 상세 페이지로 돌아갑니다.',
+                    );
+                    // 해당 콘서트의 accessKey를 세션 스토리지에서 삭제
+                    const concertIdMatch =
+                        originalRequest.url.match(/concerts\/(\d+)/);
+                    if (concertIdMatch) {
+                        sessionStorage.removeItem(
+                            `accessKey-${concertIdMatch[1]}`,
+                        );
+                    }
+                    // 상세 페이지로 리다이렉트
+                    window.location.href = `/concerts/${
+                        concertIdMatch ? concertIdMatch[1] : ''
+                    }`;
+                    return Promise.reject(error); // 여기서 에러 처리를 끝냄
+                }
             }
 
             return Promise.reject(new Error(errorMessage));
