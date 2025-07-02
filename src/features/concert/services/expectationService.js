@@ -21,7 +21,7 @@ import apiClient from '../../../shared/utils/apiClient.js';
  */
 
 // 기대평 데이터 검증 헬퍼 함수 (모듈 레벨로 이동)
-const validateExpectationData = expectationData => {
+const validateExpectationData = (expectationData) => {
   const trimmedComment = expectationData.comment?.trim() || '';
   const trimmedNickname = expectationData.userNickname?.trim() || '';
 
@@ -87,7 +87,7 @@ export const expectationService = {
             page, // 페이지 번호 (0부터 시작)
             size, // 한 페이지당 기대평 개수
           },
-        }
+        },
       );
 
       // apiClient가 SuccessResponse를 자동 처리하므로 그대로 반환
@@ -97,7 +97,7 @@ export const expectationService = {
       // 어떤 콘서트의 기대평 조회에서 실패했는지 로그에 기록
       console.error(
         `기대평 목록 조회 실패 (콘서트 ID: ${params.concertId}):`,
-        error
+        error,
       );
 
       // 에러를 컴포넌트로 전달하여 사용자에게 적절한 에러 메시지 표시
@@ -139,7 +139,7 @@ export const expectationService = {
       // POST 요청: 두 번째 파라미터가 request body
       const response = await apiClient.post(
         `/concerts/${concertId}/expectations`,
-        payload
+        payload,
       );
 
       // 성공 시 생성된 기대평 정보 반환
@@ -184,7 +184,7 @@ export const expectationService = {
       // URL에 concertId와 expectationId 모두 포함 (백엔드 권한 확인용)
       const response = await apiClient.put(
         `/concerts/${concertId}/expectations/${expectationId}`,
-        payload
+        payload,
       );
 
       // 수정된 기대평 정보 반환
@@ -216,7 +216,7 @@ export const expectationService = {
       // DELETE 요청: request body 없음, URL에 필요한 ID들 포함
       // 백엔드에서 사용자 권한 확인 후 삭제 처리
       const response = await apiClient.delete(
-        `/concerts/${concertId}/expectations/${expectationId}`
+        `/concerts/${concertId}/expectations/${expectationId}`,
       );
 
       // 삭제 성공 시 null 반환 (성공 메시지는 response.message에 포함)

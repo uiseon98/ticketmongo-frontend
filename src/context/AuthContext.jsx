@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }) => {
     fetchUser();
   }, []);
 
-  const login = userData => {
+  const login = (userData) => {
     setUser(userData);
   };
 

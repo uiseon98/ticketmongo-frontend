@@ -6,7 +6,7 @@ import apiClient from '../../../shared/utils/apiClient'; // 공통 apiClient 임
  * @param {Object} data - 사용자 로그인 정보 (username, password)
  * @returns {Promise<Object|null>} 로그인 성공 시 사용자 정보 객체, 실패 시 null
  */
-export const loginUser = async data => {
+export const loginUser = async (data) => {
   try {
     // 백엔드에서 application/x-www-form-urlencoded 타입을 기대하므로 URLSearchParams를 사용합니다.
     const formData = new URLSearchParams();
@@ -36,7 +36,7 @@ export const loginUser = async data => {
  * 소셜 로그인을 시작합니다. 브라우저를 해당 소셜 로그인 URL로 리다이렉트합니다.
  * @param {string} provider - 소셜 로그인 제공자 (예: 'google', 'kakao')
  */
-export const socialLoginUser = provider => {
+export const socialLoginUser = (provider) => {
   // socialLoginUser는 브라우저 리다이렉트가 필요하므로 apiClient를 직접 사용하지 않습니다.
   // .env 파일의 VITE_APP_API_URL을 활용하여 백엔드 소셜 로그인 엔드포인트로 이동합니다.
   // API URL에서 '/api' 부분을 제거하여 기본 백엔드 URL을 만듭니다.

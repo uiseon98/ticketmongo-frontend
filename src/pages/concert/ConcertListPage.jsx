@@ -37,12 +37,12 @@ function ConcertListPage() {
   } = useConcerts();
 
   // 콘서트 카드 클릭 핸들러 (상세 페이지로 이동)
-  const handleConcertClick = concert => {
+  const handleConcertClick = (concert) => {
     navigate(`/concerts/${concert.concertId}`);
   };
 
   // 검색 실행 핸들러
-  const handleSearch = async searchKeyword => {
+  const handleSearch = async (searchKeyword) => {
     try {
       // URL 파라미터 업데이트
       const newSearchParams = new URLSearchParams();
@@ -72,7 +72,7 @@ function ConcertListPage() {
   };
 
   // 필터 적용 핸들러
-  const handleFilter = async filterParams => {
+  const handleFilter = async (filterParams) => {
     try {
       // 빈 값들 제거
       const cleanFilterParams = {};
@@ -105,7 +105,7 @@ function ConcertListPage() {
   };
 
   // 페이지 변경 핸들러
-  const handlePageChange = newPage => {
+  const handlePageChange = (newPage) => {
     goToPage(newPage);
   };
 

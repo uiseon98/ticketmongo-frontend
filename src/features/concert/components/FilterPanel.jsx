@@ -200,7 +200,7 @@ const FilterPanel = ({
   /**
    * 시작일 변경 핸들러
    */
-  const handleStartDateChange = useCallback(event => {
+  const handleStartDateChange = useCallback((event) => {
     setStartDate(event.target.value);
     setHasChanges(true);
     setError(''); // 입력 시 에러 메시지 제거
@@ -209,7 +209,7 @@ const FilterPanel = ({
   /**
    * 종료일 변경 핸들러
    */
-  const handleEndDateChange = useCallback(event => {
+  const handleEndDateChange = useCallback((event) => {
     setEndDate(event.target.value);
     setHasChanges(true);
     setError(''); // 입력 시 에러 메시지 제거
@@ -218,7 +218,7 @@ const FilterPanel = ({
   /**
    * 최소 가격 변경 핸들러
    */
-  const handlePriceMinChange = useCallback(event => {
+  const handlePriceMinChange = useCallback((event) => {
     const value = event.target.value;
     // 숫자와 소수점만 허용
     if (value === '' || /^\d*\.?\d*$/.test(value)) {
@@ -231,7 +231,7 @@ const FilterPanel = ({
   /**
    * 최대 가격 변경 핸들러
    */
-  const handlePriceMaxChange = useCallback(event => {
+  const handlePriceMaxChange = useCallback((event) => {
     const value = event.target.value;
     // 숫자와 소수점만 허용
     if (value === '' || /^\d*\.?\d*$/.test(value)) {

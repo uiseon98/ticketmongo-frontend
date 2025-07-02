@@ -100,7 +100,7 @@ const AISummary = ({
    * 펼치기/접기 버튼 클릭 핸들러
    */
   const handleToggleExpand = useCallback(() => {
-    setIsExpanded(prev => !prev);
+    setIsExpanded((prev) => !prev);
   }, []);
 
   /**
@@ -311,13 +311,13 @@ const AISummary = ({
             style={refreshButtonStyles}
             aria-label="AI 요약 새로고침"
             disabled={loading}
-            onMouseEnter={e => {
+            onMouseEnter={(e) => {
               if (!loading) {
                 e.target.style.backgroundColor = '#f1f5f9';
                 e.target.style.borderColor = '#94a3b8';
               }
             }}
-            onMouseLeave={e => {
+            onMouseLeave={(e) => {
               if (!loading) {
                 e.target.style.backgroundColor = 'transparent';
                 e.target.style.borderColor = '#cbd5e1';

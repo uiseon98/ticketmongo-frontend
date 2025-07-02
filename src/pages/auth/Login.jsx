@@ -13,7 +13,7 @@ export default function Login() {
   const { user, login, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const handleLogin = async e => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setErrorMessage('');
     const userData = await loginUser({ username, password });
@@ -26,7 +26,7 @@ export default function Login() {
     }
   };
 
-  const handleSocialLogin = provider => {
+  const handleSocialLogin = (provider) => {
     socialLoginUser(provider);
   };
 
@@ -65,7 +65,7 @@ export default function Login() {
                 id="username"
                 type="text"
                 value={username}
-                onChange={e => setUsername(e.target.value)}
+                onChange={(e) => setUsername(e.target.value)}
                 placeholder="아이디를 입력하세요"
                 className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               />
@@ -82,7 +82,7 @@ export default function Login() {
                 id="password"
                 type="password"
                 value={password}
-                onChange={e => setPassword(e.target.value)}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder="비밀번호를 입력하세요"
                 className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               />
