@@ -114,8 +114,10 @@ const SellerConcertList = () => {
         status: status,
       });
 
-      const response = await fetch(`/api/seller/concerts/status?${params}`);
-      const result = await response.json();
+            const response = await fetch(
+                `/api/seller/concerts/status?${params}`,
+            );
+            const result = await response.json();
 
       if (result.success) {
         setConcerts(result.data);
@@ -179,12 +181,15 @@ const SellerConcertList = () => {
     setPagination((prev) => ({ ...prev, page: 0, size: newSize }));
   };
 
-  const handleSortChange = (field) => {
-    setSorting((prev) => ({
-      sortBy: field,
-      sortDir: prev.sortBy === field && prev.sortDir === 'asc' ? 'desc' : 'asc',
-    }));
-  };
+    const handleSortChange = (field) => {
+        setSorting((prev) => ({
+            sortBy: field,
+            sortDir:
+                prev.sortBy === field && prev.sortDir === 'asc'
+                    ? 'desc'
+                    : 'asc',
+        }));
+    };
 
   const handleStatusFilter = (status) => {
     setFilters((prev) => ({ ...prev, status }));
@@ -206,15 +211,18 @@ const SellerConcertList = () => {
     filters.status,
   ]);
 
-  // ====== 상태별 스타일 및 텍스트 ======
-  const getStatusBadge = (status) => {
-    const statusConfig = {
-      SCHEDULED: { color: 'bg-blue-100 text-blue-800', text: '예정됨' },
-      ON_SALE: { color: 'bg-green-100 text-green-800', text: '예매중' },
-      SOLD_OUT: { color: 'bg-red-100 text-red-800', text: '매진' },
-      CANCELLED: { color: 'bg-gray-100 text-gray-800', text: '취소됨' },
-      COMPLETED: { color: 'bg-purple-100 text-purple-800', text: '완료됨' },
-    };
+    // ====== 상태별 스타일 및 텍스트 ======
+    const getStatusBadge = (status) => {
+        const statusConfig = {
+            SCHEDULED: { color: 'bg-blue-100 text-blue-800', text: '예정됨' },
+            ON_SALE: { color: 'bg-green-100 text-green-800', text: '예매중' },
+            SOLD_OUT: { color: 'bg-red-100 text-red-800', text: '매진' },
+            CANCELLED: { color: 'bg-gray-100 text-gray-800', text: '취소됨' },
+            COMPLETED: {
+                color: 'bg-purple-100 text-purple-800',
+                text: '완료됨',
+            },
+        };
 
     const config = statusConfig[status] || statusConfig.SCHEDULED;
     return (
@@ -244,26 +252,28 @@ const SellerConcertList = () => {
     });
   };
 
-  // ====== 렌더링 ======
-  return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      {/* 헤더 섹션 */}
-      <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-        <div className="flex justify-between items-center mb-4">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">콘서트 관리</h1>
-            <p className="text-gray-600 mt-1">
-              등록한 콘서트를 관리하고 편집할 수 있습니다
-            </p>
-          </div>
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
-          >
-            <Plus size={20} />
-            콘서트 등록
-          </button>
-        </div>
+    // ====== 렌더링 ======
+    return (
+        <div className="p-6 bg-gray-50 min-h-screen">
+            {/* 헤더 섹션 */}
+            <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+                <div className="flex justify-between items-center mb-4">
+                    <div>
+                        <h1 className="text-2xl font-bold text-gray-900">
+                            콘서트 관리
+                        </h1>
+                        <p className="text-gray-600 mt-1">
+                            등록한 콘서트를 관리하고 편집할 수 있습니다
+                        </p>
+                    </div>
+                    <button
+                        onClick={() => setShowCreateModal(true)}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                    >
+                        <Plus size={20} />
+                        콘서트 등록
+                    </button>
+                </div>
 
         {/* 필터 및 검색 */}
         <div className="flex flex-wrap gap-4 items-center">
@@ -319,140 +329,193 @@ const SellerConcertList = () => {
         </div>
       )}
 
-      {/* 콘서트 목록 */}
-      <div className="bg-white rounded-lg shadow-sm">
-        {loading ? (
-          <div className="p-8 text-center">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <p className="mt-2 text-gray-600">로딩 중...</p>
-          </div>
-        ) : concerts.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">
-            <Calendar size={48} className="mx-auto mb-4 text-gray-300" />
-            <p>등록된 콘서트가 없습니다.</p>
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="mt-4 text-blue-600 hover:text-blue-800"
-            >
-              첫 번째 콘서트를 등록해보세요
-            </button>
-          </div>
-        ) : (
-          <>
-            {/* 테이블 헤더 */}
-            <div className="border-b border-gray-200">
-              <div className="grid grid-cols-12 gap-4 p-4 text-sm font-medium text-gray-500">
-                <div className="col-span-3">
-                  <button
-                    onClick={() => handleSortChange('title')}
-                    className="flex items-center gap-1 hover:text-gray-700"
-                  >
-                    콘서트 정보
-                    {sorting.sortBy === 'title' && (
-                      <span>{sorting.sortDir === 'asc' ? '↑' : '↓'}</span>
-                    )}
-                  </button>
-                </div>
-                <div className="col-span-2">
-                  <button
-                    onClick={() => handleSortChange('concertDate')}
-                    className="flex items-center gap-1 hover:text-gray-700"
-                  >
-                    공연일시
-                    {sorting.sortBy === 'concertDate' && (
-                      <span>{sorting.sortDir === 'asc' ? '↑' : '↓'}</span>
-                    )}
-                  </button>
-                </div>
-                <div className="col-span-2">장소</div>
-                <div className="col-span-1">좌석수</div>
-                <div className="col-span-1">
-                  <button
-                    onClick={() => handleSortChange('status')}
-                    className="flex items-center gap-1 hover:text-gray-700"
-                  >
-                    상태
-                    {sorting.sortBy === 'status' && (
-                      <span>{sorting.sortDir === 'asc' ? '↑' : '↓'}</span>
-                    )}
-                  </button>
-                </div>
-                <div className="col-span-2">
-                  <button
-                    onClick={() => handleSortChange('createdAt')}
-                    className="flex items-center gap-1 hover:text-gray-700"
-                  >
-                    등록일
-                    {sorting.sortBy === 'createdAt' && (
-                      <span>{sorting.sortDir === 'asc' ? '↑' : '↓'}</span>
-                    )}
-                  </button>
-                </div>
-                <div className="col-span-1">작업</div>
-              </div>
-            </div>
-
             {/* 콘서트 목록 */}
-            <div className="divide-y divide-gray-200">
-              {concerts.map((concert) => (
-                <div
-                  key={concert.concertId}
-                  className="grid grid-cols-12 gap-4 p-4 hover:bg-gray-50"
-                >
-                  {/* 콘서트 정보 */}
-                  <div className="col-span-3">
-                    <div className="flex items-start gap-3">
-                      <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
-                        {concert.posterImageUrl ? (
-                          <img
-                            src={concert.posterImageUrl}
-                            alt={concert.title}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <Image size={20} className="text-gray-400" />
-                        )}
-                      </div>
-                      <div>
-                        <h3 className="font-medium text-gray-900 line-clamp-2">
-                          {concert.title}
-                        </h3>
-                        <p className="text-sm text-gray-600">
-                          {concert.artist}
-                        </p>
-                      </div>
+            <div className="bg-white rounded-lg shadow-sm">
+                {loading ? (
+                    <div className="p-8 text-center">
+                        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                        <p className="mt-2 text-gray-600">로딩 중...</p>
                     </div>
-                  </div>
+                ) : concerts.length === 0 ? (
+                    <div className="p-8 text-center text-gray-500">
+                        <Calendar
+                            size={48}
+                            className="mx-auto mb-4 text-gray-300"
+                        />
+                        <p>등록된 콘서트가 없습니다.</p>
+                        <button
+                            onClick={() => setShowCreateModal(true)}
+                            className="mt-4 text-blue-600 hover:text-blue-800"
+                        >
+                            첫 번째 콘서트를 등록해보세요
+                        </button>
+                    </div>
+                ) : (
+                    <>
+                        {/* 테이블 헤더 */}
+                        <div className="border-b border-gray-200">
+                            <div className="grid grid-cols-12 gap-4 p-4 text-sm font-medium text-gray-500">
+                                <div className="col-span-3">
+                                    <button
+                                        onClick={() =>
+                                            handleSortChange('title')
+                                        }
+                                        className="flex items-center gap-1 hover:text-gray-700"
+                                    >
+                                        콘서트 정보
+                                        {sorting.sortBy === 'title' && (
+                                            <span>
+                                                {sorting.sortDir === 'asc'
+                                                    ? '↑'
+                                                    : '↓'}
+                                            </span>
+                                        )}
+                                    </button>
+                                </div>
+                                <div className="col-span-2">
+                                    <button
+                                        onClick={() =>
+                                            handleSortChange('concertDate')
+                                        }
+                                        className="flex items-center gap-1 hover:text-gray-700"
+                                    >
+                                        공연일시
+                                        {sorting.sortBy === 'concertDate' && (
+                                            <span>
+                                                {sorting.sortDir === 'asc'
+                                                    ? '↑'
+                                                    : '↓'}
+                                            </span>
+                                        )}
+                                    </button>
+                                </div>
+                                <div className="col-span-2">장소</div>
+                                <div className="col-span-1">좌석수</div>
+                                <div className="col-span-1">
+                                    <button
+                                        onClick={() =>
+                                            handleSortChange('status')
+                                        }
+                                        className="flex items-center gap-1 hover:text-gray-700"
+                                    >
+                                        상태
+                                        {sorting.sortBy === 'status' && (
+                                            <span>
+                                                {sorting.sortDir === 'asc'
+                                                    ? '↑'
+                                                    : '↓'}
+                                            </span>
+                                        )}
+                                    </button>
+                                </div>
+                                <div className="col-span-2">
+                                    <button
+                                        onClick={() =>
+                                            handleSortChange('createdAt')
+                                        }
+                                        className="flex items-center gap-1 hover:text-gray-700"
+                                    >
+                                        등록일
+                                        {sorting.sortBy === 'createdAt' && (
+                                            <span>
+                                                {sorting.sortDir === 'asc'
+                                                    ? '↑'
+                                                    : '↓'}
+                                            </span>
+                                        )}
+                                    </button>
+                                </div>
+                                <div className="col-span-1">작업</div>
+                            </div>
+                        </div>
 
-                  {/* 공연일시 */}
-                  <div className="col-span-2">
-                    <div className="flex items-center gap-1 text-sm">
-                      <Calendar size={14} className="text-gray-400" />
-                      <span>{formatDate(concert.concertDate)}</span>
-                    </div>
-                    <div className="flex items-center gap-1 text-sm text-gray-600 mt-1">
-                      <Clock size={14} className="text-gray-400" />
-                      <span>
-                        {concert.startTime} - {concert.endTime}
-                      </span>
-                    </div>
-                  </div>
+                        {/* 콘서트 목록 */}
+                        <div className="divide-y divide-gray-200">
+                            {concerts.map((concert) => (
+                                <div
+                                    key={concert.concertId}
+                                    className="grid grid-cols-12 gap-4 p-4 hover:bg-gray-50"
+                                >
+                                    {/* 콘서트 정보 */}
+                                    <div className="col-span-3">
+                                        <div className="flex items-start gap-3">
+                                            <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
+                                                {concert.posterImageUrl ? (
+                                                    <img
+                                                        src={
+                                                            concert.posterImageUrl
+                                                        }
+                                                        alt={concert.title}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                ) : (
+                                                    <Image
+                                                        size={20}
+                                                        className="text-gray-400"
+                                                    />
+                                                )}
+                                            </div>
+                                            <div>
+                                                <h3 className="font-medium text-gray-900 line-clamp-2">
+                                                    {concert.title}
+                                                </h3>
+                                                <p className="text-sm text-gray-600">
+                                                    {concert.artist}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
 
-                  {/* 장소 */}
-                  <div className="col-span-2">
-                    <div className="flex items-center gap-1 text-sm">
-                      <MapPin size={14} className="text-gray-400" />
-                      <span className="line-clamp-2">{concert.venueName}</span>
-                    </div>
-                  </div>
+                                    {/* 공연일시 */}
+                                    <div className="col-span-2">
+                                        <div className="flex items-center gap-1 text-sm">
+                                            <Calendar
+                                                size={14}
+                                                className="text-gray-400"
+                                            />
+                                            <span>
+                                                {formatDate(
+                                                    concert.concertDate,
+                                                )}
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center gap-1 text-sm text-gray-600 mt-1">
+                                            <Clock
+                                                size={14}
+                                                className="text-gray-400"
+                                            />
+                                            <span>
+                                                {concert.startTime} -{' '}
+                                                {concert.endTime}
+                                            </span>
+                                        </div>
+                                    </div>
 
-                  {/* 좌석수 */}
-                  <div className="col-span-1">
-                    <div className="flex items-center gap-1 text-sm">
-                      <Users size={14} className="text-gray-400" />
-                      <span>{concert.totalSeats?.toLocaleString()}</span>
-                    </div>
-                  </div>
+                                    {/* 장소 */}
+                                    <div className="col-span-2">
+                                        <div className="flex items-center gap-1 text-sm">
+                                            <MapPin
+                                                size={14}
+                                                className="text-gray-400"
+                                            />
+                                            <span className="line-clamp-2">
+                                                {concert.venueName}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {/* 좌석수 */}
+                                    <div className="col-span-1">
+                                        <div className="flex items-center gap-1 text-sm">
+                                            <Users
+                                                size={14}
+                                                className="text-gray-400"
+                                            />
+                                            <span>
+                                                {concert.totalSeats?.toLocaleString()}
+                                            </span>
+                                        </div>
+                                    </div>
 
                   {/* 상태 */}
                   <div className="col-span-1">
@@ -466,33 +529,37 @@ const SellerConcertList = () => {
                     </span>
                   </div>
 
-                  {/* 작업 버튼들 */}
-                  <div className="col-span-1">
-                    <div className="flex gap-1">
-                      <button
-                        onClick={() => {
-                          setSelectedConcert(concert);
-                          setShowEditModal(true);
-                        }}
-                        className="p-1 text-blue-600 hover:bg-blue-50 rounded transition-colors"
-                        title="수정"
-                      >
-                        <Edit size={16} />
-                      </button>
-                      <button
-                        onClick={() => deleteConcert(concert.concertId)}
-                        className="p-1 text-red-600 hover:bg-red-50 rounded transition-colors"
-                        title="삭제"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </>
-        )}
+                                    {/* 작업 버튼들 */}
+                                    <div className="col-span-1">
+                                        <div className="flex gap-1">
+                                            <button
+                                                onClick={() => {
+                                                    setSelectedConcert(concert);
+                                                    setShowEditModal(true);
+                                                }}
+                                                className="p-1 text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                                                title="수정"
+                                            >
+                                                <Edit size={16} />
+                                            </button>
+                                            <button
+                                                onClick={() =>
+                                                    deleteConcert(
+                                                        concert.concertId,
+                                                    )
+                                                }
+                                                className="p-1 text-red-600 hover:bg-red-50 rounded transition-colors"
+                                                title="삭제"
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </>
+                )}
 
         {/* 페이지네이션 */}
         {!loading && concerts.length > 0 && (
@@ -508,99 +575,123 @@ const SellerConcertList = () => {
                 개 표시
               </div>
 
-              <div className="flex items-center gap-2">
-                {/* 페이지 크기 선택 */}
-                <select
-                  value={pagination.size}
-                  onChange={(e) => handleSizeChange(Number(e.target.value))}
-                  className="text-sm border border-gray-300 rounded px-2 py-1"
-                >
-                  <option value={10}>10개씩</option>
-                  <option value={20}>20개씩</option>
-                  <option value={50}>50개씩</option>
-                  <option value={100}>100개씩</option>
-                </select>
+                            <div className="flex items-center gap-2">
+                                {/* 페이지 크기 선택 */}
+                                <select
+                                    value={pagination.size}
+                                    onChange={(e) =>
+                                        handleSizeChange(Number(e.target.value))
+                                    }
+                                    className="text-sm border border-gray-300 rounded px-2 py-1"
+                                >
+                                    <option value={10}>10개씩</option>
+                                    <option value={20}>20개씩</option>
+                                    <option value={50}>50개씩</option>
+                                    <option value={100}>100개씩</option>
+                                </select>
 
-                {/* 페이지 버튼들 */}
-                <div className="flex gap-1">
-                  <button
-                    onClick={() => handlePageChange(pagination.page - 1)}
-                    disabled={pagination.first}
-                    className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    이전
-                  </button>
+                                {/* 페이지 버튼들 */}
+                                <div className="flex gap-1">
+                                    <button
+                                        onClick={() =>
+                                            handlePageChange(
+                                                pagination.page - 1,
+                                            )
+                                        }
+                                        disabled={pagination.first}
+                                        className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        이전
+                                    </button>
 
-                  {Array.from(
-                    { length: Math.min(5, pagination.totalPages) },
-                    (_, i) => {
-                      const pageNum = pagination.page + i - 2;
-                      if (pageNum < 0 || pageNum >= pagination.totalPages)
-                        return null;
+                                    {Array.from(
+                                        {
+                                            length: Math.min(
+                                                5,
+                                                pagination.totalPages,
+                                            ),
+                                        },
+                                        (_, i) => {
+                                            const pageNum =
+                                                pagination.page + i - 2;
+                                            if (
+                                                pageNum < 0 ||
+                                                pageNum >= pagination.totalPages
+                                            )
+                                                return null;
 
-                      return (
-                        <button
-                          key={pageNum}
-                          onClick={() => handlePageChange(pageNum)}
-                          className={`px-3 py-1 text-sm border rounded ${
-                            pageNum === pagination.page
-                              ? 'bg-blue-600 text-white border-blue-600'
-                              : 'border-gray-300 hover:bg-gray-50'
-                          }`}
-                        >
-                          {pageNum + 1}
-                        </button>
-                      );
-                    },
-                  )}
+                                            return (
+                                                <button
+                                                    key={pageNum}
+                                                    onClick={() =>
+                                                        handlePageChange(
+                                                            pageNum,
+                                                        )
+                                                    }
+                                                    className={`px-3 py-1 text-sm border rounded ${
+                                                        pageNum ===
+                                                        pagination.page
+                                                            ? 'bg-blue-600 text-white border-blue-600'
+                                                            : 'border-gray-300 hover:bg-gray-50'
+                                                    }`}
+                                                >
+                                                    {pageNum + 1}
+                                                </button>
+                                            );
+                                        },
+                                    )}
 
-                  <button
-                    onClick={() => handlePageChange(pagination.page + 1)}
-                    disabled={pagination.last}
-                    className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    다음
-                  </button>
-                </div>
-              </div>
+                                    <button
+                                        onClick={() =>
+                                            handlePageChange(
+                                                pagination.page + 1,
+                                            )
+                                        }
+                                        disabled={pagination.last}
+                                        className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        다음
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
-          </div>
-        )}
-      </div>
 
-      {/* 모달들은 추후 구현 */}
-      {showCreateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg">
-            <h2 className="text-xl font-bold mb-4">콘서트 등록</h2>
-            <p>콘서트 등록 폼이 여기에 들어갑니다.</p>
-            <button
-              onClick={() => setShowCreateModal(false)}
-              className="mt-4 px-4 py-2 bg-gray-500 text-white rounded"
-            >
-              닫기
-            </button>
-          </div>
-        </div>
-      )}
+            {/* 모달들은 추후 구현 */}
+            {showCreateModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white p-6 rounded-lg">
+                        <h2 className="text-xl font-bold mb-4">콘서트 등록</h2>
+                        <p>콘서트 등록 폼이 여기에 들어갑니다.</p>
+                        <button
+                            onClick={() => setShowCreateModal(false)}
+                            className="mt-4 px-4 py-2 bg-gray-500 text-white rounded"
+                        >
+                            닫기
+                        </button>
+                    </div>
+                </div>
+            )}
 
-      {showEditModal && selectedConcert && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg">
-            <h2 className="text-xl font-bold mb-4">콘서트 수정</h2>
-            <p>콘서트 수정 폼이 여기에 들어갑니다.</p>
-            <p>선택된 콘서트: {selectedConcert.title}</p>
-            <button
-              onClick={() => setShowEditModal(false)}
-              className="mt-4 px-4 py-2 bg-gray-500 text-white rounded"
-            >
-              닫기
-            </button>
-          </div>
+            {showEditModal && selectedConcert && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white p-6 rounded-lg">
+                        <h2 className="text-xl font-bold mb-4">콘서트 수정</h2>
+                        <p>콘서트 수정 폼이 여기에 들어갑니다.</p>
+                        <p>선택된 콘서트: {selectedConcert.title}</p>
+                        <button
+                            onClick={() => setShowEditModal(false)}
+                            className="mt-4 px-4 py-2 bg-gray-500 text-white rounded"
+                        >
+                            닫기
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
-      )}
-    </div>
-  );
+    );
 };
 
 export default SellerConcertList;

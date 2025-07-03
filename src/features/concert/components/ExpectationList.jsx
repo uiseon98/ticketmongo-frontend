@@ -50,14 +50,14 @@ const ExpectationList = ({
   totalElements = 0, // 전체 기대평 수 (useExpectations.totalElements)
   pageSize = 10, // 페이지 크기 (useExpectations.pageSize)
 
-  // ===== 액션 props =====
-  onExpectationClick, // 기대평 클릭 핸들러 (상세보기 또는 수정)
-  onPageChange, // 페이지 변경 핸들러 (useExpectations.goToPage)
-  onPageSizeChange, // 페이지 크기 변경 핸들러 (useExpectations.changePageSize)
-  onRefresh, // 새로고침 핸들러 (useExpectations.refresh)
-  currentUserId, // 현재 사용자 ID
-  onEditClick, // 수정 버튼 클릭 핸들러
-  onDeleteClick, // 삭제 버튼 클릭 핸들러
+    // ===== 액션 props =====
+    onExpectationClick, // 기대평 클릭 핸들러 (상세보기 또는 수정)
+    onPageChange, // 페이지 변경 핸들러 (useExpectations.goToPage)
+    onPageSizeChange, // 페이지 크기 변경 핸들러 (useExpectations.changePageSize)
+    onRefresh, // 새로고침 핸들러 (useExpectations.refresh)
+    currentUserId, // 현재 사용자 ID
+    onEditClick, // 수정 버튼 클릭 핸들러
+    onDeleteClick, // 삭제 버튼 클릭 핸들러
 
   // ===== UI 제어 props =====
   showPagination = true, // 페이지네이션 표시 여부
@@ -589,28 +589,38 @@ const ExpectationList = ({
               </div>
             </div>
 
-            {/* 기대평 내용 */}
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                marginBottom: '8px',
-              }}
-            >
-              <span style={{ fontSize: compact ? '18px' : '20px' }}>
-                {ExpectationRatingEmojis[expectation.expectationRating]}
-              </span>
-              <span
-                style={{
-                  fontSize: compact ? '13px' : '14px',
-                  fontWeight: '600',
-                  color: '#374151',
-                }}
-              >
-                {ExpectationRatingLabels[expectation.expectationRating]}
-              </span>
-            </div>
+                        {/* 기대평 내용 */}
+                        <div
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                marginBottom: '8px',
+                            }}
+                        >
+                            <span
+                                style={{ fontSize: compact ? '18px' : '20px' }}
+                            >
+                                {
+                                    ExpectationRatingEmojis[
+                                        expectation.expectationRating
+                                    ]
+                                }
+                            </span>
+                            <span
+                                style={{
+                                    fontSize: compact ? '13px' : '14px',
+                                    fontWeight: '600',
+                                    color: '#374151',
+                                }}
+                            >
+                                {
+                                    ExpectationRatingLabels[
+                                        expectation.expectationRating
+                                    ]
+                                }
+                            </span>
+                        </div>
 
             {/* 기대평 텍스트 */}
             <p
@@ -691,15 +701,18 @@ const ExpectationList = ({
             ← 이전
           </button>
 
-          {/* 페이지 번호들 */}
-          {getVisiblePageNumbers().map((pageNum, index) => {
-            if (pageNum === '...') {
-              return (
-                <span key={`ellipsis-${index}`} style={{ padding: '6px 4px' }}>
-                  ...
-                </span>
-              );
-            }
+                    {/* 페이지 번호들 */}
+                    {getVisiblePageNumbers().map((pageNum, index) => {
+                        if (pageNum === '...') {
+                            return (
+                                <span
+                                    key={`ellipsis-${index}`}
+                                    style={{ padding: '6px 4px' }}
+                                >
+                                    ...
+                                </span>
+                            );
+                        }
 
             return (
               <button
@@ -716,20 +729,23 @@ const ExpectationList = ({
             );
           })}
 
-          {/* 다음 페이지 버튼 */}
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage >= totalPages - 1}
-            style={{
-              ...pageButtonBaseStyles,
-              opacity: currentPage >= totalPages - 1 ? 0.5 : 1,
-              cursor: currentPage >= totalPages - 1 ? 'not-allowed' : 'pointer',
-            }}
-          >
-            다음 →
-          </button>
-        </div>
-      )}
+                    {/* 다음 페이지 버튼 */}
+                    <button
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        disabled={currentPage >= totalPages - 1}
+                        style={{
+                            ...pageButtonBaseStyles,
+                            opacity: currentPage >= totalPages - 1 ? 0.5 : 1,
+                            cursor:
+                                currentPage >= totalPages - 1
+                                    ? 'not-allowed'
+                                    : 'pointer',
+                        }}
+                    >
+                        다음 →
+                    </button>
+                </div>
+            )}
 
       {/* 페이지 크기 선택 */}
       {showPagination && totalElements > 10 && (
@@ -757,24 +773,25 @@ const ExpectationList = ({
         </div>
       )}
 
-      {/* 기대평 vs 리뷰 안내 */}
-      {!compact && totalElements > 0 && (
-        <div
-          style={{
-            marginTop: '16px',
-            padding: '12px',
-            backgroundColor: '#fef9e7',
-            borderRadius: '6px',
-            fontSize: '12px',
-            color: '#a16207',
-          }}
-        >
-          💡 기대평은 공연 관람 <strong>전</strong>에 작성하는 기대감이며, 관람{' '}
-          <strong>후</strong>에는 리뷰를 작성하실 수 있습니다.
+            {/* 기대평 vs 리뷰 안내 */}
+            {!compact && totalElements > 0 && (
+                <div
+                    style={{
+                        marginTop: '16px',
+                        padding: '12px',
+                        backgroundColor: '#fef9e7',
+                        borderRadius: '6px',
+                        fontSize: '12px',
+                        color: '#a16207',
+                    }}
+                >
+                    💡 기대평은 공연 관람 <strong>전</strong>에 작성하는
+                    기대감이며, 관람 <strong>후</strong>에는 리뷰를 작성하실 수
+                    있습니다.
+                </div>
+            )}
         </div>
-      )}
-    </div>
-  );
+    );
 };
 
 // ===== 기본 PROPS =====

@@ -657,26 +657,33 @@ const ExpectationForm = ({
           </div>
         </div>
 
-        {/* 버튼 영역 */}
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            marginTop: compact ? '20px' : '24px',
-          }}
-        >
-          <button
-            type="submit"
-            onClick={handleSubmit}
-            disabled={disabled || loading}
-            style={submitButtonStyles}
-          >
-            {loading ? (
-              <>⏳ {mode === 'edit' ? '수정 중...' : '작성 중...'}</>
-            ) : (
-              <>{mode === 'edit' ? '✅ 수정 완료' : '✨ 기대평 작성'}</>
-            )}
-          </button>
+                {/* 버튼 영역 */}
+                <div
+                    style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        marginTop: compact ? '20px' : '24px',
+                    }}
+                >
+                    <button
+                        type="submit"
+                        onClick={handleSubmit}
+                        disabled={disabled || loading}
+                        style={submitButtonStyles}
+                    >
+                        {loading ? (
+                            <>
+                                ⏳{' '}
+                                {mode === 'edit' ? '수정 중...' : '작성 중...'}
+                            </>
+                        ) : (
+                            <>
+                                {mode === 'edit'
+                                    ? '✅ 수정 완료'
+                                    : '✨ 기대평 작성'}
+                            </>
+                        )}
+                    </button>
 
           {showCancelButton && (
             <button
