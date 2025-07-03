@@ -104,10 +104,18 @@ export function ProfileTab({ userInfo, onUpdateUserInfo, isLoading }) {
             <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-6">
                     <div className="relative">
-                        <div className="w-24 h-24 bg-gradient-to-br from-pink-400 to-purple-600 rounded-full flex items-center justify-center">
-                            <span className="text-2xl font-bold text-white">
-                                {userInfo.name?.charAt(0) || 'U'}
-                            </span>
+                        <div className="w-20 h-20 bg-orange-300 rounded-full flex items-center justify-center overflow-hidden">
+                            {userInfo.profileImage ? (
+                                <img
+                                    src={userInfo.profileImage}
+                                    alt="Profile"
+                                    className="w-full h-full object-cover text-center"
+                                />
+                            ) : (
+                                <span className="text-2xl font-bold text-white">
+                                    {userInfo.name?.charAt(0) || 'U'}
+                                </span>
+                            )}
                         </div>
                         <button
                             className="absolute -bottom-2 -right-2 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors"

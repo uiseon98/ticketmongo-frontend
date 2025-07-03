@@ -26,7 +26,8 @@ export default function Register() {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [agreeTerms, setAgreeTerms] = useState(false);
-    const [profileImage, setProfileImage] = useState(null);
+    const [profileImage, setProfileImage] = useState(null); // 실제 파일
+    const [profilePreview, setProfilePreview] = useState(null); // 미리보기용
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
@@ -104,14 +105,24 @@ export default function Register() {
 
     const handleFileUpload = (e) => {
         const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                setProfileImage(e.target.result);
-            };
-            reader.readAsDataURL(file);
+        if (!file) return;
+        const errorMsg = AccountForm.validateImageFile(file);
+        if (errorMsg) {
+            showNotification(errorMsg, NOTIFICATION_TYPE.ERROR);
+            return;
         }
+
+        // 파일 객체 저장
+        setProfileImage(file);
+
+        // 미리보기용 이미지 URL 저장
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            setProfilePreview(e.target.result); // base64 문자열
+        };
+        reader.readAsDataURL(file);
     };
+
     const handleRegister = async () => {
         const newErrors = AccountForm.validateAllFields(formData);
         setErrors(newErrors);
@@ -132,10 +143,21 @@ export default function Register() {
             return;
         }
 
-        setIsLoading(true);
+        const payload = new FormData();
 
+        // 일반 필드 추가
+        Object.entries(formData).forEach(([key, value]) => {
+            payload.append(key, value);
+        });
+
+        // 파일 추가
+        if (profileImage) {
+            payload.append('profileImage', profileImage);
+        }
+
+        setIsLoading(true);
         try {
-            const result = await registerUser(formData);
+            const result = await registerUser(payload); // FormData 넘김
             if (result.success) {
                 navigate('/login');
             } else {
@@ -143,7 +165,7 @@ export default function Register() {
             }
         } catch (error) {
             showNotification(
-                error || '회원가입 중 오류가 발생했습니다.',
+                error.message || '회원가입 중 오류가 발생했습니다.',
                 NOTIFICATION_TYPE.ERROR,
             );
         } finally {
@@ -219,9 +241,9 @@ export default function Register() {
                         </label>
                         <div className="flex items-center space-x-4">
                             <div className="w-16 h-16 bg-orange-300 rounded-full flex items-center justify-center overflow-hidden">
-                                {profileImage ? (
+                                {profilePreview ? (
                                     <img
-                                        src={profileImage}
+                                        src={profilePreview}
                                         alt="Profile"
                                         className="w-full h-full object-cover"
                                     />
