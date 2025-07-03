@@ -374,18 +374,17 @@ const ConcertForm = ({
         );
     };
 
-    if (!validateForm()) {
-        return;
-    }
+    // ====== 폼 제출 ======
+    const handleSubmit = async (e) => {
+        e.preventDefault();
 
-    setLoading(true);
-    setSubmitError('');
-    setSubmitSuccess('');
+        if (!validateForm()) {
+            return;
+        }
 
-    try {
-        const result = isEditMode
-            ? await updateConcert()
-            : await createConcert();
+        setLoading(true);
+        setSubmitError('');
+        setSubmitSuccess('');
 
         try {
             const result = isEditMode
@@ -1573,8 +1572,7 @@ const ConcertForm = ({
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            )}
+                                )}
                         </div>
                     </div>
 
@@ -1596,7 +1594,11 @@ const ConcertForm = ({
                             {loading && (
                                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                             )}
-                            {loading ? '처리 중...' : isEditMode ? '수정하기' : '등록하기'}
+                            {loading
+                                ? '처리 중...'
+                                : isEditMode
+                                  ? '수정하기'
+                                  : '등록하기'}
                         </button>
                     </div>
                 </form>
