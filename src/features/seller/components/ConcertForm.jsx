@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import apiClient from '../../../shared/utils/apiClient.js';
 import { concertService } from '../../concert/services/concertService.js';
+import { fileUploadService } from '../../../shared/services/fileUploadService.js';
 
 /**
  * ConcertForm.jsx
@@ -34,6 +35,10 @@ const ConcertForm = ({
     const [errors, setErrors] = useState({});
     const [submitError, setSubmitError] = useState('');
     const [submitSuccess, setSubmitSuccess] = useState('');
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [uploading, setUploading] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
+    const [filePreview, setFilePreview] = useState(null);
 
     // 폼 데이터 - 백엔드 DTO와 완전히 일치
     const [formData, setFormData] = useState({
@@ -947,6 +952,69 @@ const ConcertForm = ({
         );
     }
 
+    // 파일 선택 핸들러
+    const handleFileSelect = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // 파일 검증
+        const validation = fileUploadService.validateFile(file);
+        if (!validation.valid) {
+            alert(validation.error);
+            return;
+        }
+
+        setSelectedFile(file);
+
+        // 미리보기 생성
+        try {
+            const dataURL = await fileUploadService.fileToDataURL(file);
+            setFilePreview(dataURL);
+        } catch (error) {
+            console.error('미리보기 생성 실패:', error);
+        }
+    };
+
+    // 파일 업로드 실행 핸들러
+    const handleFileUpload = async () => {
+        if (!selectedFile) return;
+
+        setUploading(true);
+        setUploadProgress(0);
+
+        try {
+            const result = await fileUploadService.uploadPosterImage(
+                selectedFile,
+                isEditMode ? concert.concertId : null,
+                (progress) => setUploadProgress(progress),
+            );
+
+            // 업로드 성공 시 URL을 폼에 설정
+            setFormData((prev) => ({
+                ...prev,
+                posterImageUrl: result.data,
+            }));
+
+            alert('포스터 이미지가 업로드되었습니다!');
+
+            // 선택된 파일 정보 초기화
+            setSelectedFile(null);
+            setFilePreview(null);
+        } catch (error) {
+            alert(`업로드 실패: ${error.message}`);
+        } finally {
+            setUploading(false);
+            setUploadProgress(0);
+        }
+    };
+
+    // 선택된 파일 제거 핸들러
+    const handleClearFile = () => {
+        setSelectedFile(null);
+        setFilePreview(null);
+        setUploadProgress(0);
+    };
+
     // ====== 렌더링 (페이지 모드) ======
     return (
         <div className="w-full">
@@ -1369,10 +1437,92 @@ const ConcertForm = ({
                             </h3>
                         </div>
 
+                        {/* 파일 업로드 섹션 */}
+                        <div className="md:col-span-2 mb-4">
+                            <label className="block text-sm font-medium text-gray-200 mb-2">
+                                포스터 이미지 파일 업로드
+                            </label>
+
+                            {/* 파일 선택 */}
+                            <div className="flex gap-4 mb-4">
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleFileSelect}
+                                    className="flex-1 px-3 py-2 border border-gray-600 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    disabled={uploading}
+                                />
+
+                                {selectedFile && (
+                                    <button
+                                        type="button"
+                                        onClick={handleFileUpload}
+                                        disabled={uploading}
+                                        className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        {uploading
+                                            ? `업로드 중... ${uploadProgress}%`
+                                            : '업로드'}
+                                    </button>
+                                )}
+
+                                {selectedFile && !uploading && (
+                                    <button
+                                        type="button"
+                                        onClick={handleClearFile}
+                                        className="px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-lg transition-colors"
+                                    >
+                                        취소
+                                    </button>
+                                )}
+                            </div>
+
+                            {/* 선택된 파일 정보 */}
+                            {selectedFile && (
+                                <div className="text-sm text-gray-400 mb-2">
+                                    선택된 파일: {selectedFile.name} (
+                                    {fileUploadService.formatFileSize(
+                                        selectedFile.size,
+                                    )}
+                                    )
+                                </div>
+                            )}
+
+                            {/* 업로드 진행률 바 */}
+                            {uploading && (
+                                <div className="w-full bg-gray-600 rounded-full h-2 mb-2">
+                                    <div
+                                        className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                                        style={{ width: `${uploadProgress}%` }}
+                                    ></div>
+                                </div>
+                            )}
+
+                            {/* 파일 미리보기 */}
+                            {filePreview && (
+                                <div className="mt-4">
+                                    <p className="text-sm font-medium text-gray-200 mb-2">
+                                        업로드할 이미지 미리보기
+                                    </p>
+                                    <div className="w-32 h-48 border border-gray-600 rounded-lg overflow-hidden">
+                                        <img
+                                            src={filePreview}
+                                            alt="업로드할 이미지 미리보기"
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            <p className="text-xs text-gray-400 mt-2">
+                                또는 아래에 직접 URL을 입력하세요
+                            </p>
+                        </div>
+
                         {/* 포스터 이미지 URL */}
                         <div className="md:col-span-2">
                             <label className="block text-sm font-medium text-gray-200 mb-2">
-                                포스터 이미지 URL
+                                포스터 이미지 URL (직접 입력)
                             </label>
                             <input
                                 type="url"
