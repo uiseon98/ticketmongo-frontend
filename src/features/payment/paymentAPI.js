@@ -7,5 +7,5 @@ import axios from 'axios';
  * @returns {Promise<AxiosResponse>}
  */
 export function fetchBooking(bookingNumber) {
-  return axios.get(`/api/bookings/${bookingNumber}`);
+    return axios.get(`/api/bookings/${bookingNumber}`);
 }
