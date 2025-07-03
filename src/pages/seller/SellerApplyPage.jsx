@@ -9,13 +9,14 @@ import Button from '../../shared/components/ui/Button';
 import SuccessMessage from '../../shared/components/ui/SuccessMessage';
 
 const SellerApplyPage = () => {
-    const { user } = useContext(AuthContext);
+    const { user } = useContext(AuthContext); // AuthContext의 user (GET /auth/me에서 온 정보)
     const navigate = useNavigate();
 
-    const [sellerStatus, setSellerStatus] = useState(null); // 판매자 상태 데이터를 위한 새로운 state
-    const [loading, setLoading] = useState(true); // 로딩 상태
-    const [error, setError] = useState(null); // 에러 상태
-    const [successMessage, setSuccessMessage] = useState(null); // 성공 메시지 상태
+    const [sellerStatus, setSellerStatus] = useState(null); // /seller-status API 응답 저장
+    const [applicantInfo, setApplicantInfo] = useState(null); // /applicant-info API 응답 저장
+    const [loading, setLoading] = useState(true); // 전체 페이지 로딩
+    const [error, setError] = useState(null); // 전체 페이지 에러
+    const [successMessage, setSuccessMessage] = useState(null);
 
     // 폼 데이터 상태
     const [formData, setFormData] = useState({
@@ -27,12 +28,16 @@ const SellerApplyPage = () => {
     const [businessLicenseFile, setBusinessLicenseFile] = useState(null); // 파일 상태
     const [filePreview, setFilePreview] = useState(null); // 파일 미리보기 URL
 
-    // 폼 유효성 검사 상태 (간단한 예시)
+    // "Same as applicant" 체크박스 상태
+    const [sameAsApplicant, setSameAsApplicant] = useState(false);
+
+    // 폼 유효성 검사 상태
     const [formErrors, setFormErrors] = useState({});
 
     useEffect(() => {
-        const fetchSellerStatusAndControlAccess = async () => {
+        const fetchRequiredDataAndControlAccess = async () => {
             if (!user) {
+                // 로그인 여부 확인
                 navigate('/unauthorized', { replace: true });
                 return;
             }
@@ -40,35 +45,46 @@ const SellerApplyPage = () => {
             setLoading(true);
             setError(null);
             try {
-                const response = await apiClient.get('/users/me/seller-status'); // 최신 판매자 상태 조회
-                const currentStatus = response.data.approvalStatus; // API 응답에서 approvalStatus 가져오기
-                setSellerStatus(response.data); // 전체 DTO 데이터 저장
+                // 1. 판매자 상태 조회 (접근 제어용)
+                const sellerStatusResponse = await apiClient.get(
+                    '/users/me/seller-status',
+                );
+                const currentStatus = sellerStatusResponse.data.approvalStatus;
+                setSellerStatus(sellerStatusResponse.data);
 
-                // 판매자 권한 신청이 불가능한 상태 (이미 신청 대기 중이거나 승인된 경우)에는 리다이렉트
-                // (null, REJECTED, WITHDRAWN, REVOKED 상태일 때만 신청/재신청 가능)
+                // 2. 신청자 상세 정보 조회 (UI 표시용)
+                // SellerApplicationController.java에 추가한 API 호출
+                const applicantInfoResponse = await apiClient.get(
+                    '/users/me/applicant-info',
+                );
+                setApplicantInfo(applicantInfoResponse.data);
+
+                // 3. 접근 제어 로직 (신청 불가능 상태면 리다이렉트)
                 if (
                     currentStatus === 'PENDING' ||
                     currentStatus === 'APPROVED'
                 ) {
-                    //
                     alert(
                         '현재 상태에서는 판매자 권한 신청/재신청을 할 수 없습니다.',
                     );
                     navigate('/seller/status', { replace: true });
                 }
-                // 과거 신청 이력이 있는 경우 (REJECTED, WITHDRAWN, REVOKED) 기존 데이터 로드 (재신청 시)
-                // SellerApplicationStatusResponseDTO에 해당 필드들이 있다고 가정
-                else if (response.data.companyName) {
+                // 4. 재신청 시 기존 데이터 로드
+                else if (sellerStatusResponse.data.companyName) {
                     setFormData({
-                        companyName: response.data.companyName,
-                        businessNumber: response.data.businessNumber,
-                        representativeName: response.data.representativeName,
-                        representativePhone: response.data.representativePhone,
+                        companyName: sellerStatusResponse.data.companyName,
+                        businessNumber:
+                            sellerStatusResponse.data.businessNumber,
+                        representativeName:
+                            sellerStatusResponse.data.representativeName,
+                        representativePhone:
+                            sellerStatusResponse.data.representativePhone,
                     });
-                    // 파일 URL도 있다면 미리보기 설정 (백엔드에서 URL을 보내줄 경우)
-                    // if (response.data.uploadedFileUrl) {
-                    //     setFilePreview(response.data.uploadedFileUrl);
-                    // }
+                    if (sellerStatusResponse.data.uploadedFileUrl) {
+                        setFilePreview(
+                            sellerStatusResponse.data.uploadedFileUrl,
+                        );
+                    }
                 }
             } catch (err) {
                 console.error('판매자 상태 조회 실패 (SellerApplyPage):', err);
@@ -83,10 +99,38 @@ const SellerApplyPage = () => {
             }
         };
 
-        fetchSellerStatusAndControlAccess();
+        fetchRequiredDataAndControlAccess();
     }, [user, navigate]);
 
-    // 입력 필드 변경 핸들러
+    // "Same as applicant" 체크박스 핸들러
+    useEffect(() => {
+        if (sameAsApplicant && applicantInfo) {
+            // applicantInfo가 로드되었는지 확인
+            setFormData((prev) => ({
+                ...prev,
+                representativeName: applicantInfo.name || '',
+                representativePhone: applicantInfo.phone || '',
+            }));
+        } else if (!sameAsApplicant) {
+            // 체크 해제 시
+            // 재신청 시 로드된 데이터가 있다면 유지하고, 없다면 비움
+            if (!sellerStatus || (sellerStatus && !sellerStatus.companyName)) {
+                setFormData((prev) => ({
+                    ...prev,
+                    representativeName: '',
+                    representativePhone: '',
+                }));
+            } else {
+                // 재신청 시 로드된 데이터가 있을 경우, 체크 해제 시 원래 로드된 데이터로 되돌림
+                setFormData((prev) => ({
+                    ...prev,
+                    representativeName: sellerStatus.representativeName || '',
+                    representativePhone: sellerStatus.representativePhone || '',
+                }));
+            }
+        }
+    }, [sameAsApplicant, applicantInfo, sellerStatus]); // applicantInfo 추가
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
@@ -189,8 +233,10 @@ const SellerApplyPage = () => {
         navigate('/seller/status');
     };
 
-    if (loading) {
-        return <LoadingSpinner message="판매자 신청 페이지 로딩 중..." />;
+    // sellerStatus와 applicantInfo가 모두 로드될 때까지 로딩 표시
+    if (loading || !applicantInfo) {
+        // applicantInfo가 없으면 로딩 중으로 간주
+        return <LoadingSpinner message="신청 페이지 데이터 로딩 중..." />;
     }
 
     if (error) {
@@ -212,9 +258,16 @@ const SellerApplyPage = () => {
         );
     }
 
+    // user 정보가 로드되었지만 applicantInfo는 아직 없는 경우 (초기 렌더링 직후)
+    // 이 부분은 위에 loading 체크로 대부분 커버됨.
+    if (!applicantInfo) {
+        return <ErrorMessage message="신청자 정보를 불러올 수 없습니다." />;
+    }
+
     return (
-        <div className="p-6 bg-[#111922] text-white min-h-[calc(100vh-64px)]">
-            <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col px-6 py-5 bg-[#111922] text-white min-h-[calc(100vh-64px)]">
+            {/* 상단 섹션 */}
+            <div className="flex items-center justify-between mb-6 p-4">
                 <h2 className="text-3xl font-bold">판매자 권한 신청</h2>
                 <button
                     onClick={handleGoBack}
@@ -223,115 +276,209 @@ const SellerApplyPage = () => {
                     뒤로가기
                 </button>
             </div>
-            <p className="mb-8">
-                판매자 권한을 신청하는 페이지입니다. 필요한 정보를 입력해주세요.
-            </p>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-                <InputField
-                    label="업체명"
-                    name="companyName"
-                    value={formData.companyName}
-                    onChange={handleChange}
-                    placeholder="예: (주)티켓몬 공연기획"
-                    error={formErrors.companyName}
-                    required
-                />
-                <InputField
-                    label="사업자등록번호"
-                    name="businessNumber"
-                    value={formData.businessNumber}
-                    onChange={handleChange}
-                    placeholder="하이픈 없이 10자리 숫자"
-                    error={formErrors.businessNumber}
-                    required
-                />
-                <InputField
-                    label="담당자 이름"
-                    name="representativeName"
-                    value={formData.representativeName}
-                    onChange={handleChange}
-                    placeholder="예: 김철수"
-                    error={formErrors.representativeName}
-                    required
-                />
-                <InputField
-                    label="담당자 연락처"
-                    name="representativePhone"
-                    value={formData.representativePhone}
-                    onChange={handleChange}
-                    placeholder="숫자만 입력 (예: 01012345678)"
-                    error={formErrors.representativePhone}
-                    required
-                />
-
-                {/* 사업자 등록증 파일 업로드 */}
-                <div className="flex flex-col">
-                    <label
-                        htmlFor="businessLicenseFile"
-                        className="block text-sm font-medium text-gray-300 mb-2"
-                    >
-                        사업자 등록증 파일{' '}
-                        <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                        type="file"
-                        id="businessLicenseFile"
-                        name="businessLicenseFile"
-                        accept="image/*,application/pdf" // 이미지 및 PDF 파일 허용
-                        onChange={handleFileChange}
-                        className="block w-full text-sm text-gray-400
-                       file:mr-4 file:py-2 file:px-4
-                       file:rounded-md file:border-0
-                       file:text-sm file:font-semibold
-                       file:bg-[#243447] file:text-white
-                       hover:file:bg-[#2e405a] cursor-pointer"
-                    />
-                    {formErrors.businessLicenseFile && (
-                        <p className="mt-1 text-sm text-red-500">
-                            {formErrors.businessLicenseFile}
+            <div className="max-w-[960px] mx-auto w-full p-4">
+                {/* Applicant Information 섹션 */}
+                <div className="mb-8">
+                    <h3 className="text-xl font-bold mb-4">신청자 정보</h3>
+                    <div className="bg-[#121a21] p-6 rounded-xl border border-[#243447]">
+                        <p className="text-base text-gray-300 mb-2">
+                            닉네임:{' '}
+                            <span className="font-semibold text-white">
+                                {applicantInfo.nickname || 'N/A'}
+                            </span>{' '}
+                            | 사용자 ID:{' '}
+                            <span className="font-semibold text-white">
+                                {applicantInfo.id || 'N/A'}
+                            </span>
                         </p>
-                    )}
-                    {filePreview && (
-                        <div className="mt-4">
-                            <p className="text-sm text-gray-400 mb-2">
-                                파일 미리보기:
-                            </p>
-                            {businessLicenseFile?.type.startsWith('image/') ? (
-                                <img
-                                    src={filePreview}
-                                    alt="파일 미리보기"
-                                    className="max-w-xs max-h-48 object-contain border border-gray-700 rounded-md"
-                                />
-                            ) : (
-                                <p className="text-gray-500">
-                                    PDF 파일은 미리보기를 지원하지 않습니다.
-                                    파일이 업로드됩니다.
-                                </p>
-                            )}
-                        </div>
-                    )}
-                    {sellerStatus?.uploadedFileUrl &&
-                        !businessLicenseFile && ( // 기존 파일이 있고 새 파일이 선택되지 않았을 때
-                            <div className="mt-2 text-sm text-gray-400">
-                                기존 업로드 파일:{' '}
-                                <a
-                                    href={sellerStatus.uploadedFileUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-blue-400 hover:underline"
-                                >
-                                    파일 보기
-                                </a>
-                                (새 파일을 업로드하면 기존 파일은 대체됩니다.)
-                            </div>
-                        )}
+                        <p className="text-sm text-gray-400">
+                            이름:{' '}
+                            <span className="font-medium">
+                                {applicantInfo.name || 'N/A'}
+                            </span>
+                            <br />
+                            이메일:{' '}
+                            <span className="font-medium">
+                                {applicantInfo.email || 'N/A'}
+                            </span>{' '}
+                            | 연락처:{' '}
+                            <span className="font-medium">
+                                {applicantInfo.phone || 'N/A'}
+                            </span>
+                        </p>
+                    </div>
                 </div>
 
-                <Button type="submit" disabled={loading}>
-                    {loading ? '신청 중...' : '판매자 권한 신청'}
-                </Button>
-            </form>
+                {/* 폼 섹션 */}
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    {/* Company Name */}
+                    <InputField
+                        label="업체명"
+                        name="companyName"
+                        value={formData.companyName}
+                        onChange={handleChange}
+                        placeholder="예: (주)티켓몬 공연기획"
+                        error={formErrors.companyName}
+                        required
+                        className="bg-[#1f262e] rounded-xl border border-[#3d4a5c] text-white"
+                        inputClassName="bg-transparent"
+                    />
+                    {/* Business Registration Number */}
+                    <InputField
+                        label="사업자등록번호"
+                        name="businessNumber"
+                        value={formData.businessNumber}
+                        onChange={handleChange}
+                        placeholder="하이픈 없이 10자리 숫자"
+                        error={formErrors.businessNumber}
+                        required
+                        className="bg-[#1f262e] rounded-xl border border-[#3d4a5c] text-white"
+                        inputClassName="bg-transparent"
+                    />
+                    {/* Representative Name */}
+                    <InputField
+                        label="담당자 이름"
+                        name="representativeName"
+                        value={formData.representativeName}
+                        onChange={handleChange}
+                        placeholder="예: 김철수"
+                        error={formErrors.representativeName}
+                        required
+                        className="bg-[#1f262e] rounded-xl border border-[#3d4a5c] text-white"
+                        inputClassName="bg-transparent"
+                        disabled={sameAsApplicant}
+                    />
+                    {/* Representative Phone */}
+                    <InputField
+                        label="담당자 연락처"
+                        name="representativePhone"
+                        value={formData.representativePhone}
+                        onChange={handleChange}
+                        placeholder="숫자만 입력 (예: 01012345678)"
+                        error={formErrors.representativePhone}
+                        required
+                        className="bg-[#1f262e] rounded-xl border border-[#3d4a5c] text-white"
+                        inputClassName="bg-transparent"
+                        disabled={sameAsApplicant}
+                    />
+
+                    {/* "Same as applicant" 체크박스 */}
+                    <div className="flex items-center space-x-2 p-4 bg-[#141a1f] rounded-xl border border-[#243447]">
+                        <input
+                            type="checkbox"
+                            id="sameAsApplicant"
+                            checked={sameAsApplicant}
+                            onChange={(e) =>
+                                setSameAsApplicant(e.target.checked)
+                            }
+                            className="form-checkbox h-5 w-5 text-[#6366F1] bg-gray-800 border-gray-700 rounded focus:ring-[#6366F1]"
+                        />
+                        <label
+                            htmlFor="sameAsApplicant"
+                            className="text-gray-300 text-base cursor-pointer"
+                        >
+                            신청자와 동일
+                        </label>
+                    </div>
+
+                    {/* Upload Supporting Documents 섹션 */}
+                    <div className="mt-8">
+                        <h3 className="text-xl font-bold mb-4">
+                            제출 서류 업로드
+                        </h3>
+                        <p className="text-gray-400 text-sm mb-4">
+                            PDF 또는 JPG 파일 (최대 10MB)
+                        </p>
+                        <div className="border-dashed border-2 border-[#3d4a5c] p-6 rounded-xl text-center">
+                            <label
+                                htmlFor="businessLicenseFile"
+                                className="cursor-pointer"
+                            >
+                                <p className="text-white text-lg font-bold mb-2">
+                                    파일을 여기로 드래그 앤 드롭하거나 클릭하여
+                                    찾아보기
+                                </p>
+                                <p className="text-gray-400 text-sm mb-4">
+                                    Drag and drop files here or click to browse
+                                </p>
+                                <input
+                                    type="file"
+                                    id="businessLicenseFile"
+                                    name="businessLicenseFile"
+                                    accept="image/*,application/pdf"
+                                    onChange={handleFileChange}
+                                    className="hidden"
+                                />
+                                <Button
+                                    type="button"
+                                    onClick={() =>
+                                        document
+                                            .getElementById(
+                                                'businessLicenseFile',
+                                            )
+                                            .click()
+                                    }
+                                    className="bg-[#2b3640] hover:bg-[#3d4a5c] text-white py-2 px-6 rounded-xl transition-colors"
+                                >
+                                    파일 선택
+                                </Button>
+                            </label>
+                            {formErrors.businessLicenseFile && (
+                                <p className="mt-3 text-sm text-red-500">
+                                    {formErrors.businessLicenseFile}
+                                </p>
+                            )}
+                            {filePreview && (
+                                <div className="mt-4">
+                                    <p className="text-sm text-gray-400 mb-2">
+                                        파일 미리보기:
+                                    </p>
+                                    {businessLicenseFile?.type.startsWith(
+                                        'image/',
+                                    ) ? (
+                                        <img
+                                            src={filePreview}
+                                            alt="파일 미리보기"
+                                            className="max-w-xs max-h-48 object-contain border border-gray-700 rounded-md mx-auto"
+                                        />
+                                    ) : (
+                                        <p className="text-gray-500">
+                                            PDF 파일은 미리보기를 지원하지
+                                            않습니다. 파일이 업로드됩니다.
+                                        </p>
+                                    )}
+                                </div>
+                            )}
+                            {sellerStatus?.uploadedFileUrl &&
+                                !businessLicenseFile && (
+                                    <div className="mt-2 text-sm text-gray-400">
+                                        기존 업로드 파일:{' '}
+                                        <a
+                                            href={sellerStatus.uploadedFileUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-blue-400 hover:underline"
+                                        >
+                                            파일 보기
+                                        </a>
+                                        (새 파일을 업로드하면 기존 파일은
+                                        대체됩니다.)
+                                    </div>
+                                )}
+                        </div>
+                    </div>
+
+                    {/* 제출 버튼 */}
+                    <Button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full mt-6 bg-[#b2c9e5] hover:bg-[#97b3d3] text-[#141a1f]"
+                    >
+                        {loading ? '신청 중...' : '판매자 권한 신청'}
+                    </Button>
+                </form>
+            </div>
         </div>
     );
 };
