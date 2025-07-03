@@ -8,7 +8,6 @@ export default function PaymentSuccess() {
     const bookingNumber = params.get('bookingNumber');
     const [booking, setBooking] = useState(null);
     const [error, setError] = useState('');
-    
 
     useEffect(() => {
         if (!bookingNumber) {
@@ -39,11 +38,11 @@ export default function PaymentSuccess() {
         );
     }
 
-    const { 
-        concertTitle = '', 
-        concertDateTime = '', 
-        seatLabels = [], 
-        totalAmount = 0 
+    const {
+        concertTitle = '',
+        concertDateTime = '',
+        seatLabels = [],
+        totalAmount = 0,
     } = booking || {};
 
     return (
@@ -79,7 +78,9 @@ export default function PaymentSuccess() {
                     <div>
                         <p className="text-[#757575] text-sm">좌석</p>
                         <p className="text-[#141414] text-sm">
-                             {seatLabels?.length > 0 ? seatLabels.join(', ') : '좌석 정보 없음'}
+                            {seatLabels?.length > 0
+                                ? seatLabels.join(', ')
+                                : '좌석 정보 없음'}
                         </p>
                     </div>
                     <div>
