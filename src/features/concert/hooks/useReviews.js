@@ -5,63 +5,70 @@ import { reviewService } from '../services/reviewService.js';
 import { ReviewDefaults } from '../types/review.js';
 
 export const useReviews = (concertId) => {
-  const [reviews, setReviews] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [currentPage, setCurrentPage] = useState(0);
-  const [pageSize, setPageSize] = useState(ReviewDefaults.pageSize);
-  const [totalPages, setTotalPages] = useState(0);
-  const [totalElements, setTotalElements] = useState(0);
-  const [sortBy, setSortBy] = useState(ReviewDefaults.sortBy);
-  const [sortDir, setSortDir] = useState(ReviewDefaults.sortDir);
-  const [actionLoading, setActionLoading] = useState(false);
+    const [reviews, setReviews] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [currentPage, setCurrentPage] = useState(0);
+    const [pageSize, setPageSize] = useState(ReviewDefaults.pageSize);
+    const [totalPages, setTotalPages] = useState(0);
+    const [totalElements, setTotalElements] = useState(0);
+    const [sortBy, setSortBy] = useState(ReviewDefaults.sortBy);
+    const [sortDir, setSortDir] = useState(ReviewDefaults.sortDir);
+    const [actionLoading, setActionLoading] = useState(false);
 
-  const fetchReviews = useCallback(
-    async (params = {}) => {
-      try {
-        if (!concertId || concertId < 1) {
-          throw new Error('유효한 콘서트 ID가 필요합니다.');
-        }
+    const fetchReviews = useCallback(
+        async (params = {}) => {
+            try {
+                if (!concertId || concertId < 1) {
+                    throw new Error('유효한 콘서트 ID가 필요합니다.');
+                }
 
-        setLoading(true);
-        setError(null);
+                setLoading(true);
+                setError(null);
 
-        const requestParams = {
-          concertId,
-          page: params.page ?? currentPage,
-          size: params.size ?? pageSize,
-          sortBy: params.sortBy ?? sortBy,
-          sortDir: params.sortDir ?? sortDir,
-        };
+                const requestParams = {
+                    concertId,
+                    page: params.page ?? currentPage,
+                    size: params.size ?? pageSize,
+                    sortBy: params.sortBy ?? sortBy,
+                    sortDir: params.sortDir ?? sortDir,
+                };
 
-        const response = await reviewService.getConcertReviews(requestParams);
+                const response =
+                    await reviewService.getConcertReviews(requestParams);
 
-        if (response && response.data) {
-          setReviews(response.data.content || []);
-          setCurrentPage(response.data.number || 0);
-          setTotalPages(response.data.totalPages || 0);
-          setTotalElements(response.data.totalElements || 0);
-          setPageSize(response.data.size || ReviewDefaults.pageSize);
-          setSortBy(requestParams.sortBy);
-          setSortDir(requestParams.sortDir);
+                if (response && response.data) {
+                    setReviews(response.data.content || []);
+                    setCurrentPage(response.data.number || 0);
+                    setTotalPages(response.data.totalPages || 0);
+                    setTotalElements(response.data.totalElements || 0);
+                    setPageSize(response.data.size || ReviewDefaults.pageSize);
+                    setSortBy(requestParams.sortBy);
+                    setSortDir(requestParams.sortDir);
 
-          console.info(
-            `리뷰 목록 로드 완료: ${response.data.content?.length || 0}개 (콘서트 ID: ${concertId})`,
-          );
-        } else {
-          setReviews([]);
-          setError('리뷰 데이터를 불러올 수 없습니다.');
-        }
-      } catch (err) {
-        console.error(`리뷰 목록 조회 실패 (콘서트 ID: ${concertId}):`, err);
-        setError(err.message || '리뷰 목록을 불러오는 중 오류가 발생했습니다.');
-        setReviews([]);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [concertId],
-  );
+                    console.info(
+                        `리뷰 목록 로드 완료: ${response.data.content?.length || 0}개 (콘서트 ID: ${concertId})`,
+                    );
+                } else {
+                    setReviews([]);
+                    setError('리뷰 데이터를 불러올 수 없습니다.');
+                }
+            } catch (err) {
+                console.error(
+                    `리뷰 목록 조회 실패 (콘서트 ID: ${concertId}):`,
+                    err,
+                );
+                setError(
+                    err.message ||
+                        '리뷰 목록을 불러오는 중 오류가 발생했습니다.',
+                );
+                setReviews([]);
+            } finally {
+                setLoading(false);
+            }
+        },
+        [concertId],
+    );
 
     const createReview = useCallback(
         async (reviewData) => {

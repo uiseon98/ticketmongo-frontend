@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Plus,
-  Edit,
-  Trash2,
-  Image,
-  Calendar,
-  MapPin,
-  Users,
-  Clock,
-  Search,
-  Filter,
-  RefreshCw,
+    Plus,
+    Edit,
+    Trash2,
+    Image,
+    Calendar,
+    MapPin,
+    Users,
+    Clock,
+    Search,
+    Filter,
+    RefreshCw,
 } from 'lucide-react';
 
 /**
@@ -23,163 +23,163 @@ import {
  * - 포스터 이미지 업데이트 기능
  */
 const SellerConcertList = () => {
-  // ====== 상태 관리 ======
-  const [concerts, setConcerts] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+    // ====== 상태 관리 ======
+    const [concerts, setConcerts] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
-  // 페이징 상태 (BE와 동일한 기본값)
-  const [pagination, setPagination] = useState({
-    page: 0, // BE: defaultValue = "0"
-    size: 10, // BE: defaultValue = "10"
-    totalElements: 0,
-    totalPages: 0,
-    first: true,
-    last: false,
-  });
+    // 페이징 상태 (BE와 동일한 기본값)
+    const [pagination, setPagination] = useState({
+        page: 0, // BE: defaultValue = "0"
+        size: 10, // BE: defaultValue = "10"
+        totalElements: 0,
+        totalPages: 0,
+        first: true,
+        last: false,
+    });
 
-  // 정렬 상태 (BE ALLOWED_SORT_FIELDS와 일치)
-  const [sorting, setSorting] = useState({
-    sortBy: 'createdAt', // BE: defaultValue = "createdAt"
-    sortDir: 'desc', // BE: defaultValue = "desc"
-  });
+    // 정렬 상태 (BE ALLOWED_SORT_FIELDS와 일치)
+    const [sorting, setSorting] = useState({
+        sortBy: 'createdAt', // BE: defaultValue = "createdAt"
+        sortDir: 'desc', // BE: defaultValue = "desc"
+    });
 
-  // 필터 상태
-  const [filters, setFilters] = useState({
-    status: 'ALL', // 전체, 또는 특정 상태
-    searchKeyword: '',
-  });
+    // 필터 상태
+    const [filters, setFilters] = useState({
+        status: 'ALL', // 전체, 또는 특정 상태
+        searchKeyword: '',
+    });
 
-  // 판매자 ID (실제로는 로그인 사용자 정보에서 가져와야 함)
-  const [sellerId] = useState(100); // 예시용 하드코딩
+    // 판매자 ID (실제로는 로그인 사용자 정보에서 가져와야 함)
+    const [sellerId] = useState(100); // 예시용 하드코딩
 
-  // 모달 상태
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [selectedConcert, setSelectedConcert] = useState(null);
+    // 모달 상태
+    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [selectedConcert, setSelectedConcert] = useState(null);
 
-  // ====== BE API 호출 함수들 ======
+    // ====== BE API 호출 함수들 ======
 
-  /**
-   * 판매자 콘서트 목록 조회
-   * GET /api/seller/concerts
-   */
-  const fetchConcerts = async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({
-        sellerId: sellerId.toString(),
-        page: pagination.page.toString(),
-        size: pagination.size.toString(),
-        sortBy: sorting.sortBy,
-        sortDir: sorting.sortDir,
-      });
+    /**
+     * 판매자 콘서트 목록 조회
+     * GET /api/seller/concerts
+     */
+    const fetchConcerts = async () => {
+        setLoading(true);
+        try {
+            const params = new URLSearchParams({
+                sellerId: sellerId.toString(),
+                page: pagination.page.toString(),
+                size: pagination.size.toString(),
+                sortBy: sorting.sortBy,
+                sortDir: sorting.sortDir,
+            });
 
-      const response = await fetch(`/api/seller/concerts?${params}`);
-      const result = await response.json();
+            const response = await fetch(`/api/seller/concerts?${params}`);
+            const result = await response.json();
 
-      if (result.success) {
-        setConcerts(result.data.content);
-        setPagination((prev) => ({
-          ...prev,
-          totalElements: result.data.totalElements,
-          totalPages: result.data.totalPages,
-          first: result.data.first,
-          last: result.data.last,
-        }));
-      } else {
-        setError(result.message);
-      }
-    } catch (err) {
-      setError('콘서트 목록을 불러오는데 실패했습니다.');
-    } finally {
-      setLoading(false);
-    }
-  };
+            if (result.success) {
+                setConcerts(result.data.content);
+                setPagination((prev) => ({
+                    ...prev,
+                    totalElements: result.data.totalElements,
+                    totalPages: result.data.totalPages,
+                    first: result.data.first,
+                    last: result.data.last,
+                }));
+            } else {
+                setError(result.message);
+            }
+        } catch (err) {
+            setError('콘서트 목록을 불러오는데 실패했습니다.');
+        } finally {
+            setLoading(false);
+        }
+    };
 
-  /**
-   * 상태별 콘서트 조회
-   * GET /api/seller/concerts/status
-   */
-  const fetchConcertsByStatus = async (status) => {
-    if (status === 'ALL') {
-      fetchConcerts();
-      return;
-    }
+    /**
+     * 상태별 콘서트 조회
+     * GET /api/seller/concerts/status
+     */
+    const fetchConcertsByStatus = async (status) => {
+        if (status === 'ALL') {
+            fetchConcerts();
+            return;
+        }
 
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({
-        sellerId: sellerId.toString(),
-        status: status,
-      });
+        setLoading(true);
+        try {
+            const params = new URLSearchParams({
+                sellerId: sellerId.toString(),
+                status: status,
+            });
 
             const response = await fetch(
                 `/api/seller/concerts/status?${params}`,
             );
             const result = await response.json();
 
-      if (result.success) {
-        setConcerts(result.data);
-        // 상태별 조회는 페이징이 없으므로 리셋
-        setPagination((prev) => ({
-          ...prev,
-          totalElements: result.data.length,
-          totalPages: 1,
-          first: true,
-          last: true,
-        }));
-      } else {
-        setError(result.message);
-      }
-    } catch (err) {
-      setError('콘서트 목록을 불러오는데 실패했습니다.');
-    } finally {
-      setLoading(false);
-    }
-  };
+            if (result.success) {
+                setConcerts(result.data);
+                // 상태별 조회는 페이징이 없으므로 리셋
+                setPagination((prev) => ({
+                    ...prev,
+                    totalElements: result.data.length,
+                    totalPages: 1,
+                    first: true,
+                    last: true,
+                }));
+            } else {
+                setError(result.message);
+            }
+        } catch (err) {
+            setError('콘서트 목록을 불러오는데 실패했습니다.');
+        } finally {
+            setLoading(false);
+        }
+    };
 
-  /**
-   * 콘서트 삭제 (취소 처리)
-   * DELETE /api/seller/concerts/{concertId}
-   */
-  const deleteConcert = async (concertId) => {
-    if (!confirm('정말로 이 콘서트를 취소하시겠습니까?')) return;
+    /**
+     * 콘서트 삭제 (취소 처리)
+     * DELETE /api/seller/concerts/{concertId}
+     */
+    const deleteConcert = async (concertId) => {
+        if (!confirm('정말로 이 콘서트를 취소하시겠습니까?')) return;
 
-    try {
-      const params = new URLSearchParams({
-        sellerId: sellerId.toString(),
-      });
+        try {
+            const params = new URLSearchParams({
+                sellerId: sellerId.toString(),
+            });
 
-      const response = await fetch(
-        `/api/seller/concerts/${concertId}?${params}`,
-        {
-          method: 'DELETE',
-        },
-      );
+            const response = await fetch(
+                `/api/seller/concerts/${concertId}?${params}`,
+                {
+                    method: 'DELETE',
+                },
+            );
 
-      const result = await response.json();
+            const result = await response.json();
 
-      if (result.success) {
-        alert('콘서트가 취소되었습니다.');
-        fetchConcerts(); // 목록 새로고침
-      } else {
-        alert(result.message);
-      }
-    } catch (err) {
-      alert('콘서트 취소에 실패했습니다.');
-    }
-  };
+            if (result.success) {
+                alert('콘서트가 취소되었습니다.');
+                fetchConcerts(); // 목록 새로고침
+            } else {
+                alert(result.message);
+            }
+        } catch (err) {
+            alert('콘서트 취소에 실패했습니다.');
+        }
+    };
 
-  // ====== 이벤트 핸들러들 ======
+    // ====== 이벤트 핸들러들 ======
 
-  const handlePageChange = (newPage) => {
-    setPagination((prev) => ({ ...prev, page: newPage }));
-  };
+    const handlePageChange = (newPage) => {
+        setPagination((prev) => ({ ...prev, page: newPage }));
+    };
 
-  const handleSizeChange = (newSize) => {
-    setPagination((prev) => ({ ...prev, page: 0, size: newSize }));
-  };
+    const handleSizeChange = (newSize) => {
+        setPagination((prev) => ({ ...prev, page: 0, size: newSize }));
+    };
 
     const handleSortChange = (field) => {
         setSorting((prev) => ({
@@ -191,25 +191,25 @@ const SellerConcertList = () => {
         }));
     };
 
-  const handleStatusFilter = (status) => {
-    setFilters((prev) => ({ ...prev, status }));
-    setPagination((prev) => ({ ...prev, page: 0 })); // 첫 페이지로 리셋
-  };
+    const handleStatusFilter = (status) => {
+        setFilters((prev) => ({ ...prev, status }));
+        setPagination((prev) => ({ ...prev, page: 0 })); // 첫 페이지로 리셋
+    };
 
-  // ====== useEffect - 데이터 로딩 ======
-  useEffect(() => {
-    if (filters.status === 'ALL') {
-      fetchConcerts();
-    } else {
-      fetchConcertsByStatus(filters.status);
-    }
-  }, [
-    pagination.page,
-    pagination.size,
-    sorting.sortBy,
-    sorting.sortDir,
-    filters.status,
-  ]);
+    // ====== useEffect - 데이터 로딩 ======
+    useEffect(() => {
+        if (filters.status === 'ALL') {
+            fetchConcerts();
+        } else {
+            fetchConcertsByStatus(filters.status);
+        }
+    }, [
+        pagination.page,
+        pagination.size,
+        sorting.sortBy,
+        sorting.sortDir,
+        filters.status,
+    ]);
 
     // ====== 상태별 스타일 및 텍스트 ======
     const getStatusBadge = (status) => {
@@ -224,33 +224,33 @@ const SellerConcertList = () => {
             },
         };
 
-    const config = statusConfig[status] || statusConfig.SCHEDULED;
-    return (
-      <span
-        className={`px-2 py-1 rounded-full text-xs font-medium ${config.color}`}
-      >
-        {config.text}
-      </span>
-    );
-  };
+        const config = statusConfig[status] || statusConfig.SCHEDULED;
+        return (
+            <span
+                className={`px-2 py-1 rounded-full text-xs font-medium ${config.color}`}
+            >
+                {config.text}
+            </span>
+        );
+    };
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('ko-KR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
+    const formatDate = (dateString) => {
+        return new Date(dateString).toLocaleDateString('ko-KR', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+        });
+    };
 
-  const formatDateTime = (dateTimeString) => {
-    return new Date(dateTimeString).toLocaleString('ko-KR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
+    const formatDateTime = (dateTimeString) => {
+        return new Date(dateTimeString).toLocaleString('ko-KR', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+        });
+    };
 
     // ====== 렌더링 ======
     return (
@@ -275,59 +275,59 @@ const SellerConcertList = () => {
                     </button>
                 </div>
 
-        {/* 필터 및 검색 */}
-        <div className="flex flex-wrap gap-4 items-center">
-          {/* 상태 필터 */}
-          <div className="flex gap-2">
-            {[
-              'ALL',
-              'SCHEDULED',
-              'ON_SALE',
-              'SOLD_OUT',
-              'CANCELLED',
-              'COMPLETED',
-            ].map((status) => (
-              <button
-                key={status}
-                onClick={() => handleStatusFilter(status)}
-                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                  filters.status === status
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
-              >
-                {status === 'ALL'
-                  ? '전체'
-                  : status === 'SCHEDULED'
-                    ? '예정됨'
-                    : status === 'ON_SALE'
-                      ? '예매중'
-                      : status === 'SOLD_OUT'
-                        ? '매진'
-                        : status === 'CANCELLED'
-                          ? '취소됨'
-                          : '완료됨'}
-              </button>
-            ))}
-          </div>
+                {/* 필터 및 검색 */}
+                <div className="flex flex-wrap gap-4 items-center">
+                    {/* 상태 필터 */}
+                    <div className="flex gap-2">
+                        {[
+                            'ALL',
+                            'SCHEDULED',
+                            'ON_SALE',
+                            'SOLD_OUT',
+                            'CANCELLED',
+                            'COMPLETED',
+                        ].map((status) => (
+                            <button
+                                key={status}
+                                onClick={() => handleStatusFilter(status)}
+                                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                                    filters.status === status
+                                        ? 'bg-blue-600 text-white'
+                                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                }`}
+                            >
+                                {status === 'ALL'
+                                    ? '전체'
+                                    : status === 'SCHEDULED'
+                                      ? '예정됨'
+                                      : status === 'ON_SALE'
+                                        ? '예매중'
+                                        : status === 'SOLD_OUT'
+                                          ? '매진'
+                                          : status === 'CANCELLED'
+                                            ? '취소됨'
+                                            : '완료됨'}
+                            </button>
+                        ))}
+                    </div>
 
-          {/* 새로고침 버튼 */}
-          <button
-            onClick={() => fetchConcerts()}
-            className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
-            title="새로고침"
-          >
-            <RefreshCw size={18} />
-          </button>
-        </div>
-      </div>
+                    {/* 새로고침 버튼 */}
+                    <button
+                        onClick={() => fetchConcerts()}
+                        className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+                        title="새로고침"
+                    >
+                        <RefreshCw size={18} />
+                    </button>
+                </div>
+            </div>
 
-      {/* 에러 메시지 */}
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
-          {error}
-        </div>
-      )}
+            {/* 에러 메시지 */}
+            {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+                    {error}
+                </div>
+            )}
 
             {/* 콘서트 목록 */}
             <div className="bg-white rounded-lg shadow-sm">
@@ -517,17 +517,17 @@ const SellerConcertList = () => {
                                         </div>
                                     </div>
 
-                  {/* 상태 */}
-                  <div className="col-span-1">
-                    {getStatusBadge(concert.status)}
-                  </div>
+                                    {/* 상태 */}
+                                    <div className="col-span-1">
+                                        {getStatusBadge(concert.status)}
+                                    </div>
 
-                  {/* 등록일 */}
-                  <div className="col-span-2">
-                    <span className="text-sm text-gray-600">
-                      {formatDateTime(concert.createdAt)}
-                    </span>
-                  </div>
+                                    {/* 등록일 */}
+                                    <div className="col-span-2">
+                                        <span className="text-sm text-gray-600">
+                                            {formatDateTime(concert.createdAt)}
+                                        </span>
+                                    </div>
 
                                     {/* 작업 버튼들 */}
                                     <div className="col-span-1">
@@ -561,19 +561,19 @@ const SellerConcertList = () => {
                     </>
                 )}
 
-        {/* 페이지네이션 */}
-        {!loading && concerts.length > 0 && (
-          <div className="p-4 border-t border-gray-200">
-            <div className="flex items-center justify-between">
-              <div className="text-sm text-gray-600">
-                총 {pagination.totalElements}개 중{' '}
-                {pagination.page * pagination.size + 1}-
-                {Math.min(
-                  (pagination.page + 1) * pagination.size,
-                  pagination.totalElements,
-                )}
-                개 표시
-              </div>
+                {/* 페이지네이션 */}
+                {!loading && concerts.length > 0 && (
+                    <div className="p-4 border-t border-gray-200">
+                        <div className="flex items-center justify-between">
+                            <div className="text-sm text-gray-600">
+                                총 {pagination.totalElements}개 중{' '}
+                                {pagination.page * pagination.size + 1}-
+                                {Math.min(
+                                    (pagination.page + 1) * pagination.size,
+                                    pagination.totalElements,
+                                )}
+                                개 표시
+                            </div>
 
                             <div className="flex items-center gap-2">
                                 {/* 페이지 크기 선택 */}
