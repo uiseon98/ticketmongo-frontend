@@ -28,7 +28,7 @@ import ConcertDetailPage from './pages/concert/ConcertDetailPage.jsx';
 import SeatSelectionPage from './pages/booking/SeatSelectionPage.jsx';
 
 //결제결과 페이지
-import { PaymentRoutes } from './features/payment/index.jsx'
+import { PaymentRoutes } from './features/payment/RoutePayment.jsx'
 
 // 판매자 페이지 (새로 만들거나 기존 페이지 재활용)
 import SellerHomePage from './pages/seller/SellerHomePage.jsx'; // 판매자 홈 페이지
