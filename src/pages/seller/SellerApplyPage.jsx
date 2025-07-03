@@ -7,6 +7,10 @@ import ErrorMessage from '../../shared/components/ui/ErrorMessage';
 import InputField from '../../shared/components/ui/InputField';
 import Button from '../../shared/components/ui/Button';
 import SuccessMessage from '../../shared/components/ui/SuccessMessage';
+import {
+    formatPhoneNumber,
+    formatBusinessNumber,
+} from '../../shared/utils/formatters';
 
 const SellerApplyPage = () => {
     const { user } = useContext(AuthContext); // AuthContext의 user (GET /auth/me에서 온 정보)
@@ -33,6 +37,9 @@ const SellerApplyPage = () => {
 
     // 폼 유효성 검사 상태
     const [formErrors, setFormErrors] = useState({});
+
+    // 드래그 앤 드롭 영역의 상태
+    const [isDragOver, setIsDragOver] = useState(false);
 
     useEffect(() => {
         const fetchRequiredDataAndControlAccess = async () => {
@@ -109,7 +116,11 @@ const SellerApplyPage = () => {
             setFormData((prev) => ({
                 ...prev,
                 representativeName: applicantInfo.name || '',
-                representativePhone: applicantInfo.phone || '',
+                // 수정: applicantInfo.phone에서 숫자만 추출하여 저장
+                representativePhone: (applicantInfo.phone || '').replace(
+                    /[^0-9]/g,
+                    '',
+                ),
             }));
         } else if (!sameAsApplicant) {
             // 체크 해제 시
@@ -125,7 +136,9 @@ const SellerApplyPage = () => {
                 setFormData((prev) => ({
                     ...prev,
                     representativeName: sellerStatus.representativeName || '',
-                    representativePhone: sellerStatus.representativePhone || '',
+                    representativePhone: (
+                        sellerStatus.representativePhone || ''
+                    ).replace(/[^0-9]/g, ''),
                 }));
             }
         }
@@ -133,8 +146,14 @@ const SellerApplyPage = () => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
-        // 에러 메시지 즉시 제거 (사용자가 입력할 때)
+        let processedValue = value;
+
+        // 수정: 전화번호와 사업자등록번호 입력 시 숫자 외 문자 자동 제거
+        if (name === 'businessNumber' || name === 'representativePhone') {
+            processedValue = value.replace(/[^0-9]/g, ''); // 숫자만 남기기
+        }
+
+        setFormData((prev) => ({ ...prev, [name]: processedValue }));
         setFormErrors((prev) => ({ ...prev, [name]: undefined }));
     };
 
@@ -151,7 +170,32 @@ const SellerApplyPage = () => {
         setFormErrors((prev) => ({ ...prev, businessLicenseFile: undefined }));
     };
 
-    // 폼 유효성 검사 (간단한 예시, 필요시 shared/utils/validation.js 활용)
+    // 드래그 앤 드롭 핸들러
+    const handleDragOver = (e) => {
+        e.preventDefault(); // 기본 동작 방지 (파일이 브라우저에 열리는 것 등)
+        e.stopPropagation(); // 이벤트 전파 중단
+        setIsDragOver(true); // 드래그 오버 상태 활성화
+    };
+
+    const handleDragLeave = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragOver(false); // 드래그 오버 상태 비활성화
+    };
+
+    const handleDrop = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragOver(false); // 드래그 오버 상태 비활성화
+
+        const files = e.dataTransfer.files;
+        if (files && files.length > 0) {
+            // 첫 번째 파일만 처리 (현재 단일 파일 업로드 기준)
+            const mockEvent = { target: { files: [files[0]] } };
+            handleFileChange(mockEvent); // 기존 파일 변경 핸들러 재사용
+        }
+    };
+
     const validateForm = () => {
         const errors = {};
         if (!formData.companyName)
@@ -163,7 +207,8 @@ const SellerApplyPage = () => {
         if (!formData.representativeName)
             errors.representativeName = '담당자 이름을 입력해주세요.';
         if (!formData.representativePhone)
-            errors.representativePhone = '담당자 연락처를 입력해주세요.';
+            errors.representativePhone = '담당자 연락처는 필수입니다.';
+        // 수정: 정규식은 숫자만 있는 문자열에 대해 검사 (하이픈 제거된 값)
         else if (!/^0\d{1,2}\d{3,4}\d{4}$/.test(formData.representativePhone))
             errors.representativePhone =
                 '담당자 연락처는 유효한 전화번호 형식(숫자만)이어야 합니다.';
@@ -233,10 +278,8 @@ const SellerApplyPage = () => {
         navigate('/seller/status');
     };
 
-    // sellerStatus와 applicantInfo가 모두 로드될 때까지 로딩 표시
-    if (loading || !applicantInfo) {
-        // applicantInfo가 없으면 로딩 중으로 간주
-        return <LoadingSpinner message="신청 페이지 데이터 로딩 중..." />;
+    if (loading) {
+        return <LoadingSpinner message="판매자 신청 페이지 로딩 중..." />;
     }
 
     if (error) {
@@ -258,11 +301,12 @@ const SellerApplyPage = () => {
         );
     }
 
-    // user 정보가 로드되었지만 applicantInfo는 아직 없는 경우 (초기 렌더링 직후)
-    // 이 부분은 위에 loading 체크로 대부분 커버됨.
-    if (!applicantInfo) {
-        return <ErrorMessage message="신청자 정보를 불러올 수 없습니다." />;
-    }
+    // applicantInfo에서 직접 값을 가져와 변수에 할당
+    const applicantId = applicantInfo?.id || 'N/A';
+    const applicantNickname = applicantInfo?.nickname || 'N/A';
+    const applicantName = applicantInfo?.name || 'N/A';
+    const applicantEmail = applicantInfo?.email || 'N/A';
+    const applicantPhone = applicantInfo?.phone || 'N/A'; // 이곳은 이미 API에서 오는 값
 
     return (
         <div className="flex flex-col px-6 py-5 bg-[#111922] text-white min-h-[calc(100vh-64px)]">
@@ -285,26 +329,24 @@ const SellerApplyPage = () => {
                         <p className="text-base text-gray-300 mb-2">
                             닉네임:{' '}
                             <span className="font-semibold text-white">
-                                {applicantInfo.nickname || 'N/A'}
+                                {applicantNickname}
                             </span>{' '}
                             | 사용자 ID:{' '}
                             <span className="font-semibold text-white">
-                                {applicantInfo.id || 'N/A'}
+                                {applicantId}
                             </span>
                         </p>
                         <p className="text-sm text-gray-400">
                             이름:{' '}
-                            <span className="font-medium">
-                                {applicantInfo.name || 'N/A'}
-                            </span>
+                            <span className="font-medium">{applicantName}</span>
                             <br />
                             이메일:{' '}
                             <span className="font-medium">
-                                {applicantInfo.email || 'N/A'}
+                                {applicantEmail}
                             </span>{' '}
                             | 연락처:{' '}
                             <span className="font-medium">
-                                {applicantInfo.phone || 'N/A'}
+                                {applicantPhone} {/* <-- 여기를 수정 */}
                             </span>
                         </p>
                     </div>
@@ -328,7 +370,8 @@ const SellerApplyPage = () => {
                     <InputField
                         label="사업자등록번호"
                         name="businessNumber"
-                        value={formData.businessNumber}
+                        // 수정: value에 포맷팅 함수 적용
+                        value={formatBusinessNumber(formData.businessNumber)}
                         onChange={handleChange}
                         placeholder="하이픈 없이 10자리 숫자"
                         error={formErrors.businessNumber}
@@ -353,7 +396,8 @@ const SellerApplyPage = () => {
                     <InputField
                         label="담당자 연락처"
                         name="representativePhone"
-                        value={formData.representativePhone}
+                        // 수정: value에 포맷팅 함수 적용
+                        value={formatPhoneNumber(formData.representativePhone)}
                         onChange={handleChange}
                         placeholder="숫자만 입력 (예: 01012345678)"
                         error={formErrors.representativePhone}
@@ -390,10 +434,17 @@ const SellerApplyPage = () => {
                         <p className="text-gray-400 text-sm mb-4">
                             PDF 또는 JPG 파일 (최대 10MB)
                         </p>
-                        <div className="border-dashed border-2 border-[#3d4a5c] p-6 rounded-xl text-center">
+                        {/* 드래그 앤 드롭 영역 */}
+                        <div
+                            className={`border-dashed border-2 p-6 rounded-xl text-center cursor-pointer transition-colors
+                          ${isDragOver ? 'border-[#6366F1] bg-[#1a232f]' : 'border-[#3d4a5c] bg-[#121a21]'}`}
+                            onDragOver={handleDragOver}
+                            onDragLeave={handleDragLeave}
+                            onDrop={handleDrop}
+                        >
                             <label
                                 htmlFor="businessLicenseFile"
-                                className="cursor-pointer"
+                                className="cursor-pointer block h-full w-full"
                             >
                                 <p className="text-white text-lg font-bold mb-2">
                                     파일을 여기로 드래그 앤 드롭하거나 클릭하여
@@ -406,9 +457,9 @@ const SellerApplyPage = () => {
                                     type="file"
                                     id="businessLicenseFile"
                                     name="businessLicenseFile"
-                                    accept="image/*,application/pdf"
+                                    accept="image/*,application/pdf" // 이미지 및 PDF 파일 허용
                                     onChange={handleFileChange}
-                                    className="hidden"
+                                    className="hidden" // 기본 파일 선택 버튼 숨김
                                 />
                                 <Button
                                     type="button"
