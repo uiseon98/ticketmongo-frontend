@@ -148,7 +148,7 @@ const SellerApplyPage = () => {
         const { name, value } = e.target;
         let processedValue = value;
 
-        // 수정: 전화번호와 사업자등록번호 입력 시 숫자 외 문자 자동 제거
+        // 전화번호와 사업자등록번호 입력 시 숫자 외 문자 자동 제거
         if (name === 'businessNumber' || name === 'representativePhone') {
             processedValue = value.replace(/[^0-9]/g, ''); // 숫자만 남기기
         }
@@ -208,7 +208,7 @@ const SellerApplyPage = () => {
             errors.representativeName = '담당자 이름을 입력해주세요.';
         if (!formData.representativePhone)
             errors.representativePhone = '담당자 연락처는 필수입니다.';
-        // 수정: 정규식은 숫자만 있는 문자열에 대해 검사 (하이픈 제거된 값)
+        // 정규식은 숫자만 있는 문자열에 대해 검사 (하이픈 제거된 값)
         else if (!/^0\d{1,2}\d{3,4}\d{4}$/.test(formData.representativePhone))
             errors.representativePhone =
                 '담당자 연락처는 유효한 전화번호 형식(숫자만)이어야 합니다.';
@@ -232,10 +232,21 @@ const SellerApplyPage = () => {
         setLoading(true);
         setError(null);
         try {
+            // 수정: 백엔드로 보내기 전에 데이터에서 하이픈 재차 제거
+            const cleanedFormData = {
+                ...formData,
+                businessNumber: formData.businessNumber.replace(/[^0-9]/g, ''),
+                representativePhone: formData.representativePhone.replace(
+                    /[^0-9]/g,
+                    '',
+                ),
+            };
+
             const form = new FormData();
+            // DTO를 JSON Blob으로 추가 (이제 cleanedFormData 사용)
             form.append(
                 'request',
-                new Blob([JSON.stringify(formData)], {
+                new Blob([JSON.stringify(cleanedFormData)], {
                     type: 'application/json',
                 }),
             ); // DTO를 JSON Blob으로 추가
@@ -396,7 +407,7 @@ const SellerApplyPage = () => {
                     <InputField
                         label="담당자 연락처"
                         name="representativePhone"
-                        // 수정: value에 포맷팅 함수 적용
+                        // value에 포맷팅 함수 적용
                         value={formatPhoneNumber(formData.representativePhone)}
                         onChange={handleChange}
                         placeholder="숫자만 입력 (예: 01012345678)"
