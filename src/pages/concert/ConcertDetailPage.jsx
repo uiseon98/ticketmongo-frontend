@@ -181,6 +181,7 @@ function ConcertDetailPage() {
                 await deleteExpectation(expectationId);
                 alert('기대평이 삭제되었습니다.');
             } catch (error) {
+                console.error('기대평 삭제 실패:', error); // ✅ 에러 로깅 추가
                 alert('기대평 삭제에 실패했습니다.');
             }
         }

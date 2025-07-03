@@ -707,7 +707,7 @@ const ExpectationList = ({
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        onEditClick?.(expectation);
+                                        onEditExpectation?.(expectation);
                                     }}
                                     style={{
                                         padding: '4px 8px',
@@ -724,7 +724,7 @@ const ExpectationList = ({
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        onDeleteClick?.(expectation);
+                                        onDeleteExpectation?.(expectation.id);
                                     }}
                                     style={{
                                         padding: '4px 8px',
