@@ -12,7 +12,7 @@ export const userService = {
         try {
             const response = await apiClient.post('/mypage/profile', userInfo, {
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Content-Type': 'multipart/form-data',
                 },
             });
             return { success: true, data: response.data };

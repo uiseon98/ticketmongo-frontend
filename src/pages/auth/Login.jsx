@@ -58,7 +58,7 @@ export default function Login() {
                     )}
 
                     {/* Login Form */}
-                    <div className="space-y-6">
+                    <form onSubmit={handleLogin} className="space-y-6">
                         <div>
                             <label
                                 htmlFor="email"
@@ -99,7 +99,7 @@ export default function Login() {
                         >
                             로그인
                         </button>
-                    </div>
+                    </form>
 
                     {/* 로그인 실패 메시지 표시 */}
                     {errorMessage && (
