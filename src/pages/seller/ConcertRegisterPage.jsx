@@ -15,8 +15,12 @@ const ConcertRegisterPage = () => {
         return (
             <div className="p-6 bg-[#111922] text-white min-h-screen flex items-center justify-center">
                 <div className="text-center">
-                    <h2 className="text-3xl font-bold mb-4">접근 권한이 없습니다</h2>
-                    <p className="mb-4">콘서트 등록은 로그인한 판매자만 가능합니다.</p>
+                    <h2 className="text-3xl font-bold mb-4">
+                        접근 권한이 없습니다
+                    </h2>
+                    <p className="mb-4">
+                        콘서트 등록은 로그인한 판매자만 가능합니다.
+                    </p>
                     <button
                         onClick={() => navigate('/login')}
                         className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors"
@@ -49,7 +53,9 @@ const ConcertRegisterPage = () => {
         <div className="p-6 bg-[#111922] text-white min-h-screen">
             {/* 기존 헤더 유지 */}
             <h2 className="text-3xl font-bold mb-4">콘서트 등록</h2>
-            <p className="mb-8 text-gray-300">새로운 콘서트 정보를 등록하는 페이지입니다.</p>
+            <p className="mb-8 text-gray-300">
+                새로운 콘서트 정보를 등록하는 페이지입니다.
+            </p>
 
             {/* 콘서트 등록 폼을 바로 표시 */}
             <div className="max-w-4xl mx-auto">
