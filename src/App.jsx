@@ -27,6 +27,9 @@ import ConcertDetailPage from './pages/concert/ConcertDetailPage.jsx';
 // 예매 페이지
 import SeatSelectionPage from './pages/booking/SeatSelectionPage.jsx';
 
+//결제결과 페이지
+import { PaymentRoutes } from './features/payment/index.jsx'
+
 // 판매자 페이지 (새로 만들거나 기존 페이지 재활용)
 import SellerHomePage from './pages/seller/SellerHomePage.jsx'; // 판매자 홈 페이지
 import SellerStatusPage from './pages/seller/SellerStatusPage.jsx'; // 판매자 상태 페이지
@@ -57,13 +60,14 @@ export default function App() {
           element={user ? <Navigate to="/" replace /> : <RegisterPage />}
         />
       </Route>
-
       {/** — 공개 페이지 — **/}
       <Route element={<PublicLayout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="concerts" element={<ConcertListPage />} />
+        {PaymentRoutes()}
         <Route path="concerts/:concertId" element={<ConcertDetailPage />} />
       </Route>
+
 
       {/** — 로그인 후 보호된 페이지 — **/}
       <Route element={<MainLayout />}>
