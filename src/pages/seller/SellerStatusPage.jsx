@@ -73,25 +73,36 @@ const SellerStatusPage = () => {
 
     // 실제 권한 철회 처리 함수
     const confirmWithdrawal = async () => {
+        // 1. 확인 문구 일치 여부 검사 (프론트엔드 유효성 검사)
         const requiredPhrase = `${user?.username || ''}, 권한 철회 처리에 동의합니다.`; // 사용자 이름 포함
         if (confirmationInput !== requiredPhrase) {
             alert('입력 문구가 일치하지 않습니다. 정확히 입력해주세요.');
-            return;
+            return; // 일치하지 않으면 함수 종료
         }
 
         try {
-            // TODO: 백엔드 API 연동 필요 (DELETE 요청)
-            // await apiClient.delete('/users/me/seller-role'); // 실제 API 호출
+            // 2. 백엔드 API 호출: 판매자 권한 철회 요청
+            await apiClient.delete('/users/me/role'); // API-03-07: DELETE /api/users/me/role
+            // 3. API 호출 성공 시 사용자에게 성공 메시지 알림
             alert(
-                '판매자 권한 철회 요청이 성공적으로 처리되었습니다. (실제 API 호출은 미구현)',
+                '판매자 권한 철회 요청이 성공적으로 처리되었습니다. 이용해 주셔서 감사합니다.',
             );
-            setShowWithdrawalModal(false);
-            setConfirmationInput('');
-            // 철회 성공 후 상태를 다시 불러와 UI 업데이트
-            // fetchSellerStatus(); // 실제 API 호출 후 이 함수를 다시 호출하여 상태 업데이트
+            // 4. 모달 닫기 및 입력값 초기화
+            setShowWithdrawalModal(false); // 권한 철회 확인 모달 닫기
+            setConfirmationInput(''); // 입력 필드 초기화
+
+            // 5. 철회 성공 후 UI 상태 업데이트
+            // user 객체는 AuthContext에서 오고, approvalStatus는 sellerStatus에서 오는 점을 고려
+            // 서버에서 role과 approvalStatus가 USER, WITHDRAWN으로 변경된 후 다시 fetch하여 반영
+            // 여기서는 페이지를 새로고침하여 AuthContext와 SellerStatus API를 모두 다시 불러오도록 하는 것이 가장 간단하고 확실
+            window.location.reload(); // 페이지 전체를 새로고침하여 모든 상태 최신화
         } catch (err) {
-            console.error('판매자 권한 철회 실패:', err);
+            // 6. API 호출 실패 시 에러 처리
+            console.error('판매자 권한 철회 실패:', err.response?.data);
             alert(err.response?.data?.message || '권한 철회에 실패했습니다.');
+        } finally {
+            // 7. 로딩 상태 처리 (만약 로딩 스피너를 띄웠다면 여기서 false로 설정)
+            // 지금은 alert가 뜨고 reload되므로 로딩 상태는 별도 처리하지 않음 (사용자가 로딩 상태를 볼 틈이 없음)
         }
     };
 
