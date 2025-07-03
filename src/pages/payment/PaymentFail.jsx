@@ -1,6 +1,7 @@
 // src/pages/payment/PaymentFail.jsx
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
+import { fetchBooking } from '../../features/payment/paymentAPI.js';
 import axios from 'axios';
 
 export default function PaymentFail() {
@@ -10,15 +11,17 @@ export default function PaymentFail() {
     const message = params.get('message');
 
     const [booking, setBooking] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (!bookingNumber) return;
-        axios
-            .get(`/api/bookings/${bookingNumber}`)
+        setLoading(true);
+        fetchBooking(bookingNumber)
             .then((res) => setBooking(res.data.data))
             .catch(() => {
                 /* 실패해도 레이아웃에는 영향 없음 */
-            });
+            })
+            .finally(() => setLoading(false));
     }, [bookingNumber]);
 
     return (
@@ -48,16 +51,17 @@ export default function PaymentFail() {
                 </p>
             </div>
 
-            <div className="flex justify-center space-x-4">
+            {/* 버튼 */}
+            <div className="flex justify-center gap-3">
                 <Link
-                    to="/mypage/booking"
-                    className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                    to="/mypage/profile"
+                    className="flex min-w-[84px] items-center justify-center rounded-lg h-10 px-4 bg-[#f2f2f2] text-[#141414] text-sm font-bold"
                 >
                     마이페이지
                 </Link>
                 <Link
                     to="/"
-                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                    className="flex min-w-[84px] items-center justify-center rounded-lg h-10 px-4 bg-[#141414] text-white text-sm font-bold"
                 >
                     홈으로
                 </Link>

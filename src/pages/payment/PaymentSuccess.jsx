@@ -1,21 +1,21 @@
 // src/pages/payment/PaymentSuccess.jsx
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import axios from 'axios';
+import { fetchBooking } from '../../features/payment/paymentAPI';
 
 export default function PaymentSuccess() {
     const [params] = useSearchParams();
     const bookingNumber = params.get('bookingNumber');
     const [booking, setBooking] = useState(null);
     const [error, setError] = useState('');
+    
 
     useEffect(() => {
         if (!bookingNumber) {
             setError('예매 번호가 전달되지 않았습니다.');
             return;
         }
-        axios
-            .get(`/api/bookings/${bookingNumber}`)
+        fetchBooking(bookingNumber)
             .then((res) => setBooking(res.data.data))
             .catch(() => setError('예매 정보를 불러오는 데 실패했습니다.'));
     }, [bookingNumber]);
@@ -39,7 +39,12 @@ export default function PaymentSuccess() {
         );
     }
 
-    const { concertTitle, concertDateTime, seatLabels, totalAmount } = booking;
+    const { 
+        concertTitle = '', 
+        concertDateTime = '', 
+        seatLabels = [], 
+        totalAmount = 0 
+    } = booking || {};
 
     return (
         <div className="px-40 flex flex-1 justify-center py-5">
@@ -74,13 +79,13 @@ export default function PaymentSuccess() {
                     <div>
                         <p className="text-[#757575] text-sm">좌석</p>
                         <p className="text-[#141414] text-sm">
-                            {seatLabels.join(', ')}
+                             {seatLabels?.length > 0 ? seatLabels.join(', ') : '좌석 정보 없음'}
                         </p>
                     </div>
                     <div>
                         <p className="text-[#757575] text-sm">총 금액</p>
                         <p className="text-[#141414] text-sm">
-                            {totalAmount.toLocaleString()}원
+                            {(totalAmount || 0).toLocaleString()}원
                         </p>
                     </div>
                 </div>
