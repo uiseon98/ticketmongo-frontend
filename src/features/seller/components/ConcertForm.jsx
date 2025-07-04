@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
     X,
     Calendar,
@@ -39,6 +39,7 @@ const ConcertForm = ({
     const [uploading, setUploading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [filePreview, setFilePreview] = useState(null);
+    const fileInputRef = useRef(null);
 
     // 폼 데이터 - 백엔드 DTO와 완전히 일치
     const [formData, setFormData] = useState({
@@ -286,17 +287,18 @@ const ConcertForm = ({
 
         // 포스터 URL 패턴 검증
         if (formData.posterImageUrl) {
-            const urlPattern = /^https?:\/\/.*\.(jpg|jpeg|png|gif|webp)$/i;
-            if (!urlPattern.test(formData.posterImageUrl)) {
-                newErrors.posterImageUrl =
-                    '포스터 이미지 URL은 올바른 이미지 URL 형식이어야 합니다';
+            try {
+                const url = new URL(formData.posterImageUrl);
+                if (!['http:', 'https:'].includes(url.protocol)) {
+                    newErrors.posterImageUrl = '올바른 URL 형식이 아닙니다';
+                }
+            } catch (e) {
+                newErrors.posterImageUrl = '올바른 URL 형식이 아닙니다';
             }
         }
-
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
-
     // ====== API 호출 ======
 
     /**
@@ -1013,6 +1015,26 @@ const ConcertForm = ({
         setSelectedFile(null);
         setFilePreview(null);
         setUploadProgress(0);
+
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+            fileInputRef.current.files = null;
+        }
+    };
+
+    const handleRemoveUploadedImage = () => {
+        setFormData((prev) => ({
+            ...prev,
+            posterImageUrl: '',
+        }));
+        setSelectedFile(null);
+        setFilePreview(null);
+        setUploadProgress(0);
+
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+            fileInputRef.current.files = null;
+        }
     };
 
     // ====== 렌더링 (페이지 모드) ======
@@ -1446,6 +1468,7 @@ const ConcertForm = ({
                             {/* 파일 선택 */}
                             <div className="flex gap-4 mb-4">
                                 <input
+                                    ref={fileInputRef}
                                     type="file"
                                     accept="image/*"
                                     onChange={handleFileSelect}
@@ -1524,18 +1547,31 @@ const ConcertForm = ({
                             <label className="block text-sm font-medium text-gray-200 mb-2">
                                 포스터 이미지 URL (직접 입력)
                             </label>
-                            <input
-                                type="url"
-                                name="posterImageUrl"
-                                value={formData.posterImageUrl}
-                                onChange={handleInputChange}
-                                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                                    errors.posterImageUrl
-                                        ? 'border-red-500'
-                                        : 'border-gray-600'
-                                } bg-gray-700 text-white placeholder-gray-400`}
-                                placeholder="https://example.com/poster.jpg"
-                            />
+                            <div className="flex gap-2">
+                                <input
+                                    type="url"
+                                    name="posterImageUrl"
+                                    value={formData.posterImageUrl}
+                                    onChange={handleInputChange}
+                                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                                        errors.posterImageUrl
+                                            ? 'border-red-500'
+                                            : 'border-gray-600'
+                                    } bg-gray-700 text-white placeholder-gray-400`}
+                                    placeholder="https://example.com/poster.jpg"
+                                />
+                                {/* 업로드된 이미지 제거 버튼 */}
+                                {formData.posterImageUrl && (
+                                    <button
+                                        type="button"
+                                        onClick={handleRemoveUploadedImage}
+                                        className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+                                        title="이미지 제거"
+                                    >
+                                        ✕
+                                    </button>
+                                )}
+                            </div>
                             {errors.posterImageUrl && (
                                 <p className="mt-1 text-sm text-red-500">
                                     {errors.posterImageUrl}
@@ -1549,9 +1585,20 @@ const ConcertForm = ({
                             {formData.posterImageUrl &&
                                 !errors.posterImageUrl && (
                                     <div className="mt-4">
-                                        <p className="text-sm font-medium text-gray-200 mb-2">
-                                            미리보기
-                                        </p>
+                                        <div className="flex items-center justify-between mb-2">
+                                            <p className="text-sm font-medium text-gray-200 mb-2">
+                                                미리보기
+                                            </p>
+                                            <button
+                                                type="button"
+                                                onClick={
+                                                    handleRemoveUploadedImage
+                                                }
+                                                className="text-xs text-red-400 hover:text-red-300 transition-colors"
+                                            >
+                                                이미지 제거
+                                            </button>
+                                        </div>
                                         <div className="w-32 h-48 border border-gray-600 rounded-lg overflow-hidden">
                                             <img
                                                 src={formData.posterImageUrl}
