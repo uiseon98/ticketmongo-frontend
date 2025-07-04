@@ -61,7 +61,6 @@ const ConcertForm = ({
         maxTicketsPerUser: 4,
         posterImageUrl: '',
 
-        // 수정 모드에서만 사용
         status: 'SCHEDULED',
     });
 
@@ -331,6 +330,7 @@ const ConcertForm = ({
             minAge: formData.minAge,
             maxTicketsPerUser: formData.maxTicketsPerUser,
             posterImageUrl: formData.posterImageUrl?.trim() || null,
+            status: formData.status,
         };
 
         return await concertService.createConcert(sellerId, createData);
@@ -912,35 +912,27 @@ const ConcertForm = ({
                                 )}
                             </div>
 
-                            {/* 수정 모드에서만 상태 선택 */}
-                            {isEditMode && (
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        콘서트 상태
-                                    </label>
-                                    <select
-                                        name="status"
-                                        value={formData.status}
-                                        onChange={handleInputChange}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    >
-                                        <option value="SCHEDULED">
-                                            예정됨
-                                        </option>
-                                        <option value="ON_SALE">예매중</option>
-                                        <option value="SOLD_OUT">매진</option>
-                                        <option value="CANCELLED">
-                                            취소됨
-                                        </option>
-                                        <option value="COMPLETED">
-                                            완료됨
-                                        </option>
-                                    </select>
-                                    <p className="mt-1 text-xs text-gray-500">
-                                        상태 변경 시 신중하게 선택해주세요
-                                    </p>
-                                </div>
-                            )}
+                            {/* 콘서트 상태 선택 (생성/수정 모드 모두) */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    콘서트 상태
+                                </label>
+                                <select
+                                    name="status"
+                                    value={formData.status}
+                                    onChange={handleInputChange}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                >
+                                    <option value="SCHEDULED">예정됨</option>
+                                    <option value="ON_SALE">예매중</option>
+                                    <option value="SOLD_OUT">매진</option>
+                                    <option value="CANCELLED">취소됨</option>
+                                    <option value="COMPLETED">완료됨</option>
+                                </select>
+                                <p className="mt-1 text-xs text-gray-500">
+                                    상태 변경 시 신중하게 선택해주세요
+                                </p>
+                            </div>
 
                             {/* 포스터 이미지 섹션 */}
                             <div className="md:col-span-2 mt-6">
@@ -1430,29 +1422,29 @@ const ConcertForm = ({
                             )}
                         </div>
 
-                        {/* 수정 모드에서만 상태 선택 */}
-                        {isEditMode && (
-                            <div>
-                                <label className="block text-sm font-medium text-gray-200 mb-2">
-                                    콘서트 상태
-                                </label>
-                                <select
-                                    name="status"
-                                    value={formData.status}
-                                    onChange={handleInputChange}
-                                    className="w-full px-3 py-2 border border-gray-600 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                >
-                                    <option value="SCHEDULED">예정됨</option>
-                                    <option value="ON_SALE">예매중</option>
-                                    <option value="SOLD_OUT">매진</option>
-                                    <option value="CANCELLED">취소됨</option>
-                                    <option value="COMPLETED">완료됨</option>
-                                </select>
-                                <p className="mt-1 text-xs text-gray-400">
-                                    상태 변경 시 신중하게 선택해주세요
-                                </p>
-                            </div>
-                        )}
+                        {/* 콘서트 상태 선택 (생성/수정 모드 모두) */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-200 mb-2">
+                                콘서트 상태
+                            </label>
+                            <select
+                                name="status"
+                                value={formData.status}
+                                onChange={handleInputChange}
+                                className="w-full px-3 py-2 border border-gray-600 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                                <option value="SCHEDULED">예정됨</option>
+                                <option value="ON_SALE">예매중</option>
+                                <option value="SOLD_OUT">매진</option>
+                                <option value="CANCELLED">취소됨</option>
+                                <option value="COMPLETED">완료됨</option>
+                            </select>
+                            <p className="mt-1 text-xs text-gray-400">
+                                {isEditMode
+                                    ? '상태 변경 시 신중하게 선택해주세요'
+                                    : '초기 콘서트 상태를 선택해주세요'}
+                            </p>
+                        </div>
 
                         {/* 포스터 이미지 섹션 */}
                         <div className="md:col-span-2 mt-6">
