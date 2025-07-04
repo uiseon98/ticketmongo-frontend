@@ -380,6 +380,89 @@ const ConcertForm = ({
     };
 
     // ====== 폼 제출 ======
+    // 파일 선택 핸들러
+    const handleFileSelect = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // 파일 검증
+        const validation = fileUploadService.validateFile(file);
+        if (!validation.valid) {
+            alert(validation.error);
+            return;
+        }
+
+        setSelectedFile(file);
+
+        // 미리보기 생성
+        try {
+            const dataURL = await fileUploadService.fileToDataURL(file);
+            setFilePreview(dataURL);
+        } catch (error) {
+            console.error('미리보기 생성 실패:', error);
+        }
+    };
+
+    // 파일 업로드 실행 핸들러
+    const handleFileUpload = async () => {
+        if (!selectedFile) return;
+
+        setUploading(true);
+        setUploadProgress(0);
+
+        try {
+            const result = await fileUploadService.uploadPosterImage(
+                selectedFile,
+                isEditMode ? concert.concertId : null,
+                (progress) => setUploadProgress(progress),
+            );
+
+            // 업로드 성공 시 URL을 폼에 설정
+            setFormData((prev) => ({
+                ...prev,
+                posterImageUrl: result.data,
+            }));
+
+            alert('포스터 이미지가 업로드되었습니다!');
+
+            // 선택된 파일 정보 초기화
+            setSelectedFile(null);
+            setFilePreview(null);
+        } catch (error) {
+            alert(`업로드 실패: ${error.message}`);
+        } finally {
+            setUploading(false);
+            setUploadProgress(0);
+        }
+    };
+
+    // 선택된 파일 제거 핸들러
+    const handleClearFile = () => {
+        setSelectedFile(null);
+        setFilePreview(null);
+        setUploadProgress(0);
+
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+            fileInputRef.current.files = null;
+        }
+    };
+
+    const handleRemoveUploadedImage = () => {
+        setFormData((prev) => ({
+            ...prev,
+            posterImageUrl: '',
+        }));
+        setSelectedFile(null);
+        setFilePreview(null);
+        setUploadProgress(0);
+
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+            fileInputRef.current.files = null;
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -956,89 +1039,6 @@ const ConcertForm = ({
             </div>
         );
     }
-
-    // 파일 선택 핸들러
-    const handleFileSelect = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        // 파일 검증
-        const validation = fileUploadService.validateFile(file);
-        if (!validation.valid) {
-            alert(validation.error);
-            return;
-        }
-
-        setSelectedFile(file);
-
-        // 미리보기 생성
-        try {
-            const dataURL = await fileUploadService.fileToDataURL(file);
-            setFilePreview(dataURL);
-        } catch (error) {
-            console.error('미리보기 생성 실패:', error);
-        }
-    };
-
-    // 파일 업로드 실행 핸들러
-    const handleFileUpload = async () => {
-        if (!selectedFile) return;
-
-        setUploading(true);
-        setUploadProgress(0);
-
-        try {
-            const result = await fileUploadService.uploadPosterImage(
-                selectedFile,
-                isEditMode ? concert.concertId : null,
-                (progress) => setUploadProgress(progress),
-            );
-
-            // 업로드 성공 시 URL을 폼에 설정
-            setFormData((prev) => ({
-                ...prev,
-                posterImageUrl: result.data,
-            }));
-
-            alert('포스터 이미지가 업로드되었습니다!');
-
-            // 선택된 파일 정보 초기화
-            setSelectedFile(null);
-            setFilePreview(null);
-        } catch (error) {
-            alert(`업로드 실패: ${error.message}`);
-        } finally {
-            setUploading(false);
-            setUploadProgress(0);
-        }
-    };
-
-    // 선택된 파일 제거 핸들러
-    const handleClearFile = () => {
-        setSelectedFile(null);
-        setFilePreview(null);
-        setUploadProgress(0);
-
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-            fileInputRef.current.files = null;
-        }
-    };
-
-    const handleRemoveUploadedImage = () => {
-        setFormData((prev) => ({
-            ...prev,
-            posterImageUrl: '',
-        }));
-        setSelectedFile(null);
-        setFilePreview(null);
-        setUploadProgress(0);
-
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-            fileInputRef.current.files = null;
-        }
-    };
 
     // ====== 렌더링 (페이지 모드) ======
     return (
