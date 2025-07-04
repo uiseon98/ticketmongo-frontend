@@ -43,6 +43,22 @@ import SellerConcertManagementPage from './pages/seller/SellerConcertManagementP
 import AdminDashboard from './pages/admin/Dashboard';
 import AdminSellerManagement from './pages/admin/AdminSellerManagement';
 
+// --- 새로 추가된 임시 관리자 페이지 컴포넌트들 ---
+// 나중에 실제 페이지 컴포넌트 파일로 교체될 예정입니다.
+const TempSellerApprovalPage = () => (
+    <div className="text-white p-4">판매자 승인 페이지 (임시)</div>
+);
+const TempSellerManagementPage = () => (
+    <div className="text-white p-4">판매자 관리 페이지 (임시)</div>
+);
+const TempApplicationHistoryPage = () => (
+    <div className="text-white p-4">신청 이력 페이지 (임시)</div>
+);
+const TempSettingsPage = () => (
+    <div className="text-white p-4">설정 페이지 (임시)</div>
+);
+// --------------------------------------------------
+
 import NotFoundPage from './pages/NotFoundPage.jsx';
 import UnauthorizedAccessPage from './pages/UnauthorizedAccessPage';
 
@@ -191,12 +207,27 @@ export default function App() {
                         )
                     }
                 >
-                    <Route index element={<AdminDashboard />} />
-                    {/* 판매자 권한 관리 페이지 라우트 추가 */}
+                    <Route index element={<AdminDashboard />} />{' '}
+                    {/* 기존 대시보드 */}
+                    {/* 판매자 권한 관리 페이지 라우트 (기존 임시) */}
                     <Route
                         path="seller-management"
                         element={<AdminSellerManagement />}
                     />
+                    {/* 새로 추가된 관리자 메뉴 라우트 */}
+                    <Route
+                        path="seller-approvals"
+                        element={<TempSellerApprovalPage />}
+                    />
+                    <Route
+                        path="sellers"
+                        element={<TempSellerManagementPage />}
+                    />
+                    <Route
+                        path="history"
+                        element={<TempApplicationHistoryPage />}
+                    />
+                    <Route path="settings" element={<TempSettingsPage />} />
                 </Route>
             </Route>
 
