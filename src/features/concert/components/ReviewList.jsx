@@ -698,18 +698,43 @@ const ReviewList = ({
                         </h4>
 
                         {/* 리뷰 내용 */}
-                        <p
-                            style={{
-                                fontSize: compact ? '13px' : '14px',
-                                color: '#6b7280',
-                                lineHeight: '1.5',
-                                margin: '0',
-                            }}
-                        >
-                            {review.description.length > 100 && !compact
-                                ? review.description.substring(0, 100) + '...'
-                                : review.description}
-                        </p>
+                        <div>
+                            <p
+                                style={{
+                                    fontSize: compact ? '13px' : '14px',
+                                    color: '#6b7280',
+                                    lineHeight: '1.5',
+                                    margin: '0',
+                                }}
+                            >
+                                {review.description.length > 100 &&
+                                !compact &&
+                                !expandedItems?.has(review.id)
+                                    ? review.description.substring(0, 100) +
+                                      '...'
+                                    : review.description}
+                            </p>
+                            {review.description.length > 100 && !compact && (
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onReviewClick(review);
+                                    }}
+                                    style={{
+                                        color: '#3b82f6',
+                                        fontSize: '12px',
+                                        background: 'none',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        marginTop: '4px',
+                                    }}
+                                >
+                                    {expandedItems?.has(review.id)
+                                        ? '접기'
+                                        : '더보기'}
+                                </button>
+                            )}
+                        </div>
                         {currentUserId && currentUserId === review.userId && (
                             <div
                                 style={{
