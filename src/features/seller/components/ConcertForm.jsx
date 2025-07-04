@@ -124,11 +124,16 @@ const ConcertForm = ({
 
     // ====== 입력 핸들러 ======
     const handleInputChange = (e) => {
-        const { name, value } = e.target;
+        const { name, value, type } = e.target;
+
+        let processedValue = value;
+        if (type === 'number') {
+            processedValue = value === '' ? '' : Number(value);
+        }
 
         setFormData((prev) => ({
             ...prev,
-            [name]: value,
+            [name]: processedValue,
         }));
 
         // 해당 필드의 에러 클리어
@@ -320,11 +325,11 @@ const ConcertForm = ({
             concertDate: formData.concertDate,
             startTime: formData.startTime,
             endTime: formData.endTime,
-            totalSeats: parseInt(formData.totalSeats),
+            totalSeats: formData.totalSeats,
             bookingStartDate: formData.bookingStartDate,
             bookingEndDate: formData.bookingEndDate,
-            minAge: parseInt(formData.minAge),
-            maxTicketsPerUser: parseInt(formData.maxTicketsPerUser),
+            minAge: formData.minAge,
+            maxTicketsPerUser: formData.maxTicketsPerUser,
             posterImageUrl: formData.posterImageUrl?.trim() || null,
         };
 
@@ -355,16 +360,14 @@ const ConcertForm = ({
         if (formData.concertDate) updateData.concertDate = formData.concertDate;
         if (formData.startTime) updateData.startTime = formData.startTime;
         if (formData.endTime) updateData.endTime = formData.endTime;
-        if (formData.totalSeats)
-            updateData.totalSeats = parseInt(formData.totalSeats);
+        if (formData.totalSeats) updateData.totalSeats = formData.totalSeats;
         if (formData.bookingStartDate)
             updateData.bookingStartDate = formData.bookingStartDate;
         if (formData.bookingEndDate)
             updateData.bookingEndDate = formData.bookingEndDate;
-        if (formData.minAge !== undefined)
-            updateData.minAge = parseInt(formData.minAge);
+        if (formData.minAge !== undefined) updateData.minAge = formData.minAge;
         if (formData.maxTicketsPerUser !== undefined)
-            updateData.maxTicketsPerUser = parseInt(formData.maxTicketsPerUser);
+            updateData.maxTicketsPerUser = formData.maxTicketsPerUser;
         if (formData.status) updateData.status = formData.status;
         if (formData.posterImageUrl !== undefined)
             updateData.posterImageUrl = formData.posterImageUrl?.trim() || null;
@@ -377,6 +380,89 @@ const ConcertForm = ({
     };
 
     // ====== 폼 제출 ======
+    // 파일 선택 핸들러
+    const handleFileSelect = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // 파일 검증
+        const validation = fileUploadService.validateFile(file);
+        if (!validation.valid) {
+            alert(validation.error);
+            return;
+        }
+
+        setSelectedFile(file);
+
+        // 미리보기 생성
+        try {
+            const dataURL = await fileUploadService.fileToDataURL(file);
+            setFilePreview(dataURL);
+        } catch (error) {
+            console.error('미리보기 생성 실패:', error);
+        }
+    };
+
+    // 파일 업로드 실행 핸들러
+    const handleFileUpload = async () => {
+        if (!selectedFile) return;
+
+        setUploading(true);
+        setUploadProgress(0);
+
+        try {
+            const result = await fileUploadService.uploadPosterImage(
+                selectedFile,
+                isEditMode ? concert.concertId : null,
+                (progress) => setUploadProgress(progress),
+            );
+
+            // 업로드 성공 시 URL을 폼에 설정
+            setFormData((prev) => ({
+                ...prev,
+                posterImageUrl: result.data,
+            }));
+
+            alert('포스터 이미지가 업로드되었습니다!');
+
+            // 선택된 파일 정보 초기화
+            setSelectedFile(null);
+            setFilePreview(null);
+        } catch (error) {
+            alert(`업로드 실패: ${error.message}`);
+        } finally {
+            setUploading(false);
+            setUploadProgress(0);
+        }
+    };
+
+    // 선택된 파일 제거 핸들러
+    const handleClearFile = () => {
+        setSelectedFile(null);
+        setFilePreview(null);
+        setUploadProgress(0);
+
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+            fileInputRef.current.files = null;
+        }
+    };
+
+    const handleRemoveUploadedImage = () => {
+        setFormData((prev) => ({
+            ...prev,
+            posterImageUrl: '',
+        }));
+        setSelectedFile(null);
+        setFilePreview(null);
+        setUploadProgress(0);
+
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+            fileInputRef.current.files = null;
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -953,89 +1039,6 @@ const ConcertForm = ({
             </div>
         );
     }
-
-    // 파일 선택 핸들러
-    const handleFileSelect = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        // 파일 검증
-        const validation = fileUploadService.validateFile(file);
-        if (!validation.valid) {
-            alert(validation.error);
-            return;
-        }
-
-        setSelectedFile(file);
-
-        // 미리보기 생성
-        try {
-            const dataURL = await fileUploadService.fileToDataURL(file);
-            setFilePreview(dataURL);
-        } catch (error) {
-            console.error('미리보기 생성 실패:', error);
-        }
-    };
-
-    // 파일 업로드 실행 핸들러
-    const handleFileUpload = async () => {
-        if (!selectedFile) return;
-
-        setUploading(true);
-        setUploadProgress(0);
-
-        try {
-            const result = await fileUploadService.uploadPosterImage(
-                selectedFile,
-                isEditMode ? concert.concertId : null,
-                (progress) => setUploadProgress(progress),
-            );
-
-            // 업로드 성공 시 URL을 폼에 설정
-            setFormData((prev) => ({
-                ...prev,
-                posterImageUrl: result.data,
-            }));
-
-            alert('포스터 이미지가 업로드되었습니다!');
-
-            // 선택된 파일 정보 초기화
-            setSelectedFile(null);
-            setFilePreview(null);
-        } catch (error) {
-            alert(`업로드 실패: ${error.message}`);
-        } finally {
-            setUploading(false);
-            setUploadProgress(0);
-        }
-    };
-
-    // 선택된 파일 제거 핸들러
-    const handleClearFile = () => {
-        setSelectedFile(null);
-        setFilePreview(null);
-        setUploadProgress(0);
-
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-            fileInputRef.current.files = null;
-        }
-    };
-
-    const handleRemoveUploadedImage = () => {
-        setFormData((prev) => ({
-            ...prev,
-            posterImageUrl: '',
-        }));
-        setSelectedFile(null);
-        setFilePreview(null);
-        setUploadProgress(0);
-
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-            fileInputRef.current.files = null;
-        }
-    };
 
     // ====== 렌더링 (페이지 모드) ======
     return (
