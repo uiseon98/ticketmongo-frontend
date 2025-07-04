@@ -124,11 +124,16 @@ const ConcertForm = ({
 
     // ====== 입력 핸들러 ======
     const handleInputChange = (e) => {
-        const { name, value } = e.target;
+        const { name, value, type } = e.target;
+
+        let processedValue = value;
+        if (type === 'number') {
+            processedValue = value === '' ? '' : Number(value);
+        }
 
         setFormData((prev) => ({
             ...prev,
-            [name]: value,
+            [name]: processedValue,
         }));
 
         // 해당 필드의 에러 클리어
@@ -320,11 +325,11 @@ const ConcertForm = ({
             concertDate: formData.concertDate,
             startTime: formData.startTime,
             endTime: formData.endTime,
-            totalSeats: parseInt(formData.totalSeats),
+            totalSeats: formData.totalSeats,
             bookingStartDate: formData.bookingStartDate,
             bookingEndDate: formData.bookingEndDate,
-            minAge: parseInt(formData.minAge),
-            maxTicketsPerUser: parseInt(formData.maxTicketsPerUser),
+            minAge: formData.minAge,
+            maxTicketsPerUser: formData.maxTicketsPerUser,
             posterImageUrl: formData.posterImageUrl?.trim() || null,
         };
 
@@ -356,15 +361,15 @@ const ConcertForm = ({
         if (formData.startTime) updateData.startTime = formData.startTime;
         if (formData.endTime) updateData.endTime = formData.endTime;
         if (formData.totalSeats)
-            updateData.totalSeats = parseInt(formData.totalSeats);
+            updateData.totalSeats = formData.totalSeats;
         if (formData.bookingStartDate)
             updateData.bookingStartDate = formData.bookingStartDate;
         if (formData.bookingEndDate)
             updateData.bookingEndDate = formData.bookingEndDate;
         if (formData.minAge !== undefined)
-            updateData.minAge = parseInt(formData.minAge);
+            updateData.minAge = formData.minAge;
         if (formData.maxTicketsPerUser !== undefined)
-            updateData.maxTicketsPerUser = parseInt(formData.maxTicketsPerUser);
+            updateData.maxTicketsPerUser = formData.maxTicketsPerUser;
         if (formData.status) updateData.status = formData.status;
         if (formData.posterImageUrl !== undefined)
             updateData.posterImageUrl = formData.posterImageUrl?.trim() || null;
