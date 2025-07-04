@@ -33,7 +33,6 @@ const SellerApplyPage = () => {
     const [filePreview, setFilePreview] = useState(null); // 파일 미리보기 URL
     const [selectedFileName, setSelectedFileName] = useState(''); // 추가: 선택된 파일 이름 상태
 
-
     // "Same as applicant" 체크박스 상태
     const [sameAsApplicant, setSameAsApplicant] = useState(false);
 
