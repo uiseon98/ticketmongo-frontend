@@ -18,7 +18,7 @@ const AdminSidebar = () => {
                     }
                 >
                     <img
-                        src="/vector-00.svg"
+                        src="/admin-vector-00.svg" // 수정됨
                         alt="홈 아이콘"
                         className="w-6 h-6"
                     />
@@ -33,7 +33,7 @@ const AdminSidebar = () => {
                     }
                 >
                     <img
-                        src="/vector-03.svg"
+                        src="/admin-vector-03.svg" // 수정됨
                         alt="판매자 관리"
                         className="w-6 h-6"
                     />
@@ -41,18 +41,20 @@ const AdminSidebar = () => {
                 </NavLink>
                 {/* 추가적인 관리자 메뉴는 여기에 NavLink로 추가 */}
                 {/*
-        <NavLink
-          to="/admin/concerts"
-          className={({ isActive }) =>
-            `flex items-center gap-3 px-3 py-2 rounded-lg text-white text-sm font-medium transition-colors ${
-              isActive ? 'bg-[#243447]' : 'hover:bg-[#243447]'
-            }`
-          }
-        >
-          <img src="/vector-04.svg" alt="콘서트 관리" className="w-6 h-6" />
-          콘서트 관리
-        </NavLink>
-        */}
+                    <NavLink
+                      to="/admin/concerts"
+                      className={({ isActive }) =>
+                        `flex items-center gap-3 px-3 py-2 rounded-lg text-white text-sm font-medium transition-colors ${
+                          isActive ? 'bg-[#243447]' : 'hover:bg-[#243447]'
+                        }`
+                      }
+                    >
+                      <img src="/admin-vector-04.svg" alt="콘서트 관리" className="w-6 h-6" />*/}
+                {/* 주석 해제 시에도 admin-vector 로 수정 */}
+                {/*
+                            콘서트 관리
+                        </NavLink>
+            */}
             </div>
         </div>
     );
