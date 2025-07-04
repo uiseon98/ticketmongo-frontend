@@ -42,12 +42,11 @@ import SellerConcertManagementPage from './pages/seller/SellerConcertManagementP
 // 관리자 페이지
 import AdminDashboard from './pages/admin/Dashboard';
 import AdminSellerManagement from './pages/admin/AdminSellerManagement';
+import SellerApproval from './pages/admin/SellerApproval.jsx';
 
-// --- 새로 추가된 임시 관리자 페이지 컴포넌트들 ---
-// 나중에 실제 페이지 컴포넌트 파일로 교체될 예정입니다.
-const TempSellerApprovalPage = () => (
-    <div className="text-white p-4">판매자 승인 페이지 (임시)</div>
-);
+// const TempSellerApprovalPage = () => (
+//     <div className="text-white p-4">판매자 승인 페이지 (임시)</div>
+// );
 const TempSellerManagementPage = () => (
     <div className="text-white p-4">판매자 관리 페이지 (임시)</div>
 );
@@ -217,7 +216,7 @@ export default function App() {
                     {/* 새로 추가된 관리자 메뉴 라우트 */}
                     <Route
                         path="seller-approvals"
-                        element={<TempSellerApprovalPage />}
+                        element={<SellerApproval />} // TempSellerApprovalPage -> SellerApproval로 변경
                     />
                     <Route
                         path="sellers"
