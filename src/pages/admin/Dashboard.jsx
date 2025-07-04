@@ -345,7 +345,7 @@ const AdminDashboard = () => {
                                     </div>
                                 </div>
                                 <div className="pt-3 pr-4 pb-3 pl-4 flex flex-col gap-0 items-start justify-start self-stretch shrink-0 w-[294px] relative">
-                                    <div className="text-[#ffffff] text-left font-['Inter-Medium',_sans-serif] text-sm leading-[21px] font-normal relative self-stretch">
+                                    <div className="text-[#ffffff] text-left font-['Inter-Medium',_sans-serif] text-sm leading-[21px] font-medium relative self-stretch">
                                         Timestamp{' '}
                                     </div>
                                 </div>
@@ -396,6 +396,8 @@ const AdminDashboard = () => {
                 <Modal
                     isOpen={showProcessPendingModal}
                     onClose={() => setShowProcessPendingModal(false)}
+                    // 모달 배경색 변경: bg-[#1e2a3a] 대신 bg-[#1a232f] 사용
+                    modalClassName="bg-[#1a232f]"
                     title={
                         pendingAppToProcess.approveAction === false
                             ? '판매자 신청 반려'
@@ -448,7 +450,7 @@ const AdminDashboard = () => {
                         }}
                         placeholder="반려 시 사유를 입력하세요"
                         error={processFormErrors.reason}
-                        className="mb-4"
+                        className="mb-4 text-white"
                     />
                     {processFormErrors.api && (
                         <p className="text-sm text-red-500 mb-4">
@@ -490,7 +492,9 @@ const AdminDashboard = () => {
                     isOpen={showSearchModal}
                     onClose={() => setShowSearchModal(false)}
                     title="판매자 빠른 검색"
-                    size="large" // 모달 크기 조정 (필요시)
+                    size="large"
+                    // 모달 배경색 변경: bg-[#1e2a3a] 대신 bg-[#1a232f] 사용
+                    modalClassName="bg-[#1a232f]"
                 >
                     <div className="flex flex-col gap-4">
                         <div className="flex gap-2">
@@ -503,7 +507,7 @@ const AdminDashboard = () => {
                                     setSearchError(null); // 입력 시 에러 초기화
                                 }}
                                 placeholder="검색어를 입력하세요"
-                                className="flex-1"
+                                className="flex-1 text-white"
                             />
                             <Button
                                 onClick={executeQuickSearch}
@@ -521,7 +525,7 @@ const AdminDashboard = () => {
 
                         {searchResults.length > 0 && (
                             <div className="mt-4 overflow-x-auto">
-                                <h4 className="text-lg font-semibold mb-2">
+                                <h4 className="text-lg font-semibold mb-2 text-white">
                                     검색 결과
                                 </h4>
                                 <table className="min-w-full divide-y divide-gray-700">
