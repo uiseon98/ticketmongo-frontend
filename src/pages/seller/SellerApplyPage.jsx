@@ -360,7 +360,7 @@ const SellerApplyPage = () => {
                             </span>{' '}
                             | 연락처:{' '}
                             <span className="font-medium">
-                                {applicantPhone} {/* <-- 이곳을 수정 */}
+                                {applicantPhone}
                             </span>
                         </p>
                     </div>
