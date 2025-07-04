@@ -78,9 +78,9 @@ export default function Header() {
                             </span>
                             <button
                                 onClick={handleLogout}
-                                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
+                                className="bg-red-600 hover:bg-red-700 text-white text-center px-2 py-1 rounded"
                             >
-                                Logout
+                                로그아웃
                             </button>
                         </>
                     ) : (
@@ -91,7 +91,7 @@ export default function Header() {
                                     `text-gray-300 hover:text-white ${isActive ? 'underline' : ''}`
                                 }
                             >
-                                Login
+                                로그인
                             </NavLink>
                             <NavLink
                                 to="/register"
@@ -99,7 +99,7 @@ export default function Header() {
                                     `text-gray-300 hover:text-white ${isActive ? 'underline' : ''}`
                                 }
                             >
-                                Sign Up
+                                회원가입
                             </NavLink>
                         </>
                     )}
@@ -142,9 +142,9 @@ export default function Header() {
                                     setMenuOpen(false);
                                     handleLogout();
                                 }}
-                                className="w-full text-left bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
+                                className="bg-red-600 hover:bg-red-700 text-white text-center px-2 py-1 rounded"
                             >
-                                Logout
+                                로그아웃
                             </button>
                         </>
                     ) : (
@@ -156,7 +156,7 @@ export default function Header() {
                                     `block text-gray-300 hover:text-white ${isActive ? 'underline' : ''}`
                                 }
                             >
-                                Login
+                                로그인
                             </NavLink>
                             <NavLink
                                 to="/register"
@@ -165,7 +165,7 @@ export default function Header() {
                                     `block text-gray-300 hover:text-white ${isActive ? 'underline' : ''}`
                                 }
                             >
-                                Sign Up
+                                회원가입
                             </NavLink>
                         </>
                     )}
