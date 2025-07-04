@@ -31,6 +31,8 @@ const SellerApplyPage = () => {
     });
     const [businessLicenseFile, setBusinessLicenseFile] = useState(null); // 파일 상태
     const [filePreview, setFilePreview] = useState(null); // 파일 미리보기 URL
+    const [selectedFileName, setSelectedFileName] = useState(''); // 추가: 선택된 파일 이름 상태
+
 
     // "Same as applicant" 체크박스 상태
     const [sameAsApplicant, setSameAsApplicant] = useState(false);
@@ -162,10 +164,12 @@ const SellerApplyPage = () => {
         const file = e.target.files[0];
         if (file) {
             setBusinessLicenseFile(file);
-            setFilePreview(URL.createObjectURL(file)); // 파일 미리보기 URL 생성
+            setFilePreview(URL.createObjectURL(file));
+            setSelectedFileName(file.name); // 추가: 파일 이름 업데이트
         } else {
             setBusinessLicenseFile(null);
             setFilePreview(null);
+            setSelectedFileName(''); // 추가: 파일 이름 초기화
         }
         setFormErrors((prev) => ({ ...prev, businessLicenseFile: undefined }));
     };
@@ -357,7 +361,7 @@ const SellerApplyPage = () => {
                             </span>{' '}
                             | 연락처:{' '}
                             <span className="font-medium">
-                                {applicantPhone} {/* <-- 여기를 수정 */}
+                                {applicantPhone}
                             </span>
                         </p>
                     </div>
@@ -494,7 +498,11 @@ const SellerApplyPage = () => {
                             {filePreview && (
                                 <div className="mt-4">
                                     <p className="text-sm text-gray-400 mb-2">
-                                        파일 미리보기:
+                                        파일 미리보기:{' '}
+                                        <span className="text-white font-semibold">
+                                            {selectedFileName}
+                                        </span>{' '}
+                                        {/* 수정: 파일명 표시 */}
                                     </p>
                                     {businessLicenseFile?.type.startsWith(
                                         'image/',
