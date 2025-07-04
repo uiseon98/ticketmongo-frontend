@@ -201,16 +201,13 @@ export default function App() {
                 >
                     <Route index element={<AdminDashboard />} />
                     <Route
-                        path="seller-management"
-                        element={<AdminSellerManagement />} // TempAdminSellerManagement -> AdminSellerManagement로 변경
-                    />
-                    <Route
                         path="seller-approvals"
-                        element={<SellerApproval />} // TempSellerApprovalPage -> SellerApproval로 변경
+                        element={<SellerApproval />}
                     />
+                    <Route path="sellers" element={<AdminSellerManagement />} />
                     <Route
                         path="history"
-                        element={<ApplicationHistoryPage />} // TempApplicationHistoryPage -> ApplicationHistoryPage로 변경
+                        element={<ApplicationHistoryPage />}
                     />
                     <Route path="settings" element={<TempSettingsPage />} />
                 </Route>
