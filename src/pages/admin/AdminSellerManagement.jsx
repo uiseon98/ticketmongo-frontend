@@ -33,7 +33,7 @@ const STATUS_LABELS = {
 
 const AdminSellerManagement = () => {
     // --- 상태 관리 ---
-    const [pendingApplications, setPendingApplications] = useState([]); // 대기 중인 신청 목록 (API-04-01)
+    // pendingApplications 상태는 SellerApproval.jsx로 이동 완료
     const [allHistory, setAllHistory] = useState([]); // 전체 이력 목록 (API-04-06)
     const [currentSellers, setCurrentSellers] = useState([]); // 현재 판매자 목록 (API-04-05)
 
@@ -49,34 +49,22 @@ const AdminSellerManagement = () => {
     const [typeFilter, setTypeFilter] = useState('ALL'); // 기본값 'ALL'
 
     // 모달 관련 상태
-    const [showProcessModal, setShowProcessModal] = useState(false); // 승인/반려 모달
+    // showProcessModal 상태는 SellerApproval.jsx로 이동 완료
     const [showRevokeModal, setShowRevokeModal] = useState(false); // 강제 해제 모달
     const [showHistoryModal, setShowHistoryModal] = useState(false); // 특정 유저 이력 모달
     const [selectedUser, setSelectedUser] = useState(null); // 모달에 표시할 유저 정보
-    const [processReason, setProcessReason] = useState(''); // 반려 사유
+    // processReason 상태는 SellerApproval.jsx로 이동 완료
     const [revokeReason, setRevokeReason] = useState(''); // 강제 해제 사유
     const [userHistory, setUserHistory] = useState([]); // 특정 유저의 이력
+    const [formErrors, setFormErrors] = useState({}); // 모달 폼 에러
 
     // --- 데이터 페칭 함수 ---
 
-    // 대기 중인 판매자 신청 목록 조회 (API-04-01)
-    const fetchPendingApplications = useCallback(async () => {
-        setLoading(true);
-        setError(null);
-        try {
-            const data =
-                await adminSellerService.getPendingSellerApplications();
-            setPendingApplications(data);
-        } catch (err) {
-            setError(
-                err.message || '대기 중인 판매자 신청을 불러오지 못했습니다.',
-            );
-        } finally {
-            setLoading(false);
-        }
-    }, []);
+    // 대기 중인 판매자 신청 목록 조회 (API-04-01) - SellerApproval.jsx로 이동 완료
+    // const fetchPendingApplications = useCallback(async () => { ... }, []);
 
     // 전체 판매자 이력 목록 조회 (API-04-06)
+    // 다음 작업에서 SellerHistory.jsx로 이동할 예정
     const fetchAllSellerHistory = useCallback(async () => {
         setLoading(true);
         setError(null);
@@ -86,8 +74,8 @@ const AdminSellerManagement = () => {
                 size: pageSize,
                 // typeFilter가 'ALL'이 아니면 백엔드로 전달
                 typeFilter: typeFilter === 'ALL' ? undefined : typeFilter,
-                keyword: searchKeyword || undefined, // 키워드가 없으면 전달 안 함
-                sort: 'createdAt,desc', // 항상 최신순 정렬 (필요시 백엔드 PageableDefault에 추가)
+                keyword: searchKeyword || undefined,
+                sort: 'createdAt,desc',
             };
             const response =
                 await adminSellerService.getAllSellerApprovalHistory(params);
@@ -105,7 +93,7 @@ const AdminSellerManagement = () => {
         }
     }, [currentPage, pageSize, searchKeyword, typeFilter]);
 
-    // 현재 판매자 목록 조회 (API-04-05) - 필요시 별도 탭이나 섹션에 구현
+    // 현재 판매자 목록 조회 (API-04-05)
     const fetchCurrentSellers = useCallback(async () => {
         setLoading(true);
         setError(null);
@@ -121,54 +109,20 @@ const AdminSellerManagement = () => {
 
     // --- 초기 로드 효과 ---
     useEffect(() => {
-        fetchPendingApplications(); // 대기 중인 신청 목록
-        fetchAllSellerHistory(); // 전체 이력 (검색/필터 포함)
+        // fetchPendingApplications(); // SellerApproval.jsx로 이동 완료
+        fetchAllSellerHistory(); // 전체 이력
         fetchCurrentSellers(); // 현재 판매자 목록
-    }, [fetchPendingApplications, fetchAllSellerHistory, fetchCurrentSellers]);
+    }, [fetchAllSellerHistory, fetchCurrentSellers]); // fetchPendingApplications 제거
 
-    // --- 이벤트 핸들러: 승인/반려 ---
-
-    const handleProcessClick = (user, approve) => {
-        setSelectedUser({ ...user, approveAction: approve }); // 유저 정보와 어떤 액션인지 저장
-        setShowProcessModal(true);
-        setProcessReason(''); // 모달 열 때마다 사유 초기화
-        setFormErrors({});
-    };
-
-    const confirmProcessApplication = async () => {
-        if (selectedUser.approveAction === false && !processReason.trim()) {
-            setFormErrors({ reason: '반려 시 사유는 필수입니다.' });
-            return;
-        }
-        setLoading(true);
-        setError(null);
-        try {
-            await adminSellerService.processSellerApplication(
-                selectedUser.userId,
-                selectedUser.approveAction,
-                processReason,
-            );
-            alert(`${selectedUser.approveAction ? '승인' : '반려'} 처리 완료!`);
-            setShowProcessModal(false);
-            fetchPendingApplications(); // 대기 목록 새로고침
-            fetchAllSellerHistory(); // 이력 목록 새로고침
-            fetchCurrentSellers(); // 판매자 목록 새로고침 (역할 변경 반영)
-        } catch (err) {
-            setError(
-                err.message ||
-                    `판매자 신청 ${selectedUser.approveAction ? '승인' : '반려'} 실패.`,
-            );
-        } finally {
-            setLoading(false);
-        }
-    };
+    // --- 이벤트 핸들러: 승인/반려 - SellerApproval.jsx로 이동 완료
+    // const handleProcessClick = (user, approve) => { ... };
+    // const confirmProcessApplication = async () => { ... };
 
     // --- 이벤트 핸들러: 강제 권한 해제 ---
-
     const handleRevokeClick = (user) => {
         setSelectedUser(user);
         setShowRevokeModal(true);
-        setRevokeReason(''); // 모달 열 때마다 사유 초기화
+        setRevokeReason('');
         setFormErrors({});
     };
 
@@ -186,7 +140,7 @@ const AdminSellerManagement = () => {
             );
             alert('판매자 권한 강제 해제 완료!');
             setShowRevokeModal(false);
-            fetchPendingApplications(); // 대기 목록 새로고침
+            // fetchPendingApplications(); // SellerApproval.jsx로 이동 완료
             fetchAllSellerHistory(); // 이력 목록 새로고침
             fetchCurrentSellers(); // 판매자 목록 새로고침 (역할 변경 반영)
         } catch (err) {
@@ -197,7 +151,6 @@ const AdminSellerManagement = () => {
     };
 
     // --- 이벤트 핸들러: 특정 유저 이력 상세 조회 ---
-
     const handleViewUserHistory = async (user) => {
         setSelectedUser(user);
         setLoading(true);
@@ -217,24 +170,23 @@ const AdminSellerManagement = () => {
     };
 
     // --- 페이징 및 검색/필터 핸들러 (전체 이력 조회용) ---
-
     const handlePageChange = (newPage) => {
         setCurrentPage(newPage);
     };
 
     const handlePageSizeChange = (e) => {
         setPageSize(Number(e.target.value));
-        setCurrentPage(0); // 페이지 크기 변경 시 첫 페이지로 이동
+        setCurrentPage(0);
     };
 
     const handleKeywordChange = (e) => {
         setSearchKeyword(e.target.value);
-        setCurrentPage(0); // 검색 시 첫 페이지로 이동
+        setCurrentPage(0);
     };
 
     const handleTypeFilterChange = (e) => {
         setTypeFilter(e.target.value);
-        setCurrentPage(0); // 필터 시 첫 페이지로 이동
+        setCurrentPage(0);
     };
 
     // useEffect를 사용하여 페이징/검색/필터 조건 변경 시 데이터 다시 불러오기
@@ -273,7 +225,8 @@ const AdminSellerManagement = () => {
             </div>
 
             {/* --- 대기 중인 판매자 신청 목록 (API-04-01) --- */}
-            <section className="mb-10 bg-[#1a232f] p-6 rounded-lg shadow-md">
+            {/* SellerApproval.jsx로 이동 완료 */}
+            {/* <section className="mb-10 bg-[#1a232f] p-6 rounded-lg shadow-md">
                 <h3 className="text-xl font-semibold mb-4">
                     🔔 대기 중인 판매자 신청 ({pendingApplications.length}건)
                 </h3>
@@ -282,122 +235,9 @@ const AdminSellerManagement = () => {
                         새로운 판매자 신청이 없습니다.
                     </p>
                 ) : (
-                    <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-700">
-                            <thead className="bg-[#243447]">
-                                <tr>
-                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                        신청 ID
-                                    </th>
-                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                        유저 ID
-                                    </th>
-                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                        아이디
-                                    </th>
-                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                        닉네임
-                                    </th>
-                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                        업체명
-                                    </th>
-                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                        사업자번호
-                                    </th>
-                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                        제출 서류
-                                    </th>
-                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                        신청일
-                                    </th>
-                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                        작업
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody className="bg-[#1a232f] divide-y divide-gray-700">
-                                {pendingApplications.map((app) => (
-                                    <tr key={app.applicationId}>
-                                        <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-white">
-                                            {app.applicationId}
-                                        </td>
-                                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">
-                                            {app.userId}
-                                        </td>
-                                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">
-                                            {app.username}
-                                        </td>
-                                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">
-                                            {app.userNickname}
-                                        </td>
-                                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">
-                                            {app.companyName}
-                                        </td>
-                                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">
-                                            {app.businessNumber}
-                                        </td>
-                                        <td className="px-4 py-3 whitespace-nowrap text-sm">
-                                            {app.uploadedFileUrl ? (
-                                                <a
-                                                    href={app.uploadedFileUrl}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="text-blue-400 hover:underline"
-                                                >
-                                                    보기
-                                                </a>
-                                            ) : (
-                                                '없음'
-                                            )}
-                                        </td>
-                                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">
-                                            {new Date(
-                                                app.createdAt,
-                                            ).toLocaleString()}
-                                        </td>
-                                        <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
-                                            <div className="flex space-x-2">
-                                                <Button
-                                                    onClick={() =>
-                                                        handleProcessClick(
-                                                            app,
-                                                            true,
-                                                        )
-                                                    }
-                                                    className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 text-xs"
-                                                >
-                                                    승인
-                                                </Button>
-                                                <Button
-                                                    onClick={() =>
-                                                        handleProcessClick(
-                                                            app,
-                                                            false,
-                                                        )
-                                                    }
-                                                    className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 text-xs"
-                                                >
-                                                    반려
-                                                </Button>
-                                                <Button
-                                                    onClick={() =>
-                                                        handleViewUserHistory(
-                                                            app,
-                                                        )
-                                                    }
-                                                    className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 text-xs"
-                                                >
-                                                    이력
-                                                </Button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                    // ... (테이블 내용)
                 )}
-            </section>
+            </section> */}
 
             {/* --- 현재 판매자 목록 (API-04-05) --- */}
             <section className="mb-10 bg-[#1a232f] p-6 rounded-lg shadow-md">
@@ -474,7 +314,8 @@ const AdminSellerManagement = () => {
             {/* --- 전체 판매자 이력 목록 (API-04-06) --- */}
             <section className="bg-[#1a232f] p-6 rounded-lg shadow-md">
                 <h3 className="text-xl font-semibold mb-4">
-                    📜 전체 판매자 권한 이력
+                    📜 전체 판매자 권한 이력 (총 {totalElements}건){' '}
+                    {/* totalElements 표시 */}
                 </h3>
 
                 {/* 필터 및 검색 */}
@@ -629,63 +470,8 @@ const AdminSellerManagement = () => {
             </section>
 
             {/* --- 판매자 신청 승인/반려 모달 --- */}
-            {showProcessModal && selectedUser && (
-                <Modal
-                    isOpen={showProcessModal}
-                    onClose={() => setShowProcessModal(false)}
-                    title={
-                        selectedUser.approveAction
-                            ? '판매자 신청 승인'
-                            : '판매자 신청 반려'
-                    }
-                >
-                    <p className="mb-4 text-gray-300">
-                        '{selectedUser.username}'({selectedUser.userNickname})
-                        님의 판매자 신청을{' '}
-                        {selectedUser.approveAction ? '승인' : '반려'}
-                        하시겠습니까?
-                    </p>
-                    {!selectedUser.approveAction && ( // 반려 시에만 사유 입력 필드
-                        <InputField
-                            label="반려 사유"
-                            name="processReason"
-                            value={processReason}
-                            onChange={(e) => {
-                                setProcessReason(e.target.value);
-                                setFormErrors({}); // 입력 시 에러 메시지 초기화
-                            }}
-                            placeholder="반려 사유를 입력하세요"
-                            error={formErrors.reason}
-                            required={true}
-                            className="mb-4"
-                        />
-                    )}
-                    <div className="flex justify-end space-x-2">
-                        <Button
-                            onClick={() => setShowProcessModal(false)}
-                            className="bg-gray-600 hover:bg-gray-700 text-white"
-                        >
-                            취소
-                        </Button>
-                        <Button
-                            onClick={confirmProcessApplication}
-                            className={
-                                selectedUser.approveAction
-                                    ? 'bg-green-600 hover:bg-green-700'
-                                    : 'bg-red-600 hover:bg-red-700'
-                            }
-                            disabled={
-                                !selectedUser.approveAction &&
-                                !processReason.trim()
-                            }
-                        >
-                            {selectedUser.approveAction
-                                ? '승인하기'
-                                : '반려하기'}
-                        </Button>
-                    </div>
-                </Modal>
-            )}
+            {/* SellerApproval.jsx로 이동 완료 */}
+            {/* {showProcessModal && selectedUser && ( ... )} */}
 
             {/* --- 판매자 강제 권한 해제 모달 --- */}
             {showRevokeModal && selectedUser && (
@@ -695,10 +481,10 @@ const AdminSellerManagement = () => {
                     title="판매자 권한 강제 해제"
                 >
                     <p className="mb-4 text-gray-300">
-                        '{selectedUser.username}'({selectedUser.userNickname})
-                        님의 판매자 권한을 강제로 해제하시겠습니까? 이 작업은
-                        되돌릴 수 없으며, 활성 콘서트가 있는 판매자는 해제할 수
-                        없습니다.
+                        &apos;{selectedUser.username}&apos;(
+                        {selectedUser.userNickname}) 님의 판매자 권한을 강제로
+                        해제하시겠습니까? 이 작업은 되돌릴 수 없으며, 활성
+                        콘서트가 있는 판매자는 해제할 수 없습니다.
                     </p>
                     <InputField
                         label="해제 사유"

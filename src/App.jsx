@@ -2,7 +2,7 @@
 
 // 애플리케이션의 주요 라우팅 규칙을 정의
 import React, { useContext } from 'react';
-import { Routes, Route, Navigate, Outlet } from 'react-router-dom'; // Outlet 임포트 확인
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 
 // 레이아웃
 import MainLayout from './shared/components/layout/MainLayout';
@@ -44,12 +44,11 @@ import AdminDashboard from './pages/admin/Dashboard';
 import AdminSellerManagement from './pages/admin/AdminSellerManagement';
 import SellerApproval from './pages/admin/SellerApproval.jsx';
 
-// const TempSellerApprovalPage = () => (
-//     <div className="text-white p-4">판매자 승인 페이지 (임시)</div>
+// --- 임시 관리자 페이지 컴포넌트들 (SellerApproval은 이제 실제 컴포넌트 사용) ---
+// const TempSellerApprovalPage = () => <div className="text-white p-4">판매자 승인 페이지 (임시)</div>;
+// const TempSellerManagementPage = () => (
+//     <div className="text-white p-4">판매자 관리 페이지 (임시)</div>
 // );
-const TempSellerManagementPage = () => (
-    <div className="text-white p-4">판매자 관리 페이지 (임시)</div>
-);
 const TempApplicationHistoryPage = () => (
     <div className="text-white p-4">신청 이력 페이지 (임시)</div>
 );
@@ -206,22 +205,12 @@ export default function App() {
                         )
                     }
                 >
-                    <Route index element={<AdminDashboard />} />{' '}
-                    {/* 기존 대시보드 */}
-                    {/* 판매자 권한 관리 페이지 라우트 (기존 임시) */}
-                    <Route
-                        path="seller-management"
-                        element={<AdminSellerManagement />}
-                    />
-                    {/* 새로 추가된 관리자 메뉴 라우트 */}
+                    <Route index element={<AdminDashboard />} />
                     <Route
                         path="seller-approvals"
                         element={<SellerApproval />} // TempSellerApprovalPage -> SellerApproval로 변경
                     />
-                    <Route
-                        path="sellers"
-                        element={<TempSellerManagementPage />}
-                    />
+                    <Route path="sellers" element={<AdminSellerManagement />} />
                     <Route
                         path="history"
                         element={<TempApplicationHistoryPage />}
