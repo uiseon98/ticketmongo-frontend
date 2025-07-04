@@ -360,14 +360,12 @@ const ConcertForm = ({
         if (formData.concertDate) updateData.concertDate = formData.concertDate;
         if (formData.startTime) updateData.startTime = formData.startTime;
         if (formData.endTime) updateData.endTime = formData.endTime;
-        if (formData.totalSeats)
-            updateData.totalSeats = formData.totalSeats;
+        if (formData.totalSeats) updateData.totalSeats = formData.totalSeats;
         if (formData.bookingStartDate)
             updateData.bookingStartDate = formData.bookingStartDate;
         if (formData.bookingEndDate)
             updateData.bookingEndDate = formData.bookingEndDate;
-        if (formData.minAge !== undefined)
-            updateData.minAge = formData.minAge;
+        if (formData.minAge !== undefined) updateData.minAge = formData.minAge;
         if (formData.maxTicketsPerUser !== undefined)
             updateData.maxTicketsPerUser = formData.maxTicketsPerUser;
         if (formData.status) updateData.status = formData.status;

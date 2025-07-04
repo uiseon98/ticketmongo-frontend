@@ -2,6 +2,14 @@
 
 import apiClient from '../utils/apiClient.js';
 
+const ALLOWED_IMAGE_TYPES = [
+    'image/jpeg',
+    'image/jpg',
+    'image/png',
+    'image/webp',
+    'image/gif',
+];
+
 /**
  * 파일 업로드 관련 API 서비스
  * 백엔드의 FileUploadController와 연동
@@ -30,14 +38,7 @@ export const fileUploadService = {
             }
 
             // 파일 타입 검사 (이미지만 허용)
-            const allowedTypes = [
-                'image/jpeg',
-                'image/jpg',
-                'image/png',
-                'image/webp',
-                'image/gif',
-            ];
-            if (!allowedTypes.includes(file.type)) {
+            if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
                 throw new Error(
                     '지원하지 않는 파일 형식입니다. (JPEG, PNG, WebP, GIF만 가능)',
                 );
@@ -140,14 +141,7 @@ export const fileUploadService = {
             }
 
             // 파일 타입 검사
-            const allowedTypes = [
-                'image/jpeg',
-                'image/jpg',
-                'image/png',
-                'image/webp',
-                'image/gif',
-            ];
-            if (!allowedTypes.includes(file.type)) {
+            if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
                 return {
                     valid: false,
                     error: `지원하지 않는 파일 형식입니다. (${file.type})\n허용 형식: JPEG, PNG, WebP, GIF`,
@@ -207,14 +201,7 @@ export const fileUploadService = {
      * @returns {boolean} 이미지 파일 여부
      */
     isImageFile(file) {
-        const imageTypes = [
-            'image/jpeg',
-            'image/jpg',
-            'image/png',
-            'image/webp',
-            'image/gif',
-        ];
-        return imageTypes.includes(file.type);
+        return ALLOWED_IMAGE_TYPES.includes(file.type);
     },
 
     /**
