@@ -74,10 +74,10 @@ export const userService = {
 
     cancelBooking: async (bookingId) => {
         try {
-            const response = await apiClient.delete(
-                `/mypage/bookingDetail/cancel/${bookingId}`,
+            const response = await apiClient.post(
+                `/bookings/${bookingId}/cancel`,
             );
-            return response.data;
+            return response;
         } catch (error) {
             throw new Error(
                 error.message || '예매 취소 중 오류가 발생했습니다.',
