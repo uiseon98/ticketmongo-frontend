@@ -180,26 +180,15 @@ const ApplicationHistoryPage = () => {
         setSelectedUserHistory(historyItem);
         setDetailedApplication(null);
 
-        console.log('handleViewUserHistory 호출됨. historyItem:', historyItem);
-        console.log(
-            'historyItem.sellerApplicationId:',
-            historyItem.sellerApplicationId,
-        );
-
         if (historyItem.sellerApplicationId) {
             setLoading(true);
             try {
-                console.log(
-                    `API-04-07 호출 시도: applicationId = ${historyItem.sellerApplicationId}`,
-                );
                 const appDetail =
                     await adminSellerService.getSellerApplicationDetail(
                         historyItem.sellerApplicationId,
                     );
-                console.log('API-04-07 응답 데이터:', appDetail);
                 setDetailedApplication(appDetail);
             } catch (err) {
-                console.error('신청서 상세 정보 로드 실패:', err);
                 setError(
                     err.message || '신청서 상세 정보를 불러오지 못했습니다.',
                 );
@@ -208,9 +197,6 @@ const ApplicationHistoryPage = () => {
                 setLoading(false);
             }
         } else {
-            console.warn(
-                'historyItem에 sellerApplicationId가 없습니다. 상세 정보 조회를 건너뜁니다.',
-            );
             setLoading(false);
         }
         setShowHistoryModal(true);
