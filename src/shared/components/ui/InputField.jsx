@@ -14,6 +14,7 @@ const InputField = ({
     clearable = false,
     onClear,
     paddingClassName = 'p-3',
+    onKeyDown,
 }) => {
     return (
         <div className={`flex flex-col ${className}`}>
@@ -33,6 +34,7 @@ const InputField = ({
                     name={name}
                     value={value}
                     onChange={onChange}
+                    onKeyDown={onKeyDown}
                     placeholder={placeholder}
                     required={required}
                     className={`w-full ${paddingClassName} bg-[#0A0D11] border rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2
