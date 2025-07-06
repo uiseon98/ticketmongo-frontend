@@ -6,7 +6,7 @@ import Button from '../../shared/components/ui/Button';
 import Modal from '../../shared/components/ui/Modal';
 import InputField from '../../shared/components/ui/InputField';
 import { useSearchParams } from 'react-router-dom';
-// import { useSearchParams, useNavigate } from 'react-router-dom';
+// import { useSearchParams, useNavigate } from 'react-router-dom'; // useNavigate 임포트 추가
 import { X } from 'lucide-react';
 // import useDebounce from '../../shared/hooks/useDebounce'; // 임시로 주석 처리
 
@@ -32,6 +32,7 @@ const STATUS_LABELS = {
 
 const ApplicationHistoryPage = () => {
     const [searchParams, setSearchParams] = useSearchParams();
+    // const navigate = useNavigate(); // useNavigate 훅 사용
 
     const userIdFromUrl = searchParams.get('userId');
     const userNicknameFromUrl = searchParams.get('userNickname');
@@ -74,7 +75,7 @@ const ApplicationHistoryPage = () => {
         try {
             let response;
             // userIdFromUrl이 있고, 현재 검색 키워드가 userIdFromUrl과 일치할 때
-            // user별 이력을 가져오거나, 아니면 전체 이력을 가져옴
+            // URL에 userId가 명시적으로 있을 때만 동작
             if (userIdFromUrl && currentSearchKeyword === userIdFromUrl) {
                 const historyList =
                     await adminSellerService.getSellerApprovalHistoryForUser(
@@ -228,21 +229,45 @@ const ApplicationHistoryPage = () => {
         setSearchTerm(newKeyword);
     };
 
-    // 엔터 키 입력 시 검색 실행 핸들러
+    // 엔터 키 입력 시 검색 실행 핸들러 수정
     const handleSearchOnEnter = (e) => {
         if (e.key === 'Enter') {
-            e.preventDefault(); // 기본 폼 제출 동작 방지
-            setCurrentSearchKeyword(searchTerm); // searchTerm의 현재 값을 검색 키워드로 설정하여 useEffect 트리거
-            setCurrentPage(0); // 검색 시 페이지 초기화
-            // URLSearchParams는 여기에 추가하지 않고, currentSearchKeyword 변경 시 useEffect에서 처리되도록 함
-            const newSearchParams = new URLSearchParams(searchParams);
-            if (searchTerm) {
-                newSearchParams.set('keyword', searchTerm);
-            } else {
-                newSearchParams.delete('keyword');
-            }
+            e.preventDefault();
+
+            const newSearchParams = new URLSearchParams();
             newSearchParams.set('page', '0');
+            newSearchParams.set('size', pageSize.toString());
+            if (typeFilter !== 'ALL') {
+                newSearchParams.set('typeFilter', typeFilter);
+            }
+
+            // 검색어가 숫자인지 확인하여 userId로 처리할지 keyword로 처리할지 결정
+            if (searchTerm && !isNaN(searchTerm) && Number(searchTerm) > 0) {
+                // 숫자로만 이루어진 검색어이고 0보다 큰 경우 userId로 간주
+                newSearchParams.set('userId', searchTerm);
+                // 기존 keyword 파라미터는 제거 (혹시 남아있을 경우)
+                newSearchParams.delete('keyword');
+            } else if (searchTerm) {
+                // 숫자가 아니거나 0인 경우 일반 keyword로 간주
+                newSearchParams.set('keyword', searchTerm);
+                // 기존 userId 파라미터는 제거 (혹시 남아있을 경우)
+                newSearchParams.delete('userId');
+            } else {
+                // 검색어가 비어있을 경우 keyword와 userId 모두 제거
+                newSearchParams.delete('keyword');
+                newSearchParams.delete('userId');
+            }
+
+            // URL을 변경하여 useEffect가 트리거되도록 함
+            // navigate를 사용하여 URL 변경 시 전체 컴포넌트 라이프사이클을 다시 시작하지 않고
+            // searchParams만 변경되도록 유도 (setSearchParams와 유사)
+            // 하지만 searchParams를 직접 변경하는 것이 더 일관적임.
             setSearchParams(newSearchParams);
+
+            // currentSearchKeyword와 currentPage를 직접 업데이트하여 즉시 fetchAllSellerHistory 호출을 유도
+            // (setSearchParams가 변경되면 useEffect가 반응하므로 이 부분은 선택적)
+            setCurrentSearchKeyword(searchTerm);
+            setCurrentPage(0);
         }
     };
 
@@ -250,13 +275,14 @@ const ApplicationHistoryPage = () => {
         setSearchTerm('');
         setCurrentSearchKeyword(''); // 검색어 초기화 시 실제 검색 키워드도 초기화
         setCurrentPage(0);
-        const newSearchParams = new URLSearchParams(searchParams);
+        const newSearchParams = new URLSearchParams();
         newSearchParams.set('page', '0');
         newSearchParams.set('size', pageSize.toString());
         newSearchParams.set('typeFilter', typeFilter);
-        newSearchParams.delete('keyword'); // URL에서 keyword 파라미터도 제거
+        newSearchParams.delete('keyword');
+        newSearchParams.delete('userId'); // userId 파라미터도 제거
         setSearchParams(newSearchParams);
-    }, [pageSize, setSearchParams, typeFilter, searchParams]);
+    }, [pageSize, setSearchParams, typeFilter]);
 
     const handleTypeFilterChange = (e) => {
         const newTypeFilter = e.target.value;
