@@ -422,8 +422,12 @@ const AdminDashboard = () => {
                         {/* 1. 유저 이름 표시 문제 및 8. 글씨 크기 확대 */}
                         <p className="text-xl font-semibold text-white mb-2 text-center">
                             <strong className="text-white">
-                                &apos;{pendingAppToProcess.username}&apos;(
-                                {pendingAppToProcess.userNickname})
+                                &apos;
+                                {pendingAppToProcess.username || '알 수 없음'}
+                                &apos;(
+                                {pendingAppToProcess.userNickname ||
+                                    '닉네임 없음'}
+                                )
                             </strong>
                             님의 다음 신청을 처리하시겠습니까?
                         </p>
