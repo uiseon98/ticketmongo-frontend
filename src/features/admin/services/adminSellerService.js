@@ -105,4 +105,34 @@ export const adminSellerService = {
             throw error;
         }
     },
+
+    /**
+     * API-04-07: 특정 판매자 신청서 상세 조회 (관리자)
+     * GET /api/admin/seller-requests/{applicationId}
+     * @param {number} applicationId - 조회할 판매자 신청서 ID
+     * @returns {Promise<import('../../../shared/types/api.types').ApiResponse<AdminSellerApplicationListResponseDTO>>}
+     */
+    async getSellerApplicationDetail(applicationId) {
+        try {
+            console.log(
+                `adminSellerService.getSellerApplicationDetail 호출됨. 요청 applicationId: ${applicationId}`,
+            );
+            if (!applicationId || applicationId < 1) {
+                console.error('유효하지 않은 신청서 ID:', applicationId);
+                throw new Error('유효한 신청서 ID가 필요합니다.');
+            }
+
+            const response = await apiClient.get(
+                `/admin/seller-requests/${applicationId}`,
+            );
+            console.log('API 응답 성공:', response.data);
+            return response.data;
+        } catch (error) {
+            console.error(
+                `판매자 신청서 상세 조회 실패 (ID: ${applicationId}):`,
+                error,
+            );
+            throw error;
+        }
+    },
 };

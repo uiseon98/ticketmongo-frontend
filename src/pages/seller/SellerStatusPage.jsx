@@ -181,7 +181,6 @@ const SellerStatusPage = () => {
             statusMessage = '강제 해제됨';
             statusColorClass = 'text-purple-500'; // 보라색
             break;
-        // case null: // 판매자 신청을 하지 않은 초기 상태
         default:
             statusMessage = '미신청';
             statusColorClass = 'text-blue-400'; // 파란색
@@ -192,145 +191,128 @@ const SellerStatusPage = () => {
 
     return (
         <div className="flex flex-col px-6 py-5 bg-[#111922] text-white min-h-[calc(100vh-64px)]">
-            <div className="flex flex-wrap justify-between gap-3 p-4">
-                <div className="flex min-w-72 flex-col gap-3">
-                    <p className="text-white tracking-light text-[32px] font-bold leading-tight">
-                        판매자 권한 상태
-                    </p>
-                    <p className="text-[#93acc8] text-sm font-normal leading-normal">
-                        판매자 권한 신청 및 상태를 확인하고 관리할 수 있습니다.
-                    </p>
-                </div>
+            {/* 판매자 권한 상태 - 화면 가운데 정렬 */}
+            <div className="flex flex-col items-center justify-center gap-3 p-4 text-center">
+                <p className="text-white tracking-light text-[32px] font-bold leading-tight">
+                    판매자 권한 상태
+                </p>
+                <p className="text-[#93acc8] text-sm font-normal leading-normal max-w-lg">
+                    판매자 권한 신청 및 상태를 확인하고 관리할 수 있습니다.
+                </p>
             </div>
 
-            <h3 className="text-white text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4">
-                현재 계정 정보
-            </h3>
-            <div className="bg-[#121a21] pt-2 pr-4 pb-2 pl-4 flex flex-row gap-4 items-center justify-start self-stretch shrink-0 h-[72px] min-h-[72px] relative">
-                <div className="bg-[#243347] rounded-lg flex flex-row gap-0 items-center justify-center shrink-0 w-12 h-12 relative">
-                    <div className="shrink-0 w-6 h-6 relative overflow-hidden">
+            {/* 모든 섹션과 버튼을 포함하는 하나의 큰 네모 박스 */}
+            {/* max-w-xs: 화면 너비의 1/3 정도, mx-auto: 가운데 정렬 */}
+            <section className="bg-[#1a232f] p-6 rounded-lg shadow-md border border-[#243447] max-w-xl mx-auto w-full">
+                {/* 현재 계정 정보 */}
+                <h3 className="text-white text-left text-xl font-bold mb-4">
+                    현재 계정 정보
+                </h3>
+                <div className="flex items-center gap-4 mb-6">
+                    <div className="bg-[#243347] rounded-lg flex items-center justify-center w-12 h-12 flex-shrink-0">
                         <img
-                            className="w-6 h-6 absolute left-0 top-0 overflow-visible"
+                            className="w-6 h-6"
                             src="/vector-03.svg"
                             alt="User Icon"
                         />
-                        <div className="flex flex-col gap-0 items-start justify-start w-5 h-[19px] absolute left-0 top-0"></div>
                     </div>
-                </div>
-                <div className="flex flex-col gap-0 items-start justify-center shrink-0 relative">
-                    <div className="flex flex-col gap-0 items-start justify-start shrink-0 w-[77px] relative overflow-hidden">
-                        <div className="text-[#ffffff] text-left font-['Inter-Medium',_sans-serif] text-base leading-6 font-medium relative self-stretch">
+                    <div className="flex flex-col items-start">
+                        <p className="text-[#ffffff] text-left text-base font-medium">
                             {user?.username || 'Guest'}
-                        </div>
-                    </div>
-                    <div className="flex flex-col gap-0 items-start justify-start shrink-0 relative overflow-hidden">
-                        <div className="text-[#94abc7] text-left font-['Inter-Regular',_sans-serif] text-sm leading-[21px] font-normal relative self-stretch">
-                            {/* API 응답의 role과 statusMessage를 사용하여 표시 */}
+                        </p>
+                        <p className="text-[#94abc7] text-left text-sm">
                             역할:{' '}
                             {sellerStatus.role === 'ADMIN'
                                 ? '관리자'
                                 : sellerStatus.role === 'SELLER'
                                   ? `판매자 (${statusMessage})`
                                   : `일반 유저 (${statusMessage})`}
-                        </div>
+                        </p>
                     </div>
                 </div>
-            </div>
-            <div className="pt-4 pr-4 pb-2 pl-4 flex flex-col gap-0 items-start justify-start self-stretch shrink-0 relative">
-                <div className="text-[#ffffff] text-left font-['Inter-Bold',_sans-serif] text-lg leading-[23px] font-bold relative self-stretch">
+
+                {/* 판매자 권한 신청 현황 */}
+                <h3 className="text-white text-left text-xl font-bold mb-4">
                     판매자 권한 신청 현황
-                </div>
-            </div>
-            <div className="bg-[#121a21] pt-3 pr-4 pb-3 pl-4 flex flex-row gap-4 items-start justify-start self-stretch shrink-0 relative">
-                <div className="bg-[#243347] rounded-lg flex flex-row gap-0 items-center justify-center shrink-0 w-12 h-12 relative">
-                    <div className="shrink-0 w-6 h-6 relative overflow-hidden">
+                </h3>
+                <div className="flex items-start gap-4 mb-6">
+                    <div className="bg-[#243347] rounded-lg flex items-center justify-center w-12 h-12 flex-shrink-0">
                         <img
-                            className="w-6 h-6 absolute left-0 top-0 overflow-visible"
+                            className="w-6 h-6"
                             src="/vector-04.svg"
                             alt="Status Icon"
                         />
-                        <div className="flex flex-col gap-0 items-start justify-start w-5 h-5 absolute left-0 top-0"></div>
                     </div>
-                </div>
-                <div className="flex flex-col gap-0 items-start justify-center flex-1 relative">
-                    <div className="flex flex-col gap-0 items-start justify-start self-stretch shrink-0 relative">
-                        <div className="text-[#ffffff] text-left font-['Inter-Medium',_sans-serif] text-base leading-6 font-medium relative self-stretch">
+                    <div className="flex flex-col items-start flex-1">
+                        <p className="text-[#ffffff] text-left text-base font-medium">
                             현재 신청 상태:{' '}
                             <span className={statusColorClass}>
                                 {statusMessage}
                             </span>
-                        </div>
-                    </div>
-                    <div className="flex flex-col gap-0 items-start justify-start self-stretch shrink-0 relative">
-                        <div className="text-[#94abc7] text-left font-['Inter-Regular',_sans-serif] text-sm leading-[21px] font-normal relative self-stretch">
+                        </p>
+                        <p className="text-[#94abc7] text-left text-sm">
                             신청 일시: {formatDate(applicationDate)}
                             <br />
-                            최종 처리 일시: {formatDate(lastProcessedDate)}{' '}
-                            {/* processedDate -> lastProcessedDate */}
-                        </div>
-                    </div>
-                    {lastReason && approvalStatus === 'REJECTED' && (
-                        <div className="flex flex-col gap-0 items-start justify-start self-stretch shrink-0 relative mt-1">
-                            <div className="text-red-400 text-left font-['Inter-Regular',_sans-serif] text-sm leading-[21px] font-normal relative self-stretch">
+                            최종 처리 일시: {formatDate(lastProcessedDate)}
+                        </p>
+                        {lastReason && approvalStatus === 'REJECTED' && (
+                            <p className="text-red-400 text-left text-sm mt-1">
                                 반려 사유: {lastReason}
-                            </div>
-                        </div>
-                    )}
-                    {lastReason && approvalStatus === 'REVOKED' && (
-                        <div className="flex flex-col gap-0 items-start justify-start self-stretch shrink-0 relative mt-1">
-                            <div className="text-purple-400 text-left font-['Inter-Regular',_sans-serif] text-sm leading-[21px] font-normal relative self-stretch">
+                            </p>
+                        )}
+                        {lastReason && approvalStatus === 'REVOKED' && (
+                            <p className="text-purple-400 text-left text-sm mt-1">
                                 강제 해제 사유: {lastReason}
-                            </div>
-                        </div>
-                    )}
-                    {lastReason && approvalStatus === 'WITHDRAWN' && (
-                        <div className="flex flex-col gap-0 items-start justify-start self-stretch shrink-0 relative mt-1">
-                            <div className="text-gray-400 text-left font-['Inter-Regular',_sans-serif] text-sm leading-[21px] font-normal relative self-stretch">
+                            </p>
+                        )}
+                        {lastReason && approvalStatus === 'WITHDRAWN' && (
+                            <p className="text-gray-400 text-left text-sm mt-1">
                                 철회 사유:{' '}
                                 {lastReason || '본인 요청에 의해 철회됨'}
-                            </div>
-                        </div>
-                    )}
+                            </p>
+                        )}
+                    </div>
                 </div>
-            </div>
 
-            <div className="flex flex-row items-start justify-between self-stretch shrink-0 relative mt-4">
-                <div className="pt-3 pr-4 pb-3 pl-4 flex flex-row gap-3 items-start justify-start flex-wrap content-start flex-1 relative">
-                    {/* 상태에 따른 버튼 렌더링 */}
-                    {approvalStatus === 'PENDING' && (
-                        <button
-                            className="px-6 py-3 bg-yellow-600 text-white rounded-lg shadow-md opacity-50 cursor-not-allowed"
-                            disabled
-                        >
-                            대기 중
-                        </button>
-                    )}
-
-                    {(approvalStatus === null ||
-                        approvalStatus === 'REJECTED' ||
-                        approvalStatus === 'WITHDRAWN' ||
-                        approvalStatus === 'REVOKED') &&
-                        canReapply && (
+                {/* 버튼 섹션 */}
+                {/* 이 flex 컨테이너는 이제 부모 section 내에서 가운데 정렬됨 */}
+                <div className="flex justify-left mt-6">
+                    <div className="pt-3 pr-4 pb-3 pl-4 flex flex-row gap-3 items-start justify-center flex-wrap content-start relative">
+                        {approvalStatus === 'PENDING' && (
                             <button
-                                onClick={handleApplyClick}
-                                className="px-6 py-3 bg-[#1a78e5] hover:bg-[#156cb2] text-white rounded-lg shadow-md transition duration-300"
+                                className="px-6 py-3 bg-yellow-600 text-white rounded-lg shadow-md opacity-50 cursor-not-allowed"
+                                disabled
                             >
-                                {approvalStatus === null
-                                    ? '판매자 권한 신청하기'
-                                    : '재신청하기'}
+                                대기 중
                             </button>
                         )}
 
-                    {approvalStatus === 'APPROVED' && ( // APPROVED 상태일 때만 철회 버튼 표시
-                        <button
-                            onClick={handleWithdrawClick}
-                            className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-md transition duration-300"
-                        >
-                            권한 철회 신청
-                        </button>
-                    )}
+                        {(approvalStatus === null ||
+                            approvalStatus === 'REJECTED' ||
+                            approvalStatus === 'WITHDRAWN' ||
+                            approvalStatus === 'REVOKED') &&
+                            canReapply && (
+                                <button
+                                    onClick={handleApplyClick}
+                                    className="px-6 py-3 bg-[#1a78e5] hover:bg-[#156cb2] text-white rounded-lg shadow-md transition duration-300"
+                                >
+                                    {approvalStatus === null
+                                        ? '판매자 권한 신청하기'
+                                        : '재신청하기'}
+                                </button>
+                            )}
+
+                        {approvalStatus === 'APPROVED' && (
+                            <button
+                                onClick={handleWithdrawClick}
+                                className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-md transition duration-300"
+                            >
+                                권한 철회 신청
+                            </button>
+                        )}
+                    </div>
                 </div>
-            </div>
+            </section>
 
             {/* 철회 불가 경고 모달 */}
             {showWithdrawalImpossibleModal && (
