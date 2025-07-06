@@ -1,5 +1,3 @@
-// src/pages/admin/AdminSellerManagement.jsx
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { adminSellerService } from '../../features/admin/services/adminSellerService';
 import LoadingSpinner from '../../shared/components/ui/LoadingSpinner';
@@ -7,8 +5,11 @@ import ErrorMessage from '../../shared/components/ui/ErrorMessage';
 import Button from '../../shared/components/ui/Button';
 import Modal from '../../shared/components/ui/Modal'; // 모달 컴포넌트
 import InputField from '../../shared/components/ui/InputField'; // 입력 필드
+import { useNavigate } from 'react-router-dom'; // useNavigate 임포트 추가
 
 const AdminSellerManagement = () => {
+    const navigate = useNavigate(); // useNavigate 훅 초기화
+
     // --- 상태 관리 ---
     const [currentSellers, setCurrentSellers] = useState([]); // 현재 판매자 목록 (API-04-05)
 
@@ -72,6 +73,15 @@ const AdminSellerManagement = () => {
         }
     };
 
+    // --- 이벤트 핸들러: 이력 페이지로 이동 ---
+    const handleViewHistoryClick = useCallback(
+        (seller) => {
+            // ApplicationHistoryPage로 이동하며 userId를 URL 파라미터로 전달
+            navigate(`/admin/history?userId=${seller.userId}`);
+        },
+        [navigate],
+    );
+
     // --- 로딩 및 에러 처리 UI ---
     if (loading) {
         return (
@@ -104,16 +114,16 @@ const AdminSellerManagement = () => {
                         <table className="min-w-full divide-y divide-gray-700">
                             <thead className="bg-[#243447]">
                                 <tr>
-                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                    <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
                                         유저 ID
                                     </th>
-                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                    <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
                                         아이디
                                     </th>
-                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                    <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
                                         닉네임
                                     </th>
-                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                    <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
                                         작업
                                     </th>
                                 </tr>
@@ -130,8 +140,8 @@ const AdminSellerManagement = () => {
                                         <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">
                                             {seller.userNickname}
                                         </td>
-                                        <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
-                                            <div className="flex space-x-2">
+                                        <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
+                                            <div className="flex justify-center space-x-2">
                                                 <Button
                                                     onClick={() =>
                                                         handleRevokeClick(
@@ -142,12 +152,11 @@ const AdminSellerManagement = () => {
                                                 >
                                                     권한 해제
                                                 </Button>
-                                                {/* 이력 버튼은 ApplicationHistoryPage로 연결 */}
-                                                {/* 현재는 단순 알림, 나중에 라우터 훅 사용하여 이동 처리 */}
+                                                {/* 이력 버튼 클릭 시 이력 페이지로 이동 */}
                                                 <Button
                                                     onClick={() =>
-                                                        alert(
-                                                            `'${seller.userNickname}' 님의 이력을 조회합니다. (클릭 시 이력 페이지로 이동 기능 추가 예정)`,
+                                                        handleViewHistoryClick(
+                                                            seller,
                                                         )
                                                     }
                                                     className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 text-xs"
