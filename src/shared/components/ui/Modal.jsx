@@ -2,30 +2,19 @@
 
 import React, { useEffect } from 'react';
 
-/**
- * ===== Modal 컴포넌트 =====
- *
- * 재사용 가능한 모달 컴포넌트
- */
 const Modal = ({
-    // ===== 필수 props =====
-    isOpen = false, // 모달 열림/닫힘 상태
-    onClose, // 모달 닫기 핸들러
-    children, // 모달 내용
-
-    // ===== 선택적 props =====
-    title = '', // 모달 제목
-    showCloseButton = true, // X 버튼 표시 여부
-    closeOnBackdrop = true, // 배경 클릭 시 닫기
-    closeOnEsc = true, // ESC 키로 닫기
-
-    // ===== 스타일 props =====
-    size = 'medium', // 'small' | 'medium' | 'large'
-    className = '', // 모달 백드롭에 추가될 CSS 클래스
-    modalClassName = '', // 모달 콘텐츠 박스에 추가될 CSS 클래스 (배경색 등)
+    isOpen = false,
+    onClose,
+    children,
+    title = '',
+    showCloseButton = true,
+    closeOnBackdrop = true,
+    closeOnEsc = true,
+    size = 'medium',
+    className = '',
+    modalClassName = '', // 모달 콘텐츠 박스 (헤더, 본문, 푸터 포함)에 추가될 CSS 클래스 (배경색 등)
     titleClassName = '', // 모달 제목에 추가될 CSS 클래스
 }) => {
-    // ESC 키 이벤트 처리
     useEffect(() => {
         if (!isOpen || !closeOnEsc) return;
 
@@ -39,7 +28,6 @@ const Modal = ({
         return () => document.removeEventListener('keydown', handleEscKey);
     }, [isOpen, closeOnEsc, onClose]);
 
-    // 스크롤 방지
     useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = 'hidden';
@@ -52,37 +40,32 @@ const Modal = ({
         };
     }, [isOpen]);
 
-    // 모달이 열려있지 않으면 렌더링하지 않음
     if (!isOpen) return null;
 
-    // 배경 클릭 핸들러
     const handleBackdropClick = (event) => {
         if (closeOnBackdrop && event.target === event.currentTarget) {
             onClose?.();
         }
     };
 
-    // 모달 크기별 Tailwind CSS 클래스 반환
     const getSizeClasses = () => {
         switch (size) {
             case 'small':
-                return 'max-w-md'; // 400px
+                return 'max-w-md';
             case 'large':
-                return 'max-w-4xl'; // 800px
+                return 'max-w-4xl';
             case 'medium':
             default:
-                return 'max-w-2xl'; // 600px
+                return 'max-w-2xl';
         }
     };
 
     return (
         <div
-            // 백드롭 스타일
             className={`fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4 ${className}`}
             onClick={handleBackdropClick}
         >
             <div
-                // 모달 콘텐츠 스타일 (배경색, 그림자, 최대 높이 등)
                 className={`rounded-lg shadow-xl max-h-[90vh] overflow-auto relative w-full ${getSizeClasses()} ${modalClassName}`}
                 onClick={(e) => e.stopPropagation()}
             >
@@ -99,7 +82,8 @@ const Modal = ({
                         {showCloseButton && (
                             <button
                                 onClick={onClose}
-                                className="text-gray-400 hover:text-white transition-colors text-2xl font-bold p-1 leading-none"
+                                // X 버튼 색상 수정 (배경색과 유사하되 약간 밝게)
+                                className="text-gray-300 hover:text-white transition-colors text-2xl font-bold p-1 leading-none"
                                 aria-label="모달 닫기"
                             >
                                 &times;
@@ -109,7 +93,11 @@ const Modal = ({
                 )}
 
                 {/* 모달 본문 */}
-                <div className={`p-4 ${modalClassName}`}>{children}</div>
+                <div className={`p-4`}>
+                    {' '}
+                    {/* 이 부분은 배경색을 modalClassName이 제어하도록 */}
+                    {children}
+                </div>
             </div>
         </div>
     );

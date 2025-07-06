@@ -5,33 +5,37 @@ import ErrorMessage from '../../shared/components/ui/ErrorMessage';
 import Button from '../../shared/components/ui/Button';
 import Modal from '../../shared/components/ui/Modal';
 import InputField from '../../shared/components/ui/InputField';
-import { useNavigate } from 'react-router-dom'; // 페이지 이동을 위해 useNavigate 임포트
+import { useNavigate } from 'react-router-dom';
+import {
+    formatPhoneNumber,
+    formatBusinessNumber,
+} from '../../shared/utils/formatters'; // 포맷팅 함수 임포트
 
 const AdminDashboard = () => {
-    const navigate = useNavigate(); // useNavigate 훅 사용
+    const navigate = useNavigate();
 
     // --- 대시보드 요약 데이터 상태 ---
-    const [pendingCount, setPendingCount] = useState(0); // 대기 중인 신청 건수
-    const [currentSellersCount, setCurrentSellersCount] = useState(0); // 현재 판매자 수
-    const [recentActivities, setRecentActivities] = useState([]); // 최근 활동 목록 (테이블용)
-    const [loading, setLoading] = useState(true); // 대시보드 전체 로딩 상태
-    const [error, setError] = useState(null); // 대시보드 전체 에러 상태
+    const [pendingCount, setPendingCount] = useState(0);
+    const [currentSellersCount, setCurrentSellersCount] = useState(0);
+    const [recentActivities, setRecentActivities] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     // --- Quick Actions 모달 관련 상태 ---
     // 1. 다음 대기 신청 처리 모달
     const [showProcessPendingModal, setShowProcessPendingModal] =
-        useState(false); // 모달 표시 여부
+        useState(false);
     const [pendingAppToProcess, setPendingAppToProcess] = useState(null); // 처리할 대기 신청 데이터
-    const [processReason, setProcessReason] = useState(''); // 반려 사유
-    const [processFormErrors, setProcessFormErrors] = useState({}); // 승인/반려 폼 유효성 검사 에러
-    const [processModalLoading, setProcessModalLoading] = useState(false); // 모달 내부 로딩
+    const [processReason, setProcessReason] = useState('');
+    const [processFormErrors, setProcessFormErrors] = useState({});
+    const [processModalLoading, setProcessModalLoading] = useState(false);
 
     // 2. 판매자 빠른 검색 모달
-    const [showSearchModal, setShowSearchModal] = useState(false); // 모달 표시 여부
-    const [searchKeyword, setSearchKeyword] = useState(''); // 검색 키워드
-    const [searchResults, setSearchResults] = useState([]); // 검색 결과
-    const [searchModalLoading, setSearchModalLoading] = useState(false); // 모달 내부 로딩
-    const [searchError, setSearchError] = useState(null); // 모달 내부 에러
+    const [showSearchModal, setShowSearchModal] = useState(false);
+    const [searchKeyword, setSearchKeyword] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+    const [searchModalLoading, setSearchModalLoading] = useState(false);
+    const [searchError, setSearchError] = useState(null);
 
     // --- 대시보드 요약 데이터 페칭 ---
     useEffect(() => {
@@ -39,26 +43,20 @@ const AdminDashboard = () => {
             setLoading(true);
             setError(null);
             try {
-                // 1. 대기 중인 판매자 신청 목록 건수 조회 (API-04-01)
                 const pendingApps =
                     await adminSellerService.getPendingSellerApplications();
-                setPendingCount(pendingApps.length); // 배열의 길이로 건수 설정
+                setPendingCount(pendingApps.length);
 
-                // 2. 현재 판매자 목록 인원수 조회 (API-04-05)
                 const currentSellers =
                     await adminSellerService.getCurrentSellers();
-                setCurrentSellersCount(currentSellers.length); // 배열의 길이로 인원수 설정
+                setCurrentSellersCount(currentSellers.length);
 
-                // 3. 전체 판매자 이력 목록 조회 (API-04-06) - 최근 5건만 가져와서 대시보드에 표시
-                // 페이지 0, 사이즈 5, 최신순으로 정렬 (백엔드 기본 정렬이 created_at,desc 이므로 별도 sort 파라미터는 명시하지 않음)
                 const historyResponse =
                     await adminSellerService.getAllSellerApprovalHistory({
                         page: 0,
-                        size: 5, // 대시보드에 표시할 최근 활동 개수
-                        // keyword: undefined, // 필요시 추가
-                        // typeFilter: undefined, // 필요시 추가
+                        size: 5,
                     });
-                setRecentActivities(historyResponse.content); // 페이지 응답의 content (리스트)
+                setRecentActivities(historyResponse.content);
             } catch (err) {
                 console.error('관리자 대시보드 데이터 로드 실패:', err);
                 setError(
@@ -71,7 +69,7 @@ const AdminDashboard = () => {
         };
 
         fetchData();
-    }, []); // 컴포넌트 마운트 시 한 번만 실행
+    }, []);
 
     // --- 유틸리티 함수: 날짜 포맷팅 ---
     const formatDate = (dateString) => {
@@ -88,7 +86,7 @@ const AdminDashboard = () => {
     };
 
     // --- 유틸리티 함수: 이력 타입 한글명 매핑 ---
-    const getHistoryTypeLabel = (type) => {
+    const getHistoryTypeLabel = useCallback((type) => {
         const STATUS_LABELS = {
             REQUEST: '신청',
             SUBMITTED: '신청',
@@ -98,7 +96,7 @@ const AdminDashboard = () => {
             REVOKED: '강제 해제',
         };
         return STATUS_LABELS[type] || type;
-    };
+    }, []);
 
     // --- Quick Actions: 다음 대기 신청 처리 핸들러 ---
     const handleProcessNextPending = useCallback(async () => {
@@ -107,19 +105,42 @@ const AdminDashboard = () => {
         try {
             const pendingApps =
                 await adminSellerService.getPendingSellerApplications();
+
             if (pendingApps.length === 0) {
                 alert('현재 대기 중인 판매자 신청이 없습니다.');
                 setPendingAppToProcess(null);
                 setShowProcessPendingModal(false);
-            } else if (pendingApps.length === 1) {
-                setPendingAppToProcess(pendingApps[0]);
+            } else {
+                const app = pendingApps[0]; // 가장 오래된(또는 최신) 신청 1건
+
+                // 해당 유저의 모든 이력을 조회
+                const userHistory =
+                    await adminSellerService.getSellerApprovalHistoryForUser(
+                        app.userId,
+                    );
+
+                // 신규/재신청 여부 판단
+                // REQUEST 타입만 있다면 신규, 그 외(REJECTED, WITHDRAWN, REVOKED) 이력이 있다면 재신청
+                const isReapplicant = userHistory.some(
+                    (h) =>
+                        h.type === 'REJECTED' ||
+                        h.type === 'WITHDRAWN' ||
+                        h.type === 'REVOKED',
+                );
+                const hasRevokedHistory = userHistory.some(
+                    (h) => h.type === 'REVOKED',
+                );
+
+                // pendingAppToProcess에 이력 정보 추가
+                setPendingAppToProcess({
+                    ...app,
+                    isReapplicant,
+                    hasRevokedHistory,
+                    userHistorySummary: userHistory, // 전체 이력을 요약에 전달 (UI에서 직접 슬라이스)
+                });
+
                 setShowProcessPendingModal(true);
                 setProcessReason(''); // 모달 열 때 사유 초기화
-            } else {
-                // 여러 건이 있다면, Seller Approval 페이지로 이동 (필터링된 뷰)
-                navigate('/admin/seller-approvals', {
-                    state: { statusFilter: 'SUBMITTED' },
-                });
             }
         } catch (err) {
             console.error('대기 신청 조회 실패:', err);
@@ -182,8 +203,8 @@ const AdminDashboard = () => {
     // --- Quick Actions: 판매자 빠른 검색 핸들러 ---
     const handleQuickSearch = useCallback(() => {
         setShowSearchModal(true);
-        setSearchKeyword(''); // 모달 열 때 검색어 초기화
-        setSearchResults([]); // 모달 열 때 결과 초기화
+        setSearchKeyword('');
+        setSearchResults([]);
         setSearchError(null);
     }, []);
 
@@ -196,11 +217,10 @@ const AdminDashboard = () => {
         setSearchModalLoading(true);
         setSearchError(null);
         try {
-            // 사용자 아이디, 닉네임, 업체명, 사업자번호 등 통합 검색을 위해 keyword 파라미터 사용
             const searchHistoryResponse =
                 await adminSellerService.getAllSellerApprovalHistory({
                     page: 0,
-                    size: 10, // 빠른 검색 모달에는 최대 10개 정도 표시
+                    size: 10,
                     keyword: searchKeyword.trim(),
                 });
             setSearchResults(searchHistoryResponse.content);
@@ -243,7 +263,7 @@ const AdminDashboard = () => {
                             Pending Seller Applications{' '}
                         </div>
                         <img
-                            src="/admin-vector-03.svg" // 판매자/승인 관련 아이콘
+                            src="/admin-vector-03.svg"
                             alt="Pending Applications Icon"
                             className="w-6 h-6 mt-2"
                         />
@@ -261,7 +281,7 @@ const AdminDashboard = () => {
                             Current Sellers{' '}
                         </div>
                         <img
-                            src="/admin-vector-00.svg" // 대시보드/홈 아이콘, 전체 현황 의미
+                            src="/admin-vector-00.svg"
                             alt="Current Sellers Icon"
                             className="w-6 h-6 mt-2"
                         />
@@ -279,7 +299,7 @@ const AdminDashboard = () => {
                             Recent Activities{' '}
                         </div>
                         <img
-                            src="/admin-vector-01.svg" // 활동/통계 아이콘
+                            src="/admin-vector-01.svg"
                             alt="Recent Activities Icon"
                             className="w-6 h-6 mt-2"
                         />
@@ -289,7 +309,6 @@ const AdminDashboard = () => {
                             {recentActivities.length > 0
                                 ? recentActivities.length
                                 : 0}{' '}
-                            {/* 동적 데이터: 가져온 최근 활동 목록의 길이로 표시 */}
                         </div>
                     </div>
                 </div>
@@ -307,7 +326,7 @@ const AdminDashboard = () => {
                     <Button
                         onClick={handleProcessNextPending}
                         className="bg-[#1a78e5] hover:bg-[#156cb2] text-white px-4 py-2 rounded-lg shadow-md"
-                        disabled={pendingCount === 0} // 대기 신청이 없으면 비활성화
+                        disabled={pendingCount === 0}
                     >
                         {pendingCount > 0
                             ? `다음 대기 신청 처리 (총 ${pendingCount}건)`
@@ -345,7 +364,7 @@ const AdminDashboard = () => {
                                     </div>
                                 </div>
                                 <div className="pt-3 pr-4 pb-3 pl-4 flex flex-col gap-0 items-start justify-start self-stretch shrink-0 w-[294px] relative">
-                                    <div className="text-[#ffffff] text-left font-['Inter-Medium',_sans-serif] text-sm leading-[21px] font-medium relative self-stretch">
+                                    <div className="text-[#ffffff] text-left font-['Inter-Bold',_sans-serif] text-sm leading-[21px] font-bold relative self-stretch">
                                         Timestamp{' '}
                                     </div>
                                 </div>
@@ -396,92 +415,188 @@ const AdminDashboard = () => {
                 <Modal
                     isOpen={showProcessPendingModal}
                     onClose={() => setShowProcessPendingModal(false)}
-                    // 모달 배경색 변경: bg-[#1e2a3a] 대신 bg-[#1a232f] 사용
-                    modalClassName="bg-[#1a232f]"
-                    title={
-                        pendingAppToProcess.approveAction === false
-                            ? '판매자 신청 반려'
-                            : '다음 대기 신청 처리'
-                    }
+                    modalClassName="bg-[#1a232f]" // 모달 배경색
+                    title="다음 대기 신청 처리"
                 >
-                    <p className="mb-4 text-gray-300">
-                        다음 신청을 처리하시겠습니까?
-                    </p>
-                    <div className="mb-4 text-gray-200">
-                        <p>
-                            <strong>유저:</strong>{' '}
-                            {pendingAppToProcess.username} (
-                            {pendingAppToProcess.userNickname})
+                    <div className="text-gray-300">
+                        {/* 1. 유저 이름 표시 문제 및 8. 글씨 크기 확대 */}
+                        <p className="text-xl font-semibold text-white mb-2 text-center">
+                            <strong className="text-white">
+                                &apos;{pendingAppToProcess.username}&apos;(
+                                {pendingAppToProcess.userNickname})
+                            </strong>
+                            님의 다음 신청을 처리하시겠습니까?
                         </p>
-                        <p>
-                            <strong>업체명:</strong>{' '}
-                            {pendingAppToProcess.companyName}
-                        </p>
-                        <p>
-                            <strong>사업자번호:</strong>{' '}
-                            {pendingAppToProcess.businessNumber}
-                        </p>
-                        {pendingAppToProcess.uploadedFileUrl && (
+
+                        {/* 2. 라벨 (재신청 유저, 주의!) - 중앙 정렬, 독립적 위치 */}
+                        <div className="flex justify-center items-center gap-2 mb-4">
+                            {pendingAppToProcess.isReapplicant ? (
+                                <span className="bg-blue-800 bg-opacity-70 text-white px-2 py-1 rounded-full text-xs font-semibold">
+                                    재신청 유저
+                                </span>
+                            ) : (
+                                <span className="bg-gray-600 bg-opacity-70 text-white px-2 py-1 rounded-full text-xs font-semibold">
+                                    신규 유저
+                                </span>
+                            )}
+                            {pendingAppToProcess.hasRevokedHistory && (
+                                <span className="bg-red-800 bg-opacity-70 text-white px-2 py-1 rounded-full text-xs font-semibold">
+                                    주의! (과거 강제 해제 이력)
+                                </span>
+                            )}
+                        </div>
+
+                        {/* 10. 신청 정보 항목 테두리 추가 및 3. 담당자 정보 추가, 4. 포맷팅 적용 */}
+                        <div className="mb-4 text-gray-200 space-y-1 p-4 border border-gray-600 rounded-lg">
                             <p>
-                                <strong>제출 서류:</strong>{' '}
-                                <a
-                                    href={pendingAppToProcess.uploadedFileUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-blue-400 hover:underline"
-                                >
-                                    보기
-                                </a>
+                                <strong>업체명:</strong>{' '}
+                                {pendingAppToProcess.companyName}
+                            </p>
+                            <p>
+                                <strong>사업자번호:</strong>{' '}
+                                {formatBusinessNumber(
+                                    pendingAppToProcess.businessNumber,
+                                )}
+                            </p>
+                            <p>
+                                <strong>담당자 이름:</strong>{' '}
+                                {pendingAppToProcess.representativeName}
+                            </p>
+                            <p>
+                                <strong>담당자 연락처:</strong>{' '}
+                                {formatPhoneNumber(
+                                    pendingAppToProcess.representativePhone,
+                                )}
+                            </p>
+                            {pendingAppToProcess.uploadedFileUrl && (
+                                <p>
+                                    <strong>제출 서류:</strong>{' '}
+                                    <a
+                                        href={
+                                            pendingAppToProcess.uploadedFileUrl
+                                        }
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-blue-400 hover:underline"
+                                    >
+                                        보기
+                                    </a>
+                                </p>
+                            )}
+                            <p>
+                                <strong>신청일:</strong>{' '}
+                                {formatDate(pendingAppToProcess.createdAt)}
+                            </p>
+                        </div>
+
+                        {/* 4. 최근 이력 요약 (표 형태로 개선 및 항목명 변경) */}
+                        {/* 2. 최근 이력 요약 테이블 헤더 가운데 정렬 / 5. 상태(사유) 항목 내용 왼쪽 정렬 */}
+                        {pendingAppToProcess.userHistorySummary &&
+                            pendingAppToProcess.userHistorySummary.length >
+                                0 && (
+                                <div className="mb-4 border border-gray-600 rounded p-2">
+                                    <p className="text-sm font-semibold mb-2 text-white">
+                                        최근 이력 요약:
+                                    </p>
+                                    <div className="overflow-x-auto">
+                                        <table className="min-w-full text-xs divide-y divide-gray-700">
+                                            <thead>
+                                                <tr className="bg-[#243447]">
+                                                    <th className="px-2 py-1 text-center text-gray-300">
+                                                        상태(사유)
+                                                    </th>
+                                                    <th className="px-2 py-1 text-center text-gray-300">
+                                                        이력 발생 일시
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-700">
+                                                {/* 최근 5개만 표시하도록 slice 적용 */}
+                                                {pendingAppToProcess.userHistorySummary
+                                                    .slice(0, 5)
+                                                    .map((history) => (
+                                                        <tr key={history.id}>
+                                                            <td className="px-2 py-1 text-gray-300 text-left">
+                                                                {getHistoryTypeLabel(
+                                                                    history.type,
+                                                                )}
+                                                                {history.reason &&
+                                                                    ` (${history.reason})`}
+                                                            </td>
+                                                            <td className="px-2 py-1 text-gray-300 text-center">
+                                                                {formatDate(
+                                                                    history.createdAt,
+                                                                )}
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <Button
+                                        onClick={() => {
+                                            setShowProcessPendingModal(false);
+                                            navigate(
+                                                `/admin/history?userId=${pendingAppToProcess.userId}`,
+                                            );
+                                        }}
+                                        className="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1 text-xs mt-2" // 버튼 색상 변경
+                                    >
+                                        이력 전체 보기 (총{' '}
+                                        {
+                                            pendingAppToProcess
+                                                .userHistorySummary.length
+                                        }
+                                        건)
+                                    </Button>
+                                </div>
+                            )}
+
+                        <InputField
+                            label="반려 사유 (반려 시 필수)"
+                            name="processReason"
+                            value={processReason}
+                            onChange={(e) => {
+                                setProcessReason(e.target.value);
+                                setProcessFormErrors({});
+                            }}
+                            placeholder="반려 시 사유를 입력하세요"
+                            error={processFormErrors.reason}
+                            className="mb-4 text-white"
+                        />
+                        {processFormErrors.api && (
+                            <p className="text-sm text-red-500 mb-4">
+                                {processFormErrors.api}
                             </p>
                         )}
-                        <p>
-                            <strong>신청일:</strong>{' '}
-                            {formatDate(pendingAppToProcess.createdAt)}
-                        </p>
-                    </div>
-
-                    <InputField
-                        label="반려 사유 (반려 시 필수)"
-                        name="processReason"
-                        value={processReason}
-                        onChange={(e) => {
-                            setProcessReason(e.target.value);
-                            setProcessFormErrors({});
-                        }}
-                        placeholder="반려 시 사유를 입력하세요"
-                        error={processFormErrors.reason}
-                        className="mb-4 text-white"
-                    />
-                    {processFormErrors.api && (
-                        <p className="text-sm text-red-500 mb-4">
-                            {processFormErrors.api}
-                        </p>
-                    )}
-                    <div className="flex justify-end space-x-2">
-                        <Button
-                            onClick={() => setShowProcessPendingModal(false)}
-                            className="bg-gray-600 hover:bg-gray-700 text-white"
-                        >
-                            닫기
-                        </Button>
-                        <Button
-                            onClick={() => confirmProcessPending(true)} // 승인
-                            className="bg-green-600 hover:bg-green-700 text-white"
-                            disabled={processModalLoading}
-                        >
-                            {processModalLoading ? '승인 중...' : '승인'}
-                        </Button>
-                        <Button
-                            onClick={() => confirmProcessPending(false)} // 반려
-                            className="bg-red-600 hover:bg-red-700 text-white"
-                            disabled={
-                                processModalLoading ||
-                                (!processReason.trim() &&
-                                    !processFormErrors.reason)
-                            }
-                        >
-                            {processModalLoading ? '반려 중...' : '반려'}
-                        </Button>
+                        <div className="flex justify-end space-x-2">
+                            <Button
+                                onClick={() =>
+                                    setShowProcessPendingModal(false)
+                                }
+                                className="bg-gray-600 hover:bg-gray-700 text-white"
+                            >
+                                닫기
+                            </Button>
+                            <Button
+                                onClick={() => confirmProcessPending(true)}
+                                className="bg-green-600 hover:bg-green-700 text-white"
+                                disabled={processModalLoading}
+                            >
+                                {processModalLoading ? '승인 중...' : '승인'}
+                            </Button>
+                            <Button
+                                onClick={() => confirmProcessPending(false)}
+                                className="bg-red-600 hover:bg-red-700 text-white"
+                                disabled={
+                                    processModalLoading ||
+                                    (!processReason.trim() &&
+                                        !processFormErrors.reason)
+                                }
+                            >
+                                {processModalLoading ? '반려 중...' : '반려'}
+                            </Button>
+                        </div>
                     </div>
                 </Modal>
             )}
@@ -493,8 +608,7 @@ const AdminDashboard = () => {
                     onClose={() => setShowSearchModal(false)}
                     title="판매자 빠른 검색"
                     size="large"
-                    // 모달 배경색 변경: bg-[#1e2a3a] 대신 bg-[#1a232f] 사용
-                    modalClassName="bg-[#1a232f]"
+                    modalClassName="bg-[#1a232f]" // 모달 배경색
                 >
                     <div className="flex flex-col gap-4">
                         <div className="flex gap-2">
@@ -504,7 +618,7 @@ const AdminDashboard = () => {
                                 value={searchKeyword}
                                 onChange={(e) => {
                                     setSearchKeyword(e.target.value);
-                                    setSearchError(null); // 입력 시 에러 초기화
+                                    setSearchError(null);
                                 }}
                                 placeholder="검색어를 입력하세요"
                                 className="flex-1 text-white"
@@ -578,10 +692,10 @@ const AdminDashboard = () => {
                                                         onClick={() => {
                                                             setShowSearchModal(
                                                                 false,
-                                                            ); // 모달 닫기
+                                                            );
                                                             navigate(
                                                                 `/admin/history?userId=${result.userId}`,
-                                                            ); // 이력 페이지로 이동하며 userId 전달
+                                                            );
                                                         }}
                                                         className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 text-xs"
                                                     >
