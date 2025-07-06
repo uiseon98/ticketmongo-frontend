@@ -241,6 +241,7 @@ const SellerApproval = () => {
                             ? '판매자 신청 승인'
                             : '판매자 신청 반려'
                     }
+                    modalClassName="bg-[#1a232f]"
                 >
                     <p className="mb-4 text-gray-300">
                         {/* ESLint 오류 수정: 작은따옴표 이스케이프 */}
