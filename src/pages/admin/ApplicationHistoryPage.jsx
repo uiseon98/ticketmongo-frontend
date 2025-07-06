@@ -7,6 +7,7 @@ import Modal from '../../shared/components/ui/Modal';
 import InputField from '../../shared/components/ui/InputField';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
+import useDebounce from '../../shared/hooks/useDebounce';
 
 // 판매자 승인 이력 타입 (백엔드 SellerApprovalHistory.ActionType과 일치)
 const SELLER_HISTORY_TYPES = [
@@ -35,6 +36,8 @@ const ApplicationHistoryPage = () => {
     const userNicknameFromUrl = searchParams.get('userNickname');
     const urlKeyword = searchParams.get('keyword');
 
+    // initialSearchKeyword는 컴포넌트 마운트 시 한 번만 계산
+    // 이후 InputField의 값은 searchTerm 상태가 관리
     const initialSearchKeyword = userNicknameFromUrl
         ? userNicknameFromUrl
         : userIdFromUrl
@@ -49,21 +52,25 @@ const ApplicationHistoryPage = () => {
     const [totalPages, setTotalPages] = useState(0);
     const [totalElements, setTotalElements] = useState(0);
     const [pageSize, setPageSize] = useState(10);
-    const [searchKeyword, setSearchKeyword] = useState(initialSearchKeyword);
+
+    // 검색어 상태를 두 개로 분리: 즉시 업데이트되는 searchTerm과 디바운스된 searchKeyword
+    const [searchTerm, setSearchTerm] = useState(initialSearchKeyword);
+    const debouncedSearchKeyword = useDebounce(searchTerm, 500); // 0.5초 디바운스
+
     const [typeFilter, setTypeFilter] = useState('ALL');
 
     const [showHistoryModal, setShowHistoryModal] = useState(false);
     const [selectedUserHistory, setSelectedUserHistory] = useState(null); // 모달에 표시할 선택된 이력 항목
     const [detailedApplication, setDetailedApplication] = useState(null); // 추가: 상세 조회된 판매자 신청 정보
 
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
 
     const fetchAllSellerHistory = useCallback(async () => {
         setLoading(true);
         setError(null);
         try {
             let response;
-            if (userIdFromUrl && searchKeyword === userIdFromUrl) {
+            if (userIdFromUrl && debouncedSearchKeyword === userIdFromUrl) {
                 const historyList =
                     await adminSellerService.getSellerApprovalHistoryForUser(
                         userIdFromUrl,
@@ -95,7 +102,7 @@ const ApplicationHistoryPage = () => {
                     page: currentPage,
                     size: pageSize,
                     typeFilter: typeFilter === 'ALL' ? undefined : typeFilter,
-                    keyword: searchKeyword || undefined,
+                    keyword: debouncedSearchKeyword || undefined,
                     sort: 'createdAt,desc',
                 };
                 response =
@@ -114,8 +121,15 @@ const ApplicationHistoryPage = () => {
         } finally {
             setLoading(false);
         }
-    }, [currentPage, pageSize, searchKeyword, typeFilter, userIdFromUrl]);
+    }, [
+        currentPage,
+        pageSize,
+        debouncedSearchKeyword,
+        typeFilter,
+        userIdFromUrl,
+    ]);
 
+    // URL 파라미터에서 키워드 변경 시 searchTerm을 업데이트하는 useEffect (초기 로드 및 URL 변경에만 반응)
     useEffect(() => {
         const currentUrlUserId = searchParams.get('userId');
         const currentUrlKeyword = searchParams.get('keyword');
@@ -127,22 +141,27 @@ const ApplicationHistoryPage = () => {
               ? currentUrlUserId
               : currentUrlKeyword || '';
 
-        if (searchKeyword !== newSearchValFromUrl) {
-            setSearchKeyword(newSearchValFromUrl);
-            setCurrentPage(0);
-        } else {
-            fetchAllSellerHistory();
+        // 현재 searchTerm과 URL에서 온 값이 다를 경우에만 업데이트
+        // 사용자가 직접 입력하는 searchTerm이 URL에 의해 강제 초기화되는 것을 방지
+        if (searchTerm !== newSearchValFromUrl) {
+            setSearchTerm(newSearchValFromUrl);
+            setCurrentPage(0); // URL 키워드가 변경되면 페이지도 초기화
         }
+    }, [searchParams, urlKeyword, userIdFromUrl, userNicknameFromUrl]); // searchTerm은 의존성에서 제거
+
+    // debouncedSearchKeyword가 변경될 때만 데이터를 가져오도록 useEffect 추가
+    // debouncedSearchKeyword의 변화에만 반응하여 API 호출을 트리거
+    useEffect(() => {
+        // 이 부분에서만 실제 데이터 페칭 로직을 호출
+        // searchTerm은 사용자의 즉각적인 입력을 반영하고, debouncedSearchKeyword는 잠시 후 안정화된 검색어 반영
+        // 불필요한 API 호출 없이, 사용자가 입력 완료 후 검색 실행
+        fetchAllSellerHistory();
     }, [
+        debouncedSearchKeyword,
         currentPage,
         pageSize,
-        searchKeyword,
         typeFilter,
         fetchAllSellerHistory,
-        searchParams,
-        userIdFromUrl,
-        userNicknameFromUrl,
-        urlKeyword,
     ]);
 
     // handleViewUserHistory 함수 수정: 신청서 상세 정보 추가 조회
@@ -151,21 +170,17 @@ const ApplicationHistoryPage = () => {
         setDetailedApplication(null);
 
         console.log('handleViewUserHistory 호출됨. historyItem:', historyItem);
-        // ✅ 이 부분을 historyItem.sellerApplicationId로 변경하세요.
         console.log(
             'historyItem.sellerApplicationId:',
             historyItem.sellerApplicationId,
         );
 
-        // ✅ 이 부분을 historyItem.sellerApplicationId로 변경하세요.
         if (historyItem.sellerApplicationId) {
             setLoading(true);
             try {
-                // ✅ 이 부분을 historyItem.sellerApplicationId로 변경하세요.
                 console.log(
                     `API-04-07 호출 시도: applicationId = ${historyItem.sellerApplicationId}`,
                 );
-                // ✅ 이 부분을 historyItem.sellerApplicationId로 변경하세요.
                 const appDetail =
                     await adminSellerService.getSellerApplicationDetail(
                         historyItem.sellerApplicationId,
@@ -207,24 +222,16 @@ const ApplicationHistoryPage = () => {
         setSearchParams(newSearchParams);
     };
 
+    // 검색어 입력 핸들러 수정: searchTerm만 업데이트하고, URLSearchParams는 직접 변경하지 않음
     const handleKeywordChange = (e) => {
         const newKeyword = e.target.value;
-        setSearchKeyword(newKeyword);
-        setCurrentPage(0);
-        const newSearchParams = new URLSearchParams(searchParams);
-        if (newKeyword.trim()) {
-            newSearchParams.set('keyword', newKeyword.trim());
-            newSearchParams.delete('userId');
-            newSearchParams.delete('userNickname');
-        } else {
-            newSearchParams.delete('keyword');
-        }
-        newSearchParams.set('page', '0');
-        setSearchParams(newSearchParams);
+        setSearchTerm(newKeyword);
+        setCurrentPage(0); // 검색어가 변경되면 페이지를 0으로 초기화
+        // URLSearchParams 업데이트는 debouncedSearchKeyword가 변경될 때 발생
     };
 
     const handleClearSearch = useCallback(() => {
-        setSearchKeyword('');
+        setSearchTerm('');
         setCurrentPage(0);
         const newSearchParams = new URLSearchParams();
         newSearchParams.set('page', '0');
@@ -250,21 +257,21 @@ const ApplicationHistoryPage = () => {
     // --- 페이지네이션 UI를 위한 헬퍼 함수 ---
     const getVisiblePageNumbers = useCallback(() => {
         const visiblePages = [];
-        const maxPageNumbersToShow = 5; // 항상 5개의 페이지 번호를 보여줍니다.
+        const maxPageNumbersToShow = 5; // 항상 5개의 페이지 번호를 보여줌
         const half = Math.floor(maxPageNumbersToShow / 2); // 현재 페이지 좌우로 표시될 개수 (2개)
 
         let startPage, endPage;
 
         if (totalPages <= maxPageNumbersToShow) {
-            // 전체 페이지 수가 5개 이하면 모든 페이지를 보여줍니다.
+            // 전체 페이지 수가 5개 이하면 모든 페이지를 보여줌
             startPage = 0;
             endPage = totalPages - 1;
         } else {
-            // 현재 페이지를 기준으로 5개의 페이지 번호를 계산합니다.
+            // 현재 페이지를 기준으로 5개의 페이지 번호를 계산
             startPage = Math.max(0, currentPage - half);
             endPage = Math.min(totalPages - 1, currentPage + half);
 
-            // 범위가 총 5개가 안 될 경우 조정합니다.
+            // 범위가 총 5개가 안 될 경우 조정
             if (endPage - startPage + 1 < maxPageNumbersToShow) {
                 if (startPage === 0) {
                     endPage = maxPageNumbersToShow - 1;
@@ -297,32 +304,43 @@ const ApplicationHistoryPage = () => {
 
     // --- 동적 제목 생성 ---
     const getDynamicTitle = useCallback(() => {
-        if (userIdFromUrl && searchKeyword === userIdFromUrl) {
+        if (userIdFromUrl && debouncedSearchKeyword === userIdFromUrl) {
             if (userNicknameFromUrl) {
                 return `${userNicknameFromUrl} 님의 판매자 권한 이력 (총 ${totalElements}건)`;
             }
             return `ID: ${userIdFromUrl} 님의 판매자 권한 이력 (총 ${totalElements}건)`;
         }
 
-        if (searchKeyword.trim()) {
+        if (debouncedSearchKeyword.trim()) {
             let prefix = '';
-            if (userNicknameFromUrl && searchKeyword === userNicknameFromUrl) {
-                prefix = `${userNicknameFromUrl} 님의`;
-            } else if (!isNaN(searchKeyword) && searchKeyword.length > 0) {
-                prefix = `ID: ${searchKeyword} 님의`;
-            } else if (
-                searchKeyword.includes('회사') ||
-                searchKeyword.includes('기업') ||
-                searchKeyword.includes('(주)')
+            if (
+                userNicknameFromUrl &&
+                debouncedSearchKeyword === userNicknameFromUrl
             ) {
-                prefix = `업체명: ${searchKeyword} 의`;
+                prefix = `${userNicknameFromUrl} 님의`;
+            } else if (
+                !isNaN(debouncedSearchKeyword) &&
+                debouncedSearchKeyword.length > 0
+            ) {
+                prefix = `ID: ${debouncedSearchKeyword} 님의`;
+            } else if (
+                debouncedSearchKeyword.includes('회사') ||
+                debouncedSearchKeyword.includes('기업') ||
+                debouncedSearchKeyword.includes('(주)')
+            ) {
+                prefix = `업체명: ${debouncedSearchKeyword} 의`;
             } else {
-                prefix = `${searchKeyword} 님의`;
+                prefix = `${debouncedSearchKeyword} 님의`;
             }
             return `${prefix} 판매자 권한 이력 (총 ${totalElements}건)`;
         }
         return `📜 전체 판매자 권한 이력 (총 ${totalElements}건)`;
-    }, [userIdFromUrl, userNicknameFromUrl, searchKeyword, totalElements]);
+    }, [
+        userIdFromUrl,
+        userNicknameFromUrl,
+        debouncedSearchKeyword,
+        totalElements,
+    ]);
 
     // 날짜 포맷터 추가
     const formatDate = (dateString) => {
@@ -390,7 +408,7 @@ const ApplicationHistoryPage = () => {
                         <div className="min-w-[300px]">
                             <InputField
                                 name="searchKeyword"
-                                value={searchKeyword}
+                                value={searchTerm}
                                 onChange={handleKeywordChange}
                                 placeholder="유저 ID, 닉네임, 업체명 등"
                                 clearable={true}
