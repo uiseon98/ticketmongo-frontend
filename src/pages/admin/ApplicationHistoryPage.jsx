@@ -69,59 +69,70 @@ const ApplicationHistoryPage = () => {
     const [currentSearchKeyword, setCurrentSearchKeyword] =
         useState(initialSearchKeyword);
 
+    // ApplicationHistoryPage.jsx
     const fetchAllSellerHistory = useCallback(async () => {
         setLoading(true);
         setError(null);
         try {
-            let response;
-            // userIdFromUrl이 있고, 현재 검색 키워드가 userIdFromUrl과 일치할 때
-            // URL에 userId가 명시적으로 있을 때만 동작
+            let responseContent; // API 응답의 content 부분
+            let totalElementsCount;
+            let totalPagesCount;
+
             if (userIdFromUrl && currentSearchKeyword === userIdFromUrl) {
+                // 특정 유저의 이력을 가져옴 (typeFilter가 백엔드에 전달되지 않음)
                 const historyList =
                     await adminSellerService.getSellerApprovalHistoryForUser(
                         userIdFromUrl,
                     );
 
-                const calculatedTotalPages = Math.max(
+                // 프론트엔드에서 typeFilter를 적용
+                let filteredList = historyList;
+                if (typeFilter !== 'ALL') {
+                    filteredList = historyList.filter(
+                        (item) => item.type === typeFilter,
+                    );
+                }
+
+                // 필터링된 목록을 기반으로 페이지네이션 다시 계산
+                totalElementsCount = filteredList.length;
+                totalPagesCount = Math.max(
                     1,
-                    Math.ceil(historyList.length / pageSize),
+                    Math.ceil(filteredList.length / pageSize),
                 );
                 const calculatedCurrentPage = Math.min(
                     currentPage,
-                    calculatedTotalPages - 1,
+                    totalPagesCount - 1,
                 );
 
-                response = {
-                    content: historyList.slice(
-                        calculatedCurrentPage * pageSize,
-                        (calculatedCurrentPage + 1) * pageSize,
-                    ),
-                    totalElements: historyList.length,
-                    totalPages: calculatedTotalPages,
-                    number: calculatedCurrentPage,
-                    size: pageSize,
-                    first: calculatedCurrentPage === 0,
-                    last: calculatedCurrentPage === calculatedTotalPages - 1,
-                };
+                responseContent = filteredList.slice(
+                    calculatedCurrentPage * pageSize,
+                    (calculatedCurrentPage + 1) * pageSize,
+                );
+
+                setCurrentPage(calculatedCurrentPage); // 페이지를 다시 설정하여 UI와 동기화
             } else {
+                // 일반 검색 및 필터링
                 const params = {
                     page: currentPage,
                     size: pageSize,
                     typeFilter: typeFilter === 'ALL' ? undefined : typeFilter,
-                    keyword: currentSearchKeyword || undefined, // debouncedSearchKeyword 대신 currentSearchKeyword 사용
+                    keyword: currentSearchKeyword || undefined,
                     sort: 'createdAt,desc',
                 };
-                response =
+                const response =
                     await adminSellerService.getAllSellerApprovalHistory(
                         params,
                     );
+                responseContent = response.content;
+                totalElementsCount = response.totalElements;
+                totalPagesCount = response.totalPages;
+                setCurrentPage(response.number); // 백엔드에서 받은 현재 페이지 사용
             }
 
-            setAllHistory(response.content);
-            setTotalPages(response.totalPages);
-            setTotalElements(response.totalElements);
-            setCurrentPage(response.number);
-            setPageSize(response.size);
+            setAllHistory(responseContent);
+            setTotalPages(totalPagesCount);
+            setTotalElements(totalElementsCount);
+            setPageSize(pageSize); // pageSize는 항상 동일하게 유지 (사용자 선택에 따름)
         } catch (err) {
             setError(err.message || '판매자 이력 목록을 불러오지 못했습니다.');
         } finally {
@@ -130,7 +141,7 @@ const ApplicationHistoryPage = () => {
     }, [
         currentPage,
         pageSize,
-        currentSearchKeyword, // debouncedSearchKeyword 대신 currentSearchKeyword 의존
+        currentSearchKeyword,
         typeFilter,
         userIdFromUrl,
     ]);
