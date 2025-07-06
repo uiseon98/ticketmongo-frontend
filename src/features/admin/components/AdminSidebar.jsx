@@ -13,7 +13,7 @@ const AdminSidebar = () => {
                     to="/admin"
                     end
                     className={({ isActive }) =>
-                        `flex items-center gap-3 px-3 py-2 rounded-lg text-white text-sm font-medium transition-colors ${
+                        `flex items-center gap-3 px-3 py-2 rounded-lg text-left text-white text-sm font-medium transition-colors ${
                             isActive ? 'bg-[#243447]' : 'hover:bg-[#243447]'
                         }`
                     }
@@ -29,7 +29,7 @@ const AdminSidebar = () => {
                 <NavLink
                     to="/admin/seller-approvals"
                     className={({ isActive }) =>
-                        `flex items-center gap-3 px-3 py-2 rounded-lg text-white text-sm font-medium transition-colors ${
+                        `flex items-center gap-3 px-3 py-2 rounded-lg text-left text-white text-sm font-medium transition-colors ${
                             isActive ? 'bg-[#243447]' : 'hover:bg-[#243447]'
                         }`
                     }
@@ -45,7 +45,7 @@ const AdminSidebar = () => {
                 <NavLink
                     to="/admin/sellers"
                     className={({ isActive }) =>
-                        `flex items-center gap-3 px-3 py-2 rounded-lg text-white text-sm font-medium transition-colors ${
+                        `flex items-center gap-3 px-3 py-2 rounded-lg text-left text-white text-sm font-medium transition-colors ${
                             isActive ? 'bg-[#243447]' : 'hover:bg-[#243447]'
                         }`
                     }
@@ -61,7 +61,7 @@ const AdminSidebar = () => {
                 <NavLink
                     to="/admin/history"
                     className={({ isActive }) =>
-                        `flex items-center gap-3 px-3 py-2 rounded-lg text-white text-sm font-medium transition-colors ${
+                        `flex items-center gap-3 px-3 py-2 rounded-lg text-left text-white text-sm font-medium transition-colors ${
                             isActive ? 'bg-[#243447]' : 'hover:bg-[#243447]'
                         }`
                     }
@@ -73,22 +73,22 @@ const AdminSidebar = () => {
                     />
                     Application History
                 </NavLink>
-                {/* Settings 메뉴 추가 */}
-                <NavLink
-                    to="/admin/settings"
-                    className={({ isActive }) =>
-                        `flex items-center gap-3 px-3 py-2 rounded-lg text-white text-sm font-medium transition-colors ${
-                            isActive ? 'bg-[#243447]' : 'hover:bg-[#243447]'
-                        }`
-                    }
-                >
-                    <img
-                        src="/admin-vector-04.svg" // 설정 관련 아이콘 (임시)
-                        alt="Settings Icon"
-                        className="w-6 h-6"
-                    />
-                    Settings
-                </NavLink>
+                {/*/!* Settings 메뉴 추가 *!/*/}
+                {/*<NavLink*/}
+                {/*    to="/admin/settings"*/}
+                {/*    className={({ isActive }) =>*/}
+                {/*        `flex items-center gap-3 px-3 py-2 rounded-lg text-left text-white text-sm font-medium transition-colors ${*/}
+                {/*            isActive ? 'bg-[#243447]' : 'hover:bg-[#243447]'*/}
+                {/*        }`*/}
+                {/*    }*/}
+                {/*>*/}
+                {/*    <img*/}
+                {/*        src="/admin-vector-04.svg" // 설정 관련 아이콘 (임시)*/}
+                {/*        alt="Settings Icon"*/}
+                {/*        className="w-6 h-6"*/}
+                {/*    />*/}
+                {/*    Settings*/}
+                {/*</NavLink>*/}
             </div>
         </div>
     );
