@@ -11,7 +11,7 @@ import { X } from 'lucide-react';
 // 판매자 승인 이력 타입 (백엔드 SellerApprovalHistory.ActionType과 일치)
 const SELLER_HISTORY_TYPES = [
     'ALL', // 전체 (프론트엔드에서 추가)
-    'REQUEST', // (기존 명칭으로, SUBMITTED와 동일)
+    'REQUEST', // 신청 대기 중
     'APPROVED', // 승인됨
     'REJECTED', // 반려됨
     'WITHDRAWN', // 자발적 철회됨
@@ -38,8 +38,8 @@ const ApplicationHistoryPage = () => {
     const initialSearchKeyword = userNicknameFromUrl
         ? userNicknameFromUrl
         : userIdFromUrl
-          ? userIdFromUrl
-          : urlKeyword || '';
+            ? userIdFromUrl
+            : urlKeyword || '';
 
     const [allHistory, setAllHistory] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -53,11 +53,10 @@ const ApplicationHistoryPage = () => {
     const [typeFilter, setTypeFilter] = useState('ALL');
 
     const [showHistoryModal, setShowHistoryModal] = useState(false);
-    const [selectedUser, setSelectedUser] = useState(null);
-    const [userHistory, setUserHistory] = useState([]);
+    const [selectedUserHistory, setSelectedUserHistory] = useState(null); // 모달에 표시할 선택된 이력 항목
+    const [detailedApplication, setDetailedApplication] = useState(null); // 추가: 상세 조회된 판매자 신청 정보
 
     const navigate = useNavigate();
-    const [sellerRequestList, setSellerRequestList] = useState([]);
 
     const fetchAllSellerHistory = useCallback(async () => {
         setLoading(true);
@@ -125,8 +124,8 @@ const ApplicationHistoryPage = () => {
         const newSearchValFromUrl = currentUrlNickname
             ? currentUrlNickname
             : currentUrlUserId
-              ? currentUrlUserId
-              : currentUrlKeyword || '';
+                ? currentUrlUserId
+                : currentUrlKeyword || '';
 
         if (searchKeyword !== newSearchValFromUrl) {
             setSearchKeyword(newSearchValFromUrl);
@@ -134,21 +133,6 @@ const ApplicationHistoryPage = () => {
         } else {
             fetchAllSellerHistory();
         }
-
-        const fetchSellerRequests = async () => {
-            try {
-                const response =
-                    await adminSellerService.getAllSellerApplications();
-                setSellerRequestList(response.content);
-            } catch (err) {
-                console.error(
-                    '판매자 신청서 데이터를 불러오는 데 실패했습니다:',
-                    err,
-                );
-            }
-        };
-
-        fetchSellerRequests();
     }, [
         currentPage,
         pageSize,
@@ -161,22 +145,49 @@ const ApplicationHistoryPage = () => {
         urlKeyword,
     ]);
 
-    const handleViewUserHistory = async (user) => {
-        setSelectedUser(user);
-        setLoading(true);
-        setError(null);
-        try {
-            const history =
-                await adminSellerService.getSellerApprovalHistoryForUser(
-                    user.userId,
+    // handleViewUserHistory 함수 수정: 신청서 상세 정보 추가 조회
+    const handleViewUserHistory = async (historyItem) => {
+        setSelectedUserHistory(historyItem);
+        setDetailedApplication(null);
+
+        console.log('handleViewUserHistory 호출됨. historyItem:', historyItem);
+        // ✅ 이 부분을 historyItem.sellerApplicationId로 변경하세요.
+        console.log(
+            'historyItem.sellerApplicationId:',
+            historyItem.sellerApplicationId,
+        );
+
+        // ✅ 이 부분을 historyItem.sellerApplicationId로 변경하세요.
+        if (historyItem.sellerApplicationId) {
+            setLoading(true);
+            try {
+                // ✅ 이 부분을 historyItem.sellerApplicationId로 변경하세요.
+                console.log(
+                    `API-04-07 호출 시도: applicationId = ${historyItem.sellerApplicationId}`,
                 );
-            setUserHistory(history);
-            setShowHistoryModal(true);
-        } catch (err) {
-            setError(err.message || '유저 이력을 불러오지 못했습니다.');
-        } finally {
+                // ✅ 이 부분을 historyItem.sellerApplicationId로 변경하세요.
+                const appDetail =
+                    await adminSellerService.getSellerApplicationDetail(
+                        historyItem.sellerApplicationId,
+                    );
+                console.log('API-04-07 응답 데이터:', appDetail);
+                setDetailedApplication(appDetail);
+            } catch (err) {
+                console.error('신청서 상세 정보 로드 실패:', err);
+                setError(
+                    err.message || '신청서 상세 정보를 불러오지 못했습니다.',
+                );
+                setDetailedApplication(null);
+            } finally {
+                setLoading(false);
+            }
+        } else {
+            console.warn(
+                'historyItem에 sellerApplicationId가 없습니다. 상세 정보 조회를 건너뜁니다.',
+            );
             setLoading(false);
         }
+        setShowHistoryModal(true);
     };
 
     const handlePageChange = (newPage) => {
@@ -276,7 +287,9 @@ const ApplicationHistoryPage = () => {
 
         // 끝 부분 '...'
         if (endPage < totalPages - 1) {
-            visiblePages.push('...');
+            if (endPage < totalPages - 2) {
+                visiblePages.push('...');
+            }
         }
 
         return visiblePages;
@@ -310,6 +323,32 @@ const ApplicationHistoryPage = () => {
         }
         return `📜 전체 판매자 권한 이력 (총 ${totalElements}건)`;
     }, [userIdFromUrl, userNicknameFromUrl, searchKeyword, totalElements]);
+
+    // 날짜 포맷터 추가
+    const formatDate = (dateString) => {
+        if (!dateString) return 'N/A';
+        const date = new Date(dateString);
+        return date.toLocaleString('ko-KR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+        });
+    };
+
+    // 사업자등록번호 포맷터
+    const formatBusinessNumber = (num) => {
+        return num ? num.replace(/(\d{3})(\d{2})(\d{5})/, '$1-$2-$3') : 'N/A';
+    };
+
+    // 전화번호 포맷터
+    const formatPhoneNumber = (phone) => {
+        return phone
+            ? phone.replace(/(\d{2,3})(\d{3,4})(\d{4})/, '$1-$2-$3')
+            : 'N/A';
+    };
 
     if (loading) {
         return <LoadingSpinner message="판매자 이력 데이터를 불러오는 중..." />;
@@ -384,75 +423,75 @@ const ApplicationHistoryPage = () => {
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-700">
                             <thead className="bg-[#243447]">
-                                <tr>
-                                    <th className="px-2 py-2 w-16 text-center text-xs font-medium text-gray-300 uppercase tracking-wider min-w-[40px]">
-                                        이력
-                                        <br />
-                                        ID
-                                    </th>
-                                    <th className="px-2 py-2 w-16 text-center text-xs font-medium text-gray-300 uppercase tracking-wider min-w-[40px]">
-                                        유저
-                                        <br />
-                                        ID
-                                    </th>
-                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                        닉네임 (아이디)
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                        상태(사유)
-                                    </th>
-                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                        일시
-                                    </th>
-                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                        상세보기
-                                    </th>
-                                </tr>
+                            <tr>
+                                <th className="px-2 py-2 w-16 text-center text-xs font-medium text-gray-300 uppercase tracking-wider min-w-[40px]">
+                                    이력
+                                    <br />
+                                    ID
+                                </th>
+                                <th className="px-2 py-2 w-16 text-center text-xs font-medium text-gray-300 uppercase tracking-wider min-w-[40px]">
+                                    유저
+                                    <br />
+                                    ID
+                                </th>
+                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                    닉네임 (아이디)
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                    상태(사유)
+                                </th>
+                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                    일시
+                                </th>
+                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                    상세보기
+                                </th>
+                            </tr>
                             </thead>
                             <tbody className="bg-[#1a232f] divide-y divide-gray-700">
-                                {allHistory.map((history) => (
-                                    <tr key={history.id}>
-                                        <td className="px-3 py-3 whitespace-nowrap text-sm font-medium text-white">
-                                            {history.id}
-                                        </td>
-                                        <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-300">
-                                            {history.userId}
-                                        </td>
-                                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300 text-left">
-                                            {history.userNickname}
-                                            <br />({history.username})
-                                        </td>
-                                        <td className="px-4 py-3 whitespace-nowrap text-sm text-left text-gray-300">
-                                            {history.type === 'REJECTED' ||
-                                            history.type === 'REVOKED'
-                                                ? `${STATUS_LABELS[history.type]} (${history.reason || '사유 없음'})`
-                                                : STATUS_LABELS[history.type] ||
-                                                  history.type}
-                                        </td>
-                                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300 text-left">
-                                            {new Date(
-                                                history.createdAt,
-                                            ).toLocaleDateString()}{' '}
-                                            <br />(
-                                            {new Date(
-                                                history.createdAt,
-                                            ).toLocaleTimeString()}
-                                            )
-                                        </td>
-                                        <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
-                                            <Button
-                                                onClick={() =>
-                                                    handleViewUserHistory(
-                                                        history,
-                                                    )
-                                                }
-                                                className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 text-xs"
-                                            >
-                                                상세
-                                            </Button>
-                                        </td>
-                                    </tr>
-                                ))}
+                            {allHistory.map((history) => (
+                                <tr key={history.id}>
+                                    <td className="px-3 py-3 whitespace-nowrap text-sm font-medium text-white">
+                                        {history.id}
+                                    </td>
+                                    <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-300">
+                                        {history.userId}
+                                    </td>
+                                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300 text-left">
+                                        {history.userNickname}
+                                        <br />({history.username})
+                                    </td>
+                                    <td className="px-4 py-3 whitespace-nowrap text-sm text-left text-gray-300">
+                                        {history.type === 'REJECTED' ||
+                                        history.type === 'REVOKED'
+                                            ? `${STATUS_LABELS[history.type]} (${history.reason || '사유 없음'})`
+                                            : STATUS_LABELS[history.type] ||
+                                            history.type}
+                                    </td>
+                                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300 text-left">
+                                        {new Date(
+                                            history.createdAt,
+                                        ).toLocaleDateString()}{' '}
+                                        <br />(
+                                        {new Date(
+                                            history.createdAt,
+                                        ).toLocaleTimeString()}
+                                        )
+                                    </td>
+                                    <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
+                                        <Button
+                                            onClick={() =>
+                                                handleViewUserHistory(
+                                                    history,
+                                                )
+                                            }
+                                            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 text-xs"
+                                        >
+                                            상세
+                                        </Button>
+                                    </td>
+                                </tr>
+                            ))}
                             </tbody>
                         </table>
                         {/* 페이지네이션 */}
@@ -529,155 +568,136 @@ const ApplicationHistoryPage = () => {
                 )}
             </section>
 
-            {showHistoryModal && selectedUser && (
+            {/* 판매자 이력 상세 모달 */}
+            {showHistoryModal && selectedUserHistory && (
                 <Modal
                     isOpen={showHistoryModal}
                     onClose={() => setShowHistoryModal(false)}
-                    title={`'${selectedUser.username}' (${selectedUser.userNickname}) 님의 이력 상세`}
+                    title={`'${selectedUserHistory.username}' (${selectedUserHistory.userNickname}) 님의 이력 상세`}
                     size="large"
                     modalClassName="bg-[#1a232f]"
                 >
-                    {/* ✅ 1. 신청서 상세 정보 */}
+                    {/* 신청서 상세 정보 (API-04-07로 가져온 데이터) */}
                     <div className="mb-6">
                         <h3 className="text-white font-semibold mb-2">
                             신청서 상세 정보
                         </h3>
-
-                        {(() => {
-                            const application = selectedUser?.applicationId
-                                ? sellerRequestList.find(
-                                      (r) =>
-                                          r.id === selectedUser.applicationId,
-                                  )
-                                : null;
-
-                            // 🛠 포맷팅 유틸
-                            const formatBusinessNumber = (num) => {
-                                return (
-                                    num?.replace(
-                                        /(\d{3})(\d{2})(\d{5})/,
-                                        '$1-$2-$3',
-                                    ) || '-'
-                                );
-                            };
-
-                            const formatPhoneNumber = (phone) => {
-                                return (
-                                    phone?.replace(
-                                        /(\d{2,3})(\d{3,4})(\d{4})/,
-                                        '$1-$2-$3',
-                                    ) || '-'
-                                );
-                            };
-
-                            const formatDate = (dateStr) => {
-                                return new Date(dateStr).toLocaleString();
-                            };
-
-                            return application ? (
-                                <div className="text-gray-300 text-sm space-y-1 border border-gray-600 rounded p-4 bg-[#1a232f]">
-                                    <p>
-                                        <strong>신청서 ID:</strong>{' '}
-                                        {application.id}
-                                    </p>
-                                    <p>
-                                        <strong>사업자명:</strong>{' '}
-                                        {application.businessName}
-                                    </p>
-                                    <p>
-                                        <strong>대표자명:</strong>{' '}
-                                        {application.ceoName}
-                                    </p>
-                                    <p>
-                                        <strong>사업자번호:</strong>{' '}
-                                        {formatBusinessNumber(
-                                            application.businessNumber,
-                                        )}
-                                    </p>
-                                    <p>
-                                        <strong>연락처:</strong>{' '}
-                                        {formatPhoneNumber(
-                                            application.phoneNumber,
-                                        )}
-                                    </p>
-                                    <p>
-                                        <strong>사업장 주소:</strong>{' '}
-                                        {application.businessAddress}
-                                    </p>
-                                    <p>
-                                        <strong>신청 일시:</strong>{' '}
-                                        {formatDate(application.createdAt)}
-                                    </p>
-                                </div>
-                            ) : (
-                                <p className="text-gray-400">
-                                    신청서 정보를 찾을 수 없습니다.
+                        {detailedApplication ? (
+                            <div className="text-gray-300 text-sm space-y-1 border border-gray-600 rounded p-4 bg-[#1a232f]">
+                                <p>
+                                    <strong>신청서 ID:</strong>{' '}
+                                    {detailedApplication.applicationId}
                                 </p>
-                            );
-                        })()}
+                                <p>
+                                    <strong>업체명:</strong>{' '}
+                                    {detailedApplication.companyName}
+                                </p>
+                                <p>
+                                    <strong>사업자번호:</strong>{' '}
+                                    {formatBusinessNumber(
+                                        detailedApplication.businessNumber,
+                                    )}
+                                </p>
+                                <p>
+                                    <strong>대표자명:</strong>{' '}
+                                    {detailedApplication.representativeName}
+                                </p>
+                                <p>
+                                    <strong>담당자 연락처:</strong>{' '}
+                                    {formatPhoneNumber(
+                                        detailedApplication.representativePhone,
+                                    )}
+                                </p>
+                                {detailedApplication.uploadedFileUrl && (
+                                    <p>
+                                        <strong>제출 서류:</strong>{' '}
+                                        <a
+                                            href={
+                                                detailedApplication.uploadedFileUrl
+                                            }
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-blue-400 hover:underline"
+                                        >
+                                            보기
+                                        </a>
+                                    </p>
+                                )}
+                                <p>
+                                    <strong>신청 일시:</strong>{' '}
+                                    {formatDate(detailedApplication.createdAt)}
+                                </p>
+                                <p>
+                                    <strong>최종 수정 일시:</strong>{' '}
+                                    {formatDate(detailedApplication.updatedAt)}
+                                </p>
+                                <p>
+                                    <strong>현재 상태:</strong>{' '}
+                                    {STATUS_LABELS[
+                                        detailedApplication.status
+                                        ] || detailedApplication.status}
+                                </p>
+                            </div>
+                        ) : (
+                            <p className="text-gray-400">
+                                이력 항목에 연결된 상세 신청서 정보가 없거나,
+                                불러오는데 실패했습니다.
+                            </p>
+                        )}
                     </div>
 
-                    {/* ✅ 2. 최근 이력 5건 */}
+                    {/* 선택된 이력 항목 */}
                     <div className="overflow-x-auto mb-4">
                         <h4 className="text-white font-semibold mb-2">
-                            최근 이력 5건
+                            선택된 이력 항목
                         </h4>
-                        <table className="min-w-full divide-y divide-gray-700">
+                        <table className="min-w-full divide-y divide-gray-700 text-left">
                             <thead className="bg-[#243447]">
-                                <tr>
-                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-300">
-                                        이력 ID
-                                    </th>
-                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-300">
-                                        상태
-                                    </th>
-                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-300">
-                                        사유
-                                    </th>
-                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-300">
-                                        일시
-                                    </th>
-                                </tr>
+                            <tr>
+                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-300">
+                                    이력 ID
+                                </th>
+                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-300">
+                                    상태
+                                </th>
+                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-300">
+                                    사유
+                                </th>
+                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-300">
+                                    일시
+                                </th>
+                            </tr>
                             </thead>
                             <tbody className="bg-[#1a232f] divide-y divide-gray-700">
-                                {userHistory.slice(0, 5).map((h) => (
-                                    <tr
-                                        key={h.id}
-                                        className="cursor-pointer hover:bg-gray-800"
-                                        onClick={() => setSelectedUser(h)}
-                                    >
-                                        <td className="px-4 py-3 text-sm text-white">
-                                            {h.id}
-                                        </td>
-                                        <td className="px-4 py-3 text-sm text-gray-300">
-                                            {STATUS_LABELS[h.type] || h.type}
-                                        </td>
-                                        <td className="px-4 py-3 text-sm text-gray-300">
-                                            {h.reason || 'N/A'}
-                                        </td>
-                                        <td className="px-4 py-3 text-sm text-gray-300">
-                                            {new Date(
-                                                h.createdAt,
-                                            ).toLocaleString()}
-                                        </td>
-                                    </tr>
-                                ))}
+                            {/* 선택된 이력 항목만 표시 */}
+                            <tr className="cursor-pointer hover:bg-gray-800">
+                                <td className="px-4 py-3 text-sm text-white">
+                                    {selectedUserHistory.id}
+                                </td>
+                                <td className="px-4 py-3 text-sm text-gray-300">
+                                    {STATUS_LABELS[
+                                        selectedUserHistory.type
+                                        ] || selectedUserHistory.type}
+                                </td>
+                                <td className="px-4 py-3 text-sm text-gray-300">
+                                    {selectedUserHistory.reason || 'N/A'}
+                                </td>
+                                <td className="px-4 py-3 text-sm text-gray-300">
+                                    {new Date(
+                                        selectedUserHistory.createdAt,
+                                    ).toLocaleString()}
+                                </td>
+                            </tr>
                             </tbody>
                         </table>
                     </div>
 
-                    {/* ✅ 3. 전체 이력 보기 버튼 */}
                     <div className="mt-4 text-right">
                         <button
                             className="bg-blue-600 text-white text-sm px-4 py-2 rounded hover:bg-blue-700"
-                            onClick={() => {
-                                navigate(
-                                    `/admin/applications?userId=${selectedUser.userId}`,
-                                );
-                                setShowHistoryModal(false);
-                            }}
+                            onClick={() => setShowHistoryModal(false)}
                         >
-                            전체 이력 보기 →
+                            닫기
                         </button>
                     </div>
                 </Modal>
