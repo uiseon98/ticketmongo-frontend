@@ -645,22 +645,22 @@ const AdminDashboard = () => {
                                 <table className="min-w-full divide-y divide-gray-700">
                                     <thead className="bg-[#243447]">
                                         <tr>
-                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                            <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
                                                 유저 ID
                                             </th>
-                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                            <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
                                                 아이디
                                             </th>
-                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                            <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
                                                 닉네임
                                             </th>
-                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                            <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
                                                 타입
                                             </th>
-                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                            <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
                                                 일시
                                             </th>
-                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                            <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
                                                 액션
                                             </th>
                                         </tr>
@@ -687,7 +687,7 @@ const AdminDashboard = () => {
                                                         result.createdAt,
                                                     )}
                                                 </td>
-                                                <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
+                                                <td className="px-4 py-3 whitespace-nowrap text-center text-sm font-medium">
                                                     <Button
                                                         onClick={() => {
                                                             setShowSearchModal(
@@ -697,7 +697,7 @@ const AdminDashboard = () => {
                                                                 `/admin/history?userId=${result.userId}`,
                                                             );
                                                         }}
-                                                        className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 text-xs"
+                                                        className="bg-purple-500 hover:bg-purple-700 text-white px-3 py-1 text-xs"
                                                     >
                                                         이력 보기
                                                     </Button>
