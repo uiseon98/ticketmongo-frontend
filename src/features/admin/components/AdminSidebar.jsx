@@ -35,7 +35,7 @@ const AdminSidebar = () => {
                     }
                 >
                     <img
-                        src="/admin-vector-03.svg" // 판매자/승인 관련 아이콘
+                        src="/admin-vector-01.svg" // 판매자/승인 관련 아이콘
                         alt="Seller Approval Icon"
                         className="w-6 h-6"
                     />
@@ -51,7 +51,7 @@ const AdminSidebar = () => {
                     }
                 >
                     <img
-                        src="/admin-vector-04.svg" // 판매자 관리 관련 아이콘 (임시)
+                        src="/admin-vector-02.svg" // 판매자 관리 관련 아이콘 (임시)
                         alt="Seller Management Icon"
                         className="w-6 h-6"
                     />
@@ -67,7 +67,7 @@ const AdminSidebar = () => {
                     }
                 >
                     <img
-                        src="/admin-vector-01.svg" // 이력/통계 관련 아이콘 (임시)
+                        src="/admin-vector-03.svg" // 이력/통계 관련 아이콘 (임시)
                         alt="Application History Icon"
                         className="w-6 h-6"
                     />
@@ -83,7 +83,7 @@ const AdminSidebar = () => {
                     }
                 >
                     <img
-                        src="/admin-vector-02.svg" // 설정 관련 아이콘 (임시)
+                        src="/admin-vector-04.svg" // 설정 관련 아이콘 (임시)
                         alt="Settings Icon"
                         className="w-6 h-6"
                     />

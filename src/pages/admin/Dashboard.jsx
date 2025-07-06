@@ -263,7 +263,7 @@ const AdminDashboard = () => {
                             Pending Seller Applications{' '}
                         </div>
                         <img
-                            src="/admin-vector-03.svg"
+                            src="/admin-vector-01.svg"
                             alt="Pending Applications Icon"
                             className="w-6 h-6 mt-2"
                         />
@@ -281,7 +281,7 @@ const AdminDashboard = () => {
                             Current Sellers{' '}
                         </div>
                         <img
-                            src="/admin-vector-00.svg"
+                            src="/admin-vector-02.svg"
                             alt="Current Sellers Icon"
                             className="w-6 h-6 mt-2"
                         />
@@ -292,26 +292,26 @@ const AdminDashboard = () => {
                         </div>
                     </div>
                 </div>
-                {/* Recent Activities 카드 */}
-                <div className="rounded-lg border-solid border-[#334a66] border p-6 flex flex-col gap-2 items-start justify-start flex-1 min-w-[158px] relative">
-                    <div className="flex flex-col gap-0 items-start justify-start self-stretch shrink-0 relative">
-                        <div className="text-[#ffffff] text-left font-['Inter-Medium',_sans-serif] text-base leading-6 font-medium relative self-stretch">
-                            Recent Activities{' '}
-                        </div>
-                        <img
-                            src="/admin-vector-01.svg"
-                            alt="Recent Activities Icon"
-                            className="w-6 h-6 mt-2"
-                        />
-                    </div>
-                    <div className="flex flex-col gap-0 items-start justify-start self-stretch shrink-0 relative">
-                        <div className="text-[#ffffff] text-left font-['Inter-Bold',_sans-serif] text-2xl leading-[30px] font-bold relative self-stretch">
-                            {recentActivities.length > 0
-                                ? recentActivities.length
-                                : 0}{' '}
-                        </div>
-                    </div>
-                </div>
+                {/*/!* Recent Activities 카드 *!/*/}
+                {/*<div className="rounded-lg border-solid border-[#334a66] border p-6 flex flex-col gap-2 items-start justify-start flex-1 min-w-[158px] relative">*/}
+                {/*    <div className="flex flex-col gap-0 items-start justify-start self-stretch shrink-0 relative">*/}
+                {/*        <div className="text-[#ffffff] text-left font-['Inter-Medium',_sans-serif] text-base leading-6 font-medium relative self-stretch">*/}
+                {/*            Recent Activities{' '}*/}
+                {/*        </div>*/}
+                {/*        <img*/}
+                {/*            src="/admin-vector-01.svg"*/}
+                {/*            alt="Recent Activities Icon"*/}
+                {/*            className="w-6 h-6 mt-2"*/}
+                {/*        />*/}
+                {/*    </div>*/}
+                {/*    <div className="flex flex-col gap-0 items-start justify-start self-stretch shrink-0 relative">*/}
+                {/*        <div className="text-[#ffffff] text-left font-['Inter-Bold',_sans-serif] text-2xl leading-[30px] font-bold relative self-stretch">*/}
+                {/*            {recentActivities.length > 0*/}
+                {/*                ? recentActivities.length*/}
+                {/*                : 0}{' '}*/}
+                {/*        </div>*/}
+                {/*    </div>*/}
+                {/*</div>*/}
             </div>
 
             {/* Quick Actions 섹션 */}
