@@ -11,6 +11,7 @@ const SellerConcertManagementPage = () => {
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [selectedConcert, setSelectedConcert] = useState(null);
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
 
     // 판매자 ID
     const sellerId = user?.userId;
@@ -34,7 +35,7 @@ const SellerConcertManagementPage = () => {
         setShowCreateModal(false);
         setShowEditModal(false);
         setSelectedConcert(null);
-        // SellerConcertList에서 자동으로 목록이 새로고침됨
+        setRefreshTrigger((prev) => prev + 1);
     };
 
     // 모달 닫기
@@ -86,6 +87,7 @@ const SellerConcertManagementPage = () => {
                     sellerId={sellerId}
                     onCreateConcert={handleCreateConcert}
                     onEditConcert={handleEditConcert}
+                    refreshTrigger={refreshTrigger}
                 />
             </div>
 
