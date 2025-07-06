@@ -252,7 +252,13 @@ const ApplicationHistoryPage = () => {
             }
 
             // 검색어가 숫자인지 확인하여 userId로 처리할지 keyword로 처리할지 결정
-            if (searchTerm && !isNaN(searchTerm) && Number(searchTerm) > 0) {
+            const numericValue = Number(searchTerm);
+            if (
+                searchTerm &&
+                !isNaN(searchTerm) &&
+                numericValue > 0 &&
+                numericValue <= Number.MAX_SAFE_INTEGER
+            ) {
                 // 숫자로만 이루어진 검색어이고 0보다 큰 경우 userId로 간주
                 newSearchParams.set('userId', searchTerm);
                 // 기존 keyword 파라미터는 제거 (혹시 남아있을 경우)
