@@ -38,8 +38,8 @@ const ApplicationHistoryPage = () => {
     const initialSearchKeyword = userNicknameFromUrl
         ? userNicknameFromUrl
         : userIdFromUrl
-            ? userIdFromUrl
-            : urlKeyword || '';
+          ? userIdFromUrl
+          : urlKeyword || '';
 
     const [allHistory, setAllHistory] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -124,8 +124,8 @@ const ApplicationHistoryPage = () => {
         const newSearchValFromUrl = currentUrlNickname
             ? currentUrlNickname
             : currentUrlUserId
-                ? currentUrlUserId
-                : currentUrlKeyword || '';
+              ? currentUrlUserId
+              : currentUrlKeyword || '';
 
         if (searchKeyword !== newSearchValFromUrl) {
             setSearchKeyword(newSearchValFromUrl);
@@ -423,75 +423,75 @@ const ApplicationHistoryPage = () => {
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-700">
                             <thead className="bg-[#243447]">
-                            <tr>
-                                <th className="px-2 py-2 w-16 text-center text-xs font-medium text-gray-300 uppercase tracking-wider min-w-[40px]">
-                                    이력
-                                    <br />
-                                    ID
-                                </th>
-                                <th className="px-2 py-2 w-16 text-center text-xs font-medium text-gray-300 uppercase tracking-wider min-w-[40px]">
-                                    유저
-                                    <br />
-                                    ID
-                                </th>
-                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                    닉네임 (아이디)
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                    상태(사유)
-                                </th>
-                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                    일시
-                                </th>
-                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                    상세보기
-                                </th>
-                            </tr>
+                                <tr>
+                                    <th className="px-2 py-2 w-16 text-center text-xs font-medium text-gray-300 uppercase tracking-wider min-w-[40px]">
+                                        이력
+                                        <br />
+                                        ID
+                                    </th>
+                                    <th className="px-2 py-2 w-16 text-center text-xs font-medium text-gray-300 uppercase tracking-wider min-w-[40px]">
+                                        유저
+                                        <br />
+                                        ID
+                                    </th>
+                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                        닉네임 (아이디)
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                        상태(사유)
+                                    </th>
+                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                        일시
+                                    </th>
+                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                        상세보기
+                                    </th>
+                                </tr>
                             </thead>
                             <tbody className="bg-[#1a232f] divide-y divide-gray-700">
-                            {allHistory.map((history) => (
-                                <tr key={history.id}>
-                                    <td className="px-3 py-3 whitespace-nowrap text-sm font-medium text-white">
-                                        {history.id}
-                                    </td>
-                                    <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-300">
-                                        {history.userId}
-                                    </td>
-                                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300 text-left">
-                                        {history.userNickname}
-                                        <br />({history.username})
-                                    </td>
-                                    <td className="px-4 py-3 whitespace-nowrap text-sm text-left text-gray-300">
-                                        {history.type === 'REJECTED' ||
-                                        history.type === 'REVOKED'
-                                            ? `${STATUS_LABELS[history.type]} (${history.reason || '사유 없음'})`
-                                            : STATUS_LABELS[history.type] ||
-                                            history.type}
-                                    </td>
-                                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300 text-left">
-                                        {new Date(
-                                            history.createdAt,
-                                        ).toLocaleDateString()}{' '}
-                                        <br />(
-                                        {new Date(
-                                            history.createdAt,
-                                        ).toLocaleTimeString()}
-                                        )
-                                    </td>
-                                    <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
-                                        <Button
-                                            onClick={() =>
-                                                handleViewUserHistory(
-                                                    history,
-                                                )
-                                            }
-                                            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 text-xs"
-                                        >
-                                            상세
-                                        </Button>
-                                    </td>
-                                </tr>
-                            ))}
+                                {allHistory.map((history) => (
+                                    <tr key={history.id}>
+                                        <td className="px-3 py-3 whitespace-nowrap text-sm font-medium text-white">
+                                            {history.id}
+                                        </td>
+                                        <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-300">
+                                            {history.userId}
+                                        </td>
+                                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300 text-left">
+                                            {history.userNickname}
+                                            <br />({history.username})
+                                        </td>
+                                        <td className="px-4 py-3 whitespace-nowrap text-sm text-left text-gray-300">
+                                            {history.type === 'REJECTED' ||
+                                            history.type === 'REVOKED'
+                                                ? `${STATUS_LABELS[history.type]} (${history.reason || '사유 없음'})`
+                                                : STATUS_LABELS[history.type] ||
+                                                  history.type}
+                                        </td>
+                                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300 text-left">
+                                            {new Date(
+                                                history.createdAt,
+                                            ).toLocaleDateString()}{' '}
+                                            <br />(
+                                            {new Date(
+                                                history.createdAt,
+                                            ).toLocaleTimeString()}
+                                            )
+                                        </td>
+                                        <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
+                                            <Button
+                                                onClick={() =>
+                                                    handleViewUserHistory(
+                                                        history,
+                                                    )
+                                                }
+                                                className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 text-xs"
+                                            >
+                                                상세
+                                            </Button>
+                                        </td>
+                                    </tr>
+                                ))}
                             </tbody>
                         </table>
                         {/* 페이지네이션 */}
@@ -635,7 +635,7 @@ const ApplicationHistoryPage = () => {
                                     <strong>현재 상태:</strong>{' '}
                                     {STATUS_LABELS[
                                         detailedApplication.status
-                                        ] || detailedApplication.status}
+                                    ] || detailedApplication.status}
                                 </p>
                             </div>
                         ) : (
@@ -653,41 +653,41 @@ const ApplicationHistoryPage = () => {
                         </h4>
                         <table className="min-w-full divide-y divide-gray-700 text-left">
                             <thead className="bg-[#243447]">
-                            <tr>
-                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-300">
-                                    이력 ID
-                                </th>
-                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-300">
-                                    상태
-                                </th>
-                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-300">
-                                    사유
-                                </th>
-                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-300">
-                                    일시
-                                </th>
-                            </tr>
+                                <tr>
+                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-300">
+                                        이력 ID
+                                    </th>
+                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-300">
+                                        상태
+                                    </th>
+                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-300">
+                                        사유
+                                    </th>
+                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-300">
+                                        일시
+                                    </th>
+                                </tr>
                             </thead>
                             <tbody className="bg-[#1a232f] divide-y divide-gray-700">
-                            {/* 선택된 이력 항목만 표시 */}
-                            <tr className="cursor-pointer hover:bg-gray-800">
-                                <td className="px-4 py-3 text-sm text-white">
-                                    {selectedUserHistory.id}
-                                </td>
-                                <td className="px-4 py-3 text-sm text-gray-300">
-                                    {STATUS_LABELS[
-                                        selectedUserHistory.type
+                                {/* 선택된 이력 항목만 표시 */}
+                                <tr className="cursor-pointer hover:bg-gray-800">
+                                    <td className="px-4 py-3 text-sm text-white">
+                                        {selectedUserHistory.id}
+                                    </td>
+                                    <td className="px-4 py-3 text-sm text-gray-300">
+                                        {STATUS_LABELS[
+                                            selectedUserHistory.type
                                         ] || selectedUserHistory.type}
-                                </td>
-                                <td className="px-4 py-3 text-sm text-gray-300">
-                                    {selectedUserHistory.reason || 'N/A'}
-                                </td>
-                                <td className="px-4 py-3 text-sm text-gray-300">
-                                    {new Date(
-                                        selectedUserHistory.createdAt,
-                                    ).toLocaleString()}
-                                </td>
-                            </tr>
+                                    </td>
+                                    <td className="px-4 py-3 text-sm text-gray-300">
+                                        {selectedUserHistory.reason || 'N/A'}
+                                    </td>
+                                    <td className="px-4 py-3 text-sm text-gray-300">
+                                        {new Date(
+                                            selectedUserHistory.createdAt,
+                                        ).toLocaleString()}
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
