@@ -481,14 +481,35 @@ const ReviewList = ({
                             관람 후
                         </span>
                     </div>
+
+                    {/* 추가: 리뷰 작성 버튼을 빈 상태에서도 표시 */}
+                    <div
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '12px',
+                        }}
+                    >
+                        {currentUserId && (
+                            <button
+                                onClick={onCreateReview}
+                                style={{
+                                    padding: '6px 12px',
+                                    backgroundColor: '#3b82f6',
+                                    color: '#ffffff',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    fontSize: '12px',
+                                    cursor: 'pointer',
+                                }}
+                            >
+                                ✍️ 리뷰 작성
+                            </button>
+                        )}
+                    </div>
                 </div>
 
-                <div
-                    style={{
-                        textAlign: 'center',
-                        padding: '40px 20px',
-                    }}
-                >
+                <div style={{ textAlign: 'center', padding: '40px 20px' }}>
                     <div style={{ fontSize: '48px', marginBottom: '16px' }}>
                         📝
                     </div>
@@ -501,19 +522,33 @@ const ReviewList = ({
                     >
                         아직 작성된 후기가 없습니다
                     </h3>
-                    <p
-                        style={{
-                            color: '#9ca3af',
-                            fontSize: '14px',
-                        }}
-                    >
+                    <p style={{ color: '#9ca3af', fontSize: '14px' }}>
                         첫 번째 후기를 작성해보세요!
                     </p>
+
+                    {/* 추가: 빈 상태에서도 리뷰 작성 유도 버튼 */}
+                    {currentUserId && (
+                        <button
+                            onClick={onCreateReview}
+                            style={{
+                                marginTop: '16px',
+                                padding: '8px 16px',
+                                backgroundColor: '#3b82f6',
+                                color: '#ffffff',
+                                border: 'none',
+                                borderRadius: '6px',
+                                fontSize: '14px',
+                                cursor: 'pointer',
+                                fontWeight: '500',
+                            }}
+                        >
+                            ✍️ 첫 번째 리뷰 작성하기
+                        </button>
+                    )}
                 </div>
             </div>
         );
     }
-
     // ===== 메인 렌더링 (정상 상태) =====
 
     return (
@@ -698,18 +733,43 @@ const ReviewList = ({
                         </h4>
 
                         {/* 리뷰 내용 */}
-                        <p
-                            style={{
-                                fontSize: compact ? '13px' : '14px',
-                                color: '#6b7280',
-                                lineHeight: '1.5',
-                                margin: '0',
-                            }}
-                        >
-                            {review.description.length > 100 && !compact
-                                ? review.description.substring(0, 100) + '...'
-                                : review.description}
-                        </p>
+                        <div>
+                            <p
+                                style={{
+                                    fontSize: compact ? '13px' : '14px',
+                                    color: '#6b7280',
+                                    lineHeight: '1.5',
+                                    margin: '0',
+                                }}
+                            >
+                                {review.description.length > 100 &&
+                                !compact &&
+                                !expandedItems?.has(review.id)
+                                    ? review.description.substring(0, 100) +
+                                      '...'
+                                    : review.description}
+                            </p>
+                            {review.description.length > 100 && !compact && (
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onReviewClick(review);
+                                    }}
+                                    style={{
+                                        color: '#3b82f6',
+                                        fontSize: '12px',
+                                        background: 'none',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        marginTop: '4px',
+                                    }}
+                                >
+                                    {expandedItems?.has(review.id)
+                                        ? '접기'
+                                        : '더보기'}
+                                </button>
+                            )}
+                        </div>
                         {currentUserId && currentUserId === review.userId && (
                             <div
                                 style={{
