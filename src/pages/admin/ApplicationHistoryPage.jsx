@@ -69,7 +69,6 @@ const ApplicationHistoryPage = () => {
     const [currentSearchKeyword, setCurrentSearchKeyword] =
         useState(initialSearchKeyword);
 
-    // ApplicationHistoryPage.jsx
     const fetchAllSellerHistory = useCallback(async () => {
         setLoading(true);
         setError(null);
