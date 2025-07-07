@@ -32,14 +32,14 @@ const AISummaryRegenerationSection = ({
     const COOLDOWN_SECONDS = 30; // 30초 쿨다운
 
     // 쿨다운 타이머 효과
-        useEffect(() => {
-            if (cooldownRemaining > 0) {
-                const timer = setTimeout(() => {
-                    setCooldownRemaining(prev => prev - 1);
-                }, 1000);
-                return () => clearTimeout(timer);
-            }
-        }, [cooldownRemaining]);
+    useEffect(() => {
+        if (cooldownRemaining > 0) {
+            const timer = setTimeout(() => {
+                setCooldownRemaining((prev) => prev - 1);
+            }, 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [cooldownRemaining]);
 
     const handleRegenerate = useCallback(async () => {
         if (isRegenerating || cooldownRemaining > 0) return;
@@ -127,13 +127,14 @@ const AISummaryRegenerationSection = ({
         setNewSummary(null);
     }, []);
 
-   // 버튼 비활성화 조건
+    // 버튼 비활성화 조건
     const isButtonDisabled = isRegenerating || cooldownRemaining > 0;
 
     // 버튼 텍스트
     const getButtonText = () => {
         if (isRegenerating) return 'AI 요약 생성 중...';
-        if (cooldownRemaining > 0) return `${cooldownRemaining}초 후 재시도 가능`;
+        if (cooldownRemaining > 0)
+            return `${cooldownRemaining}초 후 재시도 가능`;
         return 'AI 요약 재생성';
     };
 
@@ -217,7 +218,10 @@ const AISummaryRegenerationSection = ({
 
     // ===== 렌더링 =====
     return (
-        <div className={`ai-summary-regeneration ${className}`} style={sectionStyles}>
+        <div
+            className={`ai-summary-regeneration ${className}`}
+            style={sectionStyles}
+        >
             {/* 헤더 */}
             <div style={headerStyles}>
                 <h3 style={titleStyles}>
@@ -239,19 +243,28 @@ const AISummaryRegenerationSection = ({
             </div>
 
             {/* 설명 텍스트 */}
-            <div style={{
-                marginBottom: '20px',
-                fontSize: '14px',
-                color: '#6b7280',
-            }}>
+            <div
+                style={{
+                    marginBottom: '20px',
+                    fontSize: '14px',
+                    color: '#6b7280',
+                }}
+            >
                 <p>
                     현재 콘서트의 리뷰를 바탕으로 AI 요약을 새로 생성합니다.
                     생성된 AI 요약은 콘서트 상세 정보에 바로 반영이 됩니다.
                     유효한 리뷰가 충분히 있어야 생성 가능합니다.
                 </p>
                 {cooldownRemaining > 0 && (
-                    <p style={{ color: '#f59e0b', fontSize: '13px', marginTop: '4px' }}>
-                        ⏰ 연속 요청 방지를 위해 {cooldownRemaining}초 후 재시도할 수 있습니다.
+                    <p
+                        style={{
+                            color: '#f59e0b',
+                            fontSize: '13px',
+                            marginTop: '4px',
+                        }}
+                    >
+                        ⏰ 연속 요청 방지를 위해 {cooldownRemaining}초 후
+                        재시도할 수 있습니다.
                     </p>
                 )}
             </div>

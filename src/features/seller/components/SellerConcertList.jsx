@@ -506,7 +506,9 @@ const SellerConcertList = ({
                                                             return;
                                                         }
                                                         onEditConcert &&
-                                                            onEditConcert(concert);
+                                                            onEditConcert(
+                                                                concert,
+                                                            );
                                                     }}
                                                     className="p-1 text-blue-400 hover:bg-blue-900 hover:bg-opacity-30 rounded transition-colors"
                                                     title="수정"
@@ -545,7 +547,11 @@ const SellerConcertList = ({
                                     {/* AI 요약 재생성 버튼 */}
                                     <div className="col-span-1">
                                         <button
-                                            onClick={() => handleAiSummaryRegeneration(concert)}
+                                            onClick={() =>
+                                                handleAiSummaryRegeneration(
+                                                    concert,
+                                                )
+                                            }
                                             className={`p-2 rounded transition-colors ${
                                                 concert.status === 'CANCELLED'
                                                     ? 'text-gray-500 cursor-not-allowed'
@@ -556,7 +562,9 @@ const SellerConcertList = ({
                                                     ? '취소된 콘서트는 AI 요약을 재생성할 수 없습니다'
                                                     : 'AI 요약 재생성'
                                             }
-                                            disabled={concert.status === 'CANCELLED'}
+                                            disabled={
+                                                concert.status === 'CANCELLED'
+                                            }
                                         >
                                             <Bot size={16} />
                                         </button>
@@ -687,7 +695,9 @@ const SellerConcertList = ({
                             <AISummaryRegenerationSection
                                 sellerId={sellerId}
                                 concertId={selectedConcertForAi.concertId}
-                                currentAiSummary={selectedConcertForAi.aiSummary}
+                                currentAiSummary={
+                                    selectedConcertForAi.aiSummary
+                                }
                                 onSummaryUpdated={(newSummary) => {
                                     // AI 요약이 성공적으로 업데이트되면 목록 새로고침
                                     fetchConcerts();
