@@ -11,8 +11,12 @@ import {
     Search,
     Filter,
     RefreshCw,
+    Bot,
+    X,
 } from 'lucide-react';
 import { concertService } from '../../../features/concert/services/concertService.js';
+import AISummaryRegenerationSection from './AISummaryRegenerationSection.jsx';
+
 /**
  * SellerConcertList.jsx (다크 테마 버전)
  *
@@ -21,6 +25,7 @@ import { concertService } from '../../../features/concert/services/concertServic
  * - 페이징, 정렬, 필터링 기능 제공
  * - 콘서트 생성, 수정, 삭제, 상태 관리
  * - 포스터 이미지 업데이트 기능
+ * - AI 요약 재생성 기능
  */
 const SellerConcertList = ({
     sellerId,
@@ -32,6 +37,10 @@ const SellerConcertList = ({
     const [concerts, setConcerts] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+
+    // AI 요약 모달 상태
+    const [showAiSummaryModal, setShowAiSummaryModal] = useState(false);
+    const [selectedConcertForAi, setSelectedConcertForAi] = useState(null);
 
     // 페이징 상태 (BE와 동일한 기본값)
     const [pagination, setPagination] = useState({
@@ -184,6 +193,24 @@ const SellerConcertList = ({
     const handleStatusFilter = (status) => {
         setFilters((prev) => ({ ...prev, status }));
         setPagination((prev) => ({ ...prev, page: 0 })); // 첫 페이지로 리셋
+    };
+
+    // AI 요약 재생성 핸들러
+    const handleAiSummaryRegeneration = (concert) => {
+        // 취소된 콘서트는 AI 요약 재생성 불가
+        if (concert.status === 'CANCELLED') {
+            alert('취소된 콘서트는 AI 요약을 재생성할 수 없습니다.');
+            return;
+        }
+
+        setSelectedConcertForAi(concert);
+        setShowAiSummaryModal(true);
+    };
+
+    // AI 요약 모달 닫기 핸들러
+    const handleCloseAiSummaryModal = () => {
+        setShowAiSummaryModal(false);
+        setSelectedConcertForAi(null);
     };
 
     // ====== useEffect - 데이터 로딩 ======
@@ -356,7 +383,7 @@ const SellerConcertList = ({
                                 </div>
                                 <div className="col-span-2">
                                     <span className="text-gray-300">
-                                        등록일
+                                        공연일시
                                     </span>
                                 </div>
                                 <div className="col-span-2">장소</div>
@@ -365,6 +392,8 @@ const SellerConcertList = ({
                                     <span className="text-gray-300">상태</span>
                                 </div>
                                 <div className="col-span-1">작업</div>
+                                <div className="col-span-1">등록일</div>
+                                <div className="col-span-1">AI 요약</div>
                             </div>
                         </div>
 
@@ -407,10 +436,29 @@ const SellerConcertList = ({
 
                                     {/* 공연일시 */}
                                     <div className="col-span-2">
-                                        <span className="text-gray-300">
-                                            공연일시
-                                        </span>
+                                        <div className="flex items-center gap-1 text-sm">
+                                            <Calendar
+                                                size={14}
+                                                className="text-gray-400"
+                                            />
+                                            <span className="text-gray-200">
+                                                {formatDate(
+                                                    concert.concertDate,
+                                                )}
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center gap-1 text-sm text-gray-300 mt-1">
+                                            <Clock
+                                                size={14}
+                                                className="text-gray-400"
+                                            />
+                                            <span>
+                                                {concert.startTime} -{' '}
+                                                {concert.endTime}
+                                            </span>
+                                        </div>
                                     </div>
+
                                     {/* 장소 */}
                                     <div className="col-span-2">
                                         <div className="flex items-center gap-1 text-sm">
@@ -442,57 +490,84 @@ const SellerConcertList = ({
                                         {getStatusBadge(concert.status)}
                                     </div>
 
-                                    {/* 등록일 */}
+                                    {/* 작업 버튼들 */}
                                     <div className="col-span-2">
-                                        <div className="text-sm">
-                                            <span className="text-gray-300">
-                                                {formatDateTime(
-                                                    concert.updatedAt ||
-                                                        concert.createdAt,
-                                                )}
-                                            </span>
-                                            <div className="text-xs text-gray-400 mt-0.5">
-                                                {concert.updatedAt &&
-                                                concert.updatedAt !==
-                                                    concert.createdAt
-                                                    ? '수정됨'
-                                                    : '등록됨'}
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex gap-1">
+                                                <button
+                                                    onClick={() => {
+                                                        if (
+                                                            concert.status ===
+                                                            'CANCELLED'
+                                                        ) {
+                                                            alert(
+                                                                '취소된 콘서트는 수정할 수 없습니다.',
+                                                            );
+                                                            return;
+                                                        }
+                                                        onEditConcert &&
+                                                            onEditConcert(
+                                                                concert,
+                                                            );
+                                                    }}
+                                                    className="p-1 text-blue-400 hover:bg-blue-900 hover:bg-opacity-30 rounded transition-colors"
+                                                    title="수정"
+                                                >
+                                                    <Edit size={16} />
+                                                </button>
+                                                <button
+                                                    onClick={() =>
+                                                        deleteConcert(concert)
+                                                    }
+                                                    className="p-1 text-red-400 hover:bg-red-900 hover:bg-opacity-30 rounded transition-colors"
+                                                    title="삭제"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </div>
+
+                                            <div className="text-sm">
+                                                <span className="text-gray-300">
+                                                    {formatDateTime(
+                                                        concert.updatedAt ||
+                                                            concert.createdAt,
+                                                    )}
+                                                </span>
+                                                <div className="text-xs text-gray-400 mt-0.5">
+                                                    {concert.updatedAt &&
+                                                    concert.updatedAt !==
+                                                        concert.createdAt
+                                                        ? '수정됨'
+                                                        : '등록됨'}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
 
-                                    {/* 작업 버튼들 */}
+                                    {/* AI 요약 재생성 버튼 */}
                                     <div className="col-span-1">
-                                        <div className="flex gap-1">
-                                            <button
-                                                onClick={() => {
-                                                    if (
-                                                        concert.status ===
-                                                        'CANCELLED'
-                                                    ) {
-                                                        alert(
-                                                            '취소된 콘서트는 수정할 수 없습니다.',
-                                                        );
-                                                        return;
-                                                    }
-                                                    onEditConcert &&
-                                                        onEditConcert(concert);
-                                                }}
-                                                className="p-1 text-blue-400 hover:bg-blue-900 hover:bg-opacity-30 rounded transition-colors"
-                                                title="수정"
-                                            >
-                                                <Edit size={16} />
-                                            </button>
-                                            <button
-                                                onClick={() =>
-                                                    deleteConcert(concert)
-                                                }
-                                                className="p-1 text-red-400 hover:bg-red-900 hover:bg-opacity-30 rounded transition-colors"
-                                                title="삭제"
-                                            >
-                                                <Trash2 size={16} />
-                                            </button>
-                                        </div>
+                                        <button
+                                            onClick={() =>
+                                                handleAiSummaryRegeneration(
+                                                    concert,
+                                                )
+                                            }
+                                            className={`p-2 rounded transition-colors ${
+                                                concert.status === 'CANCELLED'
+                                                    ? 'text-gray-500 cursor-not-allowed'
+                                                    : 'text-green-400 hover:bg-green-900 hover:bg-opacity-30'
+                                            }`}
+                                            title={
+                                                concert.status === 'CANCELLED'
+                                                    ? '취소된 콘서트는 AI 요약을 재생성할 수 없습니다'
+                                                    : 'AI 요약 재생성'
+                                            }
+                                            disabled={
+                                                concert.status === 'CANCELLED'
+                                            }
+                                        >
+                                            <Bot size={16} />
+                                        </button>
                                     </div>
                                 </div>
                             ))}
@@ -597,6 +672,43 @@ const SellerConcertList = ({
                     </div>
                 )}
             </div>
+
+            {/* AI 요약 재생성 모달 */}
+            {showAiSummaryModal && selectedConcertForAi && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-gray-800 text-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-gray-600">
+                        {/* 모달 헤더 */}
+                        <div className="flex items-center justify-between p-6 border-b border-gray-600">
+                            <h2 className="text-xl font-bold text-white">
+                                AI 요약 재생성 - {selectedConcertForAi.title}
+                            </h2>
+                            <button
+                                onClick={handleCloseAiSummaryModal}
+                                className="text-gray-400 hover:text-gray-200 transition-colors"
+                            >
+                                <X size={24} />
+                            </button>
+                        </div>
+
+                        {/* AI 요약 재생성 섹션 */}
+                        <div className="p-6">
+                            <AISummaryRegenerationSection
+                                sellerId={sellerId}
+                                concertId={selectedConcertForAi.concertId}
+                                currentAiSummary={
+                                    selectedConcertForAi.aiSummary
+                                }
+                                onSummaryUpdated={(newSummary) => {
+                                    // AI 요약이 성공적으로 업데이트되면 목록 새로고침
+                                    fetchConcerts();
+                                    // 필요하다면 모달을 자동으로 닫을 수도 있음
+                                    // setTimeout(() => handleCloseAiSummaryModal(), 2000);
+                                }}
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

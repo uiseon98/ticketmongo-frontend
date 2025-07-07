@@ -288,4 +288,110 @@ export const concertService = {
             throw error;
         }
     },
+    // src/features/concert/services/concertService.js에 추가할 코드
+
+    /**
+     * 판매자용 AI 요약 수동 재생성
+     * 백엔드: POST /api/seller/concerts/{concertId}/ai-summary/regenerate?sellerId={sellerId}
+     *
+     * 📋 동작 조건:
+     * - 판매자 본인의 콘서트만 재생성 가능
+     * - 관리자용 API와 동일한 조건 적용 (10자 이상 리뷰, 최소 리뷰 개수 등)
+     *
+     * @param {number} sellerId - 판매자 ID (권한 확인용)
+     * @param {number} concertId - 콘서트 ID
+     * @returns {Promise<import('../types/concert.js').ApiResponse<string>>} 생성된 AI 요약 텍스트
+     */
+    async regenerateSellerAiSummary(sellerId, concertId) {
+        try {
+            // 파라미터 유효성 검증
+            if (!sellerId || sellerId < 1) {
+                throw new Error('유효한 판매자 ID가 필요합니다.');
+            }
+            if (!concertId || concertId < 1) {
+                throw new Error('유효한 콘서트 ID가 필요합니다.');
+            }
+
+            console.info(
+                `[SELLER] AI 요약 재생성 시작 - 판매자: ${sellerId}, 콘서트: ${concertId}`,
+            );
+
+            // API 요청: POST 요청
+            const response = await apiClient.post(
+                `/seller/concerts/${concertId}/ai-summary/regenerate`, // 경로 수정
+                {},
+                { params: { sellerId } },
+            );
+
+            // 성공 시 로깅
+            const summaryPreview =
+                response.data?.length > 100
+                    ? response.data.substring(0, 100) + '...'
+                    : response.data;
+
+            console.info(
+                `[SELLER] AI 요약 재생성 성공 - 콘서트: ${concertId}, 미리보기: "${summaryPreview}"`,
+            );
+
+            return response;
+        } catch (error) {
+            console.error(
+                `[SELLER] AI 요약 재생성 실패 - 판매자: ${sellerId}, 콘서트: ${concertId}:`,
+                error,
+            );
+
+            // 백엔드 에러 메시지 우선 사용
+            let errorMessage = 'AI 요약 재생성 중 오류가 발생했습니다.';
+
+            if (error.response?.data?.message) {
+                // 백엔드에서 온 명확한 메시지 사용
+                errorMessage = error.response.data.message;
+            } else if (error.response?.data?.error) {
+                // 또는 error 필드
+                errorMessage = error.response.data.error;
+            } else if (error.message) {
+                // axios 자체 에러 메시지
+                errorMessage = error.message;
+            }
+
+            // HTTP 상태 코드별 처리
+            if (!error.response?.data?.message && error.response) {
+                const status = error.response.status;
+                switch (status) {
+                    case 400:
+                        if (errorMessage.includes('리뷰가 없습니다')) {
+                            // 이미 적절한 메시지가 있으면 그대로 사용
+                            break;
+                        }
+                        errorMessage =
+                            '잘못된 요청입니다. 콘서트 정보를 확인해주세요.';
+                        break;
+                    case 401:
+                        errorMessage = '로그인이 필요합니다.';
+                        break;
+                    case 403:
+                        errorMessage =
+                            '본인의 콘서트만 AI 요약을 재생성할 수 있습니다.';
+                        break;
+                    case 404:
+                        errorMessage = '해당 콘서트를 찾을 수 없습니다.';
+                        break;
+                    case 500:
+                        errorMessage =
+                            '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+                        break;
+                }
+            }
+
+            // 네트워크 오류
+            if (
+                error.code === 'NETWORK_ERROR' ||
+                error.code === 'ECONNREFUSED'
+            ) {
+                errorMessage = '네트워크 연결을 확인해주세요.';
+            }
+
+            throw new Error(errorMessage);
+        }
+    },
 };

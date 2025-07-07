@@ -1114,7 +1114,6 @@ const ConcertForm = ({
                                     )}
                             </div>
                         </div>
-
                         {/* 폼 액션 버튼들 */}
                         <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-600">
                             <button
