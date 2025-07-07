@@ -68,7 +68,14 @@ const ConcertForm = ({
 
     // ====== 초기화 ======
     useEffect(() => {
+        console.log(
+            'ConcertForm useEffect - isEditMode:',
+            isEditMode,
+            'concert:',
+            concert,
+        );
         if (isEditMode && concert) {
+            console.log('Setting form data with concert:', concert);
             // 수정 모드: 기존 데이터로 폼 초기화
             setFormData({
                 title: concert.title || '',
@@ -509,50 +516,48 @@ const ConcertForm = ({
     if (modal) {
         return (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                <div className="bg-gray-800 text-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-gray-600">
+                    {' '}
                     {/* 헤더 */}
-                    <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                        <h2 className="text-2xl font-bold text-gray-900">
+                    <div className="flex items-center justify-between p-6 border-b border-gray-600">
+                        <h2 className="text-2xl font-bold text-white">
                             {isEditMode ? '콘서트 수정' : '콘서트 등록'}
                         </h2>
                         <button
                             onClick={onClose}
-                            className="text-gray-400 hover:text-gray-600 transition-colors"
+                            className="text-gray-400 hover:text-gray-200 transition-colors"
                         >
                             <X size={24} />
                         </button>
                     </div>
-
                     {/* 성공/에러 메시지 */}
                     {submitSuccess && (
-                        <div className="mx-6 mt-4 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
+                        <div className="mx-6 mt-4 p-4 bg-green-800 border border-green-600 rounded-lg flex items-center gap-2">
                             <CheckCircle size={20} className="text-green-600" />
-                            <span className="text-green-700">
+                            <span className="text-green-100">
                                 {submitSuccess}
                             </span>
                         </div>
                     )}
-
                     {submitError && (
-                        <div className="mx-6 mt-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
+                        <div className="mx-6 mt-4 p-4 bg-red-800 border border-red-600 rounded-lg flex items-center gap-2">
                             <AlertCircle size={20} className="text-red-600" />
-                            <span className="text-red-700">{submitError}</span>
+                            <span className="text-red-100">{submitError}</span>
                         </div>
                     )}
-
                     {/* 폼 */}
                     <form onSubmit={handleSubmit} className="p-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {/* 기본 정보 섹션 */}
                             <div className="md:col-span-2">
-                                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                                <h3 className="text-lg font-semibold text-white mb-4">
                                     기본 정보
                                 </h3>
                             </div>
 
                             {/* 콘서트 제목 */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <label className="block text-sm font-medium text-gray-200 mb-2">
                                     콘서트 제목{' '}
                                     <span className="text-red-500">*</span>
                                 </label>
@@ -563,14 +568,14 @@ const ConcertForm = ({
                                     onChange={handleInputChange}
                                     className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                                         errors.title
-                                            ? 'border-red-300'
-                                            : 'border-gray-300'
-                                    }`}
+                                            ? 'border-red-500'
+                                            : 'border-gray-600'
+                                    } bg-gray-700 text-white placeholder-gray-400`}
                                     placeholder="콘서트 제목을 입력하세요"
                                     maxLength={100}
                                 />
                                 {errors.title && (
-                                    <p className="mt-1 text-sm text-red-600">
+                                    <p className="mt-1 text-sm text-red-500">
                                         {errors.title}
                                     </p>
                                 )}
@@ -578,7 +583,7 @@ const ConcertForm = ({
 
                             {/* 아티스트명 */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <label className="block text-sm font-medium text-gray-200 mb-2">
                                     아티스트명{' '}
                                     <span className="text-red-500">*</span>
                                 </label>
@@ -588,10 +593,10 @@ const ConcertForm = ({
                                     value={formData.artist}
                                     onChange={handleInputChange}
                                     className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                                        errors.artist
-                                            ? 'border-red-300'
-                                            : 'border-gray-300'
-                                    }`}
+                                        errors.description
+                                            ? 'border-red-500'
+                                            : 'border-gray-600'
+                                    } bg-gray-700 text-white placeholder-gray-400`}
                                     placeholder="아티스트명을 입력하세요"
                                     maxLength={50}
                                 />
@@ -604,7 +609,7 @@ const ConcertForm = ({
 
                             {/* 콘서트 설명 */}
                             <div className="md:col-span-2">
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <label className="block text-sm font-medium text-gray-200 mb-2">
                                     콘서트 설명
                                 </label>
                                 <textarea
@@ -614,9 +619,9 @@ const ConcertForm = ({
                                     rows={3}
                                     className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                                         errors.description
-                                            ? 'border-red-300'
-                                            : 'border-gray-300'
-                                    }`}
+                                            ? 'border-red-500'
+                                            : 'border-gray-600'
+                                    } bg-gray-700 text-white placeholder-gray-400`}
                                     placeholder="콘서트에 대한 상세 설명을 입력하세요"
                                     maxLength={1000}
                                 />
@@ -629,7 +634,7 @@ const ConcertForm = ({
 
                             {/* 공연장 정보 섹션 */}
                             <div className="md:col-span-2 mt-6">
-                                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                                     <MapPin size={20} />
                                     공연장 정보
                                 </h3>
@@ -637,7 +642,7 @@ const ConcertForm = ({
 
                             {/* 공연장명 */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <label className="block text-sm font-medium text-gray-200 mb-2">
                                     공연장명{' '}
                                     <span className="text-red-500">*</span>
                                 </label>
@@ -648,9 +653,9 @@ const ConcertForm = ({
                                     onChange={handleInputChange}
                                     className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                                         errors.venueName
-                                            ? 'border-red-300'
-                                            : 'border-gray-300'
-                                    }`}
+                                            ? 'border-red-500'
+                                            : 'border-gray-600'
+                                    } bg-gray-700 text-white placeholder-gray-400`}
                                     placeholder="공연장명을 입력하세요"
                                     maxLength={100}
                                 />
@@ -663,7 +668,7 @@ const ConcertForm = ({
 
                             {/* 공연장 주소 */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <label className="block text-sm font-medium text-gray-200 mb-2">
                                     공연장 주소
                                 </label>
                                 <input
@@ -673,9 +678,9 @@ const ConcertForm = ({
                                     onChange={handleInputChange}
                                     className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                                         errors.venueAddress
-                                            ? 'border-red-300'
-                                            : 'border-gray-300'
-                                    }`}
+                                            ? 'border-red-500'
+                                            : 'border-gray-600'
+                                    } bg-gray-700 text-white placeholder-gray-400`}
                                     placeholder="공연장 주소를 입력하세요"
                                     maxLength={200}
                                 />
@@ -688,7 +693,7 @@ const ConcertForm = ({
 
                             {/* 일시 정보 섹션 */}
                             <div className="md:col-span-2 mt-6">
-                                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                                     <Calendar size={20} />
                                     일시 정보
                                 </h3>
@@ -696,7 +701,7 @@ const ConcertForm = ({
 
                             {/* 공연 날짜 */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <label className="block text-sm font-medium text-gray-200 mb-2">
                                     공연 날짜{' '}
                                     <span className="text-red-500">*</span>
                                 </label>
@@ -707,9 +712,9 @@ const ConcertForm = ({
                                     onChange={handleInputChange}
                                     className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                                         errors.concertDate
-                                            ? 'border-red-300'
-                                            : 'border-gray-300'
-                                    }`}
+                                            ? 'border-red-500'
+                                            : 'border-gray-600'
+                                    } bg-gray-700 text-white placeholder-gray-400`}
                                 />
                                 {errors.concertDate && (
                                     <p className="mt-1 text-sm text-red-600">
@@ -720,7 +725,7 @@ const ConcertForm = ({
 
                             {/* 총 좌석 수 */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <label className="block text-sm font-medium text-gray-200 mb-2">
                                     총 좌석 수{' '}
                                     <span className="text-red-500">*</span>
                                 </label>
@@ -731,9 +736,9 @@ const ConcertForm = ({
                                     onChange={handleInputChange}
                                     className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                                         errors.totalSeats
-                                            ? 'border-red-300'
-                                            : 'border-gray-300'
-                                    }`}
+                                            ? 'border-red-500'
+                                            : 'border-gray-600'
+                                    } bg-gray-700 text-white placeholder-gray-400`}
                                     placeholder="총 좌석 수를 입력하세요"
                                     min={1}
                                     max={100000}
@@ -747,7 +752,7 @@ const ConcertForm = ({
 
                             {/* 시작 시간 */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <label className="block text-sm font-medium text-gray-200 mb-2">
                                     시작 시간{' '}
                                     <span className="text-red-500">*</span>
                                 </label>
@@ -758,9 +763,9 @@ const ConcertForm = ({
                                     onChange={handleInputChange}
                                     className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                                         errors.startTime
-                                            ? 'border-red-300'
-                                            : 'border-gray-300'
-                                    }`}
+                                            ? 'border-red-500'
+                                            : 'border-gray-600'
+                                    } bg-gray-700 text-white placeholder-gray-400`}
                                 />
                                 {errors.startTime && (
                                     <p className="mt-1 text-sm text-red-600">
@@ -771,7 +776,7 @@ const ConcertForm = ({
 
                             {/* 종료 시간 */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <label className="block text-sm font-medium text-gray-200 mb-2">
                                     종료 시간{' '}
                                     <span className="text-red-500">*</span>
                                 </label>
@@ -782,9 +787,9 @@ const ConcertForm = ({
                                     onChange={handleInputChange}
                                     className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                                         errors.endTime
-                                            ? 'border-red-300'
-                                            : 'border-gray-300'
-                                    }`}
+                                            ? 'border-red-500'
+                                            : 'border-gray-600'
+                                    } bg-gray-700 text-white placeholder-gray-400`}
                                 />
                                 {errors.endTime && (
                                     <p className="mt-1 text-sm text-red-600">
@@ -795,7 +800,7 @@ const ConcertForm = ({
 
                             {/* 예매 정보 섹션 */}
                             <div className="md:col-span-2 mt-6">
-                                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                                     <Clock size={20} />
                                     예매 정보
                                 </h3>
@@ -803,7 +808,7 @@ const ConcertForm = ({
 
                             {/* 예매 시작일시 */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <label className="block text-sm font-medium text-gray-200 mb-2">
                                     예매 시작일시{' '}
                                     <span className="text-red-500">*</span>
                                 </label>
@@ -814,9 +819,9 @@ const ConcertForm = ({
                                     onChange={handleInputChange}
                                     className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                                         errors.bookingStartDate
-                                            ? 'border-red-300'
-                                            : 'border-gray-300'
-                                    }`}
+                                            ? 'border-red-500'
+                                            : 'border-gray-600'
+                                    } bg-gray-700 text-white placeholder-gray-400`}
                                 />
                                 {errors.bookingStartDate && (
                                     <p className="mt-1 text-sm text-red-600">
@@ -827,7 +832,7 @@ const ConcertForm = ({
 
                             {/* 예매 종료일시 */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <label className="block text-sm font-medium text-gray-200 mb-2">
                                     예매 종료일시{' '}
                                     <span className="text-red-500">*</span>
                                 </label>
@@ -838,9 +843,9 @@ const ConcertForm = ({
                                     onChange={handleInputChange}
                                     className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                                         errors.bookingEndDate
-                                            ? 'border-red-300'
-                                            : 'border-gray-300'
-                                    }`}
+                                            ? 'border-red-500'
+                                            : 'border-gray-600'
+                                    } bg-gray-700 text-white placeholder-gray-400`}
                                 />
                                 {errors.bookingEndDate && (
                                     <p className="mt-1 text-sm text-red-600">
@@ -851,7 +856,7 @@ const ConcertForm = ({
 
                             {/* 추가 설정 섹션 */}
                             <div className="md:col-span-2 mt-6">
-                                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                                     <Users size={20} />
                                     추가 설정
                                 </h3>
@@ -859,7 +864,7 @@ const ConcertForm = ({
 
                             {/* 최소 연령 */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <label className="block text-sm font-medium text-gray-200 mb-2">
                                     최소 연령 제한
                                 </label>
                                 <input
@@ -869,9 +874,9 @@ const ConcertForm = ({
                                     onChange={handleInputChange}
                                     className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                                         errors.minAge
-                                            ? 'border-red-300'
-                                            : 'border-gray-300'
-                                    }`}
+                                            ? 'border-red-500'
+                                            : 'border-gray-600'
+                                    } bg-gray-700 text-white placeholder-gray-400`}
                                     placeholder="최소 연령을 입력하세요"
                                     min={0}
                                     max={100}
@@ -881,14 +886,14 @@ const ConcertForm = ({
                                         {errors.minAge}
                                     </p>
                                 )}
-                                <p className="mt-1 text-xs text-gray-500">
+                                <p className="mt-1 text-xs text-gray-400">
                                     0세는 연령 제한 없음을 의미합니다
                                 </p>
                             </div>
 
                             {/* 사용자당 최대 티켓 수 */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <label className="block text-sm font-medium text-gray-200 mb-2">
                                     사용자당 최대 구매 티켓 수
                                 </label>
                                 <input
@@ -898,9 +903,9 @@ const ConcertForm = ({
                                     onChange={handleInputChange}
                                     className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                                         errors.maxTicketsPerUser
-                                            ? 'border-red-300'
-                                            : 'border-gray-300'
-                                    }`}
+                                            ? 'border-red-500'
+                                            : 'border-gray-600'
+                                    } bg-gray-700 text-white placeholder-gray-400`}
                                     placeholder="최대 구매 가능 티켓 수"
                                     min={1}
                                     max={10}
@@ -914,14 +919,14 @@ const ConcertForm = ({
 
                             {/* 콘서트 상태 선택 (생성/수정 모드 모두) */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <label className="block text-sm font-medium text-gray-200 mb-2">
                                     콘서트 상태
                                 </label>
                                 <select
                                     name="status"
                                     value={formData.status}
                                     onChange={handleInputChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-full px-3 py-2 border border-gray-600 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 >
                                     <option value="SCHEDULED">예정됨</option>
                                     <option value="ON_SALE">예매중</option>
@@ -929,42 +934,140 @@ const ConcertForm = ({
                                     <option value="CANCELLED">취소됨</option>
                                     <option value="COMPLETED">완료됨</option>
                                 </select>
-                                <p className="mt-1 text-xs text-gray-500">
+                                <p className="mt-1 text-xs text-gray-400">
                                     상태 변경 시 신중하게 선택해주세요
                                 </p>
                             </div>
 
                             {/* 포스터 이미지 섹션 */}
                             <div className="md:col-span-2 mt-6">
-                                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                                     <Image size={20} />
                                     포스터 이미지
                                 </h3>
                             </div>
 
+                            {/* 파일 업로드 섹션 */}
+                            <div className="md:col-span-2 mb-4">
+                                <label className="block text-sm font-medium text-gray-200 mb-2">
+                                    포스터 이미지 파일 업로드
+                                </label>
+
+                                {/* 파일 선택 */}
+                                <div className="flex gap-4 mb-4">
+                                    <input
+                                        ref={fileInputRef}
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleFileSelect}
+                                        className="flex-1 px-3 py-2 border border-gray-600 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        disabled={uploading}
+                                    />
+
+                                    {selectedFile && (
+                                        <button
+                                            type="button"
+                                            onClick={handleFileUpload}
+                                            disabled={uploading}
+                                            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            {uploading
+                                                ? `업로드 중... ${uploadProgress}%`
+                                                : '업로드'}
+                                        </button>
+                                    )}
+
+                                    {selectedFile && !uploading && (
+                                        <button
+                                            type="button"
+                                            onClick={handleClearFile}
+                                            className="px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-lg transition-colors"
+                                        >
+                                            취소
+                                        </button>
+                                    )}
+                                </div>
+
+                                {/* 선택된 파일 정보 */}
+                                {selectedFile && (
+                                    <div className="text-sm text-gray-400 mb-2">
+                                        선택된 파일: {selectedFile.name} (
+                                        {fileUploadService.formatFileSize(
+                                            selectedFile.size,
+                                        )}
+                                        )
+                                    </div>
+                                )}
+
+                                {/* 업로드 진행률 바 */}
+                                {uploading && (
+                                    <div className="w-full bg-gray-600 rounded-full h-2 mb-2">
+                                        <div
+                                            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                                            style={{
+                                                width: `${uploadProgress}%`,
+                                            }}
+                                        ></div>
+                                    </div>
+                                )}
+
+                                {/* 파일 미리보기 */}
+                                {filePreview && (
+                                    <div className="mt-4">
+                                        <p className="text-sm font-medium text-gray-200 mb-2">
+                                            업로드할 이미지 미리보기
+                                        </p>
+                                        <div className="w-32 h-48 border border-gray-600 rounded-lg overflow-hidden">
+                                            <img
+                                                src={filePreview}
+                                                alt="업로드할 이미지 미리보기"
+                                                className="w-full h-full object-cover"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+
+                                <p className="text-xs text-gray-400 mt-2">
+                                    또는 아래에 직접 URL을 입력하세요
+                                </p>
+                            </div>
+
                             {/* 포스터 이미지 URL */}
                             <div className="md:col-span-2">
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    포스터 이미지 URL
+                                <label className="block text-sm font-medium text-gray-200 mb-2">
+                                    포스터 이미지 URL (직접 입력)
                                 </label>
-                                <input
-                                    type="url"
-                                    name="posterImageUrl"
-                                    value={formData.posterImageUrl}
-                                    onChange={handleInputChange}
-                                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                                        errors.posterImageUrl
-                                            ? 'border-red-300'
-                                            : 'border-gray-300'
-                                    }`}
-                                    placeholder="https://example.com/poster.jpg"
-                                />
+                                <div className="flex gap-2">
+                                    <input
+                                        type="url"
+                                        name="posterImageUrl"
+                                        value={formData.posterImageUrl}
+                                        onChange={handleInputChange}
+                                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                                            errors.posterImageUrl
+                                                ? 'border-red-500'
+                                                : 'border-gray-600'
+                                        } bg-gray-700 text-white placeholder-gray-400`}
+                                        placeholder="https://example.com/poster.jpg"
+                                    />
+                                    {/* 업로드된 이미지 제거 버튼 */}
+                                    {formData.posterImageUrl && (
+                                        <button
+                                            type="button"
+                                            onClick={handleRemoveUploadedImage}
+                                            className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+                                            title="이미지 제거"
+                                        >
+                                            ✕
+                                        </button>
+                                    )}
+                                </div>
                                 {errors.posterImageUrl && (
-                                    <p className="mt-1 text-sm text-red-600">
+                                    <p className="mt-1 text-sm text-red-500">
                                         {errors.posterImageUrl}
                                     </p>
                                 )}
-                                <p className="mt-1 text-xs text-gray-500">
+                                <p className="mt-1 text-xs text-gray-400">
                                     지원 형식: jpg, jpeg, png, gif, webp
                                 </p>
 
@@ -972,10 +1075,21 @@ const ConcertForm = ({
                                 {formData.posterImageUrl &&
                                     !errors.posterImageUrl && (
                                         <div className="mt-4">
-                                            <p className="text-sm font-medium text-gray-700 mb-2">
-                                                미리보기
-                                            </p>
-                                            <div className="w-32 h-48 border border-gray-300 rounded-lg overflow-hidden">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <p className="text-sm font-medium text-gray-200 mb-2">
+                                                    미리보기
+                                                </p>
+                                                <button
+                                                    type="button"
+                                                    onClick={
+                                                        handleRemoveUploadedImage
+                                                    }
+                                                    className="text-xs text-red-400 hover:text-red-300 transition-colors"
+                                                >
+                                                    이미지 제거
+                                                </button>
+                                            </div>
+                                            <div className="w-32 h-48 border border-gray-600 rounded-lg overflow-hidden">
                                                 <img
                                                     src={
                                                         formData.posterImageUrl
@@ -990,7 +1104,7 @@ const ConcertForm = ({
                                                     }}
                                                 />
                                                 <div
-                                                    className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-500 text-sm"
+                                                    className="w-full h-full bg-gray-800 text-gray-400 flex items-center justify-center text-sm"
                                                     style={{ display: 'none' }}
                                                 >
                                                     이미지 로드 실패
@@ -1002,11 +1116,11 @@ const ConcertForm = ({
                         </div>
 
                         {/* 폼 액션 버튼들 */}
-                        <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-200">
+                        <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-600">
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="px-6 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                                className="px-6 py-2 text-gray-300 bg-gray-700 hover:bg-gray-600 border border-gray-600 rounded-lg transition-colors"
                                 disabled={loading}
                             >
                                 취소

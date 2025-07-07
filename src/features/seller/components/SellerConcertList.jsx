@@ -22,7 +22,12 @@ import { concertService } from '../../../features/concert/services/concertServic
  * - 콘서트 생성, 수정, 삭제, 상태 관리
  * - 포스터 이미지 업데이트 기능
  */
-const SellerConcertList = ({ sellerId, onCreateConcert, onEditConcert }) => {
+const SellerConcertList = ({
+    sellerId,
+    onCreateConcert,
+    onEditConcert,
+    refreshTrigger,
+}) => {
     // ====== 상태 관리 ======
     const [concerts, setConcerts] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -126,13 +131,23 @@ const SellerConcertList = ({ sellerId, onCreateConcert, onEditConcert }) => {
      * 콘서트 삭제 (취소 처리)
      * DELETE /api/seller/concerts/{concertId}
      */
-    const deleteConcert = async (concertId) => {
-        if (!confirm('정말로 이 콘서트를 취소하시겠습니까?')) return;
+    const deleteConcert = async (concert) => {
+        if (
+            !confirm(
+                `정말로 "${concert.title}" 콘서트를 삭제하시겠습니까?\n\n⚠️ 삭제된 콘서트는 복구할 수 없습니다.\n⚠️ 이미 예매된 티켓이 있다면 환불 처리가 필요합니다.`,
+            )
+        )
+            return;
+
+        if (concert.status === 'CANCELLED') {
+            alert('이미 취소된 콘서트입니다.');
+            return;
+        }
 
         try {
             const result = await concertService.deleteConcert(
                 sellerId,
-                concertId,
+                concert.concertId,
             );
 
             if (result.success) {
@@ -184,6 +199,7 @@ const SellerConcertList = ({ sellerId, onCreateConcert, onEditConcert }) => {
         sorting.sortBy,
         sorting.sortDir,
         filters.status,
+        refreshTrigger,
     ]);
 
     // ====== 상태별 스타일 및 텍스트 ======
@@ -334,74 +350,19 @@ const SellerConcertList = ({ sellerId, onCreateConcert, onEditConcert }) => {
                         <div className="border-b border-gray-600">
                             <div className="grid grid-cols-12 gap-4 p-4 text-sm font-medium text-gray-300">
                                 <div className="col-span-3">
-                                    <button
-                                        onClick={() =>
-                                            handleSortChange('title')
-                                        }
-                                        className="flex items-center gap-1 hover:text-white"
-                                    >
+                                    <span className="text-gray-300">
                                         콘서트 정보
-                                        {sorting.sortBy === 'title' && (
-                                            <span>
-                                                {sorting.sortDir === 'asc'
-                                                    ? '↑'
-                                                    : '↓'}
-                                            </span>
-                                        )}
-                                    </button>
+                                    </span>
                                 </div>
                                 <div className="col-span-2">
-                                    <button
-                                        onClick={() =>
-                                            handleSortChange('concertDate')
-                                        }
-                                        className="flex items-center gap-1 hover:text-white"
-                                    >
-                                        공연일시
-                                        {sorting.sortBy === 'concertDate' && (
-                                            <span>
-                                                {sorting.sortDir === 'asc'
-                                                    ? '↑'
-                                                    : '↓'}
-                                            </span>
-                                        )}
-                                    </button>
+                                    <span className="text-gray-300">
+                                        등록일
+                                    </span>
                                 </div>
                                 <div className="col-span-2">장소</div>
                                 <div className="col-span-1">좌석수</div>
                                 <div className="col-span-1">
-                                    <button
-                                        onClick={() =>
-                                            handleSortChange('status')
-                                        }
-                                        className="flex items-center gap-1 hover:text-white"
-                                    >
-                                        상태
-                                        {sorting.sortBy === 'status' && (
-                                            <span>
-                                                {sorting.sortDir === 'asc'
-                                                    ? '↑'
-                                                    : '↓'}
-                                            </span>
-                                        )}
-                                    </button>
-                                </div>
-                                <div className="col-span-2">
-                                    <button
-                                        onClick={() =>
-                                            handleSortChange('createdAt')
-                                        }
-                                        className="flex items-center gap-1 hover:text-white"
-                                    >
-                                        등록일
-                                        {sorting.sortBy === 'createdAt' && (
-                                            <span>
-                                                {sorting.sortDir === 'asc'
-                                                    ? '↑'
-                                                    : '↓'}
-                                            </span>
-                                        )}
-                                    </button>
+                                    <span className="text-gray-300">상태</span>
                                 </div>
                                 <div className="col-span-1">작업</div>
                             </div>
@@ -446,29 +407,10 @@ const SellerConcertList = ({ sellerId, onCreateConcert, onEditConcert }) => {
 
                                     {/* 공연일시 */}
                                     <div className="col-span-2">
-                                        <div className="flex items-center gap-1 text-sm">
-                                            <Calendar
-                                                size={14}
-                                                className="text-gray-400"
-                                            />
-                                            <span className="text-gray-200">
-                                                {formatDate(
-                                                    concert.concertDate,
-                                                )}
-                                            </span>
-                                        </div>
-                                        <div className="flex items-center gap-1 text-sm text-gray-300 mt-1">
-                                            <Clock
-                                                size={14}
-                                                className="text-gray-400"
-                                            />
-                                            <span>
-                                                {concert.startTime} -{' '}
-                                                {concert.endTime}
-                                            </span>
-                                        </div>
+                                        <span className="text-gray-300">
+                                            공연일시
+                                        </span>
                                     </div>
-
                                     {/* 장소 */}
                                     <div className="col-span-2">
                                         <div className="flex items-center gap-1 text-sm">
@@ -502,9 +444,21 @@ const SellerConcertList = ({ sellerId, onCreateConcert, onEditConcert }) => {
 
                                     {/* 등록일 */}
                                     <div className="col-span-2">
-                                        <span className="text-sm text-gray-300">
-                                            {formatDateTime(concert.createdAt)}
-                                        </span>
+                                        <div className="text-sm">
+                                            <span className="text-gray-300">
+                                                {formatDateTime(
+                                                    concert.updatedAt ||
+                                                        concert.createdAt,
+                                                )}
+                                            </span>
+                                            <div className="text-xs text-gray-400 mt-0.5">
+                                                {concert.updatedAt &&
+                                                concert.updatedAt !==
+                                                    concert.createdAt
+                                                    ? '수정됨'
+                                                    : '등록됨'}
+                                            </div>
+                                        </div>
                                     </div>
 
                                     {/* 작업 버튼들 */}
@@ -512,6 +466,15 @@ const SellerConcertList = ({ sellerId, onCreateConcert, onEditConcert }) => {
                                         <div className="flex gap-1">
                                             <button
                                                 onClick={() => {
+                                                    if (
+                                                        concert.status ===
+                                                        'CANCELLED'
+                                                    ) {
+                                                        alert(
+                                                            '취소된 콘서트는 수정할 수 없습니다.',
+                                                        );
+                                                        return;
+                                                    }
                                                     onEditConcert &&
                                                         onEditConcert(concert);
                                                 }}
@@ -522,9 +485,7 @@ const SellerConcertList = ({ sellerId, onCreateConcert, onEditConcert }) => {
                                             </button>
                                             <button
                                                 onClick={() =>
-                                                    deleteConcert(
-                                                        concert.concertId,
-                                                    )
+                                                    deleteConcert(concert)
                                                 }
                                                 className="p-1 text-red-400 hover:bg-red-900 hover:bg-opacity-30 rounded transition-colors"
                                                 title="삭제"
