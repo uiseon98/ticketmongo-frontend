@@ -123,7 +123,7 @@ export default function Profile() {
             <div className="max-w-4xl mx-auto px-4 py-8">
                 {/* Page Title */}
                 <div className="text-center mb-8">
-                    <h2 className="text-3xl font-bold mb-2">My Account</h2>
+                    <h2 className="text-3xl font-bold mb-2">마이페이지</h2>
                     <p className="text-gray-400">
                         프로필과 계정 설정을 관리하세요
                     </p>

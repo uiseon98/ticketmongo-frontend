@@ -10,7 +10,7 @@ function WaitingPage() {
     const navigate = useNavigate();
     const [statusMessage, setStatusMessage] =
         useState('대기열에 접속 중입니다...');
-    const [retryDelay, setRetryDelay] = useState(5000); // 초기 재시도 딜레이
+    const [retryDelay, setRetryDelay] = useState(3500); // 초기 재시도 딜레이
     const wsRef = useRef(null);
     const pollingRef = useRef(null);
     const reconnectRef = useRef(null);
@@ -44,7 +44,7 @@ function WaitingPage() {
             } catch (err) {
                 console.error('❌ polling 중 에러', err);
             }
-        }, 4000);
+        }, 5000);
     };
 
     const scheduleReconnect = () => {
@@ -86,7 +86,6 @@ function WaitingPage() {
                         setStatusMessage(
                             `대기열 연결 완료. 현재 순번: ${statusData.rank || '확인 중'}번`,
                         );
-                        setRetryDelay(5000);
                     }
                 } catch (error) {
                     console.error(
@@ -102,9 +101,39 @@ function WaitingPage() {
                 console.log('📩 WebSocket 메시지 수신:', event.data);
                 try {
                     const msg = JSON.parse(event.data);
-                    if (msg.type === 'ADMIT' && msg.accessKey) {
-                        console.log('🎟️ WebSocket에서 입장 허가 감지');
-                        handleAdmission(msg.accessKey);
+
+                    switch (msg.type) {
+                        case 'ADMIT':
+                            if (msg.accessKey) {
+                                console.log('🎟️ WebSocket에서 입장 허가 감지');
+                                handleAdmission(msg.accessKey);
+                            }
+                            break;
+
+                        case 'RANK_UPDATE':
+                            if (msg.rank) {
+                                console.log(
+                                    `🔄 WebSocket에서 순위 업데이트 감지: ${msg.rank}번`,
+                                );
+                                setStatusMessage(
+                                    `현재 대기 순번은 ${msg.rank}번 입니다.`,
+                                );
+                            }
+                            break;
+
+                        case 'REDIRECT_TO_RESERVE':
+                            if (msg.accessKey) {
+                                console.log(
+                                    '🎟️ 재연결 시 입장 상태 확인. 예매 페이지로 이동합니다.',
+                                );
+                                handleAdmission(msg.accessKey);
+                            }
+                            break;
+
+                        default:
+                            console.warn(
+                                `알 수 없는 메시지 타입 수신: ${msg.type}`,
+                            );
                     }
                 } catch (err) {
                     console.error('메시지 처리 오류:', err);

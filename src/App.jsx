@@ -2,7 +2,7 @@
 
 // 애플리케이션의 주요 라우팅 규칙을 정의
 import React, { useContext } from 'react';
-import { Routes, Route, Navigate, Outlet } from 'react-router-dom'; // Outlet 임포트 확인
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 
 // 레이아웃
 import MainLayout from './shared/components/layout/MainLayout';
@@ -42,6 +42,14 @@ import SellerConcertManagementPage from './pages/seller/SellerConcertManagementP
 // 관리자 페이지
 import AdminDashboard from './pages/admin/Dashboard';
 import AdminSellerManagement from './pages/admin/AdminSellerManagement';
+import SellerApproval from './pages/admin/SellerApproval.jsx';
+import ApplicationHistoryPage from './pages/admin/ApplicationHistoryPage.jsx';
+
+// --- 임시 관리자 페이지 컴포넌트 ---
+const TempSettingsPage = () => (
+    <div className="text-white p-4">설정 페이지 (임시)</div>
+);
+// --------------------------------------------------
 
 import NotFoundPage from './pages/NotFoundPage.jsx';
 import UnauthorizedAccessPage from './pages/UnauthorizedAccessPage';
@@ -192,11 +200,16 @@ export default function App() {
                     }
                 >
                     <Route index element={<AdminDashboard />} />
-                    {/* 판매자 권한 관리 페이지 라우트 추가 */}
                     <Route
-                        path="seller-management"
-                        element={<AdminSellerManagement />}
+                        path="seller-approvals"
+                        element={<SellerApproval />}
                     />
+                    <Route path="sellers" element={<AdminSellerManagement />} />
+                    <Route
+                        path="history"
+                        element={<ApplicationHistoryPage />}
+                    />
+                    <Route path="settings" element={<TempSettingsPage />} />
                 </Route>
             </Route>
 

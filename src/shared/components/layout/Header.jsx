@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { AuthContext } from '../../../context/AuthContext'; // AuthContext 임포트
-import { Menu, X } from 'lucide-react'; // 햄버거 메뉴 아이콘
+import { AuthContext } from '../../../context/AuthContext';
+import { Menu, X } from 'lucide-react';
 
 export default function Header() {
     const { user, logout, loading } = useContext(AuthContext);
@@ -13,24 +13,30 @@ export default function Header() {
         navigate('/login');
     };
 
+    // 역할 확인 헬퍼 변수
+    const isAdmin =
+        user &&
+        (user.role === 'ROLE_ADMIN' ||
+            (user.roles && user.roles.includes('ROLE_ADMIN')));
+
     // 왼쪽 영역: 로고 및 메인 네비게이션에 포함될 링크들
     const mainNavigationLinks = [
-        { to: '/', label: 'Home' },
-        { to: '/concerts', label: 'Concerts' },
+        { to: '/', label: '홈' },
+        { to: '/concerts', label: '콘서트' },
     ];
 
     // 사용자가 로그인되어 있을 때 왼쪽 네비게이션에 추가될 링크 (Admin Dashboard, Profile)
     if (!loading && user) {
-        if (
-            user.role === 'ROLE_ADMIN' ||
-            (user.roles && user.roles.includes('ROLE_ADMIN'))
-        ) {
+        if (isAdmin) {
             mainNavigationLinks.push({
                 to: '/admin',
                 label: 'Admin Dashboard',
             });
         }
-        mainNavigationLinks.push({ to: '/mypage/profile', label: 'Profile' });
+        mainNavigationLinks.push({
+            to: '/mypage/profile',
+            label: '마이페이지',
+        });
     }
 
     return (
@@ -65,16 +71,19 @@ export default function Header() {
                         <div className="text-gray-400">Loading…</div>
                     ) : user ? (
                         <>
-                            <NavLink
-                                to="/seller"
-                                className={({ isActive }) =>
-                                    `text-gray-300 hover:text-white ${isActive ? 'underline' : ''}`
-                                }
-                            >
-                                판매자 페이지
-                            </NavLink>
+                            {/* 관리자가 아닐 때만 판매자 페이지 링크 표시 */}
+                            {!isAdmin && (
+                                <NavLink
+                                    to="/seller"
+                                    className={({ isActive }) =>
+                                        `text-gray-300 hover:text-white ${isActive ? 'underline' : ''}`
+                                    }
+                                >
+                                    판매자 페이지
+                                </NavLink>
+                            )}
                             <span className="text-gray-200">
-                                Hello, {user.username}
+                                {user.username}
                             </span>
                             <button
                                 onClick={handleLogout}
@@ -125,17 +134,20 @@ export default function Header() {
                         <div className="text-gray-400">Loading…</div>
                     ) : user ? (
                         <>
-                            <NavLink
-                                to="/seller"
-                                onClick={() => setMenuOpen(false)}
-                                className={({ isActive }) =>
-                                    `block text-gray-300 hover:text-white ${isActive ? 'underline' : ''}`
-                                }
-                            >
-                                판매자 페이지
-                            </NavLink>
+                            {/* 관리자가 아닐 때만 판매자 페이지 링크 표시 (모바일) */}
+                            {!isAdmin && (
+                                <NavLink
+                                    to="/seller"
+                                    onClick={() => setMenuOpen(false)}
+                                    className={({ isActive }) =>
+                                        `block text-gray-300 hover:text-white ${isActive ? 'underline' : ''}`
+                                    }
+                                >
+                                    판매자 페이지
+                                </NavLink>
+                            )}
                             <div className="text-gray-200">
-                                Hello, {user.username}
+                                {user.username}님
                             </div>
                             <button
                                 onClick={() => {
