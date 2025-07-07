@@ -12,7 +12,6 @@ import {
 import apiClient from '../../../shared/utils/apiClient.js';
 import { concertService } from '../../concert/services/concertService.js';
 import { fileUploadService } from '../../../shared/services/fileUploadService.js';
-import AISummaryRegenerationSection from './AISummaryRegenerationSection.jsx';
 
 /**
  * ConcertForm.jsx
@@ -1115,22 +1114,6 @@ const ConcertForm = ({
                                     )}
                             </div>
                         </div>
-                        {/* AI 요약 재생성 섹션 (수정 모드일 때만 표시) */}
-                        {isEditMode && (
-                            <AISummaryRegenerationSection
-                                sellerId={sellerId}
-                                concertId={concert.concertId}
-                                currentAiSummary={concert.aiSummary}
-                                onSummaryUpdated={(newSummary) => {
-                                    // 성공 시 알림 표시 (선택사항)
-                                    console.log(
-                                        'AI 요약이 업데이트되었습니다:',
-                                        newSummary,
-                                    );
-                                }}
-                                className="mt-6"
-                            />
-                        )}
                         {/* 폼 액션 버튼들 */}
                         <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-600">
                             <button
