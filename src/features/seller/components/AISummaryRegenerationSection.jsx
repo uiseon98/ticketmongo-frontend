@@ -222,6 +222,7 @@ const AISummaryRegenerationSection = ({
         sellerId,
         concertId,
         isRegenerating,
+        cooldownRemaining,
         isPastConcert,
         onSummaryUpdated,
         handlePastConcertAlert,
