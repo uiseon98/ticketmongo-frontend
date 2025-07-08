@@ -2,29 +2,19 @@
 
 import React, { useEffect } from 'react';
 
-/**
- * ===== Modal 컴포넌트 =====
- *
- * 재사용 가능한 모달 컴포넌트
- * 리뷰 작성, 기대평 작성, 삭제 확인 등에 사용
- */
 const Modal = ({
-    // ===== 필수 props =====
-    isOpen = false, // 모달 열림/닫힘 상태
-    onClose, // 모달 닫기 핸들러
-    children, // 모달 내용
-
-    // ===== 선택적 props =====
-    title = '', // 모달 제목
-    showCloseButton = true, // X 버튼 표시 여부
-    closeOnBackdrop = true, // 배경 클릭 시 닫기
-    closeOnEsc = true, // ESC 키로 닫기
-
-    // ===== 스타일 props =====
-    size = 'medium', // 'small' | 'medium' | 'large'
-    className = '', // 추가 CSS 클래스
+    isOpen = false,
+    onClose,
+    children,
+    title = '',
+    showCloseButton = true,
+    closeOnBackdrop = true,
+    closeOnEsc = true,
+    size = 'medium',
+    className = '',
+    modalClassName = '',
+    titleClassName = '',
 }) => {
-    // ESC 키 이벤트 처리
     useEffect(() => {
         if (!isOpen || !closeOnEsc) return;
 
@@ -38,7 +28,6 @@ const Modal = ({
         return () => document.removeEventListener('keydown', handleEscKey);
     }, [isOpen, closeOnEsc, onClose]);
 
-    // 스크롤 방지
     useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = 'hidden';
@@ -51,79 +40,59 @@ const Modal = ({
         };
     }, [isOpen]);
 
-    // 모달이 열려있지 않으면 렌더링하지 않음
     if (!isOpen) return null;
 
-    // 배경 클릭 핸들러
     const handleBackdropClick = (event) => {
         if (closeOnBackdrop && event.target === event.currentTarget) {
             onClose?.();
         }
     };
 
-    // 모달 크기별 스타일
-    const getSizeStyles = () => {
+    const getSizeClasses = () => {
         switch (size) {
             case 'small':
-                return { maxWidth: '400px', width: '90vw' };
+                return 'max-w-md';
             case 'large':
-                return { maxWidth: '800px', width: '90vw' };
+                return 'max-w-4xl';
             case 'medium':
             default:
-                return { maxWidth: '600px', width: '90vw' };
+                return 'max-w-2xl';
         }
     };
 
     return (
         <div
+            className={`fixed inset-0 flex items-center justify-center z-50 p-4 ${className}`}
             style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                zIndex: 1000,
-                padding: '20px',
+                backgroundColor: 'rgba(15, 23, 42, 0.8)', // #0F172A 80% 투명도
+                backdropFilter: 'blur(4px)', // 블러 효과 추가
             }}
             onClick={handleBackdropClick}
-            className={`modal-backdrop ${className}`}
         >
             <div
+                className={`rounded-lg shadow-xl max-h-[90vh] overflow-auto relative w-full ${getSizeClasses()}`}
                 style={{
-                    backgroundColor: '#ffffff',
-                    borderRadius: '12px',
-                    boxShadow:
-                        '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-                    maxHeight: '90vh',
-                    overflow: 'auto',
-                    position: 'relative',
-                    ...getSizeStyles(),
+                    backgroundColor: '#1E293B', // 초기 디자인 카드 배경색
+                    border: '1px solid #374151', // 초기 디자인 테두리색
+                    boxShadow: '0 10px 25px rgba(0, 0, 0, 0.5)', // 더 진한 그림자
+                    ...(modalClassName && {}), // modalClassName이 있으면 추가 스타일 적용 가능
                 }}
                 onClick={(e) => e.stopPropagation()}
-                className="modal-content"
             >
                 {/* 모달 헤더 */}
                 {(title || showCloseButton) && (
                     <div
+                        className="flex items-center justify-between p-4 rounded-t-lg"
                         style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            padding: '20px 24px',
-                            borderBottom: '1px solid #e5e7eb',
+                            borderBottom: '1px solid #374151', // 초기 디자인 테두리색
+                            backgroundColor: '#1E293B', // 헤더도 같은 배경색
                         }}
                     >
                         {title && (
                             <h2
+                                className={`text-xl font-bold ${titleClassName}`}
                                 style={{
-                                    fontSize: '18px',
-                                    fontWeight: 'bold',
-                                    color: '#1f2937',
-                                    margin: 0,
+                                    color: '#FFFFFF', // 초기 디자인 텍스트색
                                 }}
                             >
                                 {title}
@@ -132,25 +101,22 @@ const Modal = ({
                         {showCloseButton && (
                             <button
                                 onClick={onClose}
+                                className="transition-colors text-2xl font-bold p-1 leading-none"
                                 style={{
-                                    background: 'none',
+                                    color: '#9CA3AF', // 초기 디자인 보조 텍스트색
+                                    backgroundColor: 'transparent',
                                     border: 'none',
-                                    fontSize: '24px',
-                                    color: '#6b7280',
                                     cursor: 'pointer',
-                                    padding: '4px',
-                                    borderRadius: '4px',
-                                    transition: 'color 0.2s ease',
                                 }}
-                                onMouseEnter={(e) =>
-                                    (e.target.style.color = '#374151')
-                                }
-                                onMouseLeave={(e) =>
-                                    (e.target.style.color = '#6b7280')
-                                }
+                                onMouseEnter={(e) => {
+                                    e.target.style.color = '#FFFFFF'; // 호버 시 흰색
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.target.style.color = '#9CA3AF'; // 원래 색상으로
+                                }}
                                 aria-label="모달 닫기"
                             >
-                                ✕
+                                &times;
                             </button>
                         )}
                     </div>
@@ -158,8 +124,10 @@ const Modal = ({
 
                 {/* 모달 본문 */}
                 <div
+                    className="p-4"
                     style={{
-                        padding: title || showCloseButton ? '24px' : '24px',
+                        backgroundColor: '#1E293B', // 본문도 같은 배경색
+                        color: '#FFFFFF', // 기본 텍스트 색상
                     }}
                 >
                     {children}

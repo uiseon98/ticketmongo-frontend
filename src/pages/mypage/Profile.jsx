@@ -123,15 +123,15 @@ export default function Profile() {
             <div className="max-w-4xl mx-auto px-4 py-8">
                 {/* Page Title */}
                 <div className="text-center mb-8">
-                    <h2 className="text-3xl font-bold mb-2">My Account</h2>
+                    <h2 className="text-3xl font-bold mb-2">마이페이지</h2>
                     <p className="text-gray-400">
                         프로필과 계정 설정을 관리하세요
                     </p>
                 </div>
 
                 {/* Tab Navigation */}
-                <div className="flex justify-center mb-8">
-                    <div className="bg-gray-800 rounded-xl p-1 flex space-x-1">
+                <div className="flex flex-col sm:flex-row justify-center mb-8">
+                    <div className="bg-gray-800 rounded-xl p-1 flex flex-col sm:flex-row space-y-1 sm:space-y-0 sm:space-x-1">
                         {tabs.map((tab) => {
                             const Icon = tab.icon;
                             return (
@@ -141,7 +141,7 @@ export default function Profile() {
                                     className={`flex items-center space-x-2 px-6 py-3 rounded-lg transition-all duration-200 ${
                                         activeTab === tab.id
                                             ? 'bg-blue-600 text-white shadow-lg'
-                                            : 'text-gray-300 hover:text-white hover:bg-gray-700'
+                                            : 'text-gray-500 hover:text-white hover:bg-gray-300'
                                     }`}
                                 >
                                     <Icon size={18} />

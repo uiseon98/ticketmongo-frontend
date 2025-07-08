@@ -11,22 +11,36 @@ import {
     Search,
     Filter,
     RefreshCw,
+    Bot,
+    X,
 } from 'lucide-react';
+import { concertService } from '../../../features/concert/services/concertService.js';
+import AISummaryRegenerationSection from './AISummaryRegenerationSection.jsx';
 
 /**
- * SellerConcertList.jsx
+ * SellerConcertList.jsx (다크 테마 버전)
  *
  * 판매자용 콘서트 목록 관리 컴포넌트
  * - 백엔드 SellerConcertController의 API와 완전히 일치
  * - 페이징, 정렬, 필터링 기능 제공
  * - 콘서트 생성, 수정, 삭제, 상태 관리
  * - 포스터 이미지 업데이트 기능
+ * - AI 요약 재생성 기능
  */
-const SellerConcertList = () => {
+const SellerConcertList = ({
+    sellerId,
+    onCreateConcert,
+    onEditConcert,
+    refreshTrigger,
+}) => {
     // ====== 상태 관리 ======
     const [concerts, setConcerts] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+
+    // AI 요약 모달 상태
+    const [showAiSummaryModal, setShowAiSummaryModal] = useState(false);
+    const [selectedConcertForAi, setSelectedConcertForAi] = useState(null);
 
     // 페이징 상태 (BE와 동일한 기본값)
     const [pagination, setPagination] = useState({
@@ -50,14 +64,6 @@ const SellerConcertList = () => {
         searchKeyword: '',
     });
 
-    // 판매자 ID (실제로는 로그인 사용자 정보에서 가져와야 함)
-    const [sellerId] = useState(100); // 예시용 하드코딩
-
-    // 모달 상태
-    const [showCreateModal, setShowCreateModal] = useState(false);
-    const [showEditModal, setShowEditModal] = useState(false);
-    const [selectedConcert, setSelectedConcert] = useState(null);
-
     // ====== BE API 호출 함수들 ======
 
     /**
@@ -67,16 +73,12 @@ const SellerConcertList = () => {
     const fetchConcerts = async () => {
         setLoading(true);
         try {
-            const params = new URLSearchParams({
-                sellerId: sellerId.toString(),
-                page: pagination.page.toString(),
-                size: pagination.size.toString(),
+            const result = await concertService.getSellerConcerts(sellerId, {
+                page: pagination.page,
+                size: pagination.size,
                 sortBy: sorting.sortBy,
                 sortDir: sorting.sortDir,
             });
-
-            const response = await fetch(`/api/seller/concerts?${params}`);
-            const result = await response.json();
 
             if (result.success) {
                 setConcerts(result.data.content);
@@ -109,15 +111,10 @@ const SellerConcertList = () => {
 
         setLoading(true);
         try {
-            const params = new URLSearchParams({
-                sellerId: sellerId.toString(),
-                status: status,
-            });
-
-            const response = await fetch(
-                `/api/seller/concerts/status?${params}`,
+            const result = await concertService.getSellerConcertsByStatus(
+                sellerId,
+                status,
             );
-            const result = await response.json();
 
             if (result.success) {
                 setConcerts(result.data);
@@ -143,22 +140,24 @@ const SellerConcertList = () => {
      * 콘서트 삭제 (취소 처리)
      * DELETE /api/seller/concerts/{concertId}
      */
-    const deleteConcert = async (concertId) => {
-        if (!confirm('정말로 이 콘서트를 취소하시겠습니까?')) return;
+    const deleteConcert = async (concert) => {
+        if (
+            !confirm(
+                `정말로 "${concert.title}" 콘서트를 삭제하시겠습니까?\n\n⚠️ 삭제된 콘서트는 복구할 수 없습니다.\n⚠️ 이미 예매된 티켓이 있다면 환불 처리가 필요합니다.`,
+            )
+        )
+            return;
+
+        if (concert.status === 'CANCELLED') {
+            alert('이미 취소된 콘서트입니다.');
+            return;
+        }
 
         try {
-            const params = new URLSearchParams({
-                sellerId: sellerId.toString(),
-            });
-
-            const response = await fetch(
-                `/api/seller/concerts/${concertId}?${params}`,
-                {
-                    method: 'DELETE',
-                },
+            const result = await concertService.deleteConcert(
+                sellerId,
+                concert.concertId,
             );
-
-            const result = await response.json();
 
             if (result.success) {
                 alert('콘서트가 취소되었습니다.');
@@ -196,6 +195,24 @@ const SellerConcertList = () => {
         setPagination((prev) => ({ ...prev, page: 0 })); // 첫 페이지로 리셋
     };
 
+    // AI 요약 재생성 핸들러
+    const handleAiSummaryRegeneration = (concert) => {
+        // 취소된 콘서트는 AI 요약 재생성 불가
+        if (concert.status === 'CANCELLED') {
+            alert('취소된 콘서트는 AI 요약을 재생성할 수 없습니다.');
+            return;
+        }
+
+        setSelectedConcertForAi(concert);
+        setShowAiSummaryModal(true);
+    };
+
+    // AI 요약 모달 닫기 핸들러
+    const handleCloseAiSummaryModal = () => {
+        setShowAiSummaryModal(false);
+        setSelectedConcertForAi(null);
+    };
+
     // ====== useEffect - 데이터 로딩 ======
     useEffect(() => {
         if (filters.status === 'ALL') {
@@ -209,17 +226,21 @@ const SellerConcertList = () => {
         sorting.sortBy,
         sorting.sortDir,
         filters.status,
+        refreshTrigger,
     ]);
 
     // ====== 상태별 스타일 및 텍스트 ======
     const getStatusBadge = (status) => {
         const statusConfig = {
-            SCHEDULED: { color: 'bg-blue-100 text-blue-800', text: '예정됨' },
-            ON_SALE: { color: 'bg-green-100 text-green-800', text: '예매중' },
-            SOLD_OUT: { color: 'bg-red-100 text-red-800', text: '매진' },
-            CANCELLED: { color: 'bg-gray-100 text-gray-800', text: '취소됨' },
+            SCHEDULED: {
+                color: 'bg-yellow-600 text-yellow-100',
+                text: '예정됨',
+            },
+            ON_SALE: { color: 'bg-green-600 text-green-100', text: '예매중' },
+            SOLD_OUT: { color: 'bg-red-600 text-red-100', text: '매진' },
+            CANCELLED: { color: 'bg-gray-600 text-gray-100', text: '취소됨' },
             COMPLETED: {
-                color: 'bg-purple-100 text-purple-800',
+                color: 'bg-purple-600 text-purple-100',
                 text: '완료됨',
             },
         };
@@ -254,20 +275,20 @@ const SellerConcertList = () => {
 
     // ====== 렌더링 ======
     return (
-        <div className="p-6 bg-gray-50 min-h-screen">
+        <div className="p-6 bg-gray-800 text-white rounded-lg">
             {/* 헤더 섹션 */}
-            <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+            <div className="bg-gray-700 rounded-lg shadow-sm p-6 mb-6 border border-gray-600">
                 <div className="flex justify-between items-center mb-4">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">
+                        <h1 className="text-2xl font-bold text-white">
                             콘서트 관리
                         </h1>
-                        <p className="text-gray-600 mt-1">
+                        <p className="text-gray-300 mt-1">
                             등록한 콘서트를 관리하고 편집할 수 있습니다
                         </p>
                     </div>
                     <button
-                        onClick={() => setShowCreateModal(true)}
+                        onClick={() => onCreateConcert && onCreateConcert()}
                         className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
                     >
                         <Plus size={20} />
@@ -293,7 +314,7 @@ const SellerConcertList = () => {
                                 className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
                                     filters.status === status
                                         ? 'bg-blue-600 text-white'
-                                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                        : 'bg-gray-600 text-gray-200 hover:bg-gray-500'
                                 }`}
                             >
                                 {status === 'ALL'
@@ -314,7 +335,7 @@ const SellerConcertList = () => {
                     {/* 새로고침 버튼 */}
                     <button
                         onClick={() => fetchConcerts()}
-                        className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+                        className="p-2 text-gray-300 hover:text-white hover:bg-gray-600 rounded-lg transition-colors"
                         title="새로고침"
                     >
                         <RefreshCw size={18} />
@@ -324,28 +345,28 @@ const SellerConcertList = () => {
 
             {/* 에러 메시지 */}
             {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+                <div className="bg-red-900 border border-red-700 text-red-200 px-4 py-3 rounded-lg mb-6">
                     {error}
                 </div>
             )}
 
             {/* 콘서트 목록 */}
-            <div className="bg-white rounded-lg shadow-sm">
+            <div className="bg-gray-700 rounded-lg shadow-sm border border-gray-600">
                 {loading ? (
                     <div className="p-8 text-center">
                         <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                        <p className="mt-2 text-gray-600">로딩 중...</p>
+                        <p className="mt-2 text-gray-300">로딩 중...</p>
                     </div>
                 ) : concerts.length === 0 ? (
-                    <div className="p-8 text-center text-gray-500">
+                    <div className="p-8 text-center text-gray-400">
                         <Calendar
                             size={48}
-                            className="mx-auto mb-4 text-gray-300"
+                            className="mx-auto mb-4 text-gray-500"
                         />
                         <p>등록된 콘서트가 없습니다.</p>
                         <button
-                            onClick={() => setShowCreateModal(true)}
-                            className="mt-4 text-blue-600 hover:text-blue-800"
+                            onClick={() => onCreateConcert && onCreateConcert()}
+                            className="mt-4 text-blue-400 hover:text-blue-300"
                         >
                             첫 번째 콘서트를 등록해보세요
                         </button>
@@ -353,93 +374,40 @@ const SellerConcertList = () => {
                 ) : (
                     <>
                         {/* 테이블 헤더 */}
-                        <div className="border-b border-gray-200">
-                            <div className="grid grid-cols-12 gap-4 p-4 text-sm font-medium text-gray-500">
+                        <div className="border-b border-gray-600">
+                            <div className="grid grid-cols-12 gap-4 p-4 text-sm font-medium text-gray-300">
                                 <div className="col-span-3">
-                                    <button
-                                        onClick={() =>
-                                            handleSortChange('title')
-                                        }
-                                        className="flex items-center gap-1 hover:text-gray-700"
-                                    >
+                                    <span className="text-gray-300">
                                         콘서트 정보
-                                        {sorting.sortBy === 'title' && (
-                                            <span>
-                                                {sorting.sortDir === 'asc'
-                                                    ? '↑'
-                                                    : '↓'}
-                                            </span>
-                                        )}
-                                    </button>
+                                    </span>
                                 </div>
                                 <div className="col-span-2">
-                                    <button
-                                        onClick={() =>
-                                            handleSortChange('concertDate')
-                                        }
-                                        className="flex items-center gap-1 hover:text-gray-700"
-                                    >
+                                    <span className="text-gray-300">
                                         공연일시
-                                        {sorting.sortBy === 'concertDate' && (
-                                            <span>
-                                                {sorting.sortDir === 'asc'
-                                                    ? '↑'
-                                                    : '↓'}
-                                            </span>
-                                        )}
-                                    </button>
+                                    </span>
                                 </div>
                                 <div className="col-span-2">장소</div>
                                 <div className="col-span-1">좌석수</div>
                                 <div className="col-span-1">
-                                    <button
-                                        onClick={() =>
-                                            handleSortChange('status')
-                                        }
-                                        className="flex items-center gap-1 hover:text-gray-700"
-                                    >
-                                        상태
-                                        {sorting.sortBy === 'status' && (
-                                            <span>
-                                                {sorting.sortDir === 'asc'
-                                                    ? '↑'
-                                                    : '↓'}
-                                            </span>
-                                        )}
-                                    </button>
-                                </div>
-                                <div className="col-span-2">
-                                    <button
-                                        onClick={() =>
-                                            handleSortChange('createdAt')
-                                        }
-                                        className="flex items-center gap-1 hover:text-gray-700"
-                                    >
-                                        등록일
-                                        {sorting.sortBy === 'createdAt' && (
-                                            <span>
-                                                {sorting.sortDir === 'asc'
-                                                    ? '↑'
-                                                    : '↓'}
-                                            </span>
-                                        )}
-                                    </button>
+                                    <span className="text-gray-300">상태</span>
                                 </div>
                                 <div className="col-span-1">작업</div>
+                                <div className="col-span-1">등록일</div>
+                                <div className="col-span-1">AI 요약</div>
                             </div>
                         </div>
 
                         {/* 콘서트 목록 */}
-                        <div className="divide-y divide-gray-200">
+                        <div className="divide-y divide-gray-600">
                             {concerts.map((concert) => (
                                 <div
                                     key={concert.concertId}
-                                    className="grid grid-cols-12 gap-4 p-4 hover:bg-gray-50"
+                                    className="grid grid-cols-12 gap-4 p-4 hover:bg-gray-600"
                                 >
                                     {/* 콘서트 정보 */}
                                     <div className="col-span-3">
                                         <div className="flex items-start gap-3">
-                                            <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
+                                            <div className="w-12 h-12 bg-gray-600 rounded-lg flex items-center justify-center overflow-hidden">
                                                 {concert.posterImageUrl ? (
                                                     <img
                                                         src={
@@ -456,10 +424,10 @@ const SellerConcertList = () => {
                                                 )}
                                             </div>
                                             <div>
-                                                <h3 className="font-medium text-gray-900 line-clamp-2">
+                                                <h3 className="font-medium text-white line-clamp-2">
                                                     {concert.title}
                                                 </h3>
-                                                <p className="text-sm text-gray-600">
+                                                <p className="text-sm text-gray-300">
                                                     {concert.artist}
                                                 </p>
                                             </div>
@@ -473,13 +441,13 @@ const SellerConcertList = () => {
                                                 size={14}
                                                 className="text-gray-400"
                                             />
-                                            <span>
+                                            <span className="text-gray-200">
                                                 {formatDate(
                                                     concert.concertDate,
                                                 )}
                                             </span>
                                         </div>
-                                        <div className="flex items-center gap-1 text-sm text-gray-600 mt-1">
+                                        <div className="flex items-center gap-1 text-sm text-gray-300 mt-1">
                                             <Clock
                                                 size={14}
                                                 className="text-gray-400"
@@ -498,7 +466,7 @@ const SellerConcertList = () => {
                                                 size={14}
                                                 className="text-gray-400"
                                             />
-                                            <span className="line-clamp-2">
+                                            <span className="line-clamp-2 text-gray-200">
                                                 {concert.venueName}
                                             </span>
                                         </div>
@@ -511,7 +479,7 @@ const SellerConcertList = () => {
                                                 size={14}
                                                 className="text-gray-400"
                                             />
-                                            <span>
+                                            <span className="text-gray-200">
                                                 {concert.totalSeats?.toLocaleString()}
                                             </span>
                                         </div>
@@ -522,38 +490,84 @@ const SellerConcertList = () => {
                                         {getStatusBadge(concert.status)}
                                     </div>
 
-                                    {/* 등록일 */}
+                                    {/* 작업 버튼들 */}
                                     <div className="col-span-2">
-                                        <span className="text-sm text-gray-600">
-                                            {formatDateTime(concert.createdAt)}
-                                        </span>
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex gap-1">
+                                                <button
+                                                    onClick={() => {
+                                                        if (
+                                                            concert.status ===
+                                                            'CANCELLED'
+                                                        ) {
+                                                            alert(
+                                                                '취소된 콘서트는 수정할 수 없습니다.',
+                                                            );
+                                                            return;
+                                                        }
+                                                        onEditConcert &&
+                                                            onEditConcert(
+                                                                concert,
+                                                            );
+                                                    }}
+                                                    className="p-1 text-blue-400 hover:bg-blue-900 hover:bg-opacity-30 rounded transition-colors"
+                                                    title="수정"
+                                                >
+                                                    <Edit size={16} />
+                                                </button>
+                                                <button
+                                                    onClick={() =>
+                                                        deleteConcert(concert)
+                                                    }
+                                                    className="p-1 text-red-400 hover:bg-red-900 hover:bg-opacity-30 rounded transition-colors"
+                                                    title="삭제"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </div>
+
+                                            <div className="text-sm">
+                                                <span className="text-gray-300">
+                                                    {formatDateTime(
+                                                        concert.updatedAt ||
+                                                            concert.createdAt,
+                                                    )}
+                                                </span>
+                                                <div className="text-xs text-gray-400 mt-0.5">
+                                                    {concert.updatedAt &&
+                                                    concert.updatedAt !==
+                                                        concert.createdAt
+                                                        ? '수정됨'
+                                                        : '등록됨'}
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    {/* 작업 버튼들 */}
+                                    {/* AI 요약 재생성 버튼 */}
                                     <div className="col-span-1">
-                                        <div className="flex gap-1">
-                                            <button
-                                                onClick={() => {
-                                                    setSelectedConcert(concert);
-                                                    setShowEditModal(true);
-                                                }}
-                                                className="p-1 text-blue-600 hover:bg-blue-50 rounded transition-colors"
-                                                title="수정"
-                                            >
-                                                <Edit size={16} />
-                                            </button>
-                                            <button
-                                                onClick={() =>
-                                                    deleteConcert(
-                                                        concert.concertId,
-                                                    )
-                                                }
-                                                className="p-1 text-red-600 hover:bg-red-50 rounded transition-colors"
-                                                title="삭제"
-                                            >
-                                                <Trash2 size={16} />
-                                            </button>
-                                        </div>
+                                        <button
+                                            onClick={() =>
+                                                handleAiSummaryRegeneration(
+                                                    concert,
+                                                )
+                                            }
+                                            className={`p-2 rounded transition-colors ${
+                                                concert.status === 'CANCELLED'
+                                                    ? 'text-gray-500 cursor-not-allowed'
+                                                    : 'text-green-400 hover:bg-green-900 hover:bg-opacity-30'
+                                            }`}
+                                            title={
+                                                concert.status === 'CANCELLED'
+                                                    ? '취소된 콘서트는 AI 요약을 재생성할 수 없습니다'
+                                                    : 'AI 요약 재생성'
+                                            }
+                                            disabled={
+                                                concert.status === 'CANCELLED'
+                                            }
+                                        >
+                                            <Bot size={16} />
+                                        </button>
                                     </div>
                                 </div>
                             ))}
@@ -563,9 +577,9 @@ const SellerConcertList = () => {
 
                 {/* 페이지네이션 */}
                 {!loading && concerts.length > 0 && (
-                    <div className="p-4 border-t border-gray-200">
+                    <div className="p-4 border-t border-gray-600">
                         <div className="flex items-center justify-between">
-                            <div className="text-sm text-gray-600">
+                            <div className="text-sm text-gray-300">
                                 총 {pagination.totalElements}개 중{' '}
                                 {pagination.page * pagination.size + 1}-
                                 {Math.min(
@@ -582,7 +596,7 @@ const SellerConcertList = () => {
                                     onChange={(e) =>
                                         handleSizeChange(Number(e.target.value))
                                     }
-                                    className="text-sm border border-gray-300 rounded px-2 py-1"
+                                    className="text-sm border border-gray-500 bg-gray-700 text-white rounded px-2 py-1"
                                 >
                                     <option value={10}>10개씩</option>
                                     <option value={20}>20개씩</option>
@@ -599,7 +613,7 @@ const SellerConcertList = () => {
                                             )
                                         }
                                         disabled={pagination.first}
-                                        className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="px-3 py-1 text-sm border border-gray-500 bg-gray-700 text-white rounded hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         이전
                                     </button>
@@ -632,7 +646,7 @@ const SellerConcertList = () => {
                                                         pageNum ===
                                                         pagination.page
                                                             ? 'bg-blue-600 text-white border-blue-600'
-                                                            : 'border-gray-300 hover:bg-gray-50'
+                                                            : 'border-gray-500 bg-gray-700 text-white hover:bg-gray-600'
                                                     }`}
                                                 >
                                                     {pageNum + 1}
@@ -648,7 +662,7 @@ const SellerConcertList = () => {
                                             )
                                         }
                                         disabled={pagination.last}
-                                        className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="px-3 py-1 text-sm border border-gray-500 bg-gray-700 text-white rounded hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         다음
                                     </button>
@@ -659,34 +673,39 @@ const SellerConcertList = () => {
                 )}
             </div>
 
-            {/* 모달들은 추후 구현 */}
-            {showCreateModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white p-6 rounded-lg">
-                        <h2 className="text-xl font-bold mb-4">콘서트 등록</h2>
-                        <p>콘서트 등록 폼이 여기에 들어갑니다.</p>
-                        <button
-                            onClick={() => setShowCreateModal(false)}
-                            className="mt-4 px-4 py-2 bg-gray-500 text-white rounded"
-                        >
-                            닫기
-                        </button>
-                    </div>
-                </div>
-            )}
+            {/* AI 요약 재생성 모달 */}
+            {showAiSummaryModal && selectedConcertForAi && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-gray-800 text-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-gray-600">
+                        {/* 모달 헤더 */}
+                        <div className="flex items-center justify-between p-6 border-b border-gray-600">
+                            <h2 className="text-xl font-bold text-white">
+                                AI 요약 재생성 - {selectedConcertForAi.title}
+                            </h2>
+                            <button
+                                onClick={handleCloseAiSummaryModal}
+                                className="text-gray-400 hover:text-gray-200 transition-colors"
+                            >
+                                <X size={24} />
+                            </button>
+                        </div>
 
-            {showEditModal && selectedConcert && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white p-6 rounded-lg">
-                        <h2 className="text-xl font-bold mb-4">콘서트 수정</h2>
-                        <p>콘서트 수정 폼이 여기에 들어갑니다.</p>
-                        <p>선택된 콘서트: {selectedConcert.title}</p>
-                        <button
-                            onClick={() => setShowEditModal(false)}
-                            className="mt-4 px-4 py-2 bg-gray-500 text-white rounded"
-                        >
-                            닫기
-                        </button>
+                        {/* AI 요약 재생성 섹션 */}
+                        <div className="p-6">
+                            <AISummaryRegenerationSection
+                                sellerId={sellerId}
+                                concertId={selectedConcertForAi.concertId}
+                                currentAiSummary={
+                                    selectedConcertForAi.aiSummary
+                                }
+                                onSummaryUpdated={(newSummary) => {
+                                    // AI 요약이 성공적으로 업데이트되면 목록 새로고침
+                                    fetchConcerts();
+                                    // 필요하다면 모달을 자동으로 닫을 수도 있음
+                                    // setTimeout(() => handleCloseAiSummaryModal(), 2000);
+                                }}
+                            />
+                        </div>
                     </div>
                 </div>
             )}

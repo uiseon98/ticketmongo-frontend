@@ -170,16 +170,16 @@ const ConcertCard = ({
      */
     const cardStyles = {
         // 카드 레이아웃
-        border: '1px solid #e0e0e0',
-        borderRadius: '8px',
+        border: '1px solid #374151', // 더 어두운 테두리
+        borderRadius: '16px', // 더 둥글게
         padding: '16px',
         margin: '8px',
-        backgroundColor: '#ffffff',
+        backgroundColor: '#1E293B', // 그대로 유지
 
-        // 그림자 효과 (깊이감 표현)
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+        // 그림자 효과 (더 강하게)
+        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.5)', // 더 진한 그림자
 
-        // 호버 효과와 클릭 가능함을 나타내는 커서
+        // 호버 효과
         cursor: onClick ? 'pointer' : 'default',
         transition: 'transform 0.2s ease, box-shadow 0.2s ease',
 
@@ -187,7 +187,6 @@ const ConcertCard = ({
         maxWidth: '300px',
         width: '100%',
     };
-
     /**
      * 호버 효과용 스타일 (마우스 올렸을 때)
      * CSS :hover를 인라인으로 구현하기 어려우므로 생략
@@ -208,10 +207,10 @@ const ConcertCard = ({
     const imageStyles = {
         width: '100%',
         height: '200px',
-        objectFit: 'cover', // 이미지 비율 유지하면서 영역 채우기
-        borderRadius: '4px',
+        objectFit: 'cover',
+        borderRadius: '12px', // 기존 12px 유지
         marginBottom: '12px',
-        backgroundColor: '#f5f5f5', // 이미지 로딩 중 배경색
+        backgroundColor: '#374151', // 더 어두운 로딩 배경
     };
 
     /**
@@ -276,18 +275,18 @@ const ConcertCard = ({
             aria-label={`${concert.title} - ${concert.artist} 콘서트 정보`}
         >
             {/* 포스터 이미지 섹션 */}
-            {concert.posterImageUrl && (
-                <div style={{ marginBottom: '12px' }}>
-                    <img
-                        src={concert.posterImageUrl}
-                        alt={`${concert.title} 포스터`}
-                        style={imageStyles}
-                        onError={handleImageError}
-                        // 이미지 지연 로딩 (성능 최적화)
-                        loading="lazy"
-                    />
-                </div>
-            )}
+            <div style={{ marginBottom: '12px' }}>
+                <img
+                    src={
+                        concert.posterImageUrl ||
+                        '/images/basic-poster-image.png'
+                    }
+                    alt={`${concert.title} 포스터`}
+                    style={imageStyles}
+                    onError={handleImageError}
+                    loading="lazy"
+                />
+            </div>
 
             {/* 콘서트 기본 정보 섹션 */}
             <div style={{ marginBottom: '12px' }}>
@@ -297,7 +296,7 @@ const ConcertCard = ({
                         margin: '0 0 8px 0',
                         fontSize: '18px',
                         fontWeight: 'bold',
-                        color: '#1f2937',
+                        color: '#FFFFFF',
                         lineHeight: '1.4',
                     }}
                 >
@@ -309,7 +308,7 @@ const ConcertCard = ({
                     style={{
                         margin: '0 0 8px 0',
                         fontSize: '14px',
-                        color: '#6b7280',
+                        color: '#9CA3AF',
                         fontWeight: '500',
                     }}
                 >
@@ -321,7 +320,7 @@ const ConcertCard = ({
                     style={{
                         margin: '0 0 8px 0',
                         fontSize: '14px',
-                        color: '#374151',
+                        color: '#D1D5DB',
                     }}
                 >
                     📅 {formatDateTime()}
@@ -332,7 +331,7 @@ const ConcertCard = ({
                     style={{
                         margin: '0 0 8px 0',
                         fontSize: '14px',
-                        color: '#374151',
+                        color: '#D1D5DB',
                     }}
                 >
                     📍 {concert.venueName}
@@ -344,7 +343,7 @@ const ConcertCard = ({
                         style={{
                             margin: '0 0 8px 0',
                             fontSize: '12px',
-                            color: '#6b7280',
+                            color: '#D1D5DB',
                         }}
                     >
                         🎫 총 {concert.totalSeats.toLocaleString()}석
@@ -358,16 +357,17 @@ const ConcertCard = ({
                     style={{
                         marginBottom: '12px',
                         padding: '8px',
-                        backgroundColor: '#f8fafc',
+                        backgroundColor: '#374151', // 더 어두운 배경 (기존 #f8fafc)
                         borderRadius: '4px',
                         borderLeft: '3px solid #3b82f6',
+                        border: '1px solid #4B5563', // 어두운 테두리 추가
                     }}
                 >
                     <p
                         style={{
                             margin: '0',
                             fontSize: '12px',
-                            color: '#475569',
+                            color: '#D1D5DB', // 더 밝은 텍스트 (기존 #475569)
                             lineHeight: '1.4',
                         }}
                     >

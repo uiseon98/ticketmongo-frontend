@@ -119,8 +119,8 @@ const AISummary = ({
      */
     const containerStyles = {
         padding: compact ? '12px' : '16px',
-        backgroundColor: '#f8fafc',
-        border: '1px solid #e2e8f0',
+        backgroundColor: '#374151', // 어두운 배경
+        border: '1px solid #4B5563',
         borderRadius: '8px',
         marginBottom: compact ? '12px' : '16px',
     };
@@ -133,6 +133,8 @@ const AISummary = ({
         alignItems: 'center',
         justifyContent: 'space-between',
         marginBottom: '12px',
+        paddingBottom: '12px', // 패딩 추가
+        borderBottom: '1px solid #374151', // 밑줄 추가
     };
 
     /**
@@ -141,7 +143,7 @@ const AISummary = ({
     const titleStyles = {
         fontSize: compact ? '14px' : '16px',
         fontWeight: '600',
-        color: '#1e40af',
+        color: '#FFFFFF',
         display: 'flex',
         alignItems: 'center',
         gap: '6px',
@@ -153,10 +155,10 @@ const AISummary = ({
     const refreshButtonStyles = {
         padding: '4px 8px',
         backgroundColor: 'transparent',
-        border: '1px solid #cbd5e1',
+        border: '1px solid #4B5563', // 어두운 테두리
         borderRadius: '4px',
         fontSize: '12px',
-        color: '#64748b',
+        color: '#9CA3AF', // 회색 텍스트
         cursor: loading ? 'not-allowed' : 'pointer',
         transition: 'all 0.2s ease',
         opacity: loading ? 0.6 : 1,
@@ -168,7 +170,7 @@ const AISummary = ({
     const summaryTextStyles = {
         fontSize: compact ? '13px' : '14px',
         lineHeight: '1.6',
-        color: '#374151',
+        color: '#D1D5DB', // 밝은 회색으로 변경 (기존 #374151)
         marginBottom: shouldTruncate() ? '8px' : '0',
     };
 
@@ -268,7 +270,7 @@ const AISummary = ({
                     style={{
                         textAlign: 'center',
                         padding: '20px',
-                        color: '#6b7280',
+                        color: '#9CA3AF',
                     }}
                 >
                     <div style={{ fontSize: '32px', marginBottom: '8px' }}>
@@ -298,8 +300,8 @@ const AISummary = ({
                     <span
                         style={{
                             fontSize: '11px',
-                            backgroundColor: '#dbeafe',
-                            color: '#1e40af',
+                            backgroundColor: '#374151',
+                            color: '#3B82F6',
                             padding: '2px 6px',
                             borderRadius: '10px',
                             fontWeight: 'normal',
@@ -361,10 +363,11 @@ const AISummary = ({
                     style={{
                         marginTop: '12px',
                         padding: '8px',
-                        backgroundColor: '#eff6ff',
+                        backgroundColor: '#1E293B', // 더 어두운 배경
                         borderRadius: '4px',
                         fontSize: '11px',
-                        color: '#1e40af',
+                        color: '#9CA3AF', // 회색 텍스트
+                        border: '1px solid #374151',
                     }}
                 >
                     💡 이 요약은 실제 관람객들의 후기를 바탕으로 AI가 자동
