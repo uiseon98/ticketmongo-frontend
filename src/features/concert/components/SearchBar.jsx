@@ -148,12 +148,12 @@ const SearchBar = ({
         width: '100%',
         maxWidth: '600px',
         position: 'relative',
-        border: `2px solid ${isFocused ? '#3b82f6' : '#d1d5db'}`,
+        border: `2px solid ${isFocused ? '#3B82F6' : '#374151'}`, // 더 어두운 테두리
         borderRadius: '8px',
-        backgroundColor: disabled ? '#f3f4f6' : '#ffffff',
+        backgroundColor: disabled ? '#374151' : '#1E293B', // 다크 배경
         boxShadow: isFocused
             ? '0 0 0 3px rgba(59, 130, 246, 0.1)'
-            : '0 1px 3px rgba(0, 0, 0, 0.1)',
+            : '0 1px 3px rgba(0, 0, 0, 0.3)', // 더 진한 그림자
         transition: 'all 0.2s ease-in-out',
         opacity: disabled ? 0.6 : 1,
         cursor: disabled ? 'not-allowed' : 'text',
@@ -167,7 +167,10 @@ const SearchBar = ({
         fontSize: '16px',
         fontFamily: 'inherit',
         backgroundColor: 'transparent',
-        color: disabled ? '#9ca3af' : '#1f2937',
+        color: disabled ? '#9ca3af' : '#FFFFFF', // 흰색 텍스트
+        '::placeholder': {
+            color: '#9CA3AF',
+        },
     };
 
     const buttonBaseStyles = {
