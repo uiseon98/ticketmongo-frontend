@@ -409,12 +409,13 @@ const ExpectationForm = ({
      * 컨테이너 스타일
      */
     const containerStyles = {
-        backgroundColor: '#ffffff',
+        backgroundColor: '#1E293B',
         borderRadius: '8px',
         border: '1px solid #e5e7eb',
         padding: compact ? '16px' : '24px',
         maxWidth: '500px', // 기대평 폼은 리뷰보다 작게
         margin: '0 auto',
+        color: '#FFFFFF',
     };
 
     /**
@@ -423,7 +424,7 @@ const ExpectationForm = ({
     const titleStyles = {
         fontSize: compact ? '18px' : '20px',
         fontWeight: 'bold',
-        color: '#1f2937',
+        color: '#FFFFFF',
         marginBottom: compact ? '16px' : '20px',
         textAlign: 'center',
         display: 'flex',
@@ -446,7 +447,7 @@ const ExpectationForm = ({
         display: 'block',
         fontSize: compact ? '14px' : '16px',
         fontWeight: '600',
-        color: '#374151',
+        color: '#D1D5DB',
         marginBottom: '6px',
     };
 
@@ -456,11 +457,11 @@ const ExpectationForm = ({
     const inputBaseStyles = {
         width: '100%',
         padding: compact ? '8px 12px' : '12px 16px',
-        border: '2px solid #d1d5db',
+        border: '2px solid #4B5563', // #d1d5db → #4B5563로 변경
         borderRadius: '6px',
         fontSize: compact ? '14px' : '16px',
-        backgroundColor: disabled ? '#f3f4f6' : '#ffffff',
-        color: disabled ? '#9ca3af' : '#1f2937',
+        backgroundColor: disabled ? '#374151' : '#374151', // #f3f4f6, #ffffff → #374151로 변경
+        color: disabled ? '#9CA3AF' : '#FFFFFF', // #9ca3af, #1f2937 → #9CA3AF, #FFFFFF로 변경
         transition: 'border-color 0.2s ease',
     };
 
@@ -509,9 +510,9 @@ const ExpectationForm = ({
     const ratingContainerStyles = {
         textAlign: 'center',
         padding: compact ? '12px' : '16px',
-        backgroundColor: '#fef9e7', // 기대평 전용 노란색 배경
+        backgroundColor: '#374151', // 기대평 전용 노란색 배경
         borderRadius: '6px',
-        border: '1px solid #fde68a',
+        border: '1px solid #F59E0B',
     };
 
     /**
@@ -519,7 +520,7 @@ const ExpectationForm = ({
      */
     const ratingLabelStyles = {
         fontSize: compact ? '14px' : '16px',
-        color: '#a16207', // 기대평 전용 색상
+        color: '#F59E0B', // 기대평 전용 색상
         marginTop: '8px',
         fontWeight: '600',
     };
@@ -719,10 +720,10 @@ const ExpectationForm = ({
                     style={{
                         marginTop: '16px',
                         padding: '12px',
-                        backgroundColor: '#fef9e7',
+                        backgroundColor: '#374151',
                         borderRadius: '6px',
                         fontSize: '12px',
-                        color: '#a16207',
+                        color: '#D1D5DB',
                     }}
                 >
                     💡 기대평은 공연 관람 전에 작성하는 기대감 표현입니다. 관람
