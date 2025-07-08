@@ -1,138 +1,96 @@
 // src/features/booking/components/SeatMap.jsx
+
 import React from 'react';
+
+// 좌석 상태에 따라 다른 Tailwind CSS 클래스를 반환하는 헬퍼 함수
+const getSeatStatusClass = (status, isSelected) => {
+    if (isSelected) {
+        return 'bg-[#6B8EFE] ring-2 ring-white cursor-pointer'; // 선택됨
+    }
+    switch (status) {
+        case 'AVAILABLE':
+            return 'bg-[#22C55E] hover:bg-green-400 cursor-pointer'; // 선택 가능
+        case 'BOOKED':
+            return 'bg-red-500 cursor-not-allowed'; // 예매 완료
+        default:
+            return 'bg-gray-600 cursor-not-allowed'; // 이용 불가
+    }
+};
 
 export default function SeatMap({
     seatStatuses = [],
-    selectedSeat,
+    selectedSeats = [],
     onSeatClick,
-    isReserving,
 }) {
-    // 1) section → row → [seats] 구조로 그룹핑 (num은 숫자 타입)
-    const sections = seatStatuses.reduce((acc, s) => {
-        const [sec, row, numStr] = s.seatInfo.split('-');
+    // 1. 좌석 데이터를 '섹션 > 열 > 좌석 배열' 구조로 그룹핑합니다.
+    const sections = seatStatuses.reduce((acc, seat) => {
+        const [section, row, numStr] = seat.seatInfo.split('-');
         const num = parseInt(numStr, 10);
-        if (!acc[sec]) acc[sec] = {};
-        if (!acc[sec][row]) acc[sec][row] = [];
-        acc[sec][row].push({ ...s, num });
+        if (!acc[section]) acc[section] = {};
+        if (!acc[section][row]) acc[section][row] = [];
+        acc[section][row].push({ ...seat, num });
         return acc;
     }, {});
 
+    const selectedSeatIds = new Set(selectedSeats.map((s) => s.seatId));
+
     return (
-        <div className="space-y-12">
-            {Object.keys(sections)
-                .sort() // 섹션 A, B, …
-                .map((sec) => {
-                    const rows = sections[sec];
+        <div className="bg-[#22222C] p-4 sm:p-6 rounded-lg h-full">
+            <div className="bg-gray-700 w-3/4 mx-auto h-12 flex items-center justify-center rounded-t-full mb-8 text-white font-bold">
+                STAGE
+            </div>
 
-                    return (
-                        <div key={sec}>
-                            <h3 className="text-xl font-bold mb-4 text-gray-800 text-center">
-                                {sec} 구역
+            {/* 2. 섹션별로 반복하여 렌더링 */}
+            <div className="space-y-12">
+                {Object.keys(sections)
+                    .sort()
+                    .map((sectionName) => (
+                        <div key={sectionName}>
+                            <h3 className="text-xl font-bold text-center text-white mb-4">
+                                {sectionName} 구역
                             </h3>
-
-                            {/* 각 행(Row)별 렌더링 */}
-                            {Object.keys(rows)
-                                .map((r) => parseInt(r, 10))
-                                .sort((a, b) => a - b) // 숫자 순 정렬
-                                .map((rowNum) => {
-                                    const seatsInRow = rows[rowNum];
-
-                                    // 2) 이 행의 최대 좌석 번호(열 수)
-                                    const maxCol = Math.max(
-                                        ...seatsInRow.map((s) => s.num),
-                                    );
-
-                                    // 3) 번호별로 매핑: 빈 칸은 null
-                                    const seatMap = {};
-                                    seatsInRow.forEach((s) => {
-                                        seatMap[s.num] = s;
-                                    });
-
-                                    return (
-                                        <div key={rowNum} className="mb-6">
-                                            <h4 className="text-sm font-medium mb-2 text-gray-600">
+                            {/* 3. 열(row)별로 반복 */}
+                            <div className="space-y-4">
+                                {Object.keys(sections[sectionName])
+                                    .map(Number)
+                                    .sort((a, b) => a - b)
+                                    .map((rowNum) => (
+                                        <div
+                                            key={rowNum}
+                                            className="flex items-center gap-4"
+                                        >
+                                            <span className="w-8 text-gray-400 text-sm">
                                                 {rowNum}열
-                                            </h4>
-                                            <div
-                                                className="grid gap-2 justify-center"
-                                                style={{
-                                                    gridTemplateColumns: `repeat(${maxCol}, minmax(0, 1fr))`,
-                                                }}
-                                            >
-                                                {Array.from(
-                                                    { length: maxCol },
-                                                    (_, idx) => {
-                                                        const col = idx + 1;
-                                                        const seat =
-                                                            seatMap[col];
-
-                                                        if (!seat) {
-                                                            // 빈 자리 placeholder
-                                                            return (
-                                                                <div
-                                                                    key={`empty-${rowNum}-${col}`}
-                                                                    className="w-10 h-10"
-                                                                />
-                                                            );
-                                                        }
-
-                                                        // 실제 좌석 셀
-                                                        const isSel =
-                                                            selectedSeat?.seatId ===
-                                                            seat.seatId;
-                                                        let base =
-                                                            'w-10 h-10 flex items-center justify-center rounded text-sm font-bold cursor-pointer transition';
-                                                        if (isSel) {
-                                                            base +=
-                                                                ' bg-purple-500 ring-2 ring-purple-700';
-                                                        } else if (
-                                                            seat.status ===
-                                                            'AVAILABLE'
-                                                        ) {
-                                                            base +=
-                                                                ' bg-green-500 hover:bg-green-600';
-                                                        } else if (
-                                                            seat.status ===
-                                                            'RESERVED'
-                                                        ) {
-                                                            base +=
-                                                                ' bg-yellow-500 cursor-not-allowed';
-                                                        } else if (
-                                                            seat.status ===
-                                                            'BOOKED'
-                                                        ) {
-                                                            base +=
-                                                                ' bg-red-500 cursor-not-allowed';
-                                                        } else {
-                                                            base +=
-                                                                ' bg-gray-400 cursor-not-allowed';
-                                                        }
-
-                                                        return (
-                                                            <div
-                                                                key={
-                                                                    seat.seatId
-                                                                }
-                                                                className={base}
-                                                                onClick={() =>
-                                                                    !isReserving &&
-                                                                    onSeatClick(
-                                                                        seat,
-                                                                    )
-                                                                }
-                                                            >
-                                                                {seat.num}
-                                                            </div>
-                                                        );
-                                                    },
-                                                )}
+                                            </span>
+                                            <div className="flex-grow flex justify-center gap-2">
+                                                {/* 4. 개별 좌석 렌더링 */}
+                                                {sections[sectionName][rowNum]
+                                                    .sort(
+                                                        (a, b) => a.num - b.num,
+                                                    )
+                                                    .map((seat) => (
+                                                        <div
+                                                            key={seat.seatId}
+                                                            className={`w-8 h-8 flex items-center justify-center text-xs font-bold text-white rounded-md transition-transform active:scale-90
+                                                                ${getSeatStatusClass(seat.status, selectedSeatIds.has(seat.seatId))}
+                                                            `}
+                                                            onClick={() =>
+                                                                onSeatClick &&
+                                                                onSeatClick(
+                                                                    seat,
+                                                                )
+                                                            }
+                                                        >
+                                                            {seat.num}
+                                                        </div>
+                                                    ))}
                                             </div>
                                         </div>
-                                    );
-                                })}
+                                    ))}
+                            </div>
                         </div>
-                    );
-                })}
+                    ))}
+            </div>
         </div>
     );
 }
