@@ -219,10 +219,11 @@ const ReviewList = ({
      * 컨테이너 스타일
      */
     const containerStyles = {
-        backgroundColor: '#ffffff',
+        backgroundColor: '#374151', // 어두운 배경
         borderRadius: '8px',
-        border: '1px solid #e5e7eb',
+        border: '1px solid #4B5563',
         padding: compact ? '12px' : '16px',
+        color: '#FFFFFF', // 흰색 텍스트
     };
 
     /**
@@ -234,7 +235,7 @@ const ReviewList = ({
         alignItems: 'center',
         marginBottom: compact ? '12px' : '16px',
         paddingBottom: '12px',
-        borderBottom: '1px solid #e5e7eb',
+        borderBottom: '1px solid #374151',
     };
 
     /**
@@ -243,7 +244,10 @@ const ReviewList = ({
     const titleStyles = {
         fontSize: compact ? '16px' : '18px',
         fontWeight: 'bold',
-        color: '#1f2937',
+        color: '#FFFFFF',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '6px',
     };
 
     /**
@@ -274,12 +278,13 @@ const ReviewList = ({
      */
     const reviewCardStyles = {
         padding: compact ? '12px' : '16px',
-        border: '1px solid #e5e7eb',
+        border: '1px solid #4B5563', // 어두운 테두리
         borderRadius: '6px',
         marginBottom: '12px',
-        backgroundColor: '#ffffff',
+        backgroundColor: '#1E293B', // 다크 배경
         cursor: onReviewClick ? 'pointer' : 'default',
         transition: 'all 0.2s ease',
+        color: '#FFFFFF', // 흰색 텍스트
     };
 
     /**
@@ -299,9 +304,10 @@ const ReviewList = ({
      */
     const pageButtonBaseStyles = {
         padding: '6px 12px',
-        border: '1px solid #d1d5db',
+        border: '1px solid #4B5563', // 어두운 테두리
         borderRadius: '4px',
-        backgroundColor: '#ffffff',
+        backgroundColor: '#374151', // 다크 배경
+        color: '#FFFFFF', // 흰색 텍스트
         cursor: 'pointer',
         fontSize: '14px',
         transition: 'all 0.2s ease',
@@ -329,13 +335,17 @@ const ReviewList = ({
                     <div style={titleStyles}>📝 관람 후기</div>
                 </div>
 
-                {/* 로딩 스켈레톤 */}
+                {/* 로딩 스켈레톤 - 다크 테마 */}
                 <div>
                     {Array.from({ length: 3 }, (_, index) => (
                         <div
                             key={`skeleton-${index}`}
                             style={{
-                                ...reviewCardStyles,
+                                padding: compact ? '12px' : '16px',
+                                border: '1px solid #4B5563',
+                                borderRadius: '6px',
+                                marginBottom: '12px',
+                                backgroundColor: '#1E293B', // 다크 배경
                                 cursor: 'default',
                             }}
                         >
@@ -350,35 +360,29 @@ const ReviewList = ({
                                     style={{
                                         width: '100px',
                                         height: '16px',
-                                        backgroundColor: '#e5e7eb',
+                                        backgroundColor: '#374151', // 어두운 회색
                                         borderRadius: '4px',
                                         marginRight: '12px',
+                                        animation: 'pulse 2s infinite',
                                     }}
                                 />
                                 <div
                                     style={{
                                         width: '60px',
                                         height: '16px',
-                                        backgroundColor: '#e5e7eb',
+                                        backgroundColor: '#374151',
                                         borderRadius: '4px',
+                                        animation: 'pulse 2s infinite',
                                     }}
                                 />
                             </div>
                             <div
                                 style={{
-                                    width: '80%',
-                                    height: '20px',
-                                    backgroundColor: '#e5e7eb',
-                                    borderRadius: '4px',
-                                    marginBottom: '8px',
-                                }}
-                            />
-                            <div
-                                style={{
                                     width: '100%',
-                                    height: '16px',
-                                    backgroundColor: '#e5e7eb',
+                                    height: '40px',
+                                    backgroundColor: '#374151',
                                     borderRadius: '4px',
+                                    animation: 'pulse 2s infinite',
                                 }}
                             />
                         </div>
@@ -388,17 +392,29 @@ const ReviewList = ({
                 <div
                     style={{
                         textAlign: 'center',
-                        color: '#6b7280',
+                        color: '#9CA3AF', // 회색 텍스트
                         fontSize: '14px',
                         marginTop: '16px',
                     }}
                 >
                     리뷰를 불러오는 중...
                 </div>
+
+                {/* CSS 애니메이션 */}
+                <style jsx>{`
+                    @keyframes pulse {
+                        0%,
+                        100% {
+                            opacity: 1;
+                        }
+                        50% {
+                            opacity: 0.6;
+                        }
+                    }
+                `}</style>
             </div>
         );
     }
-
     /**
      * 에러 상태
      */
@@ -560,8 +576,8 @@ const ReviewList = ({
                     <span
                         style={{
                             fontSize: '11px',
-                            backgroundColor: '#eff6ff',
-                            color: '#1e40af',
+                            backgroundColor: '#374151',
+                            color: '#3B82F6',
                             padding: '2px 6px',
                             borderRadius: '10px',
                             fontWeight: 'normal',
@@ -653,8 +669,10 @@ const ReviewList = ({
                             ...reviewCardStyles,
                             ...(hoveredReviewId === review.id && onReviewClick
                                 ? {
-                                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                                      boxShadow:
+                                          '0 2px 8px rgba(59, 130, 246, 0.3)', // 블루 그림자
                                       transform: 'translateY(-1px)',
+                                      borderColor: '#3B82F6', // 호버 시 블루 테두리
                                   }
                                 : {}),
                         }}
@@ -684,7 +702,7 @@ const ReviewList = ({
                                     style={{
                                         fontSize: compact ? '12px' : '14px',
                                         fontWeight: '600',
-                                        color: '#374151',
+                                        color: '#FFFFFF', // 흰색 닉네임
                                     }}
                                 >
                                     {review.userNickname}
@@ -692,7 +710,7 @@ const ReviewList = ({
                                 <span
                                     style={{
                                         fontSize: '11px',
-                                        color: '#9ca3af',
+                                        color: '#9CA3AF', // 회색 날짜
                                     }}
                                 >
                                     {formatDate(review.createdAt)}
@@ -710,7 +728,7 @@ const ReviewList = ({
                                 <span
                                     style={{
                                         fontSize: '12px',
-                                        color: '#6b7280',
+                                        color: '#9CA3AF', // 회색 평점
                                         marginLeft: '4px',
                                     }}
                                 >
@@ -724,7 +742,7 @@ const ReviewList = ({
                             style={{
                                 fontSize: compact ? '14px' : '16px',
                                 fontWeight: '600',
-                                color: '#1f2937',
+                                color: '#FFFFFF',
                                 marginBottom: '6px',
                                 lineHeight: '1.4',
                             }}
@@ -737,7 +755,7 @@ const ReviewList = ({
                             <p
                                 style={{
                                     fontSize: compact ? '13px' : '14px',
-                                    color: '#6b7280',
+                                    color: '#D1D5DB',
                                     lineHeight: '1.5',
                                     margin: '0',
                                 }}
@@ -756,7 +774,7 @@ const ReviewList = ({
                                         onReviewClick(review);
                                     }}
                                     style={{
-                                        color: '#3b82f6',
+                                        color: '#3B82F6',
                                         fontSize: '12px',
                                         background: 'none',
                                         border: 'none',
@@ -886,10 +904,11 @@ const ReviewList = ({
                     style={{
                         marginTop: '16px',
                         padding: '12px',
-                        backgroundColor: '#eff6ff', // 파란색 배경
+                        backgroundColor: '#374151', // 어두운 배경
                         borderRadius: '6px',
                         fontSize: '12px',
-                        color: '#1e40af',
+                        color: '#D1D5DB', // 밝은 회색 텍스트
+                        border: '1px solid #4B5563',
                     }}
                 >
                     💡 작성하신 리뷰는 다른 관람객들에게 큰 도움이 됩니다.
