@@ -297,7 +297,7 @@ const ConcertList = ({
                 {skeletonCards}
 
                 {/* CSS 애니메이션 */}
-                <style jsx>{`
+                <style>{`
                     @keyframes pulse {
                         0%,
                         100% {

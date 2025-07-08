@@ -225,7 +225,7 @@ function ConcertDetailPage() {
                         콘서트 상세 정보 로딩 중...
                     </div>
 
-                    <style jsx>{`
+                    <style>{`
                         @keyframes spin {
                             from {
                                 transform: rotate(0deg);
