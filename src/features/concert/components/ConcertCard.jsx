@@ -17,7 +17,7 @@ const ConcertCard = ({
 }) => {
     // ===== AI 요약 데이터 가져오기 =====
     const { aiSummary, aiSummaryLoading } = useConcertDetail(
-        showAiSummary ? concert.concertId : null // showAiSummary가 true일 때만 API 호출
+        showAiSummary ? concert.concertId : null, // showAiSummary가 true일 때만 API 호출
     );
 
     // ===== 데이터 유효성 검증 =====
@@ -63,8 +63,14 @@ const ConcertCard = ({
                 hour12: true,
             };
 
-            const formattedDate = dateTime.toLocaleDateString('ko-KR', dateOptions);
-            const formattedTime = dateTime.toLocaleTimeString('ko-KR', timeOptions);
+            const formattedDate = dateTime.toLocaleDateString(
+                'ko-KR',
+                dateOptions,
+            );
+            const formattedTime = dateTime.toLocaleTimeString(
+                'ko-KR',
+                timeOptions,
+            );
 
             return `${formattedDate} ${formattedTime}`;
         } catch (error) {
@@ -93,7 +99,10 @@ const ConcertCard = ({
             cleaned = cleaned.substring(0, maxLength).trim() + '...';
         }
 
-        cleaned = cleaned.replace(/[^\u1100-\u11FF\u3130-\u318F\uAC00-\uD7A3\sa-zA-Z0-9.,!?()'":-<>=#:]/g, '');
+        cleaned = cleaned.replace(
+            /[^\u1100-\u11FF\u3130-\u318F\uAC00-\uD7A3\sa-zA-Z0-9.,!?()'":-<>=#:]/g,
+            '',
+        );
 
         return cleaned;
     };
@@ -186,9 +195,16 @@ const ConcertCard = ({
             {/* 포스터 이미지 섹션 */}
             <div style={{ marginBottom: '12px' }}>
                 <img
-                    src={concert.posterImageUrl || '/images/basic-poster-image.png'}
+                    src={
+                        concert.posterImageUrl ||
+                        '/images/basic-poster-image.png'
+                    }
                     alt={`${concert.title} 포스터`}
-                    style={{...imageStyles, opacity: '0', transition: 'opacity 0.3s'}}
+                    style={{
+                        ...imageStyles,
+                        opacity: '0',
+                        transition: 'opacity 0.3s',
+                    }}
                     onLoad={handleImageLoad}
                     onError={handleImageError}
                     loading="lazy"
@@ -269,21 +285,25 @@ const ConcertCard = ({
                 >
                     {aiSummaryLoading ? (
                         // 로딩 상태
-                        <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '6px',
-                            color: '#9CA3AF',
-                            fontSize: '12px'
-                        }}>
-                            <div style={{
-                                width: '12px',
-                                height: '12px',
-                                border: '2px solid #4B5563',
-                                borderTop: '2px solid #60A5FA',
-                                borderRadius: '50%',
-                                animation: 'spin 1s linear infinite'
-                            }} />
+                        <div
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                color: '#9CA3AF',
+                                fontSize: '12px',
+                            }}
+                        >
+                            <div
+                                style={{
+                                    width: '12px',
+                                    height: '12px',
+                                    border: '2px solid #4B5563',
+                                    borderTop: '2px solid #60A5FA',
+                                    borderRadius: '50%',
+                                    animation: 'spin 1s linear infinite',
+                                }}
+                            />
                             AI 요약 로딩중...
                         </div>
                     ) : aiSummary ? (

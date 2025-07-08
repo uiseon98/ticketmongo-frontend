@@ -37,19 +37,19 @@ const AISummary = ({
         // ### 전체 평가 - 파란색 (다크 배경에 맞는 세련된 파란색)
         formattedText = formattedText.replace(
             /### (.+?)(?=\n|$)/g,
-            '<strong style="font-size: 14px; color: #60A5FA; display: block; margin: 8px 0;">$1</strong>'
+            '<strong style="font-size: 14px; color: #60A5FA; display: block; margin: 8px 0;">$1</strong>',
         );
 
         // ## 좋은 점, 아쉬운 점
         formattedText = formattedText.replace(
             /## (.+?)(?=\n|$)/g,
-            '<strong style="font-size: 14px; color: #FFFFFF; display: block; margin: 8px 0;">$1</strong>'
+            '<strong style="font-size: 14px; color: #FFFFFF; display: block; margin: 8px 0;">$1</strong>',
         );
 
         // # 기타 헤더
         formattedText = formattedText.replace(
             /# (.+?)(?=\n|$)/g,
-            '<strong style="font-size: 14px; color: #FFFFFF; display: block; margin: 8px 0;">$1</strong>'
+            '<strong style="font-size: 14px; color: #FFFFFF; display: block; margin: 8px 0;">$1</strong>',
         );
 
         // 줄바꿈을 <br> 태그로 변환
@@ -58,7 +58,10 @@ const AISummary = ({
         // 연속된 <br> 태그 정리 (3개 이상을 2개로)
         formattedText = formattedText.replace(/(<br>\s*){3,}/g, '<br><br>');
 
-        formattedText = formattedText.replace(/[^\u1100-\u11FF\u3130-\u318F\uAC00-\uD7A3\sa-zA-Z0-9.,!?()'":-<>=#:]/g, '');
+        formattedText = formattedText.replace(
+            /[^\u1100-\u11FF\u3130-\u318F\uAC00-\uD7A3\sa-zA-Z0-9.,!?()'":-<>=#:]/g,
+            '',
+        );
 
         return formattedText;
     }, []);
@@ -347,7 +350,8 @@ const AISummary = ({
                         border: '1px solid #374151',
                     }}
                 >
-                    💡 이 요약은 실제 관람객들의 후기를 바탕으로 AI가 자동 생성했습니다
+                    💡 이 요약은 실제 관람객들의 후기를 바탕으로 AI가 자동
+                    생성했습니다
                 </div>
             )}
         </div>
