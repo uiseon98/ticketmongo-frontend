@@ -38,7 +38,7 @@ apiClient.interceptors.request.use(
                     config.headers['X-Access-Key'] = key;
                 } else {
                     console.warn(
-                        `세션에 accessKey-${concertId}가 없습니다. URL: ${url}`,
+                        `⚠️ 세션에 accessKey-${concertId}가 없습니다. URL: ${url}`,
                     );
                 }
                 break; // 매칭되면 루프 종료
@@ -77,6 +77,20 @@ apiClient.interceptors.response.use(
         return response;
     },
     (error) => {
+        // 클라이언트 측 타임아웃 에러 처리 (Long Polling에서 정상적인 상황)
+        if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+            const url = error.config?.url || 'unknown';
+            console.log(`⏰ API 타임아웃: ${url} - Long Polling에서 정상적인 상황일 수 있음`);
+
+            // 폴링 API의 타임아웃은 에러가 아님
+            if (url.includes('/polling')) {
+                console.log('🔥 폴링 API 타임아웃 - 정상적인 Long Polling 종료');
+                return Promise.reject(new Error('POLLING_TIMEOUT')); // 특별한 에러 타입
+            }
+
+            return Promise.reject(new Error('요청 시간이 초과되었습니다.'));
+        }
+
         if (error.response) {
             const status = error.response.status;
             const url = error.response.config?.url || 'unknown';
@@ -120,22 +134,31 @@ apiClient.interceptors.response.use(
                 // window.location.href = '/login';
             } else if (status === 403) {
                 if (originalRequest.url.includes('/seats/concerts')) {
-                    alert(
-                        '예매 시간이 만료되었습니다. 콘서트 상세 페이지로 돌아갑니다.',
-                    );
-                    // 해당 콘서트의 accessKey를 세션 스토리지에서 삭제
-                    const concertIdMatch =
-                        originalRequest.url.match(/concerts\/(\d+)/);
-                    if (concertIdMatch) {
-                        sessionStorage.removeItem(
-                            `accessKey-${concertIdMatch[1]}`,
+                    // [변경사항 시작] 폴링 API에 대한 403 에러 처리 개선
+                    if (originalRequest.url.includes('/polling')) {
+                        console.warn('⚠️ 폴링 API AccessKey 만료 또는 유효하지 않음. 재시도를 시도합니다.');
+                        // 폴링 API의 경우, 얼럿, AccessKey 제거, 리다이렉션 없이 특정 에러를 반환하여 폴링 로직이 재시도하도록 유도
+                        return Promise.reject(new Error('POLLING_ACCESS_KEY_EXPIRED'));
+                    } else {
+                        // 기존의 /seats/concerts 관련 403 에러 처리 로직 (폴링이 아닌 일반 요청에 해당)
+                        alert(
+                            '예매 시간이 만료되었습니다. 콘서트 상세 페이지로 돌아갑니다.',
                         );
+                        // 해당 콘서트의 accessKey를 세션 스토리지에서 삭제
+                        const concertIdMatch =
+                            originalRequest.url.match(/concerts\/(\d+)/);
+                        if (concertIdMatch) {
+                            sessionStorage.removeItem(
+                                `accessKey-${concertIdMatch[1]}`,
+                            );
+                        }
+                        // 상세 페이지로 리다이렉트
+                        window.location.href = `/concerts/${
+                            concertIdMatch ? concertIdMatch[1] : ''
+                        }`;
+                        return Promise.reject(error); // 여기서 에러 처리를 끝냄
                     }
-                    // 상세 페이지로 리다이렉트
-                    window.location.href = `/concerts/${
-                        concertIdMatch ? concertIdMatch[1] : ''
-                    }`;
-                    return Promise.reject(error); // 여기서 에러 처리를 끝냄
+                    // [변경사항 끝]
                 }
             }
 
