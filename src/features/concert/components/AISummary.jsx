@@ -2,31 +2,7 @@
 
 // ===== IMPORT 섹션 =====
 import React, { useState, useCallback } from 'react';
-// useState: 펼치기/접기 상태 관리
-// useCallback: 이벤트 핸들러 최적화
 
-/**
- * ===== AISummary 컴포넌트 =====
- *
- * 🎯 주요 역할:
- * 1. **AI 생성 요약 표시**: 콘서트의 AI 생성 요약 텍스트 렌더링
- * 2. **로딩 상태 처리**: AI 요약 로딩 중 스켈레톤 UI 표시
- * 3. **에러 상태 처리**: AI 요약 생성 실패 시 적절한 메시지
- * 4. **텍스트 길이 관리**: 긴 요약의 경우 펼치기/접기 기능
- * 5. **접근성 지원**: 스크린 리더 및 키보드 탐색 지원
- *
- * 🔄 Hook 연동:
- * - useConcertDetail.aiSummary와 연동
- * - useConcertDetail.aiSummaryLoading 상태 반영
- * - useConcertDetail.fetchAISummary 새로고침 기능
- *
- * 💡 사용 방법:
- * <AISummary
- *   summary={aiSummary}
- *   loading={aiSummaryLoading}
- *   onRefresh={fetchAISummary}
- * />
- */
 const AISummary = ({
     // ===== 필수 props =====
     summary, // AI 요약 텍스트 (useConcertDetail.aiSummary)
@@ -44,14 +20,51 @@ const AISummary = ({
     compact = false, // 컴팩트 모드
 }) => {
     // ===== 상태 관리 =====
-
-    /**
-     * 텍스트 펼치기/접기 상태
-     * 긴 요약문의 경우 사용자가 전체/요약 보기를 선택할 수 있음
-     */
     const [isExpanded, setIsExpanded] = useState(false);
 
-    // ===== 텍스트 처리 함수들 =====
+    // ===== 텍스트 처리 함수들 (순서 중요!) =====
+
+    /**
+     * 마크다운 형식을 HTML로 변환하는 함수
+     * ### ## # -> <strong> 태그로 변환
+     * 줄바꿈 처리
+     */
+    const formatMarkdownToHtml = useCallback((text) => {
+        if (!text || typeof text !== 'string') return '';
+
+        let formattedText = text;
+
+        // ### 전체 평가 - 파란색 (다크 배경에 맞는 세련된 파란색)
+        formattedText = formattedText.replace(
+            /### (.+?)(?=\n|$)/g,
+            '<strong style="font-size: 14px; color: #60A5FA; display: block; margin: 8px 0;">$1</strong>',
+        );
+
+        // ## 좋은 점, 아쉬운 점
+        formattedText = formattedText.replace(
+            /## (.+?)(?=\n|$)/g,
+            '<strong style="font-size: 14px; color: #FFFFFF; display: block; margin: 8px 0;">$1</strong>',
+        );
+
+        // # 기타 헤더
+        formattedText = formattedText.replace(
+            /# (.+?)(?=\n|$)/g,
+            '<strong style="font-size: 14px; color: #FFFFFF; display: block; margin: 8px 0;">$1</strong>',
+        );
+
+        // 줄바꿈을 <br> 태그로 변환
+        formattedText = formattedText.replace(/\n/g, '<br>');
+
+        // 연속된 <br> 태그 정리 (3개 이상을 2개로)
+        formattedText = formattedText.replace(/(<br>\s*){3,}/g, '<br><br>');
+
+        formattedText = formattedText.replace(
+            /[^\u1100-\u11FF\u3130-\u318F\uAC00-\uD7A3\sa-zA-Z0-9.,!?()'":-<>=#:]/g,
+            '',
+        );
+
+        return formattedText;
+    }, []);
 
     /**
      * 요약 텍스트가 길어서 줄여야 하는지 판단
@@ -66,19 +79,21 @@ const AISummary = ({
     const getDisplayText = useCallback(() => {
         if (!summary) return '';
 
+        let displayText;
+
         if (!shouldTruncate() || isExpanded) {
-            return summary; // 짧은 텍스트이거나 펼친 상태면 전체 표시
+            displayText = summary; // 전체 텍스트
+        } else {
+            // 접힌 상태면 maxLength만큼 자르고 "..." 추가
+            displayText = summary.substring(0, maxLength).trim() + '...';
         }
 
-        // 접힌 상태면 maxLength만큼 자르고 "..." 추가
-        return summary.substring(0, maxLength).trim() + '...';
-    }, [summary, shouldTruncate, isExpanded, maxLength]);
+        // 마크다운을 HTML로 변환
+        return formatMarkdownToHtml(displayText);
+    }, [summary, shouldTruncate, isExpanded, maxLength, formatMarkdownToHtml]);
 
     /**
      * AI 요약 상태 확인
-     * - null: 아직 로드되지 않음
-     * - 특정 메시지들: 요약이 없거나 실패
-     * - 일반 텍스트: 실제 요약 내용
      */
     const getSummaryStatus = useCallback(() => {
         if (!summary) return 'empty';
@@ -114,32 +129,23 @@ const AISummary = ({
 
     // ===== 스타일 정의 =====
 
-    /**
-     * 컨테이너 스타일
-     */
     const containerStyles = {
         padding: compact ? '12px' : '16px',
-        backgroundColor: '#374151', // 어두운 배경
+        backgroundColor: '#374151',
         border: '1px solid #4B5563',
         borderRadius: '8px',
         marginBottom: compact ? '12px' : '16px',
     };
 
-    /**
-     * 헤더 스타일
-     */
     const headerStyles = {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         marginBottom: '12px',
-        paddingBottom: '12px', // 패딩 추가
-        borderBottom: '1px solid #374151', // 밑줄 추가
+        paddingBottom: '12px',
+        borderBottom: '1px solid #4B5563',
     };
 
-    /**
-     * 제목 스타일
-     */
     const titleStyles = {
         fontSize: compact ? '14px' : '16px',
         fontWeight: '600',
@@ -149,34 +155,25 @@ const AISummary = ({
         gap: '6px',
     };
 
-    /**
-     * 새로고침 버튼 스타일
-     */
     const refreshButtonStyles = {
         padding: '4px 8px',
         backgroundColor: 'transparent',
-        border: '1px solid #4B5563', // 어두운 테두리
+        border: '1px solid #4B5563',
         borderRadius: '4px',
         fontSize: '12px',
-        color: '#9CA3AF', // 회색 텍스트
+        color: '#9CA3AF',
         cursor: loading ? 'not-allowed' : 'pointer',
         transition: 'all 0.2s ease',
         opacity: loading ? 0.6 : 1,
     };
 
-    /**
-     * 요약 텍스트 스타일
-     */
     const summaryTextStyles = {
         fontSize: compact ? '13px' : '14px',
         lineHeight: '1.6',
-        color: '#D1D5DB', // 밝은 회색으로 변경 (기존 #374151)
+        color: '#D1D5DB',
         marginBottom: shouldTruncate() ? '8px' : '0',
     };
 
-    /**
-     * 펼치기/접기 버튼 스타일
-     */
     const toggleButtonStyles = {
         padding: '4px 8px',
         backgroundColor: 'transparent',
@@ -187,9 +184,6 @@ const AISummary = ({
         textDecoration: 'underline',
     };
 
-    /**
-     * 로딩 스켈레톤 스타일
-     */
     const skeletonStyles = {
         height: '20px',
         backgroundColor: '#e2e8f0',
@@ -200,9 +194,6 @@ const AISummary = ({
 
     // ===== 조건부 렌더링 =====
 
-    /**
-     * 로딩 상태
-     */
     if (loading) {
         return (
             <div className={`ai-summary ${className}`} style={containerStyles}>
@@ -210,7 +201,6 @@ const AISummary = ({
                     <div style={titleStyles}>🤖 AI 요약</div>
                 </div>
 
-                {/* 로딩 스켈레톤 */}
                 <div>
                     <div style={{ ...skeletonStyles, width: '100%' }} />
                     <div style={{ ...skeletonStyles, width: '85%' }} />
@@ -228,16 +218,10 @@ const AISummary = ({
                     AI 요약을 생성하는 중...
                 </div>
 
-                {/* CSS 애니메이션 */}
-                <style jsx>{`
+                <style>{`
                     @keyframes pulse {
-                        0%,
-                        100% {
-                            opacity: 1;
-                        }
-                        50% {
-                            opacity: 0.5;
-                        }
+                        0%, 100% { opacity: 1; }
+                        50% { opacity: 0.5; }
                     }
                 `}</style>
             </div>
@@ -246,9 +230,6 @@ const AISummary = ({
 
     const summaryStatus = getSummaryStatus();
 
-    /**
-     * 요약이 없거나 생성되지 않은 상태
-     */
     if (summaryStatus === 'empty' || summaryStatus === 'unavailable') {
         return (
             <div className={`ai-summary ${className}`} style={containerStyles}>
@@ -319,14 +300,14 @@ const AISummary = ({
                         disabled={loading}
                         onMouseEnter={(e) => {
                             if (!loading) {
-                                e.target.style.backgroundColor = '#f1f5f9';
-                                e.target.style.borderColor = '#94a3b8';
+                                e.target.style.backgroundColor = '#4B5563';
+                                e.target.style.borderColor = '#6B7280';
                             }
                         }}
                         onMouseLeave={(e) => {
                             if (!loading) {
                                 e.target.style.backgroundColor = 'transparent';
-                                e.target.style.borderColor = '#cbd5e1';
+                                e.target.style.borderColor = '#4B5563';
                             }
                         }}
                     >
@@ -335,14 +316,13 @@ const AISummary = ({
                 )}
             </div>
 
-            {/* AI 요약 텍스트 */}
+            {/* AI 요약 텍스트 - dangerouslySetInnerHTML 사용 */}
             <div
                 style={summaryTextStyles}
+                dangerouslySetInnerHTML={{ __html: getDisplayText() }}
                 role="article"
                 aria-label="AI 생성 콘서트 요약"
-            >
-                {getDisplayText()}
-            </div>
+            />
 
             {/* 펼치기/접기 버튼 */}
             {shouldTruncate() && (
@@ -363,10 +343,10 @@ const AISummary = ({
                     style={{
                         marginTop: '12px',
                         padding: '8px',
-                        backgroundColor: '#1E293B', // 더 어두운 배경
+                        backgroundColor: '#1E293B',
                         borderRadius: '4px',
                         fontSize: '11px',
-                        color: '#9CA3AF', // 회색 텍스트
+                        color: '#9CA3AF',
                         border: '1px solid #374151',
                     }}
                 >
@@ -378,7 +358,6 @@ const AISummary = ({
     );
 };
 
-// ===== 기본 PROPS =====
 AISummary.defaultProps = {
     loading: false,
     showRefreshButton: true,
