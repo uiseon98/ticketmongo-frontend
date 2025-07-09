@@ -6,6 +6,7 @@ import { profileInputType } from '../types/profileInputType';
 import { ProfileUploaderSection } from './BookingDetail/ProfileUploaderSection';
 import { NotificationSection } from '../components/BookingDetail/NotificationSection';
 import { NOTIFICATION_TYPE } from '../services/bookingDetailService';
+import SubscriptionToggle from './SubscriptionToggle';
 
 export function ProfileTab({ userInfo, onUpdateUserInfo, isLoading }) {
     const [isEditing, setIsEditing] = useState(false);
@@ -142,6 +143,11 @@ export function ProfileTab({ userInfo, onUpdateUserInfo, isLoading }) {
                 <NotificationSection notification={notification} />
             )}
 
+            {/* — 여기에 삽입 — */}
+            <div className="px-4">
+                <h3 className="text-lg font-medium mb-2">푸시 알림 설정</h3>
+                <SubscriptionToggle />
+            </div>
             {/* Profile Header */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-6">
