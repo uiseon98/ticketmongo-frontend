@@ -1,7 +1,7 @@
 // src/features/concert/components/ConcertList.jsx
 
 // React 라이브러리에서 필요한 기능들을 import
-import React, { useMemo } from 'react'; // 🔥 useMemo 추가
+import React from 'react'; // 🔥 useMemo 제거 - 더 이상 프론트에서 필터링하지 않음
 
 // 우리가 만든 ConcertCard 컴포넌트 import
 import ConcertCard from './ConcertCard.jsx';
@@ -12,7 +12,7 @@ import ConcertCard from './ConcertCard.jsx';
  * 🎯 역할:
  * - 여러 개의 ConcertCard 컴포넌트를 담는 컨테이너
  * - 콘서트 목록을 격자(그리드) 형태로 배치
- * - 🔥 완료된 콘서트 자동 숨김 처리
+ * - 🔥 완료된 콘서트 필터링 제거: 백엔드에서 이미 처리됨
  * - 로딩, 에러, 빈 상태 등 다양한 상황에 대한 UI 제공
  * - 페이지네이션 UI 제공 (페이지 번호, 이전/다음 버튼)
  */
@@ -29,56 +29,14 @@ const ConcertList = ({
     showPagination = true,
     emptyMessage = '콘서트가 없습니다.',
     className = '',
+    sortBy = 'concertDate',
+    sortDir = 'asc',
+    onSortChange,
+    showSortOptions = true,
 }) => {
-    // 🔥 완료된 콘서트 필터링 로직 (상단에 위치)
-    const filteredConcerts = useMemo(() => {
-        if (!concerts || concerts.length === 0) return [];
-
-        return concerts.filter((concert) => {
-            // 1. 백엔드 상태로 완료된 콘서트 제외
-            if (concert.status === 'COMPLETED') {
-                return false;
-            }
-
-            // 2. 취소된 콘서트 제외
-            if (concert.status === 'CANCELLED') {
-                return false;
-            }
-
-            // 3. 🔥 현재 시간 기준으로 과거에 끝난 콘서트 제외
-            try {
-                const now = new Date();
-
-                // 콘서트 종료 시간 계산
-                let concertEndDateTime;
-                if (concert.endTime) {
-                    // 종료 시간이 있으면 사용
-                    concertEndDateTime = new Date(
-                        `${concert.concertDate}T${concert.endTime}`,
-                    );
-                } else {
-                    // 종료 시간이 없으면 시작 시간 + 3시간으로 추정
-                    const startDateTime = new Date(
-                        `${concert.concertDate}T${concert.startTime}`,
-                    );
-                    concertEndDateTime = new Date(
-                        startDateTime.getTime() + 3 * 60 * 60 * 1000,
-                    );
-                }
-
-                // 현재 시간이 콘서트 종료 시간보다 늦으면 숨김
-                if (now > concertEndDateTime) {
-                    return false;
-                }
-            } catch (error) {
-                console.warn('콘서트 시간 파싱 오류:', concert, error);
-                // 파싱 오류 시에는 표시 (안전한 기본값)
-                return true;
-            }
-
-            return true; // 진행 중이거나 예정된 콘서트만 표시
-        });
-    }, [concerts]);
+    // 🔥 완료된 콘서트 필터링 로직 완전 제거
+    // const filteredConcerts = useMemo(() => { ... }); 삭제
+    // 이제 백엔드에서 이미 필터링된 데이터가 오므로 concerts를 그대로 사용
 
     // ===== 스타일 정의 =====
 
@@ -146,9 +104,10 @@ const ConcertList = ({
 
     const buttonBaseStyles = {
         padding: '8px 12px',
-        border: '1px solid #d1d5db',
+        border: '1px solid #374151',
         borderRadius: '4px',
-        backgroundColor: '#ffffff',
+        backgroundColor: '#374151',
+        color: '374151',
         cursor: 'pointer',
         fontSize: '14px',
         transition: 'all 0.2s ease',
@@ -163,8 +122,9 @@ const ConcertList = ({
 
     const disabledButtonStyles = {
         ...buttonBaseStyles,
-        backgroundColor: '#f3f4f6',
-        color: '#9ca3af',
+        backgroundColor: '#1f2937',
+        color: '#6b7280',
+        borderColor: '#1f2937',
         cursor: 'not-allowed',
     };
 
@@ -377,9 +337,9 @@ const ConcertList = ({
     }
 
     /**
-     * 🔥 필터링된 콘서트 목록이 비어있을 때 (원본이 아닌 필터링된 목록 기준)
+     * 🔥 콘서트 목록이 비어있을 때 (백엔드에서 이미 필터링된 결과)
      */
-    if (!filteredConcerts || filteredConcerts.length === 0) {
+    if (!concerts || concerts.length === 0) {
         return (
             <div
                 className={`concert-list ${className}`}
@@ -401,19 +361,7 @@ const ConcertList = ({
                     >
                         {emptyMessage}
                     </p>
-                    {/* 🔥 원본 데이터는 있지만 필터링으로 사라진 경우 안내 */}
-                    {concerts && concerts.length > 0 && (
-                        <p
-                            style={{
-                                margin: '8px 0 0 0',
-                                color: '#9ca3af',
-                                fontSize: '14px',
-                                textAlign: 'center',
-                            }}
-                        >
-                            💡 완료된 콘서트는 자동으로 숨겨집니다.
-                        </p>
-                    )}
+                    {/* 🔥 필터링 안내 메시지 제거: 백엔드에서 처리되므로 불필요 */}
                 </div>
             </div>
         );
@@ -423,9 +371,77 @@ const ConcertList = ({
 
     return (
         <div className={`concert-list ${className}`} style={containerStyles}>
-            {/* 🔥 필터링된 콘서트 카드들의 격자 레이아웃 */}
+            {/* 정렬 옵션 */}
+            {showSortOptions && onSortChange && (
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                    gap: '8px',
+                    marginBottom: '16px',
+                    padding: '12px',
+                    backgroundColor: '#374151',
+                    borderRadius: '8px',
+                    border: '1px solid #4B5563',
+                }}>
+                    <span style={{
+                        color: '#D1D5DB',
+                        fontSize: '14px',
+                        alignSelf: 'center',
+                        marginRight: '8px'
+                    }}>
+                        정렬:
+                    </span>
+
+                    <button
+                        onClick={() => {
+                            const newDir = sortBy === 'concertDate' && sortDir === 'asc' ? 'desc' : 'asc';
+                            onSortChange('concertDate', newDir);
+                        }}
+                        style={{
+                            ...buttonBaseStyles,
+                            ...(sortBy === 'concertDate' ? activeButtonStyles : {}),
+                            fontSize: '12px',
+                            padding: '6px 12px',
+                        }}
+                    >
+                        공연일자 {sortBy === 'concertDate' ? (sortDir === 'asc' ? '↑' : '↓') : ''}
+                    </button>
+
+                    <button
+                        onClick={() => {
+                            const newDir = sortBy === 'title' && sortDir === 'asc' ? 'desc' : 'asc';
+                            onSortChange('title', newDir);
+                        }}
+                        style={{
+                            ...buttonBaseStyles,
+                            ...(sortBy === 'title' ? activeButtonStyles : {}),
+                            fontSize: '12px',
+                            padding: '6px 12px',
+                        }}
+                    >
+                        제목 {sortBy === 'title' ? (sortDir === 'asc' ? '↑' : '↓') : ''}
+                    </button>
+
+                    <button
+                        onClick={() => {
+                            const newDir = sortBy === 'artist' && sortDir === 'asc' ? 'desc' : 'asc';
+                            onSortChange('artist', newDir);
+                        }}
+                        style={{
+                            ...buttonBaseStyles,
+                            ...(sortBy === 'artist' ? activeButtonStyles : {}),
+                            fontSize: '12px',
+                            padding: '6px 12px',
+                        }}
+                    >
+                        아티스트 {sortBy === 'artist' ? (sortDir === 'asc' ? '↑' : '↓') : ''}
+                    </button>
+                </div>
+            )}
+
+            {/* 🔥 백엔드에서 이미 필터링된 콘서트 카드들의 격자 레이아웃 */}
             <div style={gridStyles}>
-                {filteredConcerts.map((concert) => (
+                {concerts.map((concert) => (
                     <ConcertCard
                         key={concert.concertId}
                         concert={concert}
@@ -497,7 +513,7 @@ const ConcertList = ({
                 </div>
             )}
 
-            {/* 페이지 정보 표시 */}
+            {/* 🔥 페이지 정보 표시 (필터링 관련 정보 제거) */}
             {showPagination && totalPages > 0 && (
                 <div
                     style={{
@@ -508,17 +524,6 @@ const ConcertList = ({
                     }}
                 >
                     {currentPage + 1} / {totalPages} 페이지
-                    {/* 🔥 필터링 정보 추가 표시 */}
-                    {concerts &&
-                        filteredConcerts &&
-                        concerts.length !== filteredConcerts.length && (
-                            <span
-                                style={{ marginLeft: '8px', color: '#9ca3af' }}
-                            >
-                                ({concerts.length - filteredConcerts.length}개
-                                콘서트 숨김)
-                            </span>
-                        )}
                 </div>
             )}
         </div>

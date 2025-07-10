@@ -417,9 +417,10 @@ const SellerConcertList = ({
                                                         className="w-full h-full object-cover"
                                                     />
                                                 ) : (
-                                                    <Image
-                                                        size={20}
-                                                        className="text-gray-400"
+                                                    <img
+                                                        src="/images/basic-poster-image.png"
+                                                        alt="기본 포스터 이미지"
+                                                        className="w-full h-full object-cover"
                                                     />
                                                 )}
                                             </div>
@@ -618,42 +619,51 @@ const SellerConcertList = ({
                                         이전
                                     </button>
 
-                                    {Array.from(
-                                        {
-                                            length: Math.min(
-                                                5,
-                                                pagination.totalPages,
-                                            ),
-                                        },
-                                        (_, i) => {
-                                            const pageNum =
-                                                pagination.page + i - 2;
-                                            if (
-                                                pageNum < 0 ||
-                                                pageNum >= pagination.totalPages
-                                            )
-                                                return null;
+{(() => {
+                                        const currentPage = pagination.page;
+                                        const totalPages = pagination.totalPages;
+                                        const maxVisible = 5;
 
-                                            return (
+                                        let startPage, endPage;
+
+                                        if (totalPages <= maxVisible) {
+                                            // 전체 페이지가 5개 이하면 모두 표시
+                                            startPage = 0;
+                                            endPage = totalPages - 1;
+                                        } else {
+                                            // 현재 페이지를 중심으로 앞뒤 2개씩 표시
+                                            startPage = Math.max(0, currentPage - 2);
+                                            endPage = Math.min(totalPages - 1, currentPage + 2);
+
+                                            // 시작이나 끝에 치우쳐있으면 조정
+                                            if (endPage - startPage < maxVisible - 1) {
+                                                if (startPage === 0) {
+                                                    endPage = Math.min(totalPages - 1, startPage + maxVisible - 1);
+                                                } else if (endPage === totalPages - 1) {
+                                                    startPage = Math.max(0, endPage - maxVisible + 1);
+                                                }
+                                            }
+                                        }
+
+                                        const pages = [];
+                                        for (let i = startPage; i <= endPage; i++) {
+                                            pages.push(
                                                 <button
-                                                    key={pageNum}
-                                                    onClick={() =>
-                                                        handlePageChange(
-                                                            pageNum,
-                                                        )
-                                                    }
+                                                    key={i}
+                                                    onClick={() => handlePageChange(i)}
                                                     className={`px-3 py-1 text-sm border rounded ${
-                                                        pageNum ===
-                                                        pagination.page
+                                                        i === currentPage
                                                             ? 'bg-blue-600 text-white border-blue-600'
                                                             : 'border-gray-500 bg-gray-700 text-white hover:bg-gray-600'
                                                     }`}
                                                 >
-                                                    {pageNum + 1}
+                                                    {i + 1}
                                                 </button>
                                             );
-                                        },
-                                    )}
+                                        }
+
+                                        return pages;
+                                    })()}
 
                                     <button
                                         onClick={() =>

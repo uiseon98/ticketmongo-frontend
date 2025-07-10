@@ -1,10 +1,6 @@
 import apiClient from '../../../shared/utils/apiClient';
 // 좌석 관련 API는 seatService.js로 분리됨
-import { 
-    fetchAllSeatStatus,
-    reserveSeat,
-    releaseSeat 
-} from './seatService';
+import { fetchAllSeatStatus, reserveSeat, releaseSeat } from './seatService';
 
 // 좌석 관련 API 함수들을 재수출 (하위 호환성 유지)
 export { fetchAllSeatStatus, reserveSeat, releaseSeat };
@@ -58,10 +54,7 @@ export async function restoreSeats(concertId) {
         console.log('[restoreSeats] Success:', response);
         return response.data;
     } catch (error) {
-        console.error(
-            `[restoreSeats] 실패 (concertId: ${concertId}):`,
-            error,
-        );
+        console.error(`[restoreSeats] 실패 (concertId: ${concertId}):`, error);
         throw error; // 호출자에게 에러를 전달
     }
 }

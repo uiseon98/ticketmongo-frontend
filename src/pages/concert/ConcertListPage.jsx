@@ -27,11 +27,14 @@ function ConcertListPage() {
         currentPage,
         totalPages,
         totalElements,
+        sortBy,
+        sortDir,
         fetchConcerts,
         searchConcerts,
         filterConcerts,
         goToPage,
         changePageSize,
+        changeSorting,
     } = useConcerts();
 
     // 현재 필터가 적용되어 있는지 확인
@@ -41,6 +44,17 @@ function ConcertListPage() {
     // 콘서트 카드 클릭 핸들러 (상세 페이지로 이동)
     const handleConcertClick = (concert) => {
         navigate(`/concerts/${concert.concertId}`);
+    };
+
+    /**
+     * 정렬 변경 핸들러
+     */
+    const handleSortChange = (newSortBy, newSortDir) => {
+        try {
+            changeSorting(newSortBy, newSortDir);
+        } catch (err) {
+            console.error('정렬 변경 실패:', err);
+        }
     };
 
     // 검색 실행 핸들러
@@ -279,6 +293,10 @@ function ConcertListPage() {
                         totalPages={totalPages}
                         showAiSummary={true} // AI 요약 표시
                         showPagination={true}
+                        sortBy={sortBy}
+                        sortDir={sortDir}
+                        onSortChange={handleSortChange}
+                        showSortOptions={true}
                         emptyMessage={
                             hasActiveSearch && hasActiveFilters
                                 ? `"${query}" 검색 및 필터 조건에 맞는 콘서트가 없습니다.`
