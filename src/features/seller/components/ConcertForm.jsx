@@ -39,6 +39,8 @@ const ConcertForm = ({
     const [uploading, setUploading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [filePreview, setFilePreview] = useState(null);
+    const [imageLoadError, setImageLoadError] = useState(false);
+    const [imageLoadTesting, setImageLoadTesting] = useState(false); // URL 테스트 중 상태
     const fileInputRef = useRef(null);
 
     // 폼 데이터 - 백엔드 DTO와 완전히 일치
@@ -102,6 +104,19 @@ const ConcertForm = ({
                 posterImageUrl: concert.posterImageUrl || '',
                 status: concert.status || 'SCHEDULED',
             });
+
+            // 이미지 관련 상태 초기화
+            setImageLoadError(false);
+            setImageLoadTesting(false);
+            setSelectedFile(null);
+            setFilePreview(null);
+            setUploadProgress(0);
+            setUploading(false);
+
+            // 파일 input 초기화
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
         } else {
             // 생성 모드: 기본값으로 초기화
             setFormData({
@@ -121,12 +136,21 @@ const ConcertForm = ({
                 posterImageUrl: '',
                 status: 'SCHEDULED',
             });
-        }
+            setImageLoadError(false);
+            setImageLoadTesting(false);
+            setSelectedFile(null);
+            setFilePreview(null);
+            setUploadProgress(0);
+            setUploading(false);
 
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
+        }
         setErrors({});
         setSubmitError('');
         setSubmitSuccess('');
-    }, [isEditMode, concert, isOpen]);
+    }, [isEditMode, concert]);
 
     // ====== 입력 핸들러 ======
     const handleInputChange = (e) => {
@@ -228,26 +252,10 @@ const ConcertForm = ({
         // 예매 일시 검증 (NotNull, Future)
         if (!formData.bookingStartDate) {
             newErrors.bookingStartDate = '예매 시작일시는 필수입니다';
-        } else {
-            const bookingStart = new Date(formData.bookingStartDate);
-            const now = new Date();
-
-            if (bookingStart <= now) {
-                newErrors.bookingStartDate =
-                    '예매 시작일시는 현재 시간보다 이후여야 합니다';
-            }
         }
 
         if (!formData.bookingEndDate) {
             newErrors.bookingEndDate = '예매 종료일시는 필수입니다';
-        } else {
-            const bookingEnd = new Date(formData.bookingEndDate);
-            const now = new Date();
-
-            if (bookingEnd <= now) {
-                newErrors.bookingEndDate =
-                    '예매 종료일시는 현재 시간보다 이후여야 합니다';
-            }
         }
 
         // 예매 시간 순서 검증
@@ -310,6 +318,7 @@ const ConcertForm = ({
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
+
     // ====== API 호출 ======
 
     /**
@@ -386,16 +395,25 @@ const ConcertForm = ({
         );
     };
 
-    // ====== 폼 제출 ======
+    // ====== 파일 관련 핸들러 ======
     // 파일 선택 핸들러
     const handleFileSelect = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
 
+        // 기존 선택된 파일과 미리보기 초기화
+        setSelectedFile(null);
+        setFilePreview(null);
+        setImageLoadError(false);
+
         // 파일 검증
         const validation = fileUploadService.validateFile(file);
         if (!validation.valid) {
             alert(validation.error);
+            // 파일 input 초기화
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
             return;
         }
 
@@ -407,36 +425,79 @@ const ConcertForm = ({
             setFilePreview(dataURL);
         } catch (error) {
             console.error('미리보기 생성 실패:', error);
+            alert('이미지 미리보기 생성에 실패했습니다.');
         }
     };
 
     // 파일 업로드 실행 핸들러
     const handleFileUpload = async () => {
-        if (!selectedFile) return;
+        if (!selectedFile) {
+            alert('업로드할 파일을 선택해주세요.');
+            return;
+        }
+
+        // 이미 업로드 중인 경우 중복 방지
+        if (uploading) {
+            alert('이미 업로드가 진행 중입니다.');
+            return;
+        }
+
+        // 진행 중인 다른 업로드가 있는지 확인
+        if (fileUploadService.getActiveUploadCount() > 0) {
+            alert('다른 파일 업로드가 진행 중입니다. 잠시 후 다시 시도해주세요.');
+            return;
+        }
 
         setUploading(true);
         setUploadProgress(0);
 
         try {
+            // 기존 이미지가 있는 경우 확인 메시지
+            if (
+                formData.posterImageUrl &&
+                !confirm('기존 이미지를 새 이미지로 교체하시겠습니까?')
+            ) {
+                return;
+            }
             const result = await fileUploadService.uploadPosterImage(
                 selectedFile,
                 isEditMode ? concert.concertId : null,
                 (progress) => setUploadProgress(progress),
             );
 
-            // 업로드 성공 시 URL을 폼에 설정
-            setFormData((prev) => ({
-                ...prev,
-                posterImageUrl: result.data,
-            }));
+            if (result && result.success !== false) {
+                // 업로드 성공 시 URL을 폼에 설정
+                const urlWithCacheBuster = `${result.data}?t=${Date.now()}`;
 
-            alert('포스터 이미지가 업로드되었습니다!');
+                setFormData((prev) => ({
+                    ...prev,
+                    posterImageUrl: urlWithCacheBuster,  // ✅ 캐시 버스터 적용
+                }));
+                setImageLoadError(false);
+                alert('포스터 이미지가 업로드되었습니다!');
 
-            // 선택된 파일 정보 초기화
+                // 선택된 파일 정보 초기화
+                setSelectedFile(null);
+                setFilePreview(null);
+
+                // 파일 input 초기화
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                }
+                console.log('✅ 새 이미지 URL 설정 완료 (캐시 버스터 포함):', urlWithCacheBuster);
+            } else {
+                throw new Error(result?.message || '업로드에 실패했습니다.');
+            }
+        } catch (error) {
+            console.error('Upload error:', error);
+            alert(`업로드 실패: ${error.message}`);
+
+            // 실패 시에도 파일 관련 상태 초기화
             setSelectedFile(null);
             setFilePreview(null);
-        } catch (error) {
-            alert(`업로드 실패: ${error.message}`);
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
         } finally {
             setUploading(false);
             setUploadProgress(0);
@@ -448,27 +509,93 @@ const ConcertForm = ({
         setSelectedFile(null);
         setFilePreview(null);
         setUploadProgress(0);
+        setUploading(false);
 
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
+            // 파일 객체도 완전히 제거
             fileInputRef.current.files = null;
         }
     };
 
-    const handleRemoveUploadedImage = () => {
-        setFormData((prev) => ({
-            ...prev,
-            posterImageUrl: '',
-        }));
-        setSelectedFile(null);
-        setFilePreview(null);
-        setUploadProgress(0);
+    // ====== URL 입력 핸들러 개선 ======
+    const handlePosterUrlChange = async (e) => {
+        const url = e.target.value;
 
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-            fileInputRef.current.files = null;
+        // 기본 input 변경 처리
+        handleInputChange(e);
+
+        // 이미지 로드 에러 상태 리셋
+        setImageLoadError(false);
+        setImageLoadTesting(false);
+
+        // URL 형식만 검증하고, 실제 로드 테스트는 건너뛰기
+        if (url.trim()) {
+            const urlValidation = fileUploadService.validateImageUrl(url);
+            if (!urlValidation.valid) {
+                setImageLoadError(true);
+            }
+            // 실제 이미지 로드 테스트는 생략 (CORS 때문에)
         }
     };
+
+    const handleRemoveUploadedImage = async () => {
+        if (!formData.posterImageUrl) {
+            return;
+        }
+
+        if (!confirm('포스터 이미지를 완전히 삭제하시겠습니까?\n(Supabase와 DB에서 모두 제거됩니다)')) {
+            return;
+        }
+
+        try {
+            const deleteResult = await fileUploadService.deleteConcertPoster(
+                concert?.concertId, // 수정 모드에서만 사용
+                sellerId
+            );
+
+            if (deleteResult.success) {
+                // 프론트엔드 상태 초기화
+                setFormData((prev) => ({
+                    ...prev,
+                    posterImageUrl: '',
+                }));
+
+                // 기타 상태 초기화
+                setImageLoadError(false);
+                setSelectedFile(null);
+                setFilePreview(null);
+
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                }
+
+                alert('포스터 이미지가 완전히 삭제되었습니다.');
+
+            } else {
+                alert(`포스터 삭제 실패: ${deleteResult.message}`);
+            }
+
+        } catch (error) {
+            console.error('❌ 포스터 삭제 중 오류:', error);
+            alert('포스터 삭제 중 오류가 발생했습니다.');
+        }
+    };
+
+    const handleImageLoadError = () => {
+        setImageLoadError(true);
+    };
+
+    const handleImageLoadSuccess = () => {
+        setImageLoadError(false);
+    };
+
+    useEffect(() => {
+        return () => {
+            // 컴포넌트 언마운트 시 진행 중인 업로드 정리
+            fileUploadService.clearActiveUploads();
+        };
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -502,22 +629,668 @@ const ConcertForm = ({
                 setSubmitError(
                     result?.message || '처리 중 오류가 발생했습니다.',
                 );
+
+                setFormData(prev => ({
+                    ...prev,
+                    posterImageUrl: ''
+                }));
             }
         } catch (error) {
             setSubmitError('네트워크 오류가 발생했습니다.');
+            setFormData(prev => ({
+                ...prev,
+                posterImageUrl: ''
+            }));
         } finally {
             setLoading(false);
         }
     };
+
     // 모달 모드가 아닐 때는 isOpen 체크 안 함
     if (modal && !isOpen) return null;
+
+    // ====== 폼 컨텐츠 렌더링 함수 ======
+    const renderFormContent = () => (
+        <form onSubmit={handleSubmit} className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* 기본 정보 섹션 */}
+                <div className="md:col-span-2">
+                    <h3 className="text-lg font-semibold text-white mb-4">
+                        기본 정보
+                    </h3>
+                </div>
+
+                {/* 콘서트 제목 */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-200 mb-2">
+                        콘서트 제목{' '}
+                        <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                        type="text"
+                        name="title"
+                        value={formData.title}
+                        onChange={handleInputChange}
+                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                            errors.title
+                                ? 'border-red-500'
+                                : 'border-gray-600'
+                        } bg-gray-700 text-white placeholder-gray-400`}
+                        placeholder="콘서트 제목을 입력하세요"
+                        maxLength={100}
+                    />
+                    {errors.title && (
+                        <p className="mt-1 text-sm text-red-500">
+                            {errors.title}
+                        </p>
+                    )}
+                </div>
+
+                {/* 아티스트명 */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-200 mb-2">
+                        아티스트명{' '}
+                        <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                        type="text"
+                        name="artist"
+                        value={formData.artist}
+                        onChange={handleInputChange}
+                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                            errors.artist
+                                ? 'border-red-500'
+                                : 'border-gray-600'
+                        } bg-gray-700 text-white placeholder-gray-400`}
+                        placeholder="아티스트명을 입력하세요"
+                        maxLength={50}
+                    />
+                    {errors.artist && (
+                        <p className="mt-1 text-sm text-red-500">
+                            {errors.artist}
+                        </p>
+                    )}
+                </div>
+
+                {/* 콘서트 설명 */}
+                <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-200 mb-2">
+                        콘서트 설명
+                    </label>
+                    <textarea
+                        name="description"
+                        value={formData.description}
+                        onChange={handleInputChange}
+                        rows={3}
+                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                            errors.description
+                                ? 'border-red-500'
+                                : 'border-gray-600'
+                        } bg-gray-700 text-white placeholder-gray-400`}
+                        placeholder="콘서트에 대한 상세 설명을 입력하세요"
+                        maxLength={1000}
+                    />
+                    {errors.description && (
+                        <p className="mt-1 text-sm text-red-500">
+                            {errors.description}
+                        </p>
+                    )}
+                </div>
+
+                {/* 공연장 정보 섹션 */}
+                <div className="md:col-span-2 mt-6">
+                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                        <MapPin size={20} />
+                        공연장 정보
+                    </h3>
+                </div>
+
+                {/* 공연장명 */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-200 mb-2">
+                        공연장명 <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                        type="text"
+                        name="venueName"
+                        value={formData.venueName}
+                        onChange={handleInputChange}
+                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                            errors.venueName
+                                ? 'border-red-500'
+                                : 'border-gray-600'
+                        } bg-gray-700 text-white placeholder-gray-400`}
+                        placeholder="공연장명을 입력하세요"
+                        maxLength={100}
+                    />
+                    {errors.venueName && (
+                        <p className="mt-1 text-sm text-red-500">
+                            {errors.venueName}
+                        </p>
+                    )}
+                </div>
+
+                {/* 공연장 주소 */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-200 mb-2">
+                        공연장 주소
+                    </label>
+                    <input
+                        type="text"
+                        name="venueAddress"
+                        value={formData.venueAddress}
+                        onChange={handleInputChange}
+                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                            errors.venueAddress
+                                ? 'border-red-500'
+                                : 'border-gray-600'
+                        } bg-gray-700 text-white placeholder-gray-400`}
+                        placeholder="공연장 주소를 입력하세요"
+                        maxLength={200}
+                    />
+                    {errors.venueAddress && (
+                        <p className="mt-1 text-sm text-red-500">
+                            {errors.venueAddress}
+                        </p>
+                    )}
+                </div>
+
+                {/* 일시 정보 섹션 */}
+                <div className="md:col-span-2 mt-6">
+                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                        <Calendar size={20} />
+                        일시 정보
+                    </h3>
+                </div>
+
+                {/* 공연 날짜 */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-200 mb-2">
+                        공연 날짜{' '}
+                        <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                        type="date"
+                        name="concertDate"
+                        value={formData.concertDate}
+                        onChange={handleInputChange}
+                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                            errors.concertDate
+                                ? 'border-red-500'
+                                : 'border-gray-600'
+                        } bg-gray-700 text-white`}
+                    />
+                    {errors.concertDate && (
+                        <p className="mt-1 text-sm text-red-500">
+                            {errors.concertDate}
+                        </p>
+                    )}
+                </div>
+
+                {/* 총 좌석 수 */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-200 mb-2">
+                        총 좌석 수{' '}
+                        <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                        type="number"
+                        name="totalSeats"
+                        value={formData.totalSeats}
+                        onChange={handleInputChange}
+                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                            errors.totalSeats
+                                ? 'border-red-500'
+                                : 'border-gray-600'
+                        } bg-gray-700 text-white placeholder-gray-400`}
+                        placeholder="총 좌석 수를 입력하세요"
+                        min={1}
+                        max={100000}
+                    />
+                    {errors.totalSeats && (
+                        <p className="mt-1 text-sm text-red-500">
+                            {errors.totalSeats}
+                        </p>
+                    )}
+                </div>
+
+                {/* 시작 시간 */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-200 mb-2">
+                        시작 시간{' '}
+                        <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                        type="time"
+                        name="startTime"
+                        value={formData.startTime}
+                        onChange={handleInputChange}
+                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                            errors.startTime
+                                ? 'border-red-500'
+                                : 'border-gray-600'
+                        } bg-gray-700 text-white`}
+                    />
+                    {errors.startTime && (
+                        <p className="mt-1 text-sm text-red-500">
+                            {errors.startTime}
+                        </p>
+                    )}
+                </div>
+
+                {/* 종료 시간 */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-200 mb-2">
+                        종료 시간{' '}
+                        <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                        type="time"
+                        name="endTime"
+                        value={formData.endTime}
+                        onChange={handleInputChange}
+                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                            errors.endTime
+                                ? 'border-red-500'
+                                : 'border-gray-600'
+                        } bg-gray-700 text-white`}
+                    />
+                    {errors.endTime && (
+                        <p className="mt-1 text-sm text-red-500">
+                            {errors.endTime}
+                        </p>
+                    )}
+                </div>
+
+                {/* 예매 정보 섹션 */}
+                <div className="md:col-span-2 mt-6">
+                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                        <Clock size={20} />
+                        예매 정보
+                    </h3>
+                </div>
+
+                {/* 예매 시작일시 */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-200 mb-2">
+                        예매 시작일시{' '}
+                        <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                        type="datetime-local"
+                        name="bookingStartDate"
+                        value={formData.bookingStartDate}
+                        onChange={handleInputChange}
+                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                            errors.bookingStartDate
+                                ? 'border-red-500'
+                                : 'border-gray-600'
+                        } bg-gray-700 text-white`}
+                    />
+                    {errors.bookingStartDate && (
+                        <p className="mt-1 text-sm text-red-500">
+                            {errors.bookingStartDate}
+                        </p>
+                    )}
+                </div>
+
+                {/* 예매 종료일시 */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-200 mb-2">
+                        예매 종료일시{' '}
+                        <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                        type="datetime-local"
+                        name="bookingEndDate"
+                        value={formData.bookingEndDate}
+                        onChange={handleInputChange}
+                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                            errors.bookingEndDate
+                                ? 'border-red-500'
+                                : 'border-gray-600'
+                        } bg-gray-700 text-white`}
+                    />
+                    {errors.bookingEndDate && (
+                        <p className="mt-1 text-sm text-red-500">
+                            {errors.bookingEndDate}
+                        </p>
+                    )}
+                </div>
+
+                {/* 추가 설정 섹션 */}
+                <div className="md:col-span-2 mt-6">
+                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                        <Users size={20} />
+                        추가 설정
+                    </h3>
+                </div>
+
+                {/* 최소 연령 */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-200 mb-2">
+                        최소 연령 제한
+                    </label>
+                    <input
+                        type="number"
+                        name="minAge"
+                        value={formData.minAge}
+                        onChange={handleInputChange}
+                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                            errors.minAge
+                                ? 'border-red-500'
+                                : 'border-gray-600'
+                        } bg-gray-700 text-white placeholder-gray-400`}
+                        placeholder="최소 연령을 입력하세요"
+                        min={0}
+                        max={100}
+                    />
+                    {errors.minAge && (
+                        <p className="mt-1 text-sm text-red-500">
+                            {errors.minAge}
+                        </p>
+                    )}
+                    <p className="mt-1 text-xs text-gray-400">
+                        0세는 연령 제한 없음을 의미합니다
+                    </p>
+                </div>
+
+                {/* 사용자당 최대 티켓 수 */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-200 mb-2">
+                        사용자당 최대 구매 티켓 수
+                    </label>
+                    <input
+                        type="number"
+                        name="maxTicketsPerUser"
+                        value={formData.maxTicketsPerUser}
+                        onChange={handleInputChange}
+                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                            errors.maxTicketsPerUser
+                                ? 'border-red-500'
+                                : 'border-gray-600'
+                        } bg-gray-700 text-white placeholder-gray-400`}
+                        placeholder="최대 구매 가능 티켓 수"
+                        min={1}
+                        max={10}
+                    />
+                    {errors.maxTicketsPerUser && (
+                        <p className="mt-1 text-sm text-red-500">
+                            {errors.maxTicketsPerUser}
+                        </p>
+                    )}
+                </div>
+
+                {/* 콘서트 상태 선택 (생성/수정 모드 모두) */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-200 mb-2">
+                        콘서트 상태
+                    </label>
+                    <select
+                        name="status"
+                        value={formData.status}
+                        onChange={handleInputChange}
+                        className="w-full px-3 py-2 border border-gray-600 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                        <option value="SCHEDULED">예정됨</option>
+                        <option value="ON_SALE">예매중</option>
+                        <option value="SOLD_OUT">매진</option>
+                        <option value="CANCELLED">취소됨</option>
+                        <option value="COMPLETED">완료됨</option>
+                    </select>
+                    <p className="mt-1 text-xs text-gray-400">
+                        {isEditMode
+                            ? '상태 변경 시 신중하게 선택해주세요'
+                            : '초기 콘서트 상태를 선택해주세요'}
+                    </p>
+                </div>
+
+                {/* 포스터 이미지 섹션 */}
+                <div className="md:col-span-2 mt-6">
+                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                        <Image size={20} />
+                        포스터 이미지
+                    </h3>
+                </div>
+
+                {/* 파일 업로드 섹션 */}
+                <div className="md:col-span-2 mb-4">
+                    <label className="block text-sm font-medium text-gray-200 mb-2">
+                        포스터 이미지 파일 업로드
+                    </label>
+
+                    {/* 파일 선택 */}
+                    <div className="flex gap-4 mb-4">
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*"
+                            onChange={handleFileSelect}
+                            className="flex-1 px-3 py-2 border border-gray-600 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            disabled={uploading}
+                        />
+
+                        {selectedFile && (
+                            <button
+                                type="button"
+                                onClick={handleFileUpload}
+                                disabled={uploading}
+                                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {uploading
+                                    ? `업로드 중... ${uploadProgress}%`
+                                    : '업로드'}
+                            </button>
+                        )}
+
+                        {selectedFile && !uploading && (
+                            <button
+                                type="button"
+                                onClick={handleClearFile}
+                                className="px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-lg transition-colors"
+                            >
+                                취소
+                            </button>
+                        )}
+                    </div>
+
+                    {/* 선택된 파일 정보 */}
+                    {selectedFile && (
+                        <div className="text-sm text-gray-400 mb-2">
+                            선택된 파일: {selectedFile.name} (
+                            {fileUploadService.formatFileSize(
+                                selectedFile.size,
+                            )}
+                            )
+                        </div>
+                    )}
+
+                    {/* 업로드 진행률 바 */}
+                    {uploading && (
+                        <div className="w-full bg-gray-600 rounded-full h-2 mb-2">
+                            <div
+                                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                                style={{ width: `${uploadProgress}%` }}
+                            ></div>
+                        </div>
+                    )}
+
+                    {/* 파일 미리보기 */}
+                    {filePreview && (
+                        <div className="mt-4">
+                            <p className="text-sm font-medium text-gray-200 mb-2">
+                                업로드할 이미지 미리보기
+                            </p>
+                            <div className="w-32 h-48 border border-gray-600 rounded-lg overflow-hidden">
+                                <img
+                                    src={filePreview}
+                                    alt="업로드할 이미지 미리보기"
+                                    className="w-full h-full object-cover"
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    <p className="text-xs text-gray-400 mt-2">
+                        또는 아래에 직접 URL을 입력하세요
+                    </p>
+                </div>
+
+                {/* 포스터 이미지 URL */}
+                <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-200 mb-2">
+                        포스터 이미지 URL (직접 입력)
+                    </label>
+                    <div className="flex gap-2">
+                        <div className="flex-1 relative">
+                            <input
+                                type="url"
+                                name="posterImageUrl"
+                                value={formData.posterImageUrl}
+                                onChange={handlePosterUrlChange}
+                                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                                    errors.posterImageUrl || imageLoadError
+                                        ? 'border-red-500'
+                                        : 'border-gray-600'
+                                } bg-gray-700 text-white placeholder-gray-400`}
+                                placeholder="https://example.com/poster.jpg"
+                            />
+                            {imageLoadTesting && (
+                                <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+                                    <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                                </div>
+                            )}
+                        </div>
+
+                        {formData.posterImageUrl && (
+                            <button
+                                type="button"
+                                onClick={handleRemoveUploadedImage}
+                                className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+                                title="이미지 제거"
+                            >
+                                ✕
+                            </button>
+                        )}
+                    </div>
+
+                    {errors.posterImageUrl && (
+                        <p className="mt-1 text-sm text-red-500">
+                            {errors.posterImageUrl}
+                        </p>
+                    )}
+
+                    {imageLoadError && formData.posterImageUrl && !imageLoadTesting && (
+                        <div className="mt-2 p-3 bg-yellow-800 border border-yellow-600 rounded text-yellow-200 text-sm">
+                            <div className="flex items-center gap-2">
+                                <span>⚠️</span>
+                                <div>
+                                    <div className="font-medium">이미지를 불러올 수 없습니다</div>
+                                    <div className="text-xs mt-1 text-yellow-300">
+                                        • URL이 올바른지 확인해주세요<br/>
+                                        • 외부 사이트의 경우 접근 제한이 있을 수 있습니다<br/>
+                                        • 파일 업로드를 이용하시는 것을 권장합니다
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    <p className="mt-1 text-xs text-gray-400">
+                        지원 형식: jpg, jpeg, png, gif, webp<br/>
+                        외부 이미지는 CORS 정책에 따라 로드되지 않을 수 있습니다.
+                    </p>
+
+                    {formData.posterImageUrl && !errors.posterImageUrl && (
+                        <div className="mt-4">
+                            <div className="flex items-center justify-between mb-2">
+                                <p className="text-sm font-medium text-gray-200">
+                                    미리보기
+                                </p>
+                                <button
+                                    type="button"
+                                    onClick={handleRemoveUploadedImage}
+                                    className="text-xs text-red-400 hover:text-red-300 transition-colors"
+                                >
+                                    이미지 제거
+                                </button>
+                            </div>
+                            <div className="w-32 h-48 border border-gray-600 rounded-lg overflow-hidden relative">
+                                {!imageLoadError ? (
+                                    <>
+                                        <img
+                                            src={formData.posterImageUrl}
+                                            alt="포스터 미리보기"
+                                            className="w-full h-full object-cover"
+                                            onError={handleImageLoadError}
+                                            onLoad={handleImageLoadSuccess}
+                                        />
+                                        {imageLoadTesting && (
+                                            <div className="absolute inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center">
+                                                <div className="text-center text-white">
+                                                    <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+                                                    <div className="text-xs">로딩 중...</div>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </>
+                                ) : (
+                                    <div className="w-full h-full bg-gray-800 text-gray-400 flex flex-col items-center justify-center text-sm p-4">
+                                        <div className="text-center">
+                                            <div className="text-red-400 mb-2 text-lg">⚠️</div>
+                                            <div className="text-xs leading-relaxed">
+                                                이미지를 불러올 수<br/>
+                                                없습니다.<br/>
+                                                URL을 확인해주세요.
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {imageLoadError && (
+                                <div className="mt-2 text-xs text-blue-400">
+                                    💡 파일 업로드를 이용하면 더 안정적으로 이미지를 등록할 수 있습니다.
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* 폼 액션 버튼들 */}
+            <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-600">
+                <button
+                    type="button"
+                    onClick={onClose}
+                    className="px-6 py-2 text-gray-300 bg-gray-700 hover:bg-gray-600 border border-gray-600 rounded-lg transition-colors"
+                    disabled={loading}
+                >
+                    취소
+                </button>
+                <button
+                    type="submit"
+                    disabled={loading}
+                    className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                    {loading && (
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    )}
+                    {loading
+                        ? '처리 중...'
+                        : isEditMode
+                          ? '수정하기'
+                          : '등록하기'}
+                </button>
+            </div>
+        </form>
+    );
 
     // ====== 렌더링 (모달 모드) ======
     if (modal) {
         return (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
                 <div className="bg-gray-800 text-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-gray-600">
-                    {' '}
                     {/* 헤더 */}
                     <div className="flex items-center justify-between p-6 border-b border-gray-600">
                         <h2 className="text-2xl font-bold text-white">
@@ -530,6 +1303,7 @@ const ConcertForm = ({
                             <X size={24} />
                         </button>
                     </div>
+
                     {/* 성공/에러 메시지 */}
                     {submitSuccess && (
                         <div className="mx-6 mt-4 p-4 bg-green-800 border border-green-600 rounded-lg flex items-center gap-2">
@@ -545,601 +1319,9 @@ const ConcertForm = ({
                             <span className="text-red-100">{submitError}</span>
                         </div>
                     )}
+
                     {/* 폼 */}
-                    <form onSubmit={handleSubmit} className="p-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {/* 기본 정보 섹션 */}
-                            <div className="md:col-span-2">
-                                <h3 className="text-lg font-semibold text-white mb-4">
-                                    기본 정보
-                                </h3>
-                            </div>
-
-                            {/* 콘서트 제목 */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-200 mb-2">
-                                    콘서트 제목{' '}
-                                    <span className="text-red-500">*</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    name="title"
-                                    value={formData.title}
-                                    onChange={handleInputChange}
-                                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                                        errors.title
-                                            ? 'border-red-500'
-                                            : 'border-gray-600'
-                                    } bg-gray-700 text-white placeholder-gray-400`}
-                                    placeholder="콘서트 제목을 입력하세요"
-                                    maxLength={100}
-                                />
-                                {errors.title && (
-                                    <p className="mt-1 text-sm text-red-500">
-                                        {errors.title}
-                                    </p>
-                                )}
-                            </div>
-
-                            {/* 아티스트명 */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-200 mb-2">
-                                    아티스트명{' '}
-                                    <span className="text-red-500">*</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    name="artist"
-                                    value={formData.artist}
-                                    onChange={handleInputChange}
-                                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                                        errors.description
-                                            ? 'border-red-500'
-                                            : 'border-gray-600'
-                                    } bg-gray-700 text-white placeholder-gray-400`}
-                                    placeholder="아티스트명을 입력하세요"
-                                    maxLength={50}
-                                />
-                                {errors.artist && (
-                                    <p className="mt-1 text-sm text-red-600">
-                                        {errors.artist}
-                                    </p>
-                                )}
-                            </div>
-
-                            {/* 콘서트 설명 */}
-                            <div className="md:col-span-2">
-                                <label className="block text-sm font-medium text-gray-200 mb-2">
-                                    콘서트 설명
-                                </label>
-                                <textarea
-                                    name="description"
-                                    value={formData.description}
-                                    onChange={handleInputChange}
-                                    rows={3}
-                                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                                        errors.description
-                                            ? 'border-red-500'
-                                            : 'border-gray-600'
-                                    } bg-gray-700 text-white placeholder-gray-400`}
-                                    placeholder="콘서트에 대한 상세 설명을 입력하세요"
-                                    maxLength={1000}
-                                />
-                                {errors.description && (
-                                    <p className="mt-1 text-sm text-red-600">
-                                        {errors.description}
-                                    </p>
-                                )}
-                            </div>
-
-                            {/* 공연장 정보 섹션 */}
-                            <div className="md:col-span-2 mt-6">
-                                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                                    <MapPin size={20} />
-                                    공연장 정보
-                                </h3>
-                            </div>
-
-                            {/* 공연장명 */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-200 mb-2">
-                                    공연장명{' '}
-                                    <span className="text-red-500">*</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    name="venueName"
-                                    value={formData.venueName}
-                                    onChange={handleInputChange}
-                                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                                        errors.venueName
-                                            ? 'border-red-500'
-                                            : 'border-gray-600'
-                                    } bg-gray-700 text-white placeholder-gray-400`}
-                                    placeholder="공연장명을 입력하세요"
-                                    maxLength={100}
-                                />
-                                {errors.venueName && (
-                                    <p className="mt-1 text-sm text-red-600">
-                                        {errors.venueName}
-                                    </p>
-                                )}
-                            </div>
-
-                            {/* 공연장 주소 */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-200 mb-2">
-                                    공연장 주소
-                                </label>
-                                <input
-                                    type="text"
-                                    name="venueAddress"
-                                    value={formData.venueAddress}
-                                    onChange={handleInputChange}
-                                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                                        errors.venueAddress
-                                            ? 'border-red-500'
-                                            : 'border-gray-600'
-                                    } bg-gray-700 text-white placeholder-gray-400`}
-                                    placeholder="공연장 주소를 입력하세요"
-                                    maxLength={200}
-                                />
-                                {errors.venueAddress && (
-                                    <p className="mt-1 text-sm text-red-600">
-                                        {errors.venueAddress}
-                                    </p>
-                                )}
-                            </div>
-
-                            {/* 일시 정보 섹션 */}
-                            <div className="md:col-span-2 mt-6">
-                                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                                    <Calendar size={20} />
-                                    일시 정보
-                                </h3>
-                            </div>
-
-                            {/* 공연 날짜 */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-200 mb-2">
-                                    공연 날짜{' '}
-                                    <span className="text-red-500">*</span>
-                                </label>
-                                <input
-                                    type="date"
-                                    name="concertDate"
-                                    value={formData.concertDate}
-                                    onChange={handleInputChange}
-                                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                                        errors.concertDate
-                                            ? 'border-red-500'
-                                            : 'border-gray-600'
-                                    } bg-gray-700 text-white placeholder-gray-400`}
-                                />
-                                {errors.concertDate && (
-                                    <p className="mt-1 text-sm text-red-600">
-                                        {errors.concertDate}
-                                    </p>
-                                )}
-                            </div>
-
-                            {/* 총 좌석 수 */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-200 mb-2">
-                                    총 좌석 수{' '}
-                                    <span className="text-red-500">*</span>
-                                </label>
-                                <input
-                                    type="number"
-                                    name="totalSeats"
-                                    value={formData.totalSeats}
-                                    onChange={handleInputChange}
-                                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                                        errors.totalSeats
-                                            ? 'border-red-500'
-                                            : 'border-gray-600'
-                                    } bg-gray-700 text-white placeholder-gray-400`}
-                                    placeholder="총 좌석 수를 입력하세요"
-                                    min={1}
-                                    max={100000}
-                                />
-                                {errors.totalSeats && (
-                                    <p className="mt-1 text-sm text-red-600">
-                                        {errors.totalSeats}
-                                    </p>
-                                )}
-                            </div>
-
-                            {/* 시작 시간 */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-200 mb-2">
-                                    시작 시간{' '}
-                                    <span className="text-red-500">*</span>
-                                </label>
-                                <input
-                                    type="time"
-                                    name="startTime"
-                                    value={formData.startTime}
-                                    onChange={handleInputChange}
-                                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                                        errors.startTime
-                                            ? 'border-red-500'
-                                            : 'border-gray-600'
-                                    } bg-gray-700 text-white placeholder-gray-400`}
-                                />
-                                {errors.startTime && (
-                                    <p className="mt-1 text-sm text-red-600">
-                                        {errors.startTime}
-                                    </p>
-                                )}
-                            </div>
-
-                            {/* 종료 시간 */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-200 mb-2">
-                                    종료 시간{' '}
-                                    <span className="text-red-500">*</span>
-                                </label>
-                                <input
-                                    type="time"
-                                    name="endTime"
-                                    value={formData.endTime}
-                                    onChange={handleInputChange}
-                                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                                        errors.endTime
-                                            ? 'border-red-500'
-                                            : 'border-gray-600'
-                                    } bg-gray-700 text-white placeholder-gray-400`}
-                                />
-                                {errors.endTime && (
-                                    <p className="mt-1 text-sm text-red-600">
-                                        {errors.endTime}
-                                    </p>
-                                )}
-                            </div>
-
-                            {/* 예매 정보 섹션 */}
-                            <div className="md:col-span-2 mt-6">
-                                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                                    <Clock size={20} />
-                                    예매 정보
-                                </h3>
-                            </div>
-
-                            {/* 예매 시작일시 */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-200 mb-2">
-                                    예매 시작일시{' '}
-                                    <span className="text-red-500">*</span>
-                                </label>
-                                <input
-                                    type="datetime-local"
-                                    name="bookingStartDate"
-                                    value={formData.bookingStartDate}
-                                    onChange={handleInputChange}
-                                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                                        errors.bookingStartDate
-                                            ? 'border-red-500'
-                                            : 'border-gray-600'
-                                    } bg-gray-700 text-white placeholder-gray-400`}
-                                />
-                                {errors.bookingStartDate && (
-                                    <p className="mt-1 text-sm text-red-600">
-                                        {errors.bookingStartDate}
-                                    </p>
-                                )}
-                            </div>
-
-                            {/* 예매 종료일시 */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-200 mb-2">
-                                    예매 종료일시{' '}
-                                    <span className="text-red-500">*</span>
-                                </label>
-                                <input
-                                    type="datetime-local"
-                                    name="bookingEndDate"
-                                    value={formData.bookingEndDate}
-                                    onChange={handleInputChange}
-                                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                                        errors.bookingEndDate
-                                            ? 'border-red-500'
-                                            : 'border-gray-600'
-                                    } bg-gray-700 text-white placeholder-gray-400`}
-                                />
-                                {errors.bookingEndDate && (
-                                    <p className="mt-1 text-sm text-red-600">
-                                        {errors.bookingEndDate}
-                                    </p>
-                                )}
-                            </div>
-
-                            {/* 추가 설정 섹션 */}
-                            <div className="md:col-span-2 mt-6">
-                                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                                    <Users size={20} />
-                                    추가 설정
-                                </h3>
-                            </div>
-
-                            {/* 최소 연령 */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-200 mb-2">
-                                    최소 연령 제한
-                                </label>
-                                <input
-                                    type="number"
-                                    name="minAge"
-                                    value={formData.minAge}
-                                    onChange={handleInputChange}
-                                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                                        errors.minAge
-                                            ? 'border-red-500'
-                                            : 'border-gray-600'
-                                    } bg-gray-700 text-white placeholder-gray-400`}
-                                    placeholder="최소 연령을 입력하세요"
-                                    min={0}
-                                    max={100}
-                                />
-                                {errors.minAge && (
-                                    <p className="mt-1 text-sm text-red-600">
-                                        {errors.minAge}
-                                    </p>
-                                )}
-                                <p className="mt-1 text-xs text-gray-400">
-                                    0세는 연령 제한 없음을 의미합니다
-                                </p>
-                            </div>
-
-                            {/* 사용자당 최대 티켓 수 */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-200 mb-2">
-                                    사용자당 최대 구매 티켓 수
-                                </label>
-                                <input
-                                    type="number"
-                                    name="maxTicketsPerUser"
-                                    value={formData.maxTicketsPerUser}
-                                    onChange={handleInputChange}
-                                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                                        errors.maxTicketsPerUser
-                                            ? 'border-red-500'
-                                            : 'border-gray-600'
-                                    } bg-gray-700 text-white placeholder-gray-400`}
-                                    placeholder="최대 구매 가능 티켓 수"
-                                    min={1}
-                                    max={10}
-                                />
-                                {errors.maxTicketsPerUser && (
-                                    <p className="mt-1 text-sm text-red-600">
-                                        {errors.maxTicketsPerUser}
-                                    </p>
-                                )}
-                            </div>
-
-                            {/* 콘서트 상태 선택 (생성/수정 모드 모두) */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-200 mb-2">
-                                    콘서트 상태
-                                </label>
-                                <select
-                                    name="status"
-                                    value={formData.status}
-                                    onChange={handleInputChange}
-                                    className="w-full px-3 py-2 border border-gray-600 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                >
-                                    <option value="SCHEDULED">예정됨</option>
-                                    <option value="ON_SALE">예매중</option>
-                                    <option value="SOLD_OUT">매진</option>
-                                    <option value="CANCELLED">취소됨</option>
-                                    <option value="COMPLETED">완료됨</option>
-                                </select>
-                                <p className="mt-1 text-xs text-gray-400">
-                                    상태 변경 시 신중하게 선택해주세요
-                                </p>
-                            </div>
-
-                            {/* 포스터 이미지 섹션 */}
-                            <div className="md:col-span-2 mt-6">
-                                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                                    <Image size={20} />
-                                    포스터 이미지
-                                </h3>
-                            </div>
-
-                            {/* 파일 업로드 섹션 */}
-                            <div className="md:col-span-2 mb-4">
-                                <label className="block text-sm font-medium text-gray-200 mb-2">
-                                    포스터 이미지 파일 업로드
-                                </label>
-
-                                {/* 파일 선택 */}
-                                <div className="flex gap-4 mb-4">
-                                    <input
-                                        ref={fileInputRef}
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={handleFileSelect}
-                                        className="flex-1 px-3 py-2 border border-gray-600 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        disabled={uploading}
-                                    />
-
-                                    {selectedFile && (
-                                        <button
-                                            type="button"
-                                            onClick={handleFileUpload}
-                                            disabled={uploading}
-                                            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                        >
-                                            {uploading
-                                                ? `업로드 중... ${uploadProgress}%`
-                                                : '업로드'}
-                                        </button>
-                                    )}
-
-                                    {selectedFile && !uploading && (
-                                        <button
-                                            type="button"
-                                            onClick={handleClearFile}
-                                            className="px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-lg transition-colors"
-                                        >
-                                            취소
-                                        </button>
-                                    )}
-                                </div>
-
-                                {/* 선택된 파일 정보 */}
-                                {selectedFile && (
-                                    <div className="text-sm text-gray-400 mb-2">
-                                        선택된 파일: {selectedFile.name} (
-                                        {fileUploadService.formatFileSize(
-                                            selectedFile.size,
-                                        )}
-                                        )
-                                    </div>
-                                )}
-
-                                {/* 업로드 진행률 바 */}
-                                {uploading && (
-                                    <div className="w-full bg-gray-600 rounded-full h-2 mb-2">
-                                        <div
-                                            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                                            style={{
-                                                width: `${uploadProgress}%`,
-                                            }}
-                                        ></div>
-                                    </div>
-                                )}
-
-                                {/* 파일 미리보기 */}
-                                {filePreview && (
-                                    <div className="mt-4">
-                                        <p className="text-sm font-medium text-gray-200 mb-2">
-                                            업로드할 이미지 미리보기
-                                        </p>
-                                        <div className="w-32 h-48 border border-gray-600 rounded-lg overflow-hidden">
-                                            <img
-                                                src={filePreview}
-                                                alt="업로드할 이미지 미리보기"
-                                                className="w-full h-full object-cover"
-                                            />
-                                        </div>
-                                    </div>
-                                )}
-
-                                <p className="text-xs text-gray-400 mt-2">
-                                    또는 아래에 직접 URL을 입력하세요
-                                </p>
-                            </div>
-
-                            {/* 포스터 이미지 URL */}
-                            <div className="md:col-span-2">
-                                <label className="block text-sm font-medium text-gray-200 mb-2">
-                                    포스터 이미지 URL (직접 입력)
-                                </label>
-                                <div className="flex gap-2">
-                                    <input
-                                        type="url"
-                                        name="posterImageUrl"
-                                        value={formData.posterImageUrl}
-                                        onChange={handleInputChange}
-                                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                                            errors.posterImageUrl
-                                                ? 'border-red-500'
-                                                : 'border-gray-600'
-                                        } bg-gray-700 text-white placeholder-gray-400`}
-                                        placeholder="https://example.com/poster.jpg"
-                                    />
-                                    {/* 업로드된 이미지 제거 버튼 */}
-                                    {formData.posterImageUrl && (
-                                        <button
-                                            type="button"
-                                            onClick={handleRemoveUploadedImage}
-                                            className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
-                                            title="이미지 제거"
-                                        >
-                                            ✕
-                                        </button>
-                                    )}
-                                </div>
-                                {errors.posterImageUrl && (
-                                    <p className="mt-1 text-sm text-red-500">
-                                        {errors.posterImageUrl}
-                                    </p>
-                                )}
-                                <p className="mt-1 text-xs text-gray-400">
-                                    지원 형식: jpg, jpeg, png, gif, webp
-                                </p>
-
-                                {/* 포스터 미리보기 */}
-                                {formData.posterImageUrl &&
-                                    !errors.posterImageUrl && (
-                                        <div className="mt-4">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <p className="text-sm font-medium text-gray-200 mb-2">
-                                                    미리보기
-                                                </p>
-                                                <button
-                                                    type="button"
-                                                    onClick={
-                                                        handleRemoveUploadedImage
-                                                    }
-                                                    className="text-xs text-red-400 hover:text-red-300 transition-colors"
-                                                >
-                                                    이미지 제거
-                                                </button>
-                                            </div>
-                                            <div className="w-32 h-48 border border-gray-600 rounded-lg overflow-hidden">
-                                                <img
-                                                    src={
-                                                        formData.posterImageUrl
-                                                    }
-                                                    alt="포스터 미리보기"
-                                                    className="w-full h-full object-cover"
-                                                    onError={(e) => {
-                                                        e.target.style.display =
-                                                            'none';
-                                                        e.target.nextSibling.style.display =
-                                                            'flex';
-                                                    }}
-                                                />
-                                                <div
-                                                    className="w-full h-full bg-gray-800 text-gray-400 flex items-center justify-center text-sm"
-                                                    style={{ display: 'none' }}
-                                                >
-                                                    이미지 로드 실패
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
-                            </div>
-                        </div>
-                        {/* 폼 액션 버튼들 */}
-                        <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-600">
-                            <button
-                                type="button"
-                                onClick={onClose}
-                                className="px-6 py-2 text-gray-300 bg-gray-700 hover:bg-gray-600 border border-gray-600 rounded-lg transition-colors"
-                                disabled={loading}
-                            >
-                                취소
-                            </button>
-                            <button
-                                type="submit"
-                                disabled={loading}
-                                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                            >
-                                {loading && (
-                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                )}
-                                {loading
-                                    ? '처리 중...'
-                                    : isEditMode
-                                      ? '수정하기'
-                                      : '등록하기'}
-                            </button>
-                        </div>
-                    </form>
+                    {renderFormContent()}
                 </div>
             </div>
         );
@@ -1165,598 +1347,7 @@ const ConcertForm = ({
                 )}
 
                 {/* 폼 */}
-                <form onSubmit={handleSubmit} className="p-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* 기본 정보 섹션 */}
-                        <div className="md:col-span-2">
-                            <h3 className="text-lg font-semibold text-white mb-4">
-                                기본 정보
-                            </h3>
-                        </div>
-
-                        {/* 콘서트 제목 */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-200 mb-2">
-                                콘서트 제목{' '}
-                                <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="text"
-                                name="title"
-                                value={formData.title}
-                                onChange={handleInputChange}
-                                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                                    errors.title
-                                        ? 'border-red-500'
-                                        : 'border-gray-600'
-                                } bg-gray-700 text-white placeholder-gray-400`}
-                                placeholder="콘서트 제목을 입력하세요"
-                                maxLength={100}
-                            />
-                            {errors.title && (
-                                <p className="mt-1 text-sm text-red-500">
-                                    {errors.title}
-                                </p>
-                            )}
-                        </div>
-
-                        {/* 아티스트명 */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-200 mb-2">
-                                아티스트명{' '}
-                                <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="text"
-                                name="artist"
-                                value={formData.artist}
-                                onChange={handleInputChange}
-                                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                                    errors.artist
-                                        ? 'border-red-500'
-                                        : 'border-gray-600'
-                                } bg-gray-700 text-white placeholder-gray-400`}
-                                placeholder="아티스트명을 입력하세요"
-                                maxLength={50}
-                            />
-                            {errors.artist && (
-                                <p className="mt-1 text-sm text-red-500">
-                                    {errors.artist}
-                                </p>
-                            )}
-                        </div>
-
-                        {/* 콘서트 설명 */}
-                        <div className="md:col-span-2">
-                            <label className="block text-sm font-medium text-gray-200 mb-2">
-                                콘서트 설명
-                            </label>
-                            <textarea
-                                name="description"
-                                value={formData.description}
-                                onChange={handleInputChange}
-                                rows={3}
-                                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                                    errors.description
-                                        ? 'border-red-500'
-                                        : 'border-gray-600'
-                                } bg-gray-700 text-white placeholder-gray-400`}
-                                placeholder="콘서트에 대한 상세 설명을 입력하세요"
-                                maxLength={1000}
-                            />
-                            {errors.description && (
-                                <p className="mt-1 text-sm text-red-500">
-                                    {errors.description}
-                                </p>
-                            )}
-                        </div>
-
-                        {/* 공연장 정보 섹션 */}
-                        <div className="md:col-span-2 mt-6">
-                            <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                                <MapPin size={20} />
-                                공연장 정보
-                            </h3>
-                        </div>
-
-                        {/* 공연장명 */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-200 mb-2">
-                                공연장명 <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="text"
-                                name="venueName"
-                                value={formData.venueName}
-                                onChange={handleInputChange}
-                                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                                    errors.venueName
-                                        ? 'border-red-500'
-                                        : 'border-gray-600'
-                                } bg-gray-700 text-white placeholder-gray-400`}
-                                placeholder="공연장명을 입력하세요"
-                                maxLength={100}
-                            />
-                            {errors.venueName && (
-                                <p className="mt-1 text-sm text-red-500">
-                                    {errors.venueName}
-                                </p>
-                            )}
-                        </div>
-
-                        {/* 공연장 주소 */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-200 mb-2">
-                                공연장 주소
-                            </label>
-                            <input
-                                type="text"
-                                name="venueAddress"
-                                value={formData.venueAddress}
-                                onChange={handleInputChange}
-                                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                                    errors.venueAddress
-                                        ? 'border-red-500'
-                                        : 'border-gray-600'
-                                } bg-gray-700 text-white placeholder-gray-400`}
-                                placeholder="공연장 주소를 입력하세요"
-                                maxLength={200}
-                            />
-                            {errors.venueAddress && (
-                                <p className="mt-1 text-sm text-red-500">
-                                    {errors.venueAddress}
-                                </p>
-                            )}
-                        </div>
-
-                        {/* 일시 정보 섹션 */}
-                        <div className="md:col-span-2 mt-6">
-                            <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                                <Calendar size={20} />
-                                일시 정보
-                            </h3>
-                        </div>
-
-                        {/* 공연 날짜 */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-200 mb-2">
-                                공연 날짜{' '}
-                                <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="date"
-                                name="concertDate"
-                                value={formData.concertDate}
-                                onChange={handleInputChange}
-                                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                                    errors.concertDate
-                                        ? 'border-red-500'
-                                        : 'border-gray-600'
-                                } bg-gray-700 text-white`}
-                            />
-                            {errors.concertDate && (
-                                <p className="mt-1 text-sm text-red-500">
-                                    {errors.concertDate}
-                                </p>
-                            )}
-                        </div>
-
-                        {/* 총 좌석 수 */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-200 mb-2">
-                                총 좌석 수{' '}
-                                <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="number"
-                                name="totalSeats"
-                                value={formData.totalSeats}
-                                onChange={handleInputChange}
-                                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                                    errors.totalSeats
-                                        ? 'border-red-500'
-                                        : 'border-gray-600'
-                                } bg-gray-700 text-white placeholder-gray-400`}
-                                placeholder="총 좌석 수를 입력하세요"
-                                min={1}
-                                max={100000}
-                            />
-                            {errors.totalSeats && (
-                                <p className="mt-1 text-sm text-red-500">
-                                    {errors.totalSeats}
-                                </p>
-                            )}
-                        </div>
-
-                        {/* 시작 시간 */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-200 mb-2">
-                                시작 시간{' '}
-                                <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="time"
-                                name="startTime"
-                                value={formData.startTime}
-                                onChange={handleInputChange}
-                                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                                    errors.startTime
-                                        ? 'border-red-500'
-                                        : 'border-gray-600'
-                                } bg-gray-700 text-white`}
-                            />
-                            {errors.startTime && (
-                                <p className="mt-1 text-sm text-red-500">
-                                    {errors.startTime}
-                                </p>
-                            )}
-                        </div>
-
-                        {/* 종료 시간 */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-200 mb-2">
-                                종료 시간{' '}
-                                <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="time"
-                                name="endTime"
-                                value={formData.endTime}
-                                onChange={handleInputChange}
-                                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                                    errors.endTime
-                                        ? 'border-red-500'
-                                        : 'border-gray-600'
-                                } bg-gray-700 text-white`}
-                            />
-                            {errors.endTime && (
-                                <p className="mt-1 text-sm text-red-500">
-                                    {errors.endTime}
-                                </p>
-                            )}
-                        </div>
-
-                        {/* 예매 정보 섹션 */}
-                        <div className="md:col-span-2 mt-6">
-                            <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                                <Clock size={20} />
-                                예매 정보
-                            </h3>
-                        </div>
-
-                        {/* 예매 시작일시 */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-200 mb-2">
-                                예매 시작일시{' '}
-                                <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="datetime-local"
-                                name="bookingStartDate"
-                                value={formData.bookingStartDate}
-                                onChange={handleInputChange}
-                                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                                    errors.bookingStartDate
-                                        ? 'border-red-500'
-                                        : 'border-gray-600'
-                                } bg-gray-700 text-white`}
-                            />
-                            {errors.bookingStartDate && (
-                                <p className="mt-1 text-sm text-red-500">
-                                    {errors.bookingStartDate}
-                                </p>
-                            )}
-                        </div>
-
-                        {/* 예매 종료일시 */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-200 mb-2">
-                                예매 종료일시{' '}
-                                <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="datetime-local"
-                                name="bookingEndDate"
-                                value={formData.bookingEndDate}
-                                onChange={handleInputChange}
-                                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                                    errors.bookingEndDate
-                                        ? 'border-red-500'
-                                        : 'border-gray-600'
-                                } bg-gray-700 text-white`}
-                            />
-                            {errors.bookingEndDate && (
-                                <p className="mt-1 text-sm text-red-500">
-                                    {errors.bookingEndDate}
-                                </p>
-                            )}
-                        </div>
-
-                        {/* 추가 설정 섹션 */}
-                        <div className="md:col-span-2 mt-6">
-                            <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                                <Users size={20} />
-                                추가 설정
-                            </h3>
-                        </div>
-
-                        {/* 최소 연령 */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-200 mb-2">
-                                최소 연령 제한
-                            </label>
-                            <input
-                                type="number"
-                                name="minAge"
-                                value={formData.minAge}
-                                onChange={handleInputChange}
-                                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                                    errors.minAge
-                                        ? 'border-red-500'
-                                        : 'border-gray-600'
-                                } bg-gray-700 text-white placeholder-gray-400`}
-                                placeholder="최소 연령을 입력하세요"
-                                min={0}
-                                max={100}
-                            />
-                            {errors.minAge && (
-                                <p className="mt-1 text-sm text-red-500">
-                                    {errors.minAge}
-                                </p>
-                            )}
-                            <p className="mt-1 text-xs text-gray-400">
-                                0세는 연령 제한 없음을 의미합니다
-                            </p>
-                        </div>
-
-                        {/* 사용자당 최대 티켓 수 */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-200 mb-2">
-                                사용자당 최대 구매 티켓 수
-                            </label>
-                            <input
-                                type="number"
-                                name="maxTicketsPerUser"
-                                value={formData.maxTicketsPerUser}
-                                onChange={handleInputChange}
-                                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                                    errors.maxTicketsPerUser
-                                        ? 'border-red-500'
-                                        : 'border-gray-600'
-                                } bg-gray-700 text-white placeholder-gray-400`}
-                                placeholder="최대 구매 가능 티켓 수"
-                                min={1}
-                                max={10}
-                            />
-                            {errors.maxTicketsPerUser && (
-                                <p className="mt-1 text-sm text-red-500">
-                                    {errors.maxTicketsPerUser}
-                                </p>
-                            )}
-                        </div>
-
-                        {/* 콘서트 상태 선택 (생성/수정 모드 모두) */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-200 mb-2">
-                                콘서트 상태
-                            </label>
-                            <select
-                                name="status"
-                                value={formData.status}
-                                onChange={handleInputChange}
-                                className="w-full px-3 py-2 border border-gray-600 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            >
-                                <option value="SCHEDULED">예정됨</option>
-                                <option value="ON_SALE">예매중</option>
-                                <option value="SOLD_OUT">매진</option>
-                                <option value="CANCELLED">취소됨</option>
-                                <option value="COMPLETED">완료됨</option>
-                            </select>
-                            <p className="mt-1 text-xs text-gray-400">
-                                {isEditMode
-                                    ? '상태 변경 시 신중하게 선택해주세요'
-                                    : '초기 콘서트 상태를 선택해주세요'}
-                            </p>
-                        </div>
-
-                        {/* 포스터 이미지 섹션 */}
-                        <div className="md:col-span-2 mt-6">
-                            <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                                <Image size={20} />
-                                포스터 이미지
-                            </h3>
-                        </div>
-
-                        {/* 파일 업로드 섹션 */}
-                        <div className="md:col-span-2 mb-4">
-                            <label className="block text-sm font-medium text-gray-200 mb-2">
-                                포스터 이미지 파일 업로드
-                            </label>
-
-                            {/* 파일 선택 */}
-                            <div className="flex gap-4 mb-4">
-                                <input
-                                    ref={fileInputRef}
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleFileSelect}
-                                    className="flex-1 px-3 py-2 border border-gray-600 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    disabled={uploading}
-                                />
-
-                                {selectedFile && (
-                                    <button
-                                        type="button"
-                                        onClick={handleFileUpload}
-                                        disabled={uploading}
-                                        className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                    >
-                                        {uploading
-                                            ? `업로드 중... ${uploadProgress}%`
-                                            : '업로드'}
-                                    </button>
-                                )}
-
-                                {selectedFile && !uploading && (
-                                    <button
-                                        type="button"
-                                        onClick={handleClearFile}
-                                        className="px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-lg transition-colors"
-                                    >
-                                        취소
-                                    </button>
-                                )}
-                            </div>
-
-                            {/* 선택된 파일 정보 */}
-                            {selectedFile && (
-                                <div className="text-sm text-gray-400 mb-2">
-                                    선택된 파일: {selectedFile.name} (
-                                    {fileUploadService.formatFileSize(
-                                        selectedFile.size,
-                                    )}
-                                    )
-                                </div>
-                            )}
-
-                            {/* 업로드 진행률 바 */}
-                            {uploading && (
-                                <div className="w-full bg-gray-600 rounded-full h-2 mb-2">
-                                    <div
-                                        className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                                        style={{ width: `${uploadProgress}%` }}
-                                    ></div>
-                                </div>
-                            )}
-
-                            {/* 파일 미리보기 */}
-                            {filePreview && (
-                                <div className="mt-4">
-                                    <p className="text-sm font-medium text-gray-200 mb-2">
-                                        업로드할 이미지 미리보기
-                                    </p>
-                                    <div className="w-32 h-48 border border-gray-600 rounded-lg overflow-hidden">
-                                        <img
-                                            src={filePreview}
-                                            alt="업로드할 이미지 미리보기"
-                                            className="w-full h-full object-cover"
-                                        />
-                                    </div>
-                                </div>
-                            )}
-
-                            <p className="text-xs text-gray-400 mt-2">
-                                또는 아래에 직접 URL을 입력하세요
-                            </p>
-                        </div>
-
-                        {/* 포스터 이미지 URL */}
-                        <div className="md:col-span-2">
-                            <label className="block text-sm font-medium text-gray-200 mb-2">
-                                포스터 이미지 URL (직접 입력)
-                            </label>
-                            <div className="flex gap-2">
-                                <input
-                                    type="url"
-                                    name="posterImageUrl"
-                                    value={formData.posterImageUrl}
-                                    onChange={handleInputChange}
-                                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                                        errors.posterImageUrl
-                                            ? 'border-red-500'
-                                            : 'border-gray-600'
-                                    } bg-gray-700 text-white placeholder-gray-400`}
-                                    placeholder="https://example.com/poster.jpg"
-                                />
-                                {/* 업로드된 이미지 제거 버튼 */}
-                                {formData.posterImageUrl && (
-                                    <button
-                                        type="button"
-                                        onClick={handleRemoveUploadedImage}
-                                        className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
-                                        title="이미지 제거"
-                                    >
-                                        ✕
-                                    </button>
-                                )}
-                            </div>
-                            {errors.posterImageUrl && (
-                                <p className="mt-1 text-sm text-red-500">
-                                    {errors.posterImageUrl}
-                                </p>
-                            )}
-                            <p className="mt-1 text-xs text-gray-400">
-                                지원 형식: jpg, jpeg, png, gif, webp
-                            </p>
-
-                            {/* 포스터 미리보기 */}
-                            {formData.posterImageUrl &&
-                                !errors.posterImageUrl && (
-                                    <div className="mt-4">
-                                        <div className="flex items-center justify-between mb-2">
-                                            <p className="text-sm font-medium text-gray-200 mb-2">
-                                                미리보기
-                                            </p>
-                                            <button
-                                                type="button"
-                                                onClick={
-                                                    handleRemoveUploadedImage
-                                                }
-                                                className="text-xs text-red-400 hover:text-red-300 transition-colors"
-                                            >
-                                                이미지 제거
-                                            </button>
-                                        </div>
-                                        <div className="w-32 h-48 border border-gray-600 rounded-lg overflow-hidden">
-                                            <img
-                                                src={formData.posterImageUrl}
-                                                alt="포스터 미리보기"
-                                                className="w-full h-full object-cover"
-                                                onError={(e) => {
-                                                    e.target.style.display =
-                                                        'none';
-                                                    e.target.nextSibling.style.display =
-                                                        'flex';
-                                                }}
-                                            />
-                                            <div
-                                                className="w-full h-full bg-gray-800 text-gray-400 flex items-center justify-center text-sm"
-                                                style={{ display: 'none' }}
-                                            >
-                                                이미지 로드 실패
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                        </div>
-                    </div>
-
-                    {/* 폼 액션 버튼들 */}
-                    <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-600">
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="px-6 py-2 text-gray-300 bg-gray-700 hover:bg-gray-600 border border-gray-600 rounded-lg transition-colors"
-                            disabled={loading}
-                        >
-                            취소
-                        </button>
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                        >
-                            {loading && (
-                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                            )}
-                            {loading
-                                ? '처리 중...'
-                                : isEditMode
-                                  ? '수정하기'
-                                  : '등록하기'}
-                        </button>
-                    </div>
-                </form>
+                {renderFormContent()}
             </div>
         </div>
     );

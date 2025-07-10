@@ -28,7 +28,9 @@ export async function fetchAllSeatStatus(concertId) {
  * @returns {Promise<Object>} 좌석 상태 정보
  */
 export async function fetchSeatStatus(concertId, seatId) {
-    const response = await apiClient.get(`/seats/concerts/${concertId}/seats/${seatId}/status`);
+    const response = await apiClient.get(
+        `/seats/concerts/${concertId}/seats/${seatId}/status`,
+    );
     return response.data;
 }
 
@@ -39,7 +41,9 @@ export async function fetchSeatStatus(concertId, seatId) {
  * @returns {Promise<Array>} 사용자가 선점한 좌석 배열
  */
 export async function fetchUserReservedSeats(concertId, userId) {
-    const response = await apiClient.get(`/seats/concerts/${concertId}/users/${userId}/reserved`);
+    const response = await apiClient.get(
+        `/seats/concerts/${concertId}/users/${userId}/reserved`,
+    );
     return response.data;
 }
 
@@ -54,7 +58,9 @@ export async function fetchUserReservedSeats(concertId, userId) {
  * @returns {Promise<Object>} 선점된 좌석 상태
  */
 export async function reserveSeat(concertId, seatId) {
-    const response = await apiClient.post(`/seats/concerts/${concertId}/seats/${seatId}/reserve`);
+    const response = await apiClient.post(
+        `/seats/concerts/${concertId}/seats/${seatId}/reserve`,
+    );
     return response.data;
 }
 
@@ -65,7 +71,9 @@ export async function reserveSeat(concertId, seatId) {
  * @returns {Promise<string>} 해제 결과 ("SUCCESS")
  */
 export async function releaseSeat(concertId, seatId) {
-    const response = await apiClient.delete(`/seats/concerts/${concertId}/seats/${seatId}/release`);
+    const response = await apiClient.delete(
+        `/seats/concerts/${concertId}/seats/${seatId}/release`,
+    );
     return response.data;
 }
 
@@ -90,7 +98,9 @@ export async function fetchSeatLayout(concertId) {
  * @returns {Promise<Object>} 구역별 좌석 배치 정보
  */
 export async function fetchSectionLayout(concertId, sectionName) {
-    const response = await apiClient.get(`/concerts/${concertId}/seat-layout/sections/${sectionName}`);
+    const response = await apiClient.get(
+        `/concerts/${concertId}/seat-layout/sections/${sectionName}`,
+    );
     return response.data;
 }
 
@@ -100,7 +110,9 @@ export async function fetchSectionLayout(concertId, sectionName) {
  * @returns {Promise<Object>} 좌석 배치도 요약 정보
  */
 export async function fetchSeatLayoutSummary(concertId) {
-    const response = await apiClient.get(`/concerts/${concertId}/seat-layout/summary`);
+    const response = await apiClient.get(
+        `/concerts/${concertId}/seat-layout/summary`,
+    );
     return response.data;
 }
 
@@ -127,7 +139,11 @@ export const POLLING_CONFIG = {
  * @param {AbortSignal|null} signal - 요청 취소 신호
  * @returns {Promise<Object>} 실시간 좌석 상태 업데이트 정보 (type: 'update', 'timeout', 'no_data', 'parse_error', 'client_timeout')
  */
-export async function pollSeatStatus(concertId, lastUpdateTime = null, signal = null) {
+export async function pollSeatStatus(
+    concertId,
+    lastUpdateTime = null,
+    signal = null,
+) {
     if (!POLLING_CONFIG.BACKEND_POLLING_ENABLED) {
         console.log('🔥 백엔드 Long Polling 비활성화 - 폴링 스킵');
         return null;
@@ -138,7 +154,7 @@ export async function pollSeatStatus(concertId, lastUpdateTime = null, signal = 
 
         // URL 및 파라미터 구성
         const params = new URLSearchParams({
-            ...(lastUpdateTime && { lastUpdateTime: lastUpdateTime }) // lastUpdateTime이 string으로 전달되므로 toString() 불필요
+            ...(lastUpdateTime && { lastUpdateTime: lastUpdateTime }), // lastUpdateTime이 string으로 전달되므로 toString() 불필요
         });
         const url = `${import.meta.env.VITE_APP_API_URL}/seats/concerts/${concertId}/polling?${params}`;
 
@@ -169,31 +185,64 @@ export async function pollSeatStatus(concertId, lastUpdateTime = null, signal = 
         }
 
         // 1. 요청 성공 및 응답 수신 시 (200 OK 응답 올바른 처리)
-        xhr.onload = function() {
-            console.log(`🔥 XMLHttpRequest onload 호출 - status: ${xhr.status}, readyState: ${xhr.readyState}`);
-            if (xhr.readyState === 4) { // 요청이 완료되었을 때 (DONE)
+        xhr.onload = function () {
+            console.log(
+                `🔥 XMLHttpRequest onload 호출 - status: ${xhr.status}, readyState: ${xhr.readyState}`,
+            );
+            if (xhr.readyState === 4) {
+                // 요청이 완료되었을 때 (DONE)
                 if (xhr.status === 200 || xhr.status === 201) {
                     try {
-                        const responseBody = xhr.responseText ? JSON.parse(xhr.responseText) : {};
+                        const responseBody = xhr.responseText
+                            ? JSON.parse(xhr.responseText)
+                            : {};
                         const responseData = responseBody.data; // 백엔드 SuccessResponse 구조
 
                         // 백엔드 타임아웃 응답 처리 (백엔드에서 status: 'timeout-ok'를 data 필드에 넘겨줌)
-                        if (responseData && responseData.status === 'timeout-ok') {
+                        if (
+                            responseData &&
+                            responseData.status === 'timeout-ok'
+                        ) {
                             console.log('🔥 백엔드 Long Polling 정상 타임아웃');
-                            resolve({ type: 'timeout', data: null, updateTime: responseData.updateTime || null });
-                        } else if (responseData && responseData.hasUpdate === true && responseData.seatUpdates) {
+                            resolve({
+                                type: 'timeout',
+                                data: null,
+                                updateTime: responseData.updateTime || null,
+                            });
+                        } else if (
+                            responseData &&
+                            responseData.hasUpdate === true &&
+                            responseData.seatUpdates
+                        ) {
                             // 실제 좌석 상태 데이터 수신
-                            console.log('🔥 좌석 상태 데이터 수신:', responseData.seatUpdates);
-                            resolve({ type: 'update', data: responseData.seatUpdates, updateTime: responseData.updateTime });
+                            console.log(
+                                '🔥 좌석 상태 데이터 수신:',
+                                responseData.seatUpdates,
+                            );
+                            resolve({
+                                type: 'update',
+                                data: responseData.seatUpdates,
+                                updateTime: responseData.updateTime,
+                            });
                         } else {
                             // 기타 200 OK 응답 (예상치 못한 형식 또는 데이터 없음)
-                            console.log('🔥 200 OK 응답 수신 (예상치 못한 형식 또는 데이터 없음)');
-                            resolve({ type: 'no_data', data: null, updateTime: null }); // 데이터 없음을 알림
+                            console.log(
+                                '🔥 200 OK 응답 수신 (예상치 못한 형식 또는 데이터 없음)',
+                            );
+                            resolve({
+                                type: 'no_data',
+                                data: null,
+                                updateTime: null,
+                            }); // 데이터 없음을 알림
                         }
                     } catch (e) {
                         // JSON 파싱 에러 (서버가 빈 응답을 보내거나 유효하지 않은 JSON을 보낼 경우)
                         console.warn('🔥 JSON 파싱 에러 또는 빈 응답:', e);
-                        resolve({ type: 'parse_error', data: null, updateTime: null }); // 파싱 에러도 정상적인 폴링 종료로 간주
+                        resolve({
+                            type: 'parse_error',
+                            data: null,
+                            updateTime: null,
+                        }); // 파싱 에러도 정상적인 폴링 종료로 간주
                     }
                 } else if (xhr.status === 401) {
                     console.log('🔥 401 응답 상세 정보:', {
@@ -201,22 +250,42 @@ export async function pollSeatStatus(concertId, lastUpdateTime = null, signal = 
                         statusText: xhr.statusText,
                         responseText: xhr.responseText,
                         responseURL: xhr.responseURL,
-                        headers: xhr.getAllResponseHeaders()
+                        headers: xhr.getAllResponseHeaders(),
                     });
-                    
+
                     // 백엔드 타임아웃 시 401 에러가 발생하는 경우를 처리
                     try {
-                        const errorBody = xhr.responseText ? JSON.parse(xhr.responseText) : {};
+                        const errorBody = xhr.responseText
+                            ? JSON.parse(xhr.responseText)
+                            : {};
                         // 백엔드에서 타임아웃 시 401과 함께 timeout 정보를 보내는 경우 처리
-                        if (errorBody.data && errorBody.data.status === 'timeout-ok') {
-                            console.log('🔥 백엔드 Long Polling 타임아웃 (401 응답과 함께 수신)');
-                            resolve({ type: 'timeout', data: null, updateTime: errorBody.data.updateTime || null });
+                        if (
+                            errorBody.data &&
+                            errorBody.data.status === 'timeout-ok'
+                        ) {
+                            console.log(
+                                '🔥 백엔드 Long Polling 타임아웃 (401 응답과 함께 수신)',
+                            );
+                            resolve({
+                                type: 'timeout',
+                                data: null,
+                                updateTime: errorBody.data.updateTime || null,
+                            });
                             return;
                         }
                         // 백엔드에서 타임아웃 메시지를 보내는 경우 처리
-                        if (errorBody.message && errorBody.message.includes('timeout')) {
-                            console.log('🔥 백엔드 Long Polling 타임아웃 (401 응답, timeout 메시지 포함)');
-                            resolve({ type: 'timeout', data: null, updateTime: null });
+                        if (
+                            errorBody.message &&
+                            errorBody.message.includes('timeout')
+                        ) {
+                            console.log(
+                                '🔥 백엔드 Long Polling 타임아웃 (401 응답, timeout 메시지 포함)',
+                            );
+                            resolve({
+                                type: 'timeout',
+                                data: null,
+                                updateTime: null,
+                            });
                             return;
                         }
                     } catch (e) {
@@ -229,7 +298,10 @@ export async function pollSeatStatus(concertId, lastUpdateTime = null, signal = 
                     console.error('🔥 접근 권한 없음 (403):', xhr.responseText);
                     reject(new Error('접근 권한이 없습니다.'));
                 } else if (xhr.status >= 400) {
-                    console.error(`🔥 폴링 API 에러 ${xhr.status}:`, xhr.responseText);
+                    console.error(
+                        `🔥 폴링 API 에러 ${xhr.status}:`,
+                        xhr.responseText,
+                    );
                     let errorMessage = `서버 에러 (${xhr.status})`;
                     try {
                         const errorResponse = JSON.parse(xhr.responseText);
@@ -245,26 +317,26 @@ export async function pollSeatStatus(concertId, lastUpdateTime = null, signal = 
         };
 
         // 2. 클라이언트 측 타임아웃 발생 시
-        xhr.ontimeout = function() {
+        xhr.ontimeout = function () {
             console.warn('🔥 클라이언트 측 타임아웃 발생 (xhr.timeout 초과)');
             // reject 대신 resolve로 CLIENT_TIMEOUT 상태를 넘겨줘서 에러로 처리하지 않음
             resolve({ type: 'client_timeout', data: null, updateTime: null });
         };
 
         // 3. 네트워크 에러 발생 시
-        xhr.onerror = function() {
+        xhr.onerror = function () {
             console.error('🔥 네트워크 에러 발생 (xhr.onerror):', {
                 status: xhr.status,
                 statusText: xhr.statusText,
                 responseText: xhr.responseText,
                 responseURL: xhr.responseURL,
-                readyState: xhr.readyState
+                readyState: xhr.readyState,
             });
             reject(new Error('네트워크 에러가 발생했습니다.')); // 실제 네트워크 문제이므로 reject
         };
 
         // 4. 요청 중단 시
-        xhr.onabort = function() {
+        xhr.onabort = function () {
             console.log('🔥 폴링 요청 중단 (xhr.onabort)');
             reject(new Error('AbortError')); // Abort는 외부 요청이므로 reject
         };
@@ -273,14 +345,15 @@ export async function pollSeatStatus(concertId, lastUpdateTime = null, signal = 
     });
 }
 
-
 /**
  * 폴링 시스템 상태 조회
  * @param {number} concertId - 콘서트 ID
  * @returns {Promise<Object>} 폴링 시스템 상태
  */
 export async function fetchPollingStatus(concertId) {
-    const response = await apiClient.get(`/seats/concerts/${concertId}/polling/status`);
+    const response = await apiClient.get(
+        `/seats/concerts/${concertId}/polling/status`,
+    );
     return response.data;
 }
 
@@ -294,7 +367,9 @@ export async function fetchPollingStatus(concertId) {
  * @returns {Promise<Object>} 캐시 초기화 결과
  */
 export async function initializeSeatCache(concertId) {
-    const response = await apiClient.post(`/admin/seats/concerts/${concertId}/cache/init`);
+    const response = await apiClient.post(
+        `/admin/seats/concerts/${concertId}/cache/init`,
+    );
     return response.data;
 }
 
@@ -304,7 +379,9 @@ export async function initializeSeatCache(concertId) {
  * @returns {Promise<Object>} 캐시 상태 정보
  */
 export async function fetchSeatCacheStatus(concertId) {
-    const response = await apiClient.get(`/admin/seats/concerts/${concertId}/cache/status`);
+    const response = await apiClient.get(
+        `/admin/seats/concerts/${concertId}/cache/status`,
+    );
     return response.data;
 }
 
@@ -314,7 +391,9 @@ export async function fetchSeatCacheStatus(concertId) {
  * @returns {Promise<Object>} 캐시 삭제 결과
  */
 export async function deleteSeatCache(concertId) {
-    const response = await apiClient.delete(`/admin/seats/concerts/${concertId}/cache`);
+    const response = await apiClient.delete(
+        `/admin/seats/concerts/${concertId}/cache`,
+    );
     return response.data;
 }
 
@@ -324,7 +403,9 @@ export async function deleteSeatCache(concertId) {
  * @returns {Promise<Object>} 정리 결과
  */
 export async function cleanupExpiredReservations(concertId) {
-    const response = await apiClient.post(`/admin/seats/concerts/${concertId}/cleanup`);
+    const response = await apiClient.post(
+        `/admin/seats/concerts/${concertId}/cleanup`,
+    );
     return response.data;
 }
 
@@ -334,7 +415,9 @@ export async function cleanupExpiredReservations(concertId) {
  * @returns {Promise<Object>} 스케줄러 실행 결과
  */
 export async function triggerCacheWarmup(concertId) {
-    const response = await apiClient.post(`/admin/seats/concerts/${concertId}/cache/warmup`);
+    const response = await apiClient.post(
+        `/admin/seats/concerts/${concertId}/cache/warmup`,
+    );
     return response.data;
 }
 
@@ -344,7 +427,9 @@ export async function triggerCacheWarmup(concertId) {
  * @returns {Promise<Array>} 캐시 처리 이력
  */
 export async function fetchCacheHistory(concertId) {
-    const response = await apiClient.get(`/admin/seats/concerts/${concertId}/cache/history`);
+    const response = await apiClient.get(
+        `/admin/seats/concerts/${concertId}/cache/history`,
+    );
     return response.data;
 }
 
@@ -367,7 +452,9 @@ export async function fetchPollingDashboard() {
  * @returns {Promise<Object>} 콘서트별 폴링 세션 정보
  */
 export async function fetchConcertPollingDetails(concertId) {
-    const response = await apiClient.get(`/admin/seats/polling/concerts/${concertId}`);
+    const response = await apiClient.get(
+        `/admin/seats/polling/concerts/${concertId}`,
+    );
     return response.data;
 }
 
@@ -377,7 +464,9 @@ export async function fetchConcertPollingDetails(concertId) {
  * @returns {Promise<Object>} 세션 정리 결과
  */
 export async function cleanupPollingSessions(concertId) {
-    const response = await apiClient.post(`/admin/seats/polling/concerts/${concertId}/cleanup`);
+    const response = await apiClient.post(
+        `/admin/seats/polling/concerts/${concertId}/cleanup`,
+    );
     return response.data;
 }
 
@@ -387,7 +476,9 @@ export async function cleanupPollingSessions(concertId) {
  * @returns {Promise<Object>} 재시작 결과
  */
 export async function restartRedisSubscriber(concertId) {
-    const response = await apiClient.post(`/admin/seats/polling/concerts/${concertId}/restart-subscriber`);
+    const response = await apiClient.post(
+        `/admin/seats/polling/concerts/${concertId}/restart-subscriber`,
+    );
     return response.data;
 }
 
@@ -397,7 +488,9 @@ export async function restartRedisSubscriber(concertId) {
  * @returns {Promise<Object>} 테스트 이벤트 발행 결과
  */
 export async function publishTestEvent(concertId) {
-    const response = await apiClient.post(`/admin/seats/polling/concerts/${concertId}/test-event`);
+    const response = await apiClient.post(
+        `/admin/seats/polling/concerts/${concertId}/test-event`,
+    );
     return response.data;
 }
 
@@ -473,7 +566,7 @@ export function createStablePollingManager(concertId, options = {}) {
         onStatusChange = null,
         maxRetries = 3,
         baseDelay = 1000,
-        maxDelay = 30000
+        maxDelay = 30000,
     } = options;
 
     let isPolling = false;
@@ -485,7 +578,7 @@ export function createStablePollingManager(concertId, options = {}) {
         retryCount = 0;
     };
 
-    const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+    const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
     const executePolling = async () => {
         if (!isPolling) {
@@ -500,13 +593,20 @@ export function createStablePollingManager(concertId, options = {}) {
             const response = await pollSeatStatus(
                 concertId,
                 lastUpdateTime,
-                abortController.signal
+                abortController.signal,
             );
 
             // `pollSeatStatus`에서 resolve된 `type`에 따라 처리
-            if (response.type === 'timeout' || response.type === 'no_data' || response.type === 'parse_error' || response.type === 'client_timeout') {
+            if (
+                response.type === 'timeout' ||
+                response.type === 'no_data' ||
+                response.type === 'parse_error' ||
+                response.type === 'client_timeout'
+            ) {
                 // 백엔드 정상 타임아웃, 빈 응답, 파싱 에러, 클라이언트 타임아웃 -> 모두 정상적인 폴링 종료로 간주
-                console.log(`🔥 폴링 정상 종료 (${response.type}) - 다음 폴링 시작`);
+                console.log(
+                    `🔥 폴링 정상 종료 (${response.type}) - 다음 폴링 시작`,
+                );
                 resetRetryCount();
                 if (onStatusChange) {
                     onStatusChange(true); // 폴링 상태가 정상임을 알림
@@ -532,11 +632,13 @@ export function createStablePollingManager(concertId, options = {}) {
                 }
             } else {
                 // 예상치 못한 성공 응답 (resolve 되었으나 처리할 데이터가 명확치 않은 경우)
-                console.warn('🔥 pollSeatStatus에서 예상치 못한 성공 응답:', response);
+                console.warn(
+                    '🔥 pollSeatStatus에서 예상치 못한 성공 응답:',
+                    response,
+                );
                 // 이 경우도 재시도 로직을 태우는 것이 안전
                 throw new Error('UNEXPECTED_POLLING_RESPONSE');
             }
-
         } catch (error) {
             if (error.message === 'AbortError') {
                 console.log('🔥 폴링 요청이 취소됨 (Aborted)');
@@ -547,12 +649,19 @@ export function createStablePollingManager(concertId, options = {}) {
 
             // 401/403 인증 에러 처리 (다른 API와 동일하게)
             // 에러 메시지 내용에 따라 분기
-            if (error.message.includes('인증이 필요합니다') || error.message.includes('접근 권한이 없습니다')) {
+            if (
+                error.message.includes('인증이 필요합니다') ||
+                error.message.includes('접근 권한이 없습니다')
+            ) {
                 console.error('🔥 폴링 API 인증 실패 - 폴링 중지');
                 isPolling = false; // 폴링 강제 중지
                 if (onError) {
                     // 사용자에게 보여줄 메시지를 구체적으로 전달
-                    onError(new Error('예매 인증이 만료되었습니다. 대기열에서 다시 입장해주세요.'));
+                    onError(
+                        new Error(
+                            '예매 인증이 만료되었습니다. 대기열에서 다시 입장해주세요.',
+                        ),
+                    );
                 }
                 if (onStatusChange) {
                     onStatusChange(false); // 폴링 중지 상태 알림
@@ -567,7 +676,11 @@ export function createStablePollingManager(concertId, options = {}) {
                 console.error('🔥 최대 재시도 횟수 초과 - 폴링 중지');
                 isPolling = false;
                 if (onError) {
-                    onError(new Error(`폴링 최대 재시도 횟수 초과 (${maxRetries}회)`));
+                    onError(
+                        new Error(
+                            `폴링 최대 재시도 횟수 초과 (${maxRetries}회)`,
+                        ),
+                    );
                 }
                 if (onStatusChange) {
                     onStatusChange(false);
@@ -575,8 +688,13 @@ export function createStablePollingManager(concertId, options = {}) {
                 return;
             }
 
-            const retryDelay = Math.min(baseDelay * Math.pow(2, retryCount - 1), maxDelay);
-            console.log(`🔥 ${retryDelay}ms 후 재시도 (${retryCount}/${maxRetries})`);
+            const retryDelay = Math.min(
+                baseDelay * Math.pow(2, retryCount - 1),
+                maxDelay,
+            );
+            console.log(
+                `🔥 ${retryDelay}ms 후 재시도 (${retryCount}/${maxRetries})`,
+            );
 
             if (onError) {
                 onError(error); // 상위 컴포넌트에 에러 알림
@@ -613,7 +731,7 @@ export function createStablePollingManager(concertId, options = {}) {
         getStatus: () => ({
             isPolling,
             retryCount,
-            lastUpdateTime
-        })
+            lastUpdateTime,
+        }),
     };
 }

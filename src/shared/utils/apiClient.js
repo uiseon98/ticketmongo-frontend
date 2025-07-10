@@ -78,13 +78,20 @@ apiClient.interceptors.response.use(
     },
     (error) => {
         // 클라이언트 측 타임아웃 에러 처리 (Long Polling에서 정상적인 상황)
-        if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+        if (
+            error.code === 'ECONNABORTED' ||
+            error.message.includes('timeout')
+        ) {
             const url = error.config?.url || 'unknown';
-            console.log(`⏰ API 타임아웃: ${url} - Long Polling에서 정상적인 상황일 수 있음`);
+            console.log(
+                `⏰ API 타임아웃: ${url} - Long Polling에서 정상적인 상황일 수 있음`,
+            );
 
             // 폴링 API의 타임아웃은 에러가 아님
             if (url.includes('/polling')) {
-                console.log('🔥 폴링 API 타임아웃 - 정상적인 Long Polling 종료');
+                console.log(
+                    '🔥 폴링 API 타임아웃 - 정상적인 Long Polling 종료',
+                );
                 return Promise.reject(new Error('POLLING_TIMEOUT')); // 특별한 에러 타입
             }
 
@@ -136,9 +143,13 @@ apiClient.interceptors.response.use(
                 if (originalRequest.url.includes('/seats/concerts')) {
                     // [변경사항 시작] 폴링 API에 대한 403 에러 처리 개선
                     if (originalRequest.url.includes('/polling')) {
-                        console.warn('⚠️ 폴링 API AccessKey 만료 또는 유효하지 않음. 재시도를 시도합니다.');
+                        console.warn(
+                            '⚠️ 폴링 API AccessKey 만료 또는 유효하지 않음. 재시도를 시도합니다.',
+                        );
                         // 폴링 API의 경우, 얼럿, AccessKey 제거, 리다이렉션 없이 특정 에러를 반환하여 폴링 로직이 재시도하도록 유도
-                        return Promise.reject(new Error('POLLING_ACCESS_KEY_EXPIRED'));
+                        return Promise.reject(
+                            new Error('POLLING_ACCESS_KEY_EXPIRED'),
+                        );
                     } else {
                         // 기존의 /seats/concerts 관련 403 에러 처리 로직 (폴링이 아닌 일반 요청에 해당)
                         alert(

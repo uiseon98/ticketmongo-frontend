@@ -417,9 +417,10 @@ const SellerConcertList = ({
                                                         className="w-full h-full object-cover"
                                                     />
                                                 ) : (
-                                                    <Image
-                                                        size={20}
-                                                        className="text-gray-400"
+                                                    <img
+                                                        src="/images/basic-poster-image.png"
+                                                        alt="기본 포스터 이미지"
+                                                        className="w-full h-full object-cover"
                                                     />
                                                 )}
                                             </div>
