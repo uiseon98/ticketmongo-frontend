@@ -94,6 +94,13 @@ export default function SubscriptionToggle() {
     }
   };
 
+  // notification이 생기면 3초 후 자동으로 사라지게
+  useEffect(() => {
+    if (!notification) return;
+    const timer = setTimeout(() => setNotification(null), 3000);
+    return () => clearTimeout(timer);
+  }, [notification]);
+
   // 로딩 중일 땐 스켈레톤 또는 로딩 텍스트
   if (isSubscribed === null) {
     return <div className="mt-4 text-sm text-gray-500">알림 설정 로딩 중...</div>;
@@ -110,11 +117,12 @@ export default function SubscriptionToggle() {
           onChange={handleToggle}
           className="h-5 w-5 rounded border-gray-300"
         />
-        <span>공연 5분 전 웹 푸시 알림</span>
+        <span>서비스 알림 수신 설정</span>
       </label>
-      <p className="text-sm text-gray-500 mt-2">
+      <p className="text-sm text-gray-400 mt-10">
         ※ 브라우저 알림 권한: <strong>{permission}</strong><br/>
-        브라우저 설정에서 알림 권한을 차단하면 푸시가 오지 않습니다.
+        브라우저 설정에서 알림 권한을 차단하면 알림이 오지 않습니다.<br/>
+        경로 : 사이트정보 보기(URL 좌측 클릭) - 알림 (허용)
       </p>
     </div>
   );

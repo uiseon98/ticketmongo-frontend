@@ -143,11 +143,6 @@ export function ProfileTab({ userInfo, onUpdateUserInfo, isLoading }) {
                 <NotificationSection notification={notification} />
             )}
 
-            {/* — 여기에 삽입 — */}
-            <div className="px-4">
-                <h3 className="text-lg font-medium mb-2">푸시 알림 설정</h3>
-                <SubscriptionToggle />
-            </div>
             {/* Profile Header */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-6">
@@ -226,6 +221,11 @@ export function ProfileTab({ userInfo, onUpdateUserInfo, isLoading }) {
                     </button>
                 </div>
             )}
+            {/* 알림 */}
+            <div className="px-4">
+                <h3 className="text-lg font-medium mb-2"></h3>
+                <SubscriptionToggle />
+            </div>
         </div>
     );
 }
