@@ -423,12 +423,13 @@ const ReviewForm = ({
      * 컨테이너 스타일
      */
     const containerStyles = {
-        backgroundColor: '#ffffff',
+        backgroundColor: '#1E293B',
         borderRadius: '8px',
         border: '1px solid #e5e7eb',
         padding: compact ? '16px' : '24px',
         maxWidth: '600px',
         margin: '0 auto',
+        color: '#FFFFFF',
     };
 
     /**
@@ -437,7 +438,7 @@ const ReviewForm = ({
     const titleStyles = {
         fontSize: compact ? '18px' : '20px',
         fontWeight: 'bold',
-        color: '#1f2937',
+        color: '#FFFFFF',
         marginBottom: compact ? '16px' : '20px',
         textAlign: 'center',
     };
@@ -456,7 +457,7 @@ const ReviewForm = ({
         display: 'block',
         fontSize: compact ? '14px' : '16px',
         fontWeight: '600',
-        color: '#374151',
+        color: '#D1D5DB',
         marginBottom: '6px',
     };
 
@@ -466,11 +467,11 @@ const ReviewForm = ({
     const inputBaseStyles = {
         width: '100%',
         padding: compact ? '8px 12px' : '12px 16px',
-        border: '2px solid #d1d5db',
+        border: '2px solid #4B5563', // #d1d5db → #4B5563로 변경
         borderRadius: '6px',
         fontSize: compact ? '14px' : '16px',
-        backgroundColor: disabled ? '#f3f4f6' : '#ffffff',
-        color: disabled ? '#9ca3af' : '#1f2937',
+        backgroundColor: disabled ? '#374151' : '#374151', // #f3f4f6, #ffffff → #374151로 변경
+        color: disabled ? '#9CA3AF' : '#FFFFFF', // #9ca3af, #1f2937 → #9CA3AF, #FFFFFF로 변경
         transition: 'border-color 0.2s ease',
     };
 
@@ -519,9 +520,9 @@ const ReviewForm = ({
     const ratingContainerStyles = {
         textAlign: 'center',
         padding: compact ? '12px' : '16px',
-        backgroundColor: '#f8fafc',
+        backgroundColor: '#374151',
         borderRadius: '6px',
-        border: '1px solid #e2e8f0',
+        border: '1px solid #4B5563',
     };
 
     /**
@@ -746,10 +747,10 @@ const ReviewForm = ({
                     style={{
                         marginTop: '16px',
                         padding: '12px',
-                        backgroundColor: '#eff6ff',
+                        backgroundColor: '#374151',
                         borderRadius: '6px',
                         fontSize: '12px',
-                        color: '#1e40af',
+                        color: '#D1D5DB',
                     }}
                 >
                     💡 작성하신 리뷰는 다른 관람객들에게 큰 도움이 됩니다.
