@@ -40,12 +40,16 @@ const ConcertForm = ({
     const [uploadProgress, setUploadProgress] = useState(0);
     const [filePreview, setFilePreview] = useState(null);
     const [imageLoadError, setImageLoadError] = useState(false);
-    const [imageLoadTesting, setImageLoadTesting] = useState(false); // URL 테스트 중 상태
+    const [imageLoadTesting, setImageLoadTesting] = useState(false);
     const fileInputRef = useRef(null);
+
+    // ✅ 세션 추적 및 롤백 관련 상태
+    const [originalPosterUrl, setOriginalPosterUrl] = useState(''); // 원본 포스터 URL
+    const [uploadedInSession, setUploadedInSession] = useState([]); // 세션 중 업로드된 URL들
+    const [isFormDirty, setIsFormDirty] = useState(false); // 폼 변경 여부
 
     // 폼 데이터 - 백엔드 DTO와 완전히 일치
     const [formData, setFormData] = useState({
-        // 필수 필드들 (SellerConcertCreateDTO)
         title: '',
         artist: '',
         venueName: '',
@@ -55,14 +59,11 @@ const ConcertForm = ({
         totalSeats: '',
         bookingStartDate: '',
         bookingEndDate: '',
-
-        // 선택 필드들
         description: '',
         venueAddress: '',
         minAge: 0,
         maxTicketsPerUser: 4,
         posterImageUrl: '',
-
         status: 'SCHEDULED',
     });
 
@@ -70,15 +71,9 @@ const ConcertForm = ({
 
     // ====== 초기화 ======
     useEffect(() => {
-        console.log(
-            'ConcertForm useEffect - isEditMode:',
-            isEditMode,
-            'concert:',
-            concert,
-        );
         if (isEditMode && concert) {
-            console.log('Setting form data with concert:', concert);
-            // 수정 모드: 기존 데이터로 폼 초기화
+            const initialPosterUrl = concert.posterImageUrl || '';
+
             setFormData({
                 title: concert.title || '',
                 artist: concert.artist || '',
@@ -105,18 +100,7 @@ const ConcertForm = ({
                 status: concert.status || 'SCHEDULED',
             });
 
-            // 이미지 관련 상태 초기화
-            setImageLoadError(false);
-            setImageLoadTesting(false);
-            setSelectedFile(null);
-            setFilePreview(null);
-            setUploadProgress(0);
-            setUploading(false);
-
-            // 파일 input 초기화
-            if (fileInputRef.current) {
-                fileInputRef.current.value = '';
-            }
+            setOriginalPosterUrl(initialPosterUrl);
         } else {
             // 생성 모드: 기본값으로 초기화
             setFormData({
@@ -136,21 +120,33 @@ const ConcertForm = ({
                 posterImageUrl: '',
                 status: 'SCHEDULED',
             });
-            setImageLoadError(false);
-            setImageLoadTesting(false);
-            setSelectedFile(null);
-            setFilePreview(null);
-            setUploadProgress(0);
-            setUploading(false);
-
-            if (fileInputRef.current) {
-                fileInputRef.current.value = '';
-            }
+            setOriginalPosterUrl('');
         }
+
+        // ✅ 세션 상태 초기화
+        setUploadedInSession([]);
+        setIsFormDirty(false);
+        setImageLoadError(false);
+        setImageLoadTesting(false);
+        setSelectedFile(null);
+        setFilePreview(null);
+        setUploadProgress(0);
+        setUploading(false);
         setErrors({});
         setSubmitError('');
         setSubmitSuccess('');
+
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
     }, [isEditMode, concert]);
+
+    // ✅ 컴포넌트 언마운트 시 정리 (중복 제거)
+    useEffect(() => {
+        return () => {
+            fileUploadService.clearActiveUploads();
+        };
+    }, []);
 
     // ====== 입력 핸들러 ======
     const handleInputChange = (e) => {
@@ -166,6 +162,8 @@ const ConcertForm = ({
             [name]: processedValue,
         }));
 
+        setIsFormDirty(true);
+
         // 해당 필드의 에러 클리어
         if (errors[name]) {
             setErrors((prev) => ({
@@ -175,7 +173,7 @@ const ConcertForm = ({
         }
     };
 
-    // ====== 클라이언트 검증 (백엔드 DTO 검증과 동일) ======
+    // ====== 클라이언트 검증 ======
     const validateForm = () => {
         const newErrors = {};
 
@@ -315,22 +313,13 @@ const ConcertForm = ({
                 newErrors.posterImageUrl = '올바른 URL 형식이 아닙니다';
             }
         }
+
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
 
     // ====== API 호출 ======
-
-    /**
-     * 콘서트 생성
-     * POST /api/seller/concerts
-     */
     const createConcert = async () => {
-        const params = new URLSearchParams({
-            sellerId: sellerId.toString(),
-        });
-
-        // 백엔드 SellerConcertCreateDTO에 맞는 데이터 구성
         const createData = {
             title: formData.title.trim(),
             artist: formData.artist.trim(),
@@ -352,19 +341,10 @@ const ConcertForm = ({
         return await concertService.createConcert(sellerId, createData);
     };
 
-    /**
-     * 콘서트 수정
-     * PUT /api/seller/concerts/{concertId}
-     */
     const updateConcert = async () => {
-        const params = new URLSearchParams({
-            sellerId: sellerId.toString(),
-        });
-
-        // 백엔드 SellerConcertUpdateDTO에 맞는 데이터 구성 (부분 수정 지원)
         const updateData = {};
 
-        // 변경된 필드만 포함 (null/undefined 값은 제외)
+        // 변경된 필드만 포함
         if (formData.title?.trim()) updateData.title = formData.title.trim();
         if (formData.artist?.trim()) updateData.artist = formData.artist.trim();
         if (formData.description !== undefined)
@@ -395,8 +375,190 @@ const ConcertForm = ({
         );
     };
 
+    // ====== 세션 롤백 함수 ======
+    const rollbackSessionUploads = async () => {
+        if (uploadedInSession.length === 0) return;
+
+        console.log('🔄 세션 중 업로드된 파일들 롤백 시작:', uploadedInSession);
+
+        for (const uploadedUrl of uploadedInSession) {
+            try {
+                if (isEditMode && concert?.concertId) {
+                    // ✅ 수정 모드: 각 업로드된 파일을 개별적으로 삭제
+                    // 고유 파일명이므로 URL로 직접 삭제 가능
+                    await fileUploadService.deleteSpecificFile(
+                        uploadedUrl,
+                        concert.concertId,
+                        sellerId,
+                    );
+                    console.log(
+                        '✅ 롤백 완료 (Supabase 개별 파일 삭제):',
+                        uploadedUrl,
+                    );
+                } else {
+                    // ✅ 생성 모드: 임시 업로드된 파일들 삭제
+                    await fileUploadService.deleteSpecificFile(
+                        uploadedUrl,
+                        null,
+                        sellerId,
+                    );
+                    console.log('✅ 롤백 완료 (임시 파일 삭제):', uploadedUrl);
+                }
+            } catch (error) {
+                console.error('❌ 롤백 실패:', uploadedUrl, error);
+            }
+        }
+
+        // 롤백 완료 후 추적 배열 초기화
+        setUploadedInSession([]);
+    };
+
+    // ====== 폼 닫기 핸들러 ======
+    const handleClose = async () => {
+        let shouldClose = true;
+
+        // 변경사항이 있는 경우 확인
+        if (isFormDirty || uploadedInSession.length > 0) {
+            const message = isEditMode
+                ? '수정 중인 내용이 있습니다. 정말 취소하시겠습니까?\n(업로드된 이미지가 있다면 삭제됩니다)'
+                : '작성 중인 내용이 있습니다. 정말 취소하시겠습니까?\n(업로드된 이미지가 있다면 삭제됩니다)';
+
+            shouldClose = confirm(message);
+        }
+
+        if (shouldClose) {
+            // ✅ 세션 중 업로드된 파일들 롤백
+            if (uploadedInSession.length > 0) {
+                await rollbackSessionUploads();
+
+                if (isEditMode) {
+                    // ✅ 수정 모드: 원본 URL로 복구 (완전한 복구!)
+                    setFormData((prev) => ({
+                        ...prev,
+                        posterImageUrl: originalPosterUrl,
+                    }));
+
+                    // ✅ 원본 URL이 있다면 DB도 원본으로 복구
+                    if (originalPosterUrl && concert?.concertId) {
+                        try {
+                            await fileUploadService.restoreOriginalPoster(
+                                concert.concertId,
+                                sellerId,
+                                originalPosterUrl,
+                            );
+                            console.log(
+                                '✅ DB 원본 URL 복구 완료:',
+                                originalPosterUrl,
+                            );
+                        } catch (error) {
+                            console.error('❌ DB 원본 URL 복구 실패:', error);
+                        }
+                    }
+                }
+            }
+
+            // 진행 중인 업로드 정리
+            fileUploadService.clearActiveUploads();
+            onClose();
+        }
+    };
+
+    // ====== 폼 제출 핸들러 (단일 정의) ======
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!validateForm()) return;
+
+        setLoading(true);
+        setSubmitError('');
+        setSubmitSuccess('');
+
+        try {
+            const result = isEditMode
+                ? await updateConcert()
+                : await createConcert();
+
+            if (result && result.success !== false) {
+                setSubmitSuccess(
+                    isEditMode
+                        ? '콘서트가 수정되었습니다.'
+                        : '콘서트가 성공적으로 등록되었습니다.',
+                );
+
+                // ✅ 성공 시 세션 추적 초기화 (더 이상 롤백하지 않음)
+                setUploadedInSession([]);
+                setIsFormDirty(false);
+
+                setTimeout(() => {
+                    onSuccess && onSuccess(result.data);
+                    onClose();
+                }, 1500);
+            } else {
+                setSubmitError(
+                    result?.message || '처리 중 오류가 발생했습니다.',
+                );
+
+                // ✅ 실패 시 롤백
+                if (uploadedInSession.length > 0) {
+                    await rollbackSessionUploads();
+                    if (isEditMode) {
+                        setFormData((prev) => ({
+                            ...prev,
+                            posterImageUrl: originalPosterUrl,
+                        }));
+
+                        // DB도 원본으로 복구
+                        if (originalPosterUrl && concert?.concertId) {
+                            try {
+                                await fileUploadService.restoreOriginalPoster(
+                                    concert.concertId,
+                                    sellerId,
+                                    originalPosterUrl,
+                                );
+                            } catch (error) {
+                                console.error('❌ DB 원본 복구 실패:', error);
+                            }
+                        }
+                    } else {
+                        setFormData((prev) => ({
+                            ...prev,
+                            posterImageUrl: '',
+                        }));
+                    }
+                }
+            }
+        } catch (error) {
+            setSubmitError('네트워크 오류가 발생했습니다.');
+
+            // ✅ 에러 시에도 롤백
+            if (uploadedInSession.length > 0) {
+                await rollbackSessionUploads();
+                if (isEditMode) {
+                    setFormData((prev) => ({
+                        ...prev,
+                        posterImageUrl: originalPosterUrl,
+                    }));
+
+                    if (originalPosterUrl && concert?.concertId) {
+                        try {
+                            await fileUploadService.restoreOriginalPoster(
+                                concert.concertId,
+                                sellerId,
+                                originalPosterUrl,
+                            );
+                        } catch (error) {
+                            console.error('❌ DB 원본 복구 실패:', error);
+                        }
+                    }
+                } else {
+                    setFormData((prev) => ({ ...prev, posterImageUrl: '' }));
+                }
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
     // ====== 파일 관련 핸들러 ======
-    // 파일 선택 핸들러
     const handleFileSelect = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -410,7 +572,6 @@ const ConcertForm = ({
         const validation = fileUploadService.validateFile(file);
         if (!validation.valid) {
             alert(validation.error);
-            // 파일 input 초기화
             if (fileInputRef.current) {
                 fileInputRef.current.value = '';
             }
@@ -429,22 +590,21 @@ const ConcertForm = ({
         }
     };
 
-    // 파일 업로드 실행 핸들러
     const handleFileUpload = async () => {
         if (!selectedFile) {
             alert('업로드할 파일을 선택해주세요.');
             return;
         }
 
-        // 이미 업로드 중인 경우 중복 방지
         if (uploading) {
             alert('이미 업로드가 진행 중입니다.');
             return;
         }
 
-        // 진행 중인 다른 업로드가 있는지 확인
         if (fileUploadService.getActiveUploadCount() > 0) {
-            alert('다른 파일 업로드가 진행 중입니다. 잠시 후 다시 시도해주세요.');
+            alert(
+                '다른 파일 업로드가 진행 중입니다. 잠시 후 다시 시도해주세요.',
+            );
             return;
         }
 
@@ -452,13 +612,15 @@ const ConcertForm = ({
         setUploadProgress(0);
 
         try {
-            // 기존 이미지가 있는 경우 확인 메시지
+            // ✅ 기존 이미지가 있는 경우 확인 메시지
             if (
                 formData.posterImageUrl &&
                 !confirm('기존 이미지를 새 이미지로 교체하시겠습니까?')
             ) {
                 return;
             }
+
+            // ✅ 고유 파일명으로 업로드 (백엔드에서 자동으로 고유 파일명 생성됨)
             const result = await fileUploadService.uploadPosterImage(
                 selectedFile,
                 isEditMode ? concert.concertId : null,
@@ -466,13 +628,19 @@ const ConcertForm = ({
             );
 
             if (result && result.success !== false) {
-                // 업로드 성공 시 URL을 폼에 설정
+                // ✅ 캐시 버스터 추가 (고유 파일명이지만 브라우저 캐싱 방지용)
                 const urlWithCacheBuster = `${result.data}?t=${Date.now()}`;
+
+                // ✅ 업로드된 URL을 세션 추적에 추가 (원본 URL, 캐시 버스터 제거)
+                const cleanUrl = result.data; // 캐시 버스터 없는 원본 URL
+                setUploadedInSession((prev) => [...prev, cleanUrl]);
 
                 setFormData((prev) => ({
                     ...prev,
-                    posterImageUrl: urlWithCacheBuster,  // ✅ 캐시 버스터 적용
+                    posterImageUrl: urlWithCacheBuster,
                 }));
+
+                setIsFormDirty(true);
                 setImageLoadError(false);
                 alert('포스터 이미지가 업로드되었습니다!');
 
@@ -480,11 +648,15 @@ const ConcertForm = ({
                 setSelectedFile(null);
                 setFilePreview(null);
 
-                // 파일 input 초기화
                 if (fileInputRef.current) {
                     fileInputRef.current.value = '';
                 }
-                console.log('✅ 새 이미지 URL 설정 완료 (캐시 버스터 포함):', urlWithCacheBuster);
+
+                console.log('✅ 새 이미지 URL 설정 완료:', urlWithCacheBuster);
+                console.log('✅ 세션 중 업로드된 URL들:', [
+                    ...uploadedInSession,
+                    cleanUrl,
+                ]);
             } else {
                 throw new Error(result?.message || '업로드에 실패했습니다.');
             }
@@ -492,7 +664,6 @@ const ConcertForm = ({
             console.error('Upload error:', error);
             alert(`업로드 실패: ${error.message}`);
 
-            // 실패 시에도 파일 관련 상태 초기화
             setSelectedFile(null);
             setFilePreview(null);
             if (fileInputRef.current) {
@@ -504,7 +675,6 @@ const ConcertForm = ({
         }
     };
 
-    // 선택된 파일 제거 핸들러
     const handleClearFile = () => {
         setSelectedFile(null);
         setFilePreview(null);
@@ -513,12 +683,10 @@ const ConcertForm = ({
 
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
-            // 파일 객체도 완전히 제거
             fileInputRef.current.files = null;
         }
     };
 
-    // ====== URL 입력 핸들러 개선 ======
     const handlePosterUrlChange = async (e) => {
         const url = e.target.value;
 
@@ -535,7 +703,6 @@ const ConcertForm = ({
             if (!urlValidation.valid) {
                 setImageLoadError(true);
             }
-            // 실제 이미지 로드 테스트는 생략 (CORS 때문에)
         }
     };
 
@@ -544,38 +711,89 @@ const ConcertForm = ({
             return;
         }
 
-        if (!confirm('포스터 이미지를 완전히 삭제하시겠습니까?\n(Supabase와 DB에서 모두 제거됩니다)')) {
+        if (
+            !confirm(
+                '포스터 이미지를 완전히 삭제하시겠습니까?\n(Supabase와 DB에서 모두 제거됩니다)',
+            )
+        ) {
             return;
         }
 
         try {
-            const deleteResult = await fileUploadService.deleteConcertPoster(
-                concert?.concertId, // 수정 모드에서만 사용
-                sellerId
-            );
+            // ✅ 현재 URL이 세션 중 업로드된 것인지 확인 (캐시 버스터 제거)
+            const currentUrlBase = formData.posterImageUrl.split('?')[0];
+            const isSessionUpload = uploadedInSession.includes(currentUrlBase);
 
-            if (deleteResult.success) {
-                // 프론트엔드 상태 초기화
+            if (isEditMode && concert?.concertId) {
+                // ✅ 현재 이미지 삭제 (고유 파일명이므로 안전)
+                const deleteResult =
+                    await fileUploadService.deleteSpecificFile(currentUrlBase,
+                        concert.concertId,
+                        sellerId,
+                    );
+
+                if (deleteResult.success) {
+                    // ✅ 세션 추적에서 제거
+                    if (isSessionUpload) {
+                        setUploadedInSession((prev) =>
+                            prev.filter((url) => url !== currentUrlBase),
+                        );
+                    }
+
+                    // 프론트엔드 상태 초기화
+                    setFormData((prev) => ({
+                        ...prev,
+                        posterImageUrl: '',
+                    }));
+
+                    setImageLoadError(false);
+                    setSelectedFile(null);
+                    setFilePreview(null);
+
+                    if (fileInputRef.current) {
+                        fileInputRef.current.value = '';
+                    }
+
+                    setIsFormDirty(true);
+                    alert('포스터 이미지가 완전히 삭제되었습니다.');
+                } else {
+                    alert(`포스터 삭제 실패: ${deleteResult.message}`);
+                }
+            } else {
+                // 생성 모드 또는 임시 업로드의 경우
+                if (isSessionUpload) {
+                    // ✅ 세션에서 제거하고 실제 파일도 삭제
+                    try {
+                        await fileUploadService.deleteSpecificFile(
+                            currentUrlBase,
+                            null,
+                            sellerId,
+                        );
+                    } catch (error) {
+                        console.error('임시 파일 삭제 실패:', error);
+                    }
+
+                    setUploadedInSession((prev) =>
+                        prev.filter((url) => url !== currentUrlBase),
+                    );
+                }
+
                 setFormData((prev) => ({
                     ...prev,
                     posterImageUrl: '',
                 }));
 
-                // 기타 상태 초기화
                 setImageLoadError(false);
                 setSelectedFile(null);
                 setFilePreview(null);
+                setIsFormDirty(true);
 
                 if (fileInputRef.current) {
                     fileInputRef.current.value = '';
                 }
 
-                alert('포스터 이미지가 완전히 삭제되었습니다.');
-
-            } else {
-                alert(`포스터 삭제 실패: ${deleteResult.message}`);
+                alert('이미지가 제거되었습니다.');
             }
-
         } catch (error) {
             console.error('❌ 포스터 삭제 중 오류:', error);
             alert('포스터 삭제 중 오류가 발생했습니다.');
@@ -588,62 +806,6 @@ const ConcertForm = ({
 
     const handleImageLoadSuccess = () => {
         setImageLoadError(false);
-    };
-
-    useEffect(() => {
-        return () => {
-            // 컴포넌트 언마운트 시 진행 중인 업로드 정리
-            fileUploadService.clearActiveUploads();
-        };
-    }, []);
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        if (!validateForm()) {
-            return;
-        }
-
-        setLoading(true);
-        setSubmitError('');
-        setSubmitSuccess('');
-
-        try {
-            const result = isEditMode
-                ? await updateConcert()
-                : await createConcert();
-
-            if (result && result.success !== false) {
-                setSubmitSuccess(
-                    isEditMode
-                        ? '콘서트가 수정되었습니다.'
-                        : '콘서트가 성공적으로 등록되었습니다.',
-                );
-
-                // 성공 시 부모 컴포넌트에 알림
-                setTimeout(() => {
-                    onSuccess && onSuccess(result.data);
-                    onClose();
-                }, 1500);
-            } else {
-                setSubmitError(
-                    result?.message || '처리 중 오류가 발생했습니다.',
-                );
-
-                setFormData(prev => ({
-                    ...prev,
-                    posterImageUrl: ''
-                }));
-            }
-        } catch (error) {
-            setSubmitError('네트워크 오류가 발생했습니다.');
-            setFormData(prev => ({
-                ...prev,
-                posterImageUrl: ''
-            }));
-        } finally {
-            setLoading(false);
-        }
     };
 
     // 모달 모드가 아닐 때는 isOpen 체크 안 함
@@ -663,8 +825,7 @@ const ConcertForm = ({
                 {/* 콘서트 제목 */}
                 <div>
                     <label className="block text-sm font-medium text-gray-200 mb-2">
-                        콘서트 제목{' '}
-                        <span className="text-red-500">*</span>
+                        콘서트 제목 <span className="text-red-500">*</span>
                     </label>
                     <input
                         type="text"
@@ -672,9 +833,7 @@ const ConcertForm = ({
                         value={formData.title}
                         onChange={handleInputChange}
                         className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                            errors.title
-                                ? 'border-red-500'
-                                : 'border-gray-600'
+                            errors.title ? 'border-red-500' : 'border-gray-600'
                         } bg-gray-700 text-white placeholder-gray-400`}
                         placeholder="콘서트 제목을 입력하세요"
                         maxLength={100}
@@ -689,8 +848,7 @@ const ConcertForm = ({
                 {/* 아티스트명 */}
                 <div>
                     <label className="block text-sm font-medium text-gray-200 mb-2">
-                        아티스트명{' '}
-                        <span className="text-red-500">*</span>
+                        아티스트명 <span className="text-red-500">*</span>
                     </label>
                     <input
                         type="text"
@@ -698,9 +856,7 @@ const ConcertForm = ({
                         value={formData.artist}
                         onChange={handleInputChange}
                         className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                            errors.artist
-                                ? 'border-red-500'
-                                : 'border-gray-600'
+                            errors.artist ? 'border-red-500' : 'border-gray-600'
                         } bg-gray-700 text-white placeholder-gray-400`}
                         placeholder="아티스트명을 입력하세요"
                         maxLength={50}
@@ -806,8 +962,7 @@ const ConcertForm = ({
                 {/* 공연 날짜 */}
                 <div>
                     <label className="block text-sm font-medium text-gray-200 mb-2">
-                        공연 날짜{' '}
-                        <span className="text-red-500">*</span>
+                        공연 날짜 <span className="text-red-500">*</span>
                     </label>
                     <input
                         type="date"
@@ -830,8 +985,7 @@ const ConcertForm = ({
                 {/* 총 좌석 수 */}
                 <div>
                     <label className="block text-sm font-medium text-gray-200 mb-2">
-                        총 좌석 수{' '}
-                        <span className="text-red-500">*</span>
+                        총 좌석 수 <span className="text-red-500">*</span>
                     </label>
                     <input
                         type="number"
@@ -857,8 +1011,7 @@ const ConcertForm = ({
                 {/* 시작 시간 */}
                 <div>
                     <label className="block text-sm font-medium text-gray-200 mb-2">
-                        시작 시간{' '}
-                        <span className="text-red-500">*</span>
+                        시작 시간 <span className="text-red-500">*</span>
                     </label>
                     <input
                         type="time"
@@ -881,8 +1034,7 @@ const ConcertForm = ({
                 {/* 종료 시간 */}
                 <div>
                     <label className="block text-sm font-medium text-gray-200 mb-2">
-                        종료 시간{' '}
-                        <span className="text-red-500">*</span>
+                        종료 시간 <span className="text-red-500">*</span>
                     </label>
                     <input
                         type="time"
@@ -913,8 +1065,7 @@ const ConcertForm = ({
                 {/* 예매 시작일시 */}
                 <div>
                     <label className="block text-sm font-medium text-gray-200 mb-2">
-                        예매 시작일시{' '}
-                        <span className="text-red-500">*</span>
+                        예매 시작일시 <span className="text-red-500">*</span>
                     </label>
                     <input
                         type="datetime-local"
@@ -937,8 +1088,7 @@ const ConcertForm = ({
                 {/* 예매 종료일시 */}
                 <div>
                     <label className="block text-sm font-medium text-gray-200 mb-2">
-                        예매 종료일시{' '}
-                        <span className="text-red-500">*</span>
+                        예매 종료일시 <span className="text-red-500">*</span>
                     </label>
                     <input
                         type="datetime-local"
@@ -977,9 +1127,7 @@ const ConcertForm = ({
                         value={formData.minAge}
                         onChange={handleInputChange}
                         className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                            errors.minAge
-                                ? 'border-red-500'
-                                : 'border-gray-600'
+                            errors.minAge ? 'border-red-500' : 'border-gray-600'
                         } bg-gray-700 text-white placeholder-gray-400`}
                         placeholder="최소 연령을 입력하세요"
                         min={0}
@@ -1021,7 +1169,7 @@ const ConcertForm = ({
                     )}
                 </div>
 
-                {/* 콘서트 상태 선택 (생성/수정 모드 모두) */}
+                {/* 콘서트 상태 선택 */}
                 <div>
                     <label className="block text-sm font-medium text-gray-200 mb-2">
                         콘서트 상태
@@ -1180,25 +1328,34 @@ const ConcertForm = ({
                         </p>
                     )}
 
-                    {imageLoadError && formData.posterImageUrl && !imageLoadTesting && (
-                        <div className="mt-2 p-3 bg-yellow-800 border border-yellow-600 rounded text-yellow-200 text-sm">
-                            <div className="flex items-center gap-2">
-                                <span>⚠️</span>
-                                <div>
-                                    <div className="font-medium">이미지를 불러올 수 없습니다</div>
-                                    <div className="text-xs mt-1 text-yellow-300">
-                                        • URL이 올바른지 확인해주세요<br/>
-                                        • 외부 사이트의 경우 접근 제한이 있을 수 있습니다<br/>
-                                        • 파일 업로드를 이용하시는 것을 권장합니다
+                    {imageLoadError &&
+                        formData.posterImageUrl &&
+                        !imageLoadTesting && (
+                            <div className="mt-2 p-3 bg-yellow-800 border border-yellow-600 rounded text-yellow-200 text-sm">
+                                <div className="flex items-center gap-2">
+                                    <span>⚠️</span>
+                                    <div>
+                                        <div className="font-medium">
+                                            이미지를 불러올 수 없습니다
+                                        </div>
+                                        <div className="text-xs mt-1 text-yellow-300">
+                                            • URL이 올바른지 확인해주세요
+                                            <br />
+                                            • 외부 사이트의 경우 접근 제한이
+                                            있을 수 있습니다
+                                            <br />• 파일 업로드를 이용하시는
+                                            것을 권장합니다
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    )}
+                        )}
 
                     <p className="mt-1 text-xs text-gray-400">
-                        지원 형식: jpg, jpeg, png, gif, webp<br/>
-                        외부 이미지는 CORS 정책에 따라 로드되지 않을 수 있습니다.
+                        지원 형식: jpg, jpeg, png, gif, webp
+                        <br />
+                        외부 이미지는 CORS 정책에 따라 로드되지 않을 수
+                        있습니다.
                     </p>
 
                     {formData.posterImageUrl && !errors.posterImageUrl && (
@@ -1229,7 +1386,9 @@ const ConcertForm = ({
                                             <div className="absolute inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center">
                                                 <div className="text-center text-white">
                                                     <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-                                                    <div className="text-xs">로딩 중...</div>
+                                                    <div className="text-xs">
+                                                        로딩 중...
+                                                    </div>
                                                 </div>
                                             </div>
                                         )}
@@ -1237,10 +1396,13 @@ const ConcertForm = ({
                                 ) : (
                                     <div className="w-full h-full bg-gray-800 text-gray-400 flex flex-col items-center justify-center text-sm p-4">
                                         <div className="text-center">
-                                            <div className="text-red-400 mb-2 text-lg">⚠️</div>
+                                            <div className="text-red-400 mb-2 text-lg">
+                                                ⚠️
+                                            </div>
                                             <div className="text-xs leading-relaxed">
-                                                이미지를 불러올 수<br/>
-                                                없습니다.<br/>
+                                                이미지를 불러올 수<br />
+                                                없습니다.
+                                                <br />
                                                 URL을 확인해주세요.
                                             </div>
                                         </div>
@@ -1250,7 +1412,8 @@ const ConcertForm = ({
 
                             {imageLoadError && (
                                 <div className="mt-2 text-xs text-blue-400">
-                                    💡 파일 업로드를 이용하면 더 안정적으로 이미지를 등록할 수 있습니다.
+                                    💡 파일 업로드를 이용하면 더 안정적으로
+                                    이미지를 등록할 수 있습니다.
                                 </div>
                             )}
                         </div>
@@ -1262,7 +1425,7 @@ const ConcertForm = ({
             <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-600">
                 <button
                     type="button"
-                    onClick={onClose}
+                    onClick={handleClose}
                     className="px-6 py-2 text-gray-300 bg-gray-700 hover:bg-gray-600 border border-gray-600 rounded-lg transition-colors"
                     disabled={loading}
                 >
@@ -1286,7 +1449,7 @@ const ConcertForm = ({
         </form>
     );
 
-    // ====== 렌더링 (모달 모드) ======
+    // 모달 모드 렌더링
     if (modal) {
         return (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -1297,7 +1460,7 @@ const ConcertForm = ({
                             {isEditMode ? '콘서트 수정' : '콘서트 등록'}
                         </h2>
                         <button
-                            onClick={onClose}
+                            onClick={handleClose}
                             className="text-gray-400 hover:text-gray-200 transition-colors"
                         >
                             <X size={24} />
@@ -1327,7 +1490,7 @@ const ConcertForm = ({
         );
     }
 
-    // ====== 렌더링 (페이지 모드) ======
+    // 페이지 모드 렌더링
     return (
         <div className="w-full">
             <div className="bg-gray-800 rounded-lg max-w-4xl w-full mx-auto border border-gray-600">

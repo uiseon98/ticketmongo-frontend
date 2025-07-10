@@ -6,8 +6,8 @@ import React from 'react';
 // 콘서트 관련 타입과 상수들을 import
 import { ConcertStatusLabels, ConcertStatusColors } from '../types/concert.js';
 
-// AI 요약을 위한 hook import
-import { useConcertDetail } from '../hooks/useConcertDetail.js';
+// 🔥 AI 요약을 위한 hook import 제거 - 더 이상 필요없음!
+// import { useConcertDetail } from '../hooks/useConcertDetail.js';
 
 const ConcertCard = ({
     concert,
@@ -15,10 +15,11 @@ const ConcertCard = ({
     showAiSummary = false,
     className = '',
 }) => {
-    // ===== AI 요약 데이터 가져오기 =====
-    const { aiSummary, aiSummaryLoading } = useConcertDetail(
-        showAiSummary ? concert.concertId : null, // showAiSummary가 true일 때만 API 호출
-    );
+    // ===== 🔥 개별 API 호출 제거 =====
+    // 이제 concert props에서 이미 받은 aiSummary를 직접 사용
+    // const { aiSummary, aiSummaryLoading } = useConcertDetail(
+    //     showAiSummary ? concert.concertId : null,
+    // );
 
     // ===== 데이터 유효성 검증 =====
     if (!concert) {
@@ -105,6 +106,31 @@ const ConcertCard = ({
         );
 
         return cleaned;
+    };
+
+    // 🔥 AI 요약 상태 확인 함수 추가
+    const getAiSummaryStatus = () => {
+        const aiSummary = concert.aiSummary; // props에서 직접 가져오기
+
+        if (!aiSummary) {
+            return {
+                status: 'empty',
+                message: '💭 AI 요약 준비중...'
+            };
+        }
+
+        if (aiSummary === 'AI 요약 정보가 아직 생성되지 않았습니다.' ||
+            aiSummary === 'AI 요약을 불러올 수 없습니다.') {
+            return {
+                status: 'unavailable',
+                message: '💭 AI 요약 준비중...'
+            };
+        }
+
+        return {
+            status: 'available',
+            message: formatAiSummaryForCard(aiSummary)
+        };
     };
 
     const handleImageError = (event) => {
@@ -270,77 +296,50 @@ const ConcertCard = ({
                 )}
             </div>
 
-            {/* AI 요약 섹션 (수정된 부분) */}
-            {showAiSummary && (
-                <div
-                    style={{
-                        marginBottom: '12px',
-                        padding: '8px',
-                        backgroundColor: '#374151',
-                        borderRadius: '4px',
-                        borderLeft: '3px solid #60A5FA',
-                        border: '1px solid #4B5563',
-                        minHeight: '40px',
-                    }}
-                >
-                    {aiSummaryLoading ? (
-                        // 로딩 상태
-                        <div
-                            style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '6px',
-                                color: '#9CA3AF',
-                                fontSize: '12px',
-                            }}
-                        >
-                            <div
-                                style={{
-                                    width: '12px',
-                                    height: '12px',
-                                    border: '2px solid #4B5563',
-                                    borderTop: '2px solid #60A5FA',
-                                    borderRadius: '50%',
-                                    animation: 'spin 1s linear infinite',
-                                }}
-                            />
-                            AI 요약 로딩중...
-                        </div>
-                    ) : aiSummary ? (
-                        // AI 요약 있음
-                        <p
-                            style={{
-                                margin: '0',
-                                fontSize: '12px',
-                                color: '#D1D5DB',
-                                lineHeight: '1.4',
-                            }}
-                        >
-                            🤖 {formatAiSummaryForCard(aiSummary)}
-                        </p>
-                    ) : (
-                        // AI 요약 없음
-                        <p
-                            style={{
-                                margin: '0',
-                                fontSize: '11px',
-                                color: '#9CA3AF',
-                                fontStyle: 'italic',
-                            }}
-                        >
-                            💭 AI 요약 준비중...
-                        </p>
-                    )}
+            {/* 🔥 AI 요약 섹션 (완전히 새로 작성) */}
+            {showAiSummary && (() => {
+                const aiSummaryInfo = getAiSummaryStatus();
 
-                    {/* 로딩 애니메이션 CSS */}
-                    <style>{`
-                        @keyframes spin {
-                            from { transform: rotate(0deg); }
-                            to { transform: rotate(360deg); }
-                        }
-                    `}</style>
-                </div>
-            )}
+                return (
+                    <div
+                        style={{
+                            marginBottom: '12px',
+                            padding: '8px',
+                            backgroundColor: '#374151',
+                            borderRadius: '4px',
+                            borderLeft: '3px solid #60A5FA',
+                            border: '1px solid #4B5563',
+                            minHeight: '40px',
+                        }}
+                    >
+                        {aiSummaryInfo.status === 'available' ? (
+                            // AI 요약 있음 - props에서 바로 사용
+                            <p
+                                style={{
+                                    margin: '0',
+                                    fontSize: '12px',
+                                    color: '#D1D5DB',
+                                    lineHeight: '1.4',
+                                }}
+                            >
+                                🤖 {aiSummaryInfo.message}
+                            </p>
+                        ) : (
+                            // AI 요약 없음 또는 준비중
+                            <p
+                                style={{
+                                    margin: '0',
+                                    fontSize: '11px',
+                                    color: '#9CA3AF',
+                                    fontStyle: 'italic',
+                                }}
+                            >
+                                {aiSummaryInfo.message}
+                            </p>
+                        )}
+                    </div>
+                );
+            })()}
 
             {/* 콘서트 상태 배지 */}
             <div>

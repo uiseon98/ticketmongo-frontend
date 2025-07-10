@@ -56,59 +56,92 @@ export const useConcerts = () => {
     // 전체 콘서트 개수 (API에서 받아옴)
     const [totalElements, setTotalElements] = useState(0);
 
+    // 정렬 관련 상태들
+    const [sortBy, setSortBy] = useState('concertDate'); // 정렬 기준
+    const [sortDir, setSortDir] = useState('asc'); // 정렬 방향
+
     // ===== 함수 정의 =====
 
     /**
      * 콘서트 목록을 가져오는 함수
-     * useCallback으로 감싸서 불필요한 함수 재생성을 방지
-     *
      * @param {number} page - 가져올 페이지 번호 (기본값: 0)
      * @param {number} size - 페이지 크기 (기본값: 20)
+     * @param {string} newSortBy - 정렬 기준 (기본값: 현재 sortBy)
+     * @param {string} newSortDir - 정렬 방향 (기본값: 현재 sortDir)
      */
-    const fetchConcerts = useCallback(async (page = 0, size = 20) => {
+    const fetchConcerts = useCallback(async (page = 0, size = 20, newSortBy = sortBy, newSortDir = sortDir) => {
         try {
-            // 로딩 시작: 사용자에게 "데이터 가져오는 중"임을 표시
             setLoading(true);
-
-            // 이전 에러 상태 초기화: 새로운 요청이므로 기존 에러 제거
             setError(null);
 
             // 실제 API 호출: concertService의 getConcerts 메서드 사용
-            // 백엔드에서 페이지네이션된 데이터를 받아옴
-            const response = await concertService.getConcerts({ page, size });
+            const response = await concertService.getConcerts({
+                page,
+                size,
+                sortBy: newSortBy,
+                sortDir: newSortDir
+            });
 
             // API 호출 성공 시 받아온 데이터로 상태 업데이트
             if (response && response.data) {
-                // 콘서트 목록 데이터 설정
                 setConcerts(response.data.content || []);
+                setCurrentPage(response.data.number || 0);
+                setTotalPages(response.data.totalPages || 0);
+                setTotalElements(response.data.totalElements || 0);
+                setPageSize(response.data.size || 20);
+                setSortBy(newSortBy); // 정렬 기준 업데이트
+                setSortDir(newSortDir); // 정렬 방향 업데이트
 
-                // 페이지네이션 정보 업데이트
-                setCurrentPage(response.data.number || 0); // 현재 페이지
-                setTotalPages(response.data.totalPages || 0); // 전체 페이지 수
-                setTotalElements(response.data.totalElements || 0); // 전체 항목 수
-                setPageSize(response.data.size || 20); // 페이지 크기
+                console.log('✅ [API 성공] 콘서트 목록 업데이트 완료:', {
+                    concerts: response.data.content?.length,
+                    page: response.data.number,
+                    totalElements: response.data.totalElements,
+                    sortBy: newSortBy,
+                    sortDir: newSortDir
+                });
             } else {
-                // API 응답은 성공했지만 데이터 형식이 예상과 다른 경우
                 setConcerts([]);
                 setError('콘서트 데이터를 불러올 수 없습니다.');
             }
         } catch (err) {
-            // API 호출 실패 시 에러 처리
-            console.error('콘서트 목록 조회 실패:', err);
-
-            // 사용자에게 보여줄 친화적인 에러 메시지 설정
-            setError(
-                err.message || '콘서트 목록을 불러오는 중 오류가 발생했습니다.',
-            );
-
-            // 에러 발생 시 빈 배열로 초기화
+            console.error('❌ [API 오류] 콘서트 목록 조회 실패:', err);
+            setError(err.message || '콘서트 목록을 불러오는 중 오류가 발생했습니다.');
             setConcerts([]);
         } finally {
-            // 성공/실패 상관없이 로딩 상태 해제
-            // finally 블록은 try나 catch 실행 후 반드시 실행됨
             setLoading(false);
         }
-    }, []); // useCallback의 의존성 배열: 빈 배열이므로 함수는 컴포넌트 생성 시 한 번만 생성
+    }, [sortBy, sortDir]); // sortBy, sortDir 의존성 추가
+
+    /**
+     * 정렬 변경 함수 (서버 정렬)
+     * @param {string} newSortBy - 새로운 정렬 기준
+     * @param {string} newSortDir - 새로운 정렬 방향
+     */
+    const changeSorting = useCallback(
+        async (newSortBy, newSortDir = 'asc') => {
+
+            const allowedSortFields = ['concertDate', 'title', 'artist', 'createdAt'];
+            if (!allowedSortFields.includes(newSortBy)) {
+                console.warn(`유효하지 않은 정렬 기준: ${newSortBy}`);
+                return;
+            }
+
+            const allowedSortDirections = ['asc', 'desc'];
+            if (!allowedSortDirections.includes(newSortDir)) {
+                console.warn(`유효하지 않은 정렬 방향: ${newSortDir}`);
+                return;
+            }
+
+            // 같은 정렬 기준이면 방향만 토글
+            if (newSortBy === sortBy && newSortDir === sortDir) {
+                newSortDir = sortDir === 'asc' ? 'desc' : 'asc';
+            }
+
+            // 🔥 핵심: 서버에서 정렬된 데이터를 가져오기
+            await fetchConcerts(0, pageSize, newSortBy, newSortDir);
+        },
+        [sortBy, sortDir, fetchConcerts, pageSize],
+    );
 
     /**
      * 콘서트 검색 함수
@@ -257,17 +290,30 @@ export const useConcerts = () => {
         totalElements, // 전체 콘서트 개수
         pageSize, // 한 페이지당 항목 수
 
+        // 🔄 정렬 상태 (새로 추가)
+        sortBy,
+        sortDir,
+
         // 🔧 액션 함수들 (컴포넌트에서 호출해서 상태 변경)
         fetchConcerts, // 콘서트 목록 새로고침
         searchConcerts, // 키워드로 검색
         filterConcerts, // 조건으로 필터링
         goToPage, // 특정 페이지로 이동
         changePageSize, // 페이지 크기 변경
+        changeSorting,
 
         // 🎛️ 편의 기능들
-        refresh: () => fetchConcerts(currentPage, pageSize), // 현재 페이지 새로고침
-        hasNextPage: currentPage < totalPages - 1, // 다음 페이지 있는지 여부
-        hasPrevPage: currentPage > 0, // 이전 페이지 있는지 여부
-        isEmpty: concerts.length === 0 && !loading, // 데이터가 비어있는지 (로딩 중이 아닐 때)
+        refresh: () => fetchConcerts(currentPage, pageSize, sortBy, sortDir), // 정렬 상태 유지
+        hasNextPage: currentPage < totalPages - 1,
+        hasPrevPage: currentPage > 0,
+        isEmpty: concerts.length === 0 && !loading,
+
+        // 🔄 정렬 상태 체크 함수들 (새로 추가)
+        isSortedByDate: sortBy === 'concertDate',
+        isSortedByCreated: sortBy === 'createdAt',
+        isSortedByTitle: sortBy === 'title',
+        isSortedByArtist: sortBy === 'artist',
+        isAscending: sortDir === 'asc',
+        isDescending: sortDir === 'desc',
     };
 };

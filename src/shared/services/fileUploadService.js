@@ -180,64 +180,175 @@ export const fileUploadService = {
         }
     },
 
-        /**
-         * 콘서트 포스터 삭제 (권한 검증 + Supabase + DB 모두 처리)
-         * @param {number} concertId - 콘서트 ID
-         * @param {number} sellerId - 판매자 ID
-         * @returns {Promise<{success: boolean, message: string}>}
-         */
-        async deleteConcertPoster(concertId, sellerId) {
-            if (!concertId || !sellerId) {
-                return { success: false, message: '콘서트 ID와 판매자 ID가 필요합니다.' };
-            }
+    /**
+     * 특정 파일 URL로 직접 삭제 (고유 파일명 방식용)
+     * @param {string} fileUrl - 삭제할 파일의 전체 URL
+     * @param {number|null} concertId - 콘서트 ID (null이면 임시 파일)
+     * @param {number} sellerId - 판매자 ID
+     * @returns {Promise<{success: boolean, message: string}>}
+     */
+    async deleteSpecificFile(fileUrl, concertId, sellerId) {
+        if (!fileUrl) {
+            return { success: false, message: '삭제할 파일 URL이 없습니다.' };
+        }
 
-            try {
-                console.log('🗑️ 콘서트 포스터 삭제 시작:', { concertId, sellerId });
+        try {
+            console.log('🗑️ 특정 파일 삭제 시작:', {
+                fileUrl,
+                concertId,
+                sellerId,
+            });
 
-                // 백엔드 API 호출 (권한 검증 + Supabase 삭제 + DB 업데이트 모두 처리)
-                const response = await apiClient.delete(`/upload/poster/${concertId}`, {
-                    params: { sellerId }
+            // URL에서 파일 경로 추출
+            const urlObj = new URL(fileUrl);
+            const pathParts = urlObj.pathname.split('/');
+            const fileName = pathParts[pathParts.length - 1];
+
+            if (concertId) {
+                // 콘서트 관련 파일 삭제
+                const response = await apiClient.delete(
+                    `/upload/poster/specific`,
+                    {
+                        params: {
+                            fileUrl: fileUrl,
+                            concertId: concertId,
+                            sellerId: sellerId,
+                        },
+                    },
+                );
+
+                if (response && response.success) {
+                    console.log('✅ 콘서트 파일 삭제 완료:', fileName);
+                    return {
+                        success: true,
+                        message: response.message || '파일이 삭제되었습니다.',
+                    };
+                } else {
+                    throw new Error(response?.message || '파일 삭제 실패');
+                }
+            } else {
+                // 임시 파일 삭제
+                const response = await apiClient.delete(`/upload/temp`, {
+                    params: {
+                        fileUrl: fileUrl,
+                        sellerId: sellerId,
+                    },
                 });
 
                 if (response && response.success) {
-                    console.log('✅ 콘서트 포스터 삭제 완료');
+                    console.log('✅ 임시 파일 삭제 완료:', fileName);
                     return {
                         success: true,
-                        message: response.message || '포스터가 삭제되었습니다.',
-                        deletedUrl: response.deletedUrl
+                        message:
+                            response.message || '임시 파일이 삭제되었습니다.',
                     };
                 } else {
-                    throw new Error(response?.message || '포스터 삭제 실패');
+                    throw new Error(response?.message || '임시 파일 삭제 실패');
                 }
-
-            } catch (error) {
-                console.error('❌ 콘서트 포스터 삭제 실패:', error);
-
-                if (error.response) {
-                    const { status, data } = error.response;
-                    let errorMessage = data?.message || '서버에서 포스터 삭제를 처리하지 못했습니다.';
-
-                    switch (status) {
-                        case 403:
-                            errorMessage = '해당 콘서트의 포스터를 삭제할 권한이 없습니다.';
-                            break;
-                        case 404:
-                            errorMessage = '삭제할 콘서트를 찾을 수 없습니다.';
-                            break;
-                        case 500:
-                            errorMessage = '서버 오류로 포스터 삭제에 실패했습니다.';
-                            break;
-                    }
-
-                    return { success: false, message: errorMessage };
-                }
-
-                return {
-                    success: false,
-                    message: error.message || '포스터 삭제 중 오류가 발생했습니다.'
-                };
             }
-        },
+        } catch (error) {
+            console.error('❌ 특정 파일 삭제 실패:', error);
+
+            if (error.response) {
+                const { status, data } = error.response;
+                let errorMessage =
+                    data?.message ||
+                    '서버에서 파일 삭제를 처리하지 못했습니다.';
+
+                switch (status) {
+                    case 403:
+                        errorMessage = '해당 파일을 삭제할 권한이 없습니다.';
+                        break;
+                    case 404:
+                        errorMessage = '삭제할 파일을 찾을 수 없습니다.';
+                        break;
+                    case 500:
+                        errorMessage = '서버 오류로 파일 삭제에 실패했습니다.';
+                        break;
+                }
+
+                return { success: false, message: errorMessage };
+            }
+
+            return {
+                success: false,
+                message: error.message || '파일 삭제 중 오류가 발생했습니다.',
+            };
+        }
+    },
+
+    /**
+     * 원본 포스터 URL로 복구 (고유 파일명 방식용)
+     * @param {number} concertId - 콘서트 ID
+     * @param {number} sellerId - 판매자 ID
+     * @param {string} originalUrl - 복구할 원본 URL
+     * @returns {Promise<{success: boolean, message: string}>}
+     */
+    async restoreOriginalPoster(concertId, sellerId, originalUrl) {
+        if (!concertId || !sellerId || !originalUrl) {
+            return {
+                success: false,
+                message: '필수 파라미터가 누락되었습니다.',
+            };
+        }
+
+        try {
+            console.log('🔄 원본 포스터 복구 시작:', {
+                concertId,
+                sellerId,
+                originalUrl,
+            });
+
+            const response = await apiClient.patch(
+                `/upload/poster/${concertId}/restore`,
+                {
+                    originalUrl: originalUrl,
+                },
+                {
+                    params: { sellerId },
+                },
+            );
+
+            if (response && response.success) {
+                console.log('✅ 원본 포스터 복구 완료');
+                return {
+                    success: true,
+                    message:
+                        response.message || '원본 포스터로 복구되었습니다.',
+                };
+            } else {
+                throw new Error(response?.message || '원본 복구 실패');
+            }
+        } catch (error) {
+            console.error('❌ 원본 포스터 복구 실패:', error);
+
+            if (error.response) {
+                const { status, data } = error.response;
+                let errorMessage =
+                    data?.message ||
+                    '서버에서 원본 복구를 처리하지 못했습니다.';
+
+                switch (status) {
+                    case 403:
+                        errorMessage = '해당 콘서트를 수정할 권한이 없습니다.';
+                        break;
+                    case 404:
+                        errorMessage = '콘서트를 찾을 수 없습니다.';
+                        break;
+                    case 500:
+                        errorMessage = '서버 오류로 원본 복구에 실패했습니다.';
+                        break;
+                }
+
+                return { success: false, message: errorMessage };
+            }
+
+            return {
+                success: false,
+                message: error.message || '원본 복구 중 오류가 발생했습니다.',
+            };
+        }
+    },
 
     /**
      * 파일 업로드 전 클라이언트 측 유효성 검사
