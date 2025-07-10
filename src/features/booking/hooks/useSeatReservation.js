@@ -28,7 +28,6 @@ export const useSeatReservation = (concertId, options = {}) => {
     const selectedSeatsRef = useRef(selectedSeats);
     const pollingManagerRef = useRef(null);
     const stablePollingManagerRef = useRef(null);
-    const isVisibleRef = useRef(true);
     const isStartingPollingRef = useRef(false);
     
     useEffect(() => {
@@ -37,49 +36,6 @@ export const useSeatReservation = (concertId, options = {}) => {
 
     const MAX_SEATS_SELECTABLE = 2;
 
-    // Page Visibility API를 사용한 탭 활성화 상태 관리
-    useEffect(() => {
-        const handleVisibilityChange = () => {
-            isVisibleRef.current = !document.hidden;
-            
-            if (document.hidden) {
-                // 탭이 비활성화될 때 폴링 중지
-                console.log('🔥 탭 비활성화 - 폴링 중지');
-                setIsPolling(false);
-                setConnectionStatus('disconnected');
-                
-                // 실제 폴링 매니저도 정지
-                if (stablePollingManagerRef.current) {
-                    stablePollingManagerRef.current.stop();
-                }
-            } else {
-                // 탭이 활성화될 때 폴링 재시작 (실제 폴링 매니저 상태 확인)
-                const actuallyPolling = stablePollingManagerRef.current?.isPolling() || 
-                                       pollingManagerRef.current !== null;
-                
-                console.log('🔥 탭 활성화 - 폴링 상태 확인:', {
-                    enablePolling,
-                    isPolling,
-                    actuallyPolling,
-                    hasStableManager: !!stablePollingManagerRef.current,
-                    hasPollingManager: !!pollingManagerRef.current
-                });
-                
-                if (enablePolling && !isPolling && !actuallyPolling) {
-                    console.log('🔥 탭 활성화 - 폴링 재시작');
-                    startPolling();
-                } else {
-                    console.log('🔥 탭 활성화 - 폴링 재시작 스킵 (이미 진행 중)');
-                }
-            }
-        };
-
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-        
-        return () => {
-            document.removeEventListener('visibilitychange', handleVisibilityChange);
-        };
-    }, [isPolling, enablePolling]);
 
     // 2. 데이터 새로고침 함수를 훅 내부에 정의합니다.
     const refreshSeatStatuses = useCallback(async () => {
@@ -98,7 +54,7 @@ export const useSeatReservation = (concertId, options = {}) => {
     // 폴링 시스템 시작 함수
     const startPolling = useCallback(async () => {
         // 중복 호출 방지
-        if (isStartingPollingRef.current || isPolling || !isVisibleRef.current || !enablePolling) {
+        if (isStartingPollingRef.current || isPolling || !enablePolling) {
             return;
         }
         
@@ -170,7 +126,7 @@ export const useSeatReservation = (concertId, options = {}) => {
             // 폴링 사이클을 순차적으로 실행하는 함수
             const runPollingLoop = async () => {
                 let cycleCount = 0;
-                while (isPolling && isVisibleRef.current && enablePolling) {
+                while (isPolling && enablePolling) {
                     cycleCount++;
                     console.log(`🔥 폴링 사이클 #${cycleCount} 대기 중...`);
                     
@@ -179,8 +135,8 @@ export const useSeatReservation = (concertId, options = {}) => {
                     await new Promise(resolve => setTimeout(resolve, pollingInterval));
                     
                     // 상태 재확인
-                    if (!isPolling || !isVisibleRef.current || !enablePolling) {
-                        console.log('🔥 폴링 루프 중단:', { isPolling, isVisible: isVisibleRef.current, enablePolling });
+                    if (!isPolling || !enablePolling) {
+                        console.log('🔥 폴링 루프 중단:', { isPolling, enablePolling });
                         break;
                     }
                     
