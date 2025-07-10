@@ -113,11 +113,11 @@ export const POLLING_CONFIG = {
     // 백엔드 Long Polling 엔드포인트 구현 여부
     BACKEND_POLLING_ENABLED: true,
 
-    // 폴링 간격 (밀리초) - 폴백 모드용 (Long Polling 타임아웃 또는 데이터 없을 시 재요청 대기 시간)
-    POLLING_INTERVAL: 40000, // 35초
+    // 폴링 간격 (밀리초) - 백엔드 타임아웃 30초보다 조금 길게
+    POLLING_INTERVAL: 35000, // 35초
 
     // 클라이언트 측 네트워크 타임아웃 (백엔드 타임아웃보다 충분히 길게 설정)
-    CLIENT_NETWORK_TIMEOUT: 65000, // 65초
+    CLIENT_NETWORK_TIMEOUT: 40000, // 40초
 };
 
 /**
@@ -196,38 +196,15 @@ export async function pollSeatStatus(concertId, lastUpdateTime = null, signal = 
                         resolve({ type: 'parse_error', data: null, updateTime: null }); // 파싱 에러도 정상적인 폴링 종료로 간주
                     }
                 } else if (xhr.status === 401) {
-                    console.log('🔥 401 응답 상세 정보:', {
-                        status: xhr.status,
-                        statusText: xhr.statusText,
-                        responseText: xhr.responseText,
-                        responseURL: xhr.responseURL,
-                        headers: xhr.getAllResponseHeaders()
-                    });
-                    
-                    // 백엔드 타임아웃 시 401 에러가 발생하는 경우를 처리
-                    try {
-                        const errorBody = xhr.responseText ? JSON.parse(xhr.responseText) : {};
-                        // 백엔드에서 타임아웃 시 401과 함께 timeout 정보를 보내는 경우 처리
-                        if (errorBody.data && errorBody.data.status === 'timeout-ok') {
-                            console.log('🔥 백엔드 Long Polling 타임아웃 (401 응답과 함께 수신)');
-                            resolve({ type: 'timeout', data: null, updateTime: errorBody.data.updateTime || null });
-                            return;
-                        }
-                        // 백엔드에서 타임아웃 메시지를 보내는 경우 처리
-                        if (errorBody.message && errorBody.message.includes('timeout')) {
-                            console.log('🔥 백엔드 Long Polling 타임아웃 (401 응답, timeout 메시지 포함)');
-                            resolve({ type: 'timeout', data: null, updateTime: null });
-                            return;
-                        }
-                    } catch (e) {
-                        // JSON 파싱 실패 시 기본 401 에러 처리로 진행
-                        console.log('🔥 401 응답 JSON 파싱 실패:', e);
-                    }
                     console.error('🔥 인증 실패 (401):', xhr.responseText);
                     reject(new Error('인증이 필요합니다. 로그인해주세요.'));
                 } else if (xhr.status === 403) {
                     console.error('🔥 접근 권한 없음 (403):', xhr.responseText);
                     reject(new Error('접근 권한이 없습니다.'));
+                } else if (xhr.status === 409) {
+                    console.log('🔥 409 Conflict - 이미 활성화된 폴링 세션 존재');
+                    // 409는 정상적인 상황이므로 resolve로 처리하여 에러로 간주하지 않음
+                    resolve({ type: 'session_conflict', data: null, updateTime: null });
                 } else if (xhr.status >= 400) {
                     console.error(`🔥 폴링 API 에러 ${xhr.status}:`, xhr.responseText);
                     let errorMessage = `서버 에러 (${xhr.status})`;
@@ -470,140 +447,83 @@ export function createStablePollingManager(concertId, options = {}) {
     const {
         onUpdate = null,
         onError = null,
-        onStatusChange = null,
-        maxRetries = 3,
-        baseDelay = 1000,
-        maxDelay = 30000
+        onStatusChange = null
     } = options;
 
     let isPolling = false;
-    let retryCount = 0;
-    let lastUpdateTime = null;
-    let abortController = null; // 현재 활성화된 요청을 취소하기 위한 AbortController
-
-    const resetRetryCount = () => {
-        retryCount = 0;
-    };
-
-    const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+    let timeoutId = null;
+    let abortController = null;
 
     const executePolling = async () => {
         if (!isPolling) {
-            console.log('🔥 폴링 중지 상태, 실행 스킵');
             return;
         }
 
         try {
-            // 새로운 AbortController 생성 (매 폴링 시 요청 취소를 위함)
+            // 새로운 AbortController 생성
             abortController = new AbortController();
 
             const response = await pollSeatStatus(
                 concertId,
-                lastUpdateTime,
+                null, // lastUpdateTime 불필요
                 abortController.signal
             );
 
-            // `pollSeatStatus`에서 resolve된 `type`에 따라 처리
-            if (response.type === 'timeout' || response.type === 'no_data' || response.type === 'parse_error' || response.type === 'client_timeout') {
-                // 백엔드 정상 타임아웃, 빈 응답, 파싱 에러, 클라이언트 타임아웃 -> 모두 정상적인 폴링 종료로 간주
-                console.log(`🔥 폴링 정상 종료 (${response.type}) - 다음 폴링 시작`);
-                resetRetryCount();
-                if (onStatusChange) {
-                    onStatusChange(true); // 폴링 상태가 정상임을 알림
-                }
-                // *** 수정된 부분: 업데이트가 없는 경우 폴링 간격 사용 ***
-                if (isPolling) {
-                    setTimeout(executePolling, POLLING_CONFIG.POLLING_INTERVAL); // 30초 대기
-                }
-            } else if (response.type === 'update' && response.data) {
-                // 실제 좌석 데이터 업데이트
+            // 모든 응답 타입에 대해 동일하게 처리 (update, timeout, no_data, session_conflict 등)
+            if (response.type === 'update' && response.data && onUpdate) {
                 console.log('🔥 좌석 데이터 업데이트 수신');
-                lastUpdateTime = response.updateTime; // 마지막 업데이트 시간 갱신
-                if (onUpdate) {
-                    onUpdate(response.data);
-                }
-                resetRetryCount();
-                if (onStatusChange) {
-                    onStatusChange(true);
-                }
-                // *** 유지: 데이터 수신 후 즉시 다음 폴링 시작 (더 빠른 업데이트 확인을 위해) ***
-                if (isPolling) {
-                    setTimeout(executePolling, 100); // 0.1초 대기
-                }
-            } else {
-                // 예상치 못한 성공 응답 (resolve 되었으나 처리할 데이터가 명확치 않은 경우)
-                console.warn('🔥 pollSeatStatus에서 예상치 못한 성공 응답:', response);
-                // 이 경우도 재시도 로직을 태우는 것이 안전
-                throw new Error('UNEXPECTED_POLLING_RESPONSE');
+                onUpdate(response.data);
+            } else if (response.type === 'session_conflict') {
+                console.log('🔥 409 Conflict - 백엔드에서 중복 세션 거절 (정상 동작, 계속 폴링)');
+            }
+
+            if (onStatusChange) {
+                onStatusChange(true);
+            }
+
+            // 다음 폴링 스케줄링 (409 포함 모든 경우에 계속 폴링)
+            if (isPolling) {
+                timeoutId = setTimeout(executePolling, POLLING_CONFIG.POLLING_INTERVAL);
             }
 
         } catch (error) {
             if (error.message === 'AbortError') {
-                console.log('🔥 폴링 요청이 취소됨 (Aborted)');
-                return; // 취소된 요청은 에러 처리하지 않고 종료
-            }
-
-            console.error('🔥 폴링 에러 발생:', error);
-
-            // 401/403 인증 에러 처리 (다른 API와 동일하게)
-            // 에러 메시지 내용에 따라 분기
-            if (error.message.includes('인증이 필요합니다') || error.message.includes('접근 권한이 없습니다')) {
-                console.error('🔥 폴링 API 인증 실패 - 폴링 중지');
-                isPolling = false; // 폴링 강제 중지
-                if (onError) {
-                    // 사용자에게 보여줄 메시지를 구체적으로 전달
-                    onError(new Error('예매 인증이 만료되었습니다. 대기열에서 다시 입장해주세요.'));
-                }
-                if (onStatusChange) {
-                    onStatusChange(false); // 폴링 중지 상태 알림
-                }
-                return; // 인증 에러는 재시도 없이 중단
-            }
-
-            // 그 외의 일반적인 에러는 재시도 로직
-            retryCount++;
-
-            if (retryCount >= maxRetries) {
-                console.error('🔥 최대 재시도 횟수 초과 - 폴링 중지');
-                isPolling = false;
-                if (onError) {
-                    onError(new Error(`폴링 최대 재시도 횟수 초과 (${maxRetries}회)`));
-                }
-                if (onStatusChange) {
-                    onStatusChange(false);
-                }
+                console.log('🔥 폴링 요청이 취소됨');
                 return;
             }
 
-            const retryDelay = Math.min(baseDelay * Math.pow(2, retryCount - 1), maxDelay);
-            console.log(`🔥 ${retryDelay}ms 후 재시도 (${retryCount}/${maxRetries})`);
-
+            console.error('🔥 폴링 에러 발생:', error);
+            
             if (onError) {
-                onError(error); // 상위 컴포넌트에 에러 알림
+                onError(error);
             }
 
-            await delay(retryDelay);
-
+            // 에러 발생 시에도 계속 폴링 (네트워크 일시 장애 대응)
             if (isPolling) {
-                executePolling(); // 지연 후 재시도
+                timeoutId = setTimeout(executePolling, POLLING_CONFIG.POLLING_INTERVAL);
             }
         }
     };
 
     return {
-        start: (initialLastUpdateTime = null) => {
+        start: () => {
             if (isPolling) return;
             isPolling = true;
-            resetRetryCount();
-            lastUpdateTime = initialLastUpdateTime; // 초기 업데이트 시간 설정
-            console.log('🔥 폴링 시스템 시작 (백엔드 자체 타임아웃 관리)');
+            console.log('🔥 단순 폴링 시스템 시작 (35초 간격)');
+            if (onStatusChange) {
+                onStatusChange(true);
+            }
             executePolling();
         },
         stop: () => {
             console.log('🔥 폴링 시스템 중지');
             isPolling = false;
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+                timeoutId = null;
+            }
             if (abortController) {
-                abortController.abort(); // 현재 진행 중인 요청 취소
+                abortController.abort();
             }
             if (onStatusChange) {
                 onStatusChange(false);
@@ -612,8 +532,8 @@ export function createStablePollingManager(concertId, options = {}) {
         isPolling: () => isPolling,
         getStatus: () => ({
             isPolling,
-            retryCount,
-            lastUpdateTime
+            retryCount: 0,
+            lastUpdateTime: null
         })
     };
 }
