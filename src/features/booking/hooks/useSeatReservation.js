@@ -29,6 +29,7 @@ export const useSeatReservation = (concertId, options = {}) => {
     const pollingManagerRef = useRef(null);
     const stablePollingManagerRef = useRef(null);
     const isVisibleRef = useRef(true);
+    const isStartingPollingRef = useRef(false);
     
     useEffect(() => {
         selectedSeatsRef.current = selectedSeats;
@@ -94,47 +95,41 @@ export const useSeatReservation = (concertId, options = {}) => {
         }
     }, [concertId]);
 
-    // 폴링 시스템 시작 함수 (백엔드 Long Polling 기반)
+    // 폴링 시스템 시작 함수
     const startPolling = useCallback(async () => {
-        if (isPolling || !isVisibleRef.current || !enablePolling) {
-            console.log('🔥 폴링 시작 조건 불충족:', { 
-                isPolling, 
-                isVisible: isVisibleRef.current, 
-                enablePolling
-            });
+        // 중복 호출 방지
+        if (isStartingPollingRef.current || isPolling || !isVisibleRef.current || !enablePolling) {
             return;
         }
         
-        // 기존 폴링 세션 완전 정리 (React StrictMode 중복 실행 방지)
-        if (stablePollingManagerRef.current) {
-            console.log('🔥 기존 폴링 매니저 정리 중...');
-            stablePollingManagerRef.current.stop();
-            stablePollingManagerRef.current = null;
-        }
-        if (pollingManagerRef.current) {
-            console.log('🔥 기존 폴링 레퍼런스 정리 중...');
-            pollingManagerRef.current = null;
-        }
+        // 시작 플래그 설정
+        isStartingPollingRef.current = true;
         
-        // 짧은 지연 후 새로운 세션 시작 (백엔드 세션 정리 대기)
-        await new Promise(resolve => setTimeout(resolve, 100));
-        
-        setIsPolling(true);
-        setConnectionStatus('connecting');
-        
-        // 백엔드 Long Polling이 활성화된 경우 안정적인 폴링 시스템 사용
-        if (isBackendPollingSupported()) {
-            console.log('🔥 백엔드 Long Polling 기반 폴링 시스템 시작');
+        try {
+            // 기존 폴링 세션 정리
+            if (stablePollingManagerRef.current) {
+                stablePollingManagerRef.current.stop();
+                stablePollingManagerRef.current = null;
+            }
+            if (pollingManagerRef.current) {
+                pollingManagerRef.current = null;
+            }
             
-            // 안정적인 폴링 매니저 생성
+            setIsPolling(true);
+            setConnectionStatus('connecting');
+        
+        // 단순 주기적 폴링 시스템 사용
+        if (isBackendPollingSupported()) {
+            console.log('🔥 폴링 시스템 시작 (35초 간격)');
+            
+            // 폴링 매니저 생성
             const stableManager = createStablePollingManager(concertId, {
                 onUpdate: (seatUpdates) => {
-                    console.log('🔥 Long Polling 좌석 업데이트 수신:', seatUpdates);
-                    // 좌석 상태 새로고침
+                    console.log('🔥 좌석 업데이트 수신:', seatUpdates);
                     refreshSeatStatuses();
                 },
                 onError: (error) => {
-                    console.error('🔥 Long Polling 에러:', error);
+                    console.error('🔥 폴링 에러:', error);
                     setError(error.message);
                     setConnectionStatus('error');
                 },
@@ -146,7 +141,6 @@ export const useSeatReservation = (concertId, options = {}) => {
             stablePollingManagerRef.current = stableManager;
             stableManager.start();
             
-            // 폴링 관리 객체 저장 (하위 호환성)
             pollingManagerRef.current = {
                 stopPolling: () => {
                     stableManager.stop();
@@ -200,6 +194,11 @@ export const useSeatReservation = (concertId, options = {}) => {
         }
         
         setConnectionStatus('connected');
+        
+        } finally {
+            // 시작 플래그 해제
+            isStartingPollingRef.current = false;
+        }
     }, [concertId, isPolling, enablePolling, refreshSeatStatuses]);
 
     // 폴링 사이클 실행 함수 (폴백용 - 일반 새로고침 모드)
@@ -226,6 +225,9 @@ export const useSeatReservation = (concertId, options = {}) => {
         console.log('🔥 폴링 시스템 중지');
         setIsPolling(false);
         setConnectionStatus('disconnected');
+        
+        // 시작 플래그도 해제
+        isStartingPollingRef.current = false;
         
         // 안정적인 폴링 매니저 정리
         if (stablePollingManagerRef.current) {
