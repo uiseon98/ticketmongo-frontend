@@ -52,6 +52,7 @@ jobs:
         env: # 환경 변수 주입
           VITE_APP_API_URL: ${{ secrets.VITE_APP_API_URL }}
           VITE_APP_WS_URL: ${{ secrets.VITE_APP_WS_URL }}
+          VITE_ONE_SIGNAL_APP_ID: ${{ secrets.VITE_ONE_SIGNAL_APP_ID }}
         run: npm run build
 
       - name: Upload Build Artifacts
