@@ -31,7 +31,7 @@ jobs:
       - name: Download Build Artifacts # CI에서 생성된 아티팩트 다운로드
         uses: actions/download-artifact@v4
         with:
-          name: frontend-build-output-${{ github.event.workflow_run.sha }} # CI에서 업로드한 아티팩트 이름과 동일하게
+          name: frontend-build-output-${{ github.event.workflow_run.id }} # CI에서 업로드한 아티팩트 이름과 동일하게
           path: dist # 다운로드할 경로 (S3 업로드 시 사용할 'dist' 폴더)
           run-id: ${{ github.event.workflow_run.id }} # 이전 workflow_run의 ID를 명시
 
