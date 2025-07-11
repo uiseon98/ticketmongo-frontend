@@ -9,13 +9,13 @@ import { AuthProvider } from './context/AuthContext';
 // OneSignal SDK 초기화 (한 번만)
 window.OneSignalDeferred = window.OneSignalDeferred || [];
 OneSignalDeferred.push(async (OneSignal) => {
-  await OneSignal.init({
-    appId: import.meta.env.VITE_ONE_SIGNAL_APP_ID,
-    allowLocalhostAsSecureOrigin: true,
-    serviceWorkerParam: { scope: '/' },
-    serviceWorkerPath: '/OneSignalSDKWorker.js',
-    serviceWorkerUpdaterPath: '/OneSignalSDKUpdaterWorker.js',
-  });
+    await OneSignal.init({
+        appId: import.meta.env.VITE_ONE_SIGNAL_APP_ID,
+        allowLocalhostAsSecureOrigin: true,
+        serviceWorkerParam: { scope: '/' },
+        serviceWorkerPath: '/OneSignalSDKWorker.js',
+        serviceWorkerUpdaterPath: '/OneSignalSDKUpdaterWorker.js',
+    });
 });
 
 ReactDOM.createRoot(document.getElementById('root')).render(
