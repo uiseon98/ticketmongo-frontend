@@ -16,6 +16,7 @@ jobs:
       AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
       CLOUDFRONT_DISTRIBUTION_ID: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
+      VITE_ONE_SIGNAL_APP_ID: ${{ secrets.VITE_ONE_SIGNAL_APP_ID }}
 
     steps:
       - name: Checkout repository
