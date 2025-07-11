@@ -20,14 +20,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Debug Workflow Run Context
-        run: |
-          echo "workflow_run.id: ${{ github.event.workflow_run.id }}"
-          echo "workflow_run.head_sha: ${{ github.event.workflow_run.head_sha }}"
-          echo "workflow_run.sha (for comparison): ${{ github.event.workflow_run.sha }}"
-          echo "Current run_id: ${{ github.run_id }}" # 현재 deploy workflow의 run_id
-          echo "Current sha: ${{ github.sha }}"       # 현재 deploy workflow의 sha
-
       - name: Download Build Artifacts # CI에서 생성된 아티팩트 다운로드
         uses: actions/download-artifact@v4
         with:
