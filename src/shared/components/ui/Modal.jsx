@@ -12,8 +12,8 @@ const Modal = ({
     closeOnEsc = true,
     size = 'medium',
     className = '',
-    modalClassName = '', // 모달 콘텐츠 박스 (헤더, 본문, 푸터 포함)에 추가될 CSS 클래스 (배경색 등)
-    titleClassName = '', // 모달 제목에 추가될 CSS 클래스
+    modalClassName = '',
+    titleClassName = '',
 }) => {
     useEffect(() => {
         if (!isOpen || !closeOnEsc) return;
@@ -62,19 +62,38 @@ const Modal = ({
 
     return (
         <div
-            className={`fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4 ${className}`}
+            className={`fixed inset-0 flex items-center justify-center z-50 p-4 ${className}`}
+            style={{
+                backgroundColor: 'rgba(15, 23, 42, 0.8)', // #0F172A 80% 투명도
+                backdropFilter: 'blur(4px)', // 블러 효과 추가
+            }}
             onClick={handleBackdropClick}
         >
             <div
-                className={`rounded-lg shadow-xl max-h-[90vh] overflow-auto relative w-full ${getSizeClasses()} ${modalClassName}`}
+                className={`rounded-lg shadow-xl max-h-[90vh] overflow-auto relative w-full ${getSizeClasses()}`}
+                style={{
+                    backgroundColor: '#1E293B', // 초기 디자인 카드 배경색
+                    border: '1px solid #374151', // 초기 디자인 테두리색
+                    boxShadow: '0 10px 25px rgba(0, 0, 0, 0.5)', // 더 진한 그림자
+                    ...(modalClassName && {}), // modalClassName이 있으면 추가 스타일 적용 가능
+                }}
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* 모달 헤더 */}
                 {(title || showCloseButton) && (
-                    <div className="flex items-center justify-between p-4 border-b border-[#243447] bg-[#1a232f] rounded-t-lg">
+                    <div
+                        className="flex items-center justify-between p-4 rounded-t-lg"
+                        style={{
+                            borderBottom: '1px solid #374151', // 초기 디자인 테두리색
+                            backgroundColor: '#1E293B', // 헤더도 같은 배경색
+                        }}
+                    >
                         {title && (
                             <h2
-                                className={`text-xl font-bold text-white ${titleClassName}`}
+                                className={`text-xl font-bold ${titleClassName}`}
+                                style={{
+                                    color: '#FFFFFF', // 초기 디자인 텍스트색
+                                }}
                             >
                                 {title}
                             </h2>
@@ -82,8 +101,19 @@ const Modal = ({
                         {showCloseButton && (
                             <button
                                 onClick={onClose}
-                                // X 버튼 색상 수정 (배경색과 유사하되 약간 밝게)
-                                className="text-gray-300 hover:text-white transition-colors text-2xl font-bold p-1 leading-none"
+                                className="transition-colors text-2xl font-bold p-1 leading-none"
+                                style={{
+                                    color: '#9CA3AF', // 초기 디자인 보조 텍스트색
+                                    backgroundColor: 'transparent',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.target.style.color = '#FFFFFF'; // 호버 시 흰색
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.target.style.color = '#9CA3AF'; // 원래 색상으로
+                                }}
                                 aria-label="모달 닫기"
                             >
                                 &times;
@@ -93,9 +123,13 @@ const Modal = ({
                 )}
 
                 {/* 모달 본문 */}
-                <div className={`p-4`}>
-                    {' '}
-                    {/* 이 부분은 배경색을 modalClassName이 제어하도록 */}
+                <div
+                    className="p-4"
+                    style={{
+                        backgroundColor: '#1E293B', // 본문도 같은 배경색
+                        color: '#FFFFFF', // 기본 텍스트 색상
+                    }}
+                >
                     {children}
                 </div>
             </div>

@@ -7,27 +7,17 @@ import React, { useState, useCallback, useEffect } from 'react';
 // useEffect: 초기값 설정
 
 /**
- * ===== FilterPanel 컴포넌트 (실제 Hook 스펙에 맞춘 버전) =====
+ * ===== FilterPanel 컴포넌트 (개선된 버전) =====
  *
- * 🎯 주요 역할:
- * 1. **날짜 필터링**: 시작일~종료일 범위 선택
- * 2. **가격 필터링**: 최소~최대 가격 범위 선택
- * 3. **간단한 필터링**: useConcerts.filterConcerts()와 연동
- * 4. **필터 초기화**: 모든 조건을 기본값으로 재설정
- * 5. **기본 유효성 검증**: 잘못된 날짜/가격 범위 방지
- *
- * 🔄 사용 방법:
- * - useConcerts hook의 filterConcerts 함수와 연동
- * - 단순한 필터 적용 (디바운싱 없음)
- * - 버튼 클릭 시에만 필터 적용
- *
- * 💡 실제 hook 연동:
- * const { filterConcerts, loading } = useConcerts();
- * <FilterPanel onFilter={filterConcerts} loading={loading} />
+ * 🎯 주요 개선사항:
+ * 1. **스마트 초기화 버튼**: 상황에 따라 "필터 초기화" / "전체 보기"로 변경
+ * 2. **필터 적용 상태 추적**: 현재 필터가 적용되어 있는지 감지
+ * 3. **향상된 사용자 경험**: 필터링 후에도 전체 목록으로 쉽게 돌아가기
  */
 const FilterPanel = ({
     // ===== 필수 props =====
     onFilter, // 필터 적용 함수 (useConcerts.filterConcerts)
+    onReset, // 🔥 새로 추가: 전체 보기 함수 (ConcertListPage에서 전달)
 
     // ===== 초기값 props =====
     initialFilters = {}, // 초기 필터 값
@@ -39,6 +29,9 @@ const FilterPanel = ({
     // ===== 스타일 props =====
     className = '', // 추가 CSS 클래스
     compact = false, // 컴팩트 모드 (좁은 공간용)
+
+    // ===== 🔥 새로 추가: 상태 추적 props =====
+    hasActiveFilters = false, // 현재 필터가 적용되어 있는지 여부 (ConcertListPage에서 전달)
 }) => {
     // ===== 상태 관리 섹션 =====
 
@@ -50,25 +43,30 @@ const FilterPanel = ({
     const [endDate, setEndDate] = useState(initialFilters.endDate || '');
 
     /**
-     * 가격 필터 상태 (숫자)
-     * 백엔드 ConcertFilterDTO.priceMin, priceMax와 매핑
-     */
-    const [priceMin, setPriceMin] = useState(initialFilters.priceMin || '');
-    const [priceMax, setPriceMax] = useState(initialFilters.priceMax || '');
-
-    /**
      * 간단한 에러 상태
      * 복잡한 검증 로직 대신 기본적인 에러만 추적
      */
     const [error, setError] = useState('');
 
     /**
-     * 필터 변경 여부 추적
-     * 초기화 버튼 활성화용
+     * 🔥 개선된 변경 상태 추적
+     * 1. hasLocalChanges: 현재 입력 필드에 변경사항이 있는지
+     * 2. hasActiveFilters: 실제로 필터가 적용되어 있는지 (props로 받음)
      */
-    const [hasChanges, setHasChanges] = useState(false);
+    const [hasLocalChanges, setHasLocalChanges] = useState(false);
 
     // ===== 기본 유효성 검증 함수들 =====
+
+    /**
+     * 🔥 현재 날짜 가져오기 (YYYY-MM-DD 형식)
+     */
+    const getCurrentDate = useCallback(() => {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }, []);
 
     /**
      * 날짜 범위 검증 (간단 버전)
@@ -80,52 +78,57 @@ const FilterPanel = ({
     }, [startDate, endDate]);
 
     /**
-     * 가격 범위 검증 (간단 버전)
-     * 최소가격이 최대가격보다 크면 안됨
+     * 🔥 과거 날짜 검증
+     * 시작일이 현재 날짜보다 이전인지 확인
      */
-    const isValidPriceRange = useCallback(() => {
-        if (!priceMin || !priceMax) return true; // 둘 중 하나라도 없으면 OK
-        return parseFloat(priceMin) <= parseFloat(priceMax);
-    }, [priceMin, priceMax]);
+    const isPastDate = useCallback(() => {
+        if (!startDate) return false; // 시작일이 없으면 검증하지 않음
+        const today = getCurrentDate();
+        return startDate < today;
+    }, [startDate, getCurrentDate]);
 
     /**
-     * 전체 필터 유효성 검증
-     * 기본적인 검증만 수행
+     * 🔥 종료일 과거 날짜 검증
+     * 종료일이 현재 날짜보다 이전인지 확인
+     */
+    const isEndDatePast = useCallback(() => {
+        if (!endDate) return false; // 종료일이 없으면 검증하지 않음
+        const today = getCurrentDate();
+        return endDate < today;
+    }, [endDate, getCurrentDate]);
+
+    /**
+     * 🔥 개선된 전체 필터 유효성 검증
+     * 1. 날짜 범위 검증 (시작일 <= 종료일)
+     * 2. 과거 날짜 차단 (백엔드에서 지원하지 않는 경우)
      */
     const validateFilters = useCallback(() => {
         setError(''); // 에러 초기화
 
-        // 날짜 범위 검증
+        // 1. 날짜 범위 검증 (필수)
         if (!isValidDateRange()) {
-            setError('종료일은 시작일과 같거나 늦어야 합니다.');
+            setError(
+                '시작일과 종료일을 다시 확인해주세요. 종료일이 시작일보다 앞설 수 없습니다.',
+            );
             return false;
         }
 
-        // 가격 범위 검증
-        if (!isValidPriceRange()) {
-            setError('최대 가격은 최소 가격보다 크거나 같아야 합니다.');
-            return false;
-        }
-
-        // 가격 형식 검증 (숫자인지 확인)
-        if (
-            priceMin &&
-            (isNaN(parseFloat(priceMin)) || parseFloat(priceMin) < 0)
-        ) {
-            setError('최소 가격은 0 이상의 숫자여야 합니다.');
-            return false;
-        }
-
-        if (
-            priceMax &&
-            (isNaN(parseFloat(priceMax)) || parseFloat(priceMax) < 0)
-        ) {
-            setError('최대 가격은 0 이상의 숫자여야 합니다.');
-            return false;
+        // 🔥 2. 과거 날짜 완전 차단 (API 요청 방지)
+        if (isPastDate() && isEndDatePast()) {
+            setError(
+                '🚫 과거 날짜 범위는 검색할 수 없습니다. 현재 날짜 이후로 설정해주세요.',
+            );
+            return false; // API 요청 차단
+        } else if (isPastDate()) {
+            setError('🚫 시작일이 과거입니다. 오늘 날짜 이후로 설정해주세요.');
+            return false; // API 요청 차단
+        } else if (isEndDatePast()) {
+            setError('🚫 종료일이 과거입니다. 오늘 날짜 이후로 설정해주세요.');
+            return false; // API 요청 차단
         }
 
         return true;
-    }, [isValidDateRange, isValidPriceRange, priceMin, priceMax]);
+    }, [isValidDateRange, isPastDate, isEndDatePast]);
 
     // ===== 필터 데이터 변환 함수 =====
 
@@ -144,16 +147,16 @@ const FilterPanel = ({
             filters.endDate = endDate.trim();
         }
 
-        // 가격 필터 (값이 있고 유효한 숫자일 때만 추가)
-        if (priceMin.trim() && !isNaN(parseFloat(priceMin))) {
-            filters.priceMin = parseFloat(priceMin);
-        }
-        if (priceMax.trim() && !isNaN(parseFloat(priceMax))) {
-            filters.priceMax = parseFloat(priceMax);
-        }
-
         return filters;
-    }, [startDate, endDate, priceMin, priceMax]);
+    }, [startDate, endDate]);
+
+    /**
+     * 🔥 현재 필터가 비어있는지 확인
+     */
+    const isCurrentFilterEmpty = useCallback(() => {
+        const filters = getCurrentFilters();
+        return Object.keys(filters).length === 0;
+    }, [getCurrentFilters]);
 
     // ===== 이벤트 핸들러들 =====
 
@@ -180,6 +183,9 @@ const FilterPanel = ({
             if (onFilter && typeof onFilter === 'function') {
                 await onFilter(filterParams);
                 console.info('필터 적용 완료:', filterParams);
+
+                // 필터 적용 후 로컬 변경사항 초기화
+                setHasLocalChanges(false);
             }
         } catch (err) {
             // 필터링 실패 시 에러 메시지 설정
@@ -189,27 +195,47 @@ const FilterPanel = ({
     }, [loading, disabled, validateFilters, getCurrentFilters, onFilter]);
 
     /**
-     * 필터 초기화 핸들러
+     * 🔥 개선된 초기화/전체보기 핸들러
+     * 상황에 따라 다른 동작 수행:
+     * 1. 로컬 변경사항만 있는 경우 -> 필드 초기화
+     * 2. 필터가 적용된 상태인 경우 -> 전체 보기 (onReset 호출)
      */
-    const handleResetFilter = useCallback(() => {
-        // 상태 초기화
-        setStartDate(initialFilters.startDate || '');
-        setEndDate(initialFilters.endDate || '');
-        setPriceMin(initialFilters.priceMin || '');
-        setPriceMax(initialFilters.priceMax || '');
-        setError('');
-        setHasChanges(false);
-
-        console.info('필터가 초기화되었습니다.');
-    }, [initialFilters]);
+    const handleResetOrShowAll = useCallback(() => {
+        if (hasActiveFilters && onReset) {
+            // 필터가 적용된 상태 -> 전체 보기
+            onReset();
+            console.info('전체 콘서트 보기로 전환');
+        } else {
+            // 로컬 변경사항만 있는 경우 -> 필드 초기화
+            setStartDate(initialFilters.startDate || '');
+            setEndDate(initialFilters.endDate || '');
+            setError('');
+            setHasLocalChanges(false);
+            console.info('필터 입력 필드가 초기화되었습니다.');
+        }
+    }, [hasActiveFilters, onReset, initialFilters]);
 
     /**
      * 시작일 변경 핸들러
      */
     const handleStartDateChange = useCallback((event) => {
         setStartDate(event.target.value);
-        setHasChanges(true);
-        setError(''); // 입력 시 에러 메시지 제거
+        setHasLocalChanges(true);
+
+        // 🔥 실시간 과거 날짜 검증
+        const newStartDate = event.target.value;
+        if (newStartDate) {
+            const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD 형식
+            if (newStartDate < today) {
+                setError(
+                    '⚠️ 시작일이 과거입니다. 과거~현재 기간의 콘서트를 검색합니다.',
+                );
+            } else {
+                setError(''); // 과거가 아니면 에러 제거
+            }
+        } else {
+            setError(''); // 입력값이 없으면 에러 제거
+        }
     }, []);
 
     /**
@@ -217,33 +243,21 @@ const FilterPanel = ({
      */
     const handleEndDateChange = useCallback((event) => {
         setEndDate(event.target.value);
-        setHasChanges(true);
-        setError(''); // 입력 시 에러 메시지 제거
-    }, []);
+        setHasLocalChanges(true);
 
-    /**
-     * 최소 가격 변경 핸들러
-     */
-    const handlePriceMinChange = useCallback((event) => {
-        const value = event.target.value;
-        // 숫자와 소수점만 허용
-        if (value === '' || /^\d*\.?\d*$/.test(value)) {
-            setPriceMin(value);
-            setHasChanges(true);
-            setError(''); // 입력 시 에러 메시지 제거
-        }
-    }, []);
-
-    /**
-     * 최대 가격 변경 핸들러
-     */
-    const handlePriceMaxChange = useCallback((event) => {
-        const value = event.target.value;
-        // 숫자와 소수점만 허용
-        if (value === '' || /^\d*\.?\d*$/.test(value)) {
-            setPriceMax(value);
-            setHasChanges(true);
-            setError(''); // 입력 시 에러 메시지 제거
+        // 🔥 실시간 과거 날짜 검증
+        const newEndDate = event.target.value;
+        if (newEndDate) {
+            const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD 형식
+            if (newEndDate < today) {
+                setError(
+                    '⚠️ 종료일이 과거입니다. 현재까지의 콘서트를 검색합니다.',
+                );
+            } else {
+                setError(''); // 과거가 아니면 에러 제거
+            }
+        } else {
+            setError(''); // 입력값이 없으면 에러 제거
         }
     }, []);
 
@@ -255,11 +269,44 @@ const FilterPanel = ({
     useEffect(() => {
         setStartDate(initialFilters.startDate || '');
         setEndDate(initialFilters.endDate || '');
-        setPriceMin(initialFilters.priceMin || '');
-        setPriceMax(initialFilters.priceMax || '');
-        setHasChanges(false);
+        setHasLocalChanges(false);
         setError('');
     }, [initialFilters]);
+
+    // ===== 🔥 동적 버튼 텍스트 및 상태 계산 =====
+
+    /**
+     * 초기화/전체보기 버튼의 텍스트와 활성화 상태 결정
+     */
+    const resetButtonConfig = useCallback(() => {
+        if (hasActiveFilters) {
+            // 필터가 적용된 상태
+            return {
+                text: '🏠 전체 보기',
+                emoji: '🏠',
+                enabled: true,
+                tooltip: '모든 콘서트 보기',
+            };
+        } else if (hasLocalChanges) {
+            // 로컬 변경사항만 있는 상태
+            return {
+                text: '🔄 필터 초기화',
+                emoji: '🔄',
+                enabled: true,
+                tooltip: '입력한 필터 조건 지우기',
+            };
+        } else {
+            // 아무 변경사항 없는 상태
+            return {
+                text: '⚪ 필터 초기화',
+                emoji: '⚪',
+                enabled: false,
+                tooltip: '변경된 필터 조건이 없습니다',
+            };
+        }
+    }, [hasActiveFilters, hasLocalChanges]);
+
+    const resetConfig = resetButtonConfig();
 
     // ===== 스타일 정의 =====
 
@@ -268,10 +315,10 @@ const FilterPanel = ({
      */
     const containerStyles = {
         padding: compact ? '12px' : '16px',
-        border: '1px solid #e5e7eb',
+        border: '1px solid #374151', // 어두운 테두리
         borderRadius: '8px',
-        backgroundColor: '#ffffff',
-        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+        backgroundColor: '#1E293B', // 다크 배경
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.3)', // 더 진한 그림자
         opacity: disabled ? 0.6 : 1,
     };
 
@@ -289,7 +336,7 @@ const FilterPanel = ({
         display: 'block',
         fontSize: compact ? '13px' : '14px',
         fontWeight: '600',
-        color: '#374151',
+        color: '#FFFFFF', // 흰색 라벨
         marginBottom: '6px',
     };
 
@@ -299,25 +346,50 @@ const FilterPanel = ({
     const inputStyles = {
         width: '100%',
         padding: compact ? '6px 8px' : '8px 12px',
-        border: '1px solid #d1d5db',
+        border: '1px solid #374151', // 어두운 테두리
         borderRadius: '4px',
         fontSize: compact ? '13px' : '14px',
-        backgroundColor: disabled ? '#f3f4f6' : '#ffffff',
-        color: disabled ? '#9ca3af' : '#1f2937',
+        backgroundColor: disabled ? '#374151' : '#1E293B', // 다크 배경
+        color: disabled ? '#9ca3af' : '#FFFFFF', // 흰색 텍스트
     };
 
     /**
-     * 에러 메시지 스타일
+     * 🔥 개선된 에러 메시지 스타일
+     * 에러 타입에 따라 다른 색상 적용
      */
-    const errorStyles = {
-        fontSize: '12px',
-        color: '#ef4444',
-        marginTop: '8px',
-        padding: '8px',
-        backgroundColor: '#fef2f2',
-        borderRadius: '4px',
-        border: '1px solid #fecaca',
-    };
+    const getErrorStyles = useCallback(() => {
+        const baseStyles = {
+            fontSize: '12px',
+            marginTop: '8px',
+            padding: '8px',
+            borderRadius: '4px',
+            border: '1px solid',
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '6px',
+        };
+
+        // 과거 날짜 경고인지 확인
+        const isWarning = error.includes('⚠️');
+
+        if (isWarning) {
+            // 경고 스타일 (노란색)
+            return {
+                ...baseStyles,
+                color: '#FBB93B', // 더 어두운 노란색 텍스트
+                backgroundColor: '#1E293B', // 다크 배경
+                borderColor: '#374151', // 어두운 테두리
+            };
+        } else {
+            // 에러 스타일 (빨간색)
+            return {
+                ...baseStyles,
+                color: '#F87171', // 더 어두운 빨간색
+                backgroundColor: '#1E293B', // 다크 배경
+                borderColor: '#374151', // 어두운 테두리
+            };
+        }
+    }, [error]);
 
     /**
      * 버튼 기본 스타일
@@ -344,12 +416,14 @@ const FilterPanel = ({
     };
 
     /**
-     * 초기화 버튼 스타일
+     * 🔥 개선된 초기화/전체보기 버튼 스타일
      */
     const resetButtonStyles = {
         ...buttonBaseStyles,
-        backgroundColor: '#6b7280',
+        backgroundColor: hasActiveFilters ? '#10b981' : '#6b7280', // 전체보기는 초록색, 초기화는 회색
         color: '#ffffff',
+        opacity: !resetConfig.enabled || disabled ? 0.4 : 1,
+        cursor: !resetConfig.enabled || disabled ? 'not-allowed' : 'pointer',
     };
 
     // ===== JSX 렌더링 =====
@@ -368,7 +442,7 @@ const FilterPanel = ({
                         ...labelStyles,
                         fontSize: compact ? '14px' : '16px',
                         marginBottom: compact ? '8px' : '12px',
-                        color: '#1f2937',
+                        color: '#ffffff',
                     }}
                 >
                     📅 공연 날짜
@@ -425,74 +499,17 @@ const FilterPanel = ({
                 </div>
             </div>
 
-            {/* 💰 가격 필터 섹션 */}
-            <div style={sectionStyles}>
-                <h3
-                    style={{
-                        ...labelStyles,
-                        fontSize: compact ? '14px' : '16px',
-                        marginBottom: compact ? '8px' : '12px',
-                        color: '#1f2937',
-                    }}
-                >
-                    💰 가격 범위 (원)
-                </h3>
-
-                <div
-                    style={{
-                        display: 'grid',
-                        gridTemplateColumns: '1fr auto 1fr',
-                        gap: '8px',
-                        alignItems: 'end',
-                    }}
-                >
-                    {/* 최소 가격 */}
-                    <div>
-                        <label htmlFor="priceMin" style={labelStyles}>
-                            최소 가격
-                        </label>
-                        <input
-                            id="priceMin"
-                            type="text"
-                            value={priceMin}
-                            onChange={handlePriceMinChange}
-                            disabled={disabled}
-                            placeholder="0"
-                            style={inputStyles}
-                        />
+            {/* ⚠️ 에러/경고 메시지 */}
+            {error && (
+                <div style={getErrorStyles()}>
+                    <div style={{ flexShrink: 0 }}>
+                        {error.includes('⚠️') ? '⚠️' : '🚫'}
                     </div>
-
-                    {/* 구분선 */}
-                    <div
-                        style={{
-                            color: '#6b7280',
-                            fontSize: compact ? '14px' : '16px',
-                            paddingBottom: '8px',
-                        }}
-                    >
-                        ~
-                    </div>
-
-                    {/* 최대 가격 */}
-                    <div>
-                        <label htmlFor="priceMax" style={labelStyles}>
-                            최대 가격
-                        </label>
-                        <input
-                            id="priceMax"
-                            type="text"
-                            value={priceMax}
-                            onChange={handlePriceMaxChange}
-                            disabled={disabled}
-                            placeholder="무제한"
-                            style={inputStyles}
-                        />
+                    <div style={{ flex: 1 }}>
+                        {error.replace('⚠️ ', '')} {/* 이모지 중복 제거 */}
                     </div>
                 </div>
-            </div>
-
-            {/* ⚠️ 에러 메시지 */}
-            {error && <div style={errorStyles}>⚠️ {error}</div>}
+            )}
 
             {/* 🔧 버튼 영역 */}
             <div
@@ -503,27 +520,36 @@ const FilterPanel = ({
                     marginTop: compact ? '12px' : '16px',
                 }}
             >
-                {/* 초기화 버튼 */}
+                {/* 🔥 개선된 초기화/전체보기 버튼 */}
                 <button
                     type="button"
-                    onClick={handleResetFilter}
-                    disabled={disabled || !hasChanges}
-                    style={{
-                        ...resetButtonStyles,
-                        opacity: !hasChanges || disabled ? 0.4 : 1,
-                    }}
-                    aria-label="필터 초기화"
+                    onClick={handleResetOrShowAll}
+                    disabled={disabled || !resetConfig.enabled}
+                    style={resetButtonStyles}
+                    aria-label={resetConfig.tooltip}
+                    title={resetConfig.tooltip}
                 >
-                    {hasChanges ? '🔄 초기화' : '⚪ 초기화'}
+                    {resetConfig.text}
                 </button>
 
                 {/* 적용 버튼 */}
                 <button
                     type="button"
                     onClick={handleApplyFilter}
-                    disabled={disabled || loading}
-                    style={applyButtonStyles}
+                    disabled={disabled || loading || isCurrentFilterEmpty()}
+                    style={{
+                        ...applyButtonStyles,
+                        opacity:
+                            disabled || loading || isCurrentFilterEmpty()
+                                ? 0.4
+                                : 1,
+                    }}
                     aria-label="필터 적용"
+                    title={
+                        isCurrentFilterEmpty()
+                            ? '필터 조건을 입력해주세요'
+                            : '필터 적용'
+                    }
                 >
                     {loading ? '⏳ 적용 중...' : '🔍 필터 적용'}
                 </button>
@@ -535,14 +561,29 @@ const FilterPanel = ({
                     style={{
                         marginTop: '12px',
                         padding: '8px',
-                        backgroundColor: '#f8fafc',
+                        backgroundColor: '#1E293B', // 다크 배경으로 변경
                         borderRadius: '4px',
                         fontSize: '12px',
-                        color: '#6b7280',
+                        color: '#9CA3AF', // 어두운 회색 텍스트
+                        border: '1px solid #374151', // 어두운 테두리 추가
                     }}
                 >
-                    💡 팁: 날짜와 가격을 설정한 후 "필터 적용" 버튼을
-                    눌러주세요.
+                    {hasActiveFilters ? (
+                        <>
+                            🎯{' '}
+                            <strong style={{ color: '#3B82F6' }}>
+                                필터 적용됨:
+                            </strong>{' '}
+                            조건에 맞는 콘서트만 표시 중입니다. "전체 보기"를
+                            클릭하여 모든 콘서트를 확인하세요.
+                        </>
+                    ) : (
+                        <>
+                            💡 <strong>팁:</strong> 날짜를 설정한 후 "필터 적용"
+                            버튼을 눌러주세요. 과거 날짜를 선택하면 이미 종료된
+                            콘서트를 검색할 수 있습니다.
+                        </>
+                    )}
                 </div>
             )}
         </div>
@@ -556,6 +597,8 @@ FilterPanel.defaultProps = {
     disabled: false,
     className: '',
     compact: false,
+    hasActiveFilters: false,
+    onReset: null,
 };
 
 export default FilterPanel;

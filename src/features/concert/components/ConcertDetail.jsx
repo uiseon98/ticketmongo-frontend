@@ -239,10 +239,11 @@ const ConcertDetail = ({
         maxWidth: compact ? '600px' : '800px',
         margin: '0 auto',
         padding: compact ? '16px' : '24px',
-        backgroundColor: '#ffffff',
+        backgroundColor: '#1E293B', // 다크 배경
         borderRadius: '12px',
         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-        border: '1px solid #e5e7eb',
+        border: '1px solid #374151', // 어두운 테두리
+        color: '#FFFFFF', // 기본 텍스트 흰색
     };
 
     /**
@@ -263,7 +264,7 @@ const ConcertDetail = ({
     const titleStyles = {
         fontSize: compact ? '20px' : '28px',
         fontWeight: 'bold',
-        color: '#1f2937',
+        color: '#FFFFFF', // 흰색 제목
         marginBottom: '8px',
         lineHeight: '1.2',
     };
@@ -273,7 +274,7 @@ const ConcertDetail = ({
      */
     const artistStyles = {
         fontSize: compact ? '16px' : '20px',
-        color: '#6b7280',
+        color: '#9CA3AF', // 회색 아티스트명
         marginBottom: '16px',
         fontWeight: '500',
     };
@@ -300,7 +301,7 @@ const ConcertDetail = ({
     const labelStyles = {
         minWidth: compact ? '80px' : '100px',
         fontWeight: '600',
-        color: '#374151',
+        color: '#9CA3AF', // 회색 라벨
         marginRight: '12px',
     };
 
@@ -308,7 +309,7 @@ const ConcertDetail = ({
      * 값 스타일
      */
     const valueStyles = {
-        color: '#1f2937',
+        color: '#FFFFFF', // 흰색 값
         flex: 1,
     };
 
@@ -573,11 +574,12 @@ const ConcertDetail = ({
                             style={{
                                 marginBottom: '20px',
                                 padding: '12px',
-                                backgroundColor: '#f8fafc',
+                                backgroundColor: '#374151', // 어두운 배경으로 변경 (기존 #f8fafc)
                                 borderRadius: '6px',
                                 fontSize: '14px',
-                                color: '#374151',
+                                color: '#D1D5DB', // 밝은 회색 텍스트 (기존 #374151)
                                 lineHeight: '1.5',
+                                border: '1px solid #4B5563', // 어두운 테두리 추가
                             }}
                         >
                             {concert.description}
@@ -613,7 +615,7 @@ const ConcertDetail = ({
                             style={{
                                 fontSize: '18px',
                                 fontWeight: 'bold',
-                                color: '#1f2937',
+                                color: '#ffffff',
                                 marginBottom: '12px',
                                 borderBottom: '2px solid #e5e7eb',
                                 paddingBottom: '8px',
@@ -669,7 +671,7 @@ const ConcertDetail = ({
                             style={{
                                 fontSize: '18px',
                                 fontWeight: 'bold',
-                                color: '#1f2937',
+                                color: '#ffffff',
                                 marginBottom: '12px',
                                 borderBottom: '2px solid #e5e7eb',
                                 paddingBottom: '8px',
