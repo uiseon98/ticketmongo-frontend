@@ -191,7 +191,7 @@ export default function SubscriptionToggle() {
                     {permission}
                 </strong>
                 <br />
-                <span className="text- text-gray-400">
+                <span className="text-sm text-gray-400">
                     권한 변경: 브라우저 주소창 좌측 아이콘(클릭) - 알림(허용)
                 </span>
             </p>
