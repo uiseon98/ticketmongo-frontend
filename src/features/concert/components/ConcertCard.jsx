@@ -115,21 +115,23 @@ const ConcertCard = ({
         if (!aiSummary) {
             return {
                 status: 'empty',
-                message: '💭 AI 요약 준비중...'
+                message: '💭 AI 요약 준비중...',
             };
         }
 
-        if (aiSummary === 'AI 요약 정보가 아직 생성되지 않았습니다.' ||
-            aiSummary === 'AI 요약을 불러올 수 없습니다.') {
+        if (
+            aiSummary === 'AI 요약 정보가 아직 생성되지 않았습니다.' ||
+            aiSummary === 'AI 요약을 불러올 수 없습니다.'
+        ) {
             return {
                 status: 'unavailable',
-                message: '💭 AI 요약 준비중...'
+                message: '💭 AI 요약 준비중...',
             };
         }
 
         return {
             status: 'available',
-            message: formatAiSummaryForCard(aiSummary)
+            message: formatAiSummaryForCard(aiSummary),
         };
     };
 
@@ -297,49 +299,50 @@ const ConcertCard = ({
             </div>
 
             {/* 🔥 AI 요약 섹션 (완전히 새로 작성) */}
-            {showAiSummary && (() => {
-                const aiSummaryInfo = getAiSummaryStatus();
+            {showAiSummary &&
+                (() => {
+                    const aiSummaryInfo = getAiSummaryStatus();
 
-                return (
-                    <div
-                        style={{
-                            marginBottom: '12px',
-                            padding: '8px',
-                            backgroundColor: '#374151',
-                            borderRadius: '4px',
-                            borderLeft: '3px solid #60A5FA',
-                            border: '1px solid #4B5563',
-                            minHeight: '40px',
-                        }}
-                    >
-                        {aiSummaryInfo.status === 'available' ? (
-                            // AI 요약 있음 - props에서 바로 사용
-                            <p
-                                style={{
-                                    margin: '0',
-                                    fontSize: '12px',
-                                    color: '#D1D5DB',
-                                    lineHeight: '1.4',
-                                }}
-                            >
-                                🤖 {aiSummaryInfo.message}
-                            </p>
-                        ) : (
-                            // AI 요약 없음 또는 준비중
-                            <p
-                                style={{
-                                    margin: '0',
-                                    fontSize: '11px',
-                                    color: '#9CA3AF',
-                                    fontStyle: 'italic',
-                                }}
-                            >
-                                {aiSummaryInfo.message}
-                            </p>
-                        )}
-                    </div>
-                );
-            })()}
+                    return (
+                        <div
+                            style={{
+                                marginBottom: '12px',
+                                padding: '8px',
+                                backgroundColor: '#374151',
+                                borderRadius: '4px',
+                                borderLeft: '3px solid #60A5FA',
+                                border: '1px solid #4B5563',
+                                minHeight: '40px',
+                            }}
+                        >
+                            {aiSummaryInfo.status === 'available' ? (
+                                // AI 요약 있음 - props에서 바로 사용
+                                <p
+                                    style={{
+                                        margin: '0',
+                                        fontSize: '12px',
+                                        color: '#D1D5DB',
+                                        lineHeight: '1.4',
+                                    }}
+                                >
+                                    🤖 {aiSummaryInfo.message}
+                                </p>
+                            ) : (
+                                // AI 요약 없음 또는 준비중
+                                <p
+                                    style={{
+                                        margin: '0',
+                                        fontSize: '11px',
+                                        color: '#9CA3AF',
+                                        fontStyle: 'italic',
+                                    }}
+                                >
+                                    {aiSummaryInfo.message}
+                                </p>
+                            )}
+                        </div>
+                    );
+                })()}
 
             {/* 콘서트 상태 배지 */}
             <div>

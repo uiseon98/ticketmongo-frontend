@@ -69,48 +69,59 @@ export const useConcerts = () => {
      * @param {string} newSortBy - 정렬 기준 (기본값: 현재 sortBy)
      * @param {string} newSortDir - 정렬 방향 (기본값: 현재 sortDir)
      */
-    const fetchConcerts = useCallback(async (page = 0, size = 20, newSortBy = sortBy, newSortDir = sortDir) => {
-        try {
-            setLoading(true);
-            setError(null);
+    const fetchConcerts = useCallback(
+        async (
+            page = 0,
+            size = 20,
+            newSortBy = sortBy,
+            newSortDir = sortDir,
+        ) => {
+            try {
+                setLoading(true);
+                setError(null);
 
-            // 실제 API 호출: concertService의 getConcerts 메서드 사용
-            const response = await concertService.getConcerts({
-                page,
-                size,
-                sortBy: newSortBy,
-                sortDir: newSortDir
-            });
-
-            // API 호출 성공 시 받아온 데이터로 상태 업데이트
-            if (response && response.data) {
-                setConcerts(response.data.content || []);
-                setCurrentPage(response.data.number || 0);
-                setTotalPages(response.data.totalPages || 0);
-                setTotalElements(response.data.totalElements || 0);
-                setPageSize(response.data.size || 20);
-                setSortBy(newSortBy); // 정렬 기준 업데이트
-                setSortDir(newSortDir); // 정렬 방향 업데이트
-
-                console.log('✅ [API 성공] 콘서트 목록 업데이트 완료:', {
-                    concerts: response.data.content?.length,
-                    page: response.data.number,
-                    totalElements: response.data.totalElements,
+                // 실제 API 호출: concertService의 getConcerts 메서드 사용
+                const response = await concertService.getConcerts({
+                    page,
+                    size,
                     sortBy: newSortBy,
-                    sortDir: newSortDir
+                    sortDir: newSortDir,
                 });
-            } else {
+
+                // API 호출 성공 시 받아온 데이터로 상태 업데이트
+                if (response && response.data) {
+                    setConcerts(response.data.content || []);
+                    setCurrentPage(response.data.number || 0);
+                    setTotalPages(response.data.totalPages || 0);
+                    setTotalElements(response.data.totalElements || 0);
+                    setPageSize(response.data.size || 20);
+                    setSortBy(newSortBy); // 정렬 기준 업데이트
+                    setSortDir(newSortDir); // 정렬 방향 업데이트
+
+                    console.log('✅ [API 성공] 콘서트 목록 업데이트 완료:', {
+                        concerts: response.data.content?.length,
+                        page: response.data.number,
+                        totalElements: response.data.totalElements,
+                        sortBy: newSortBy,
+                        sortDir: newSortDir,
+                    });
+                } else {
+                    setConcerts([]);
+                    setError('콘서트 데이터를 불러올 수 없습니다.');
+                }
+            } catch (err) {
+                console.error('❌ [API 오류] 콘서트 목록 조회 실패:', err);
+                setError(
+                    err.message ||
+                        '콘서트 목록을 불러오는 중 오류가 발생했습니다.',
+                );
                 setConcerts([]);
-                setError('콘서트 데이터를 불러올 수 없습니다.');
+            } finally {
+                setLoading(false);
             }
-        } catch (err) {
-            console.error('❌ [API 오류] 콘서트 목록 조회 실패:', err);
-            setError(err.message || '콘서트 목록을 불러오는 중 오류가 발생했습니다.');
-            setConcerts([]);
-        } finally {
-            setLoading(false);
-        }
-    }, [sortBy, sortDir]); // sortBy, sortDir 의존성 추가
+        },
+        [sortBy, sortDir],
+    ); // sortBy, sortDir 의존성 추가
 
     /**
      * 정렬 변경 함수 (서버 정렬)
@@ -119,8 +130,12 @@ export const useConcerts = () => {
      */
     const changeSorting = useCallback(
         async (newSortBy, newSortDir = 'asc') => {
-
-            const allowedSortFields = ['concertDate', 'title', 'artist', 'createdAt'];
+            const allowedSortFields = [
+                'concertDate',
+                'title',
+                'artist',
+                'createdAt',
+            ];
             if (!allowedSortFields.includes(newSortBy)) {
                 console.warn(`유효하지 않은 정렬 기준: ${newSortBy}`);
                 return;
