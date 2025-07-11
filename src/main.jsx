@@ -6,6 +6,18 @@ import App from './App.jsx'; // 메인 App 컴포넌트 임포트
 import './index.css'; // 전역 CSS 파일
 import { AuthProvider } from './context/AuthContext';
 
+// OneSignal SDK 초기화 (한 번만)
+window.OneSignalDeferred = window.OneSignalDeferred || [];
+OneSignalDeferred.push(async (OneSignal) => {
+    await OneSignal.init({
+        appId: import.meta.env.VITE_ONE_SIGNAL_APP_ID,
+        allowLocalhostAsSecureOrigin: true,
+        serviceWorkerParam: { scope: '/' },
+        serviceWorkerPath: '/OneSignalSDKWorker.js',
+        serviceWorkerUpdaterPath: '/OneSignalSDKUpdaterWorker.js',
+    });
+});
+
 ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
         {/*

@@ -438,26 +438,22 @@ export const fileUploadService = {
                 };
             }
 
-            // 이미지 확장자 검사 (선택사항, URL에 확장자가 없을 수도 있음)
-            const pathname = urlObj.pathname.toLowerCase();
+            // URL 전체에서 이미지 확장자 검색 (중간에 있어도 찾음)
+            const fullUrl = url.toLowerCase();
             const validExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
-            const hasValidExtension = validExtensions.some((ext) =>
-                pathname.endsWith(ext),
+
+            const hasImageExtension = validExtensions.some(
+                (ext) => fullUrl.includes(ext), // 끝이 아니라 포함 여부로 검사
             );
 
-            // 확장자가 없거나 의심스러운 경우 경고만 하고 통과
-            if (
-                !hasValidExtension &&
-                pathname !== '' &&
-                !pathname.endsWith('/')
-            ) {
-                console.warn(
-                    '이미지 파일 확장자가 감지되지 않았습니다:',
-                    pathname,
-                );
+            if (hasImageExtension) {
+                console.log('✅ URL에서 이미지 확장자 발견:', url);
+                return { valid: true };
+            } else {
+                console.warn('⚠️ URL에서 이미지 확장자를 찾을 수 없음:', url);
+                // 확장자가 없어도 일단 통과 (너무 엄격하지 않게)
+                return { valid: true };
             }
-
-            return { valid: true };
         } catch (error) {
             return { valid: false, error: '올바른 URL 형식이 아닙니다.' };
         }
