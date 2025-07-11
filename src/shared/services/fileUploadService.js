@@ -438,39 +438,23 @@ export const fileUploadService = {
                 };
             }
 
-            // S3 URL 특별 처리
-            if (urlObj.hostname.includes('amazonaws.com') ||
-                urlObj.hostname.includes('s3.') ||
-                urlObj.hostname.includes('supabase.co')) {
-                // S3/Supabase 등 클라우드 스토리지는 확장자 검사 생략하고 통과
-                console.log('✅ 클라우드 스토리지 URL 감지, 확장자 검사 생략:', urlObj.hostname);
+            // URL 전체에서 이미지 확장자 검색 (중간에 있어도 찾음)
+            const fullUrl = url.toLowerCase();
+            const validExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+
+            const hasImageExtension = validExtensions.some(ext =>
+                fullUrl.includes(ext)  // 끝이 아니라 포함 여부로 검사
+            );
+
+            if (hasImageExtension) {
+                console.log('✅ URL에서 이미지 확장자 발견:', url);
+                return { valid: true };
+            } else {
+                console.warn('⚠️ URL에서 이미지 확장자를 찾을 수 없음:', url);
+                // 확장자가 없어도 일단 통과 (너무 엄격하지 않게)
                 return { valid: true };
             }
 
-            // 일반 URL의 이미지 확장자 검사 (쿼리 파라미터 제거 후 검사)
-            const pathname = urlObj.pathname.toLowerCase();
-            const validExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
-
-            // 쿼리 파라미터 제거 후 확장자 검사
-            const pathWithoutQuery = pathname.split('?')[0];
-            const hasValidExtension = validExtensions.some((ext) =>
-                pathWithoutQuery.endsWith(ext)
-            );
-
-            // 확장자가 없거나 의심스러운 경우 경고만 하고 통과
-            if (
-                !hasValidExtension &&
-                pathWithoutQuery !== '' &&
-                !pathWithoutQuery.endsWith('/')
-            ) {
-                console.warn(
-                    '이미지 파일 확장자가 감지되지 않았습니다:',
-                    pathWithoutQuery,
-                );
-                // 경고만 하고 검증은 통과 (너무 엄격하지 않게)
-            }
-
-            return { valid: true };
         } catch (error) {
             return { valid: false, error: '올바른 URL 형식이 아닙니다.' };
         }
