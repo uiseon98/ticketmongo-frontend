@@ -726,11 +726,11 @@ const ConcertForm = ({
 
             if (isEditMode && concert?.concertId) {
                 // ✅ 현재 이미지 삭제 (고유 파일명이므로 안전)
-                const deleteResult =
-                    await fileUploadService.deleteSpecificFile(currentUrlBase,
-                        concert.concertId,
-                        sellerId,
-                    );
+                const deleteResult = await fileUploadService.deleteSpecificFile(
+                    currentUrlBase,
+                    concert.concertId,
+                    sellerId,
+                );
 
                 if (deleteResult.success) {
                     // ✅ 세션 추적에서 제거

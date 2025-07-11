@@ -438,23 +438,36 @@ export const fileUploadService = {
                 };
             }
 
-            // 이미지 확장자 검사 (선택사항, URL에 확장자가 없을 수도 있음)
+            // S3 URL 특별 처리
+            if (urlObj.hostname.includes('amazonaws.com') ||
+                urlObj.hostname.includes('s3.') ||
+                urlObj.hostname.includes('supabase.co')) {
+                // S3/Supabase 등 클라우드 스토리지는 확장자 검사 생략하고 통과
+                console.log('✅ 클라우드 스토리지 URL 감지, 확장자 검사 생략:', urlObj.hostname);
+                return { valid: true };
+            }
+
+            // 일반 URL의 이미지 확장자 검사 (쿼리 파라미터 제거 후 검사)
             const pathname = urlObj.pathname.toLowerCase();
             const validExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+
+            // 쿼리 파라미터 제거 후 확장자 검사
+            const pathWithoutQuery = pathname.split('?')[0];
             const hasValidExtension = validExtensions.some((ext) =>
-                pathname.endsWith(ext),
+                pathWithoutQuery.endsWith(ext)
             );
 
             // 확장자가 없거나 의심스러운 경우 경고만 하고 통과
             if (
                 !hasValidExtension &&
-                pathname !== '' &&
-                !pathname.endsWith('/')
+                pathWithoutQuery !== '' &&
+                !pathWithoutQuery.endsWith('/')
             ) {
                 console.warn(
                     '이미지 파일 확장자가 감지되지 않았습니다:',
-                    pathname,
+                    pathWithoutQuery,
                 );
+                // 경고만 하고 검증은 통과 (너무 엄격하지 않게)
             }
 
             return { valid: true };
