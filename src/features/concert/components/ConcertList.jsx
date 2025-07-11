@@ -373,43 +373,60 @@ const ConcertList = ({
         <div className={`concert-list ${className}`} style={containerStyles}>
             {/* 정렬 옵션 */}
             {showSortOptions && onSortChange && (
-                <div style={{
-                    display: 'flex',
-                    justifyContent: 'flex-end',
-                    gap: '8px',
-                    marginBottom: '16px',
-                    padding: '12px',
-                    backgroundColor: '#374151',
-                    borderRadius: '8px',
-                    border: '1px solid #4B5563',
-                }}>
-                    <span style={{
-                        color: '#D1D5DB',
-                        fontSize: '14px',
-                        alignSelf: 'center',
-                        marginRight: '8px'
-                    }}>
+                <div
+                    style={{
+                        display: 'flex',
+                        justifyContent: 'flex-end',
+                        gap: '8px',
+                        marginBottom: '16px',
+                        padding: '12px',
+                        backgroundColor: '#374151',
+                        borderRadius: '8px',
+                        border: '1px solid #4B5563',
+                    }}
+                >
+                    <span
+                        style={{
+                            color: '#D1D5DB',
+                            fontSize: '14px',
+                            alignSelf: 'center',
+                            marginRight: '8px',
+                        }}
+                    >
                         정렬:
                     </span>
 
                     <button
                         onClick={() => {
-                            const newDir = sortBy === 'concertDate' && sortDir === 'asc' ? 'desc' : 'asc';
+                            const newDir =
+                                sortBy === 'concertDate' && sortDir === 'asc'
+                                    ? 'desc'
+                                    : 'asc';
                             onSortChange('concertDate', newDir);
                         }}
                         style={{
                             ...buttonBaseStyles,
-                            ...(sortBy === 'concertDate' ? activeButtonStyles : {}),
+                            ...(sortBy === 'concertDate'
+                                ? activeButtonStyles
+                                : {}),
                             fontSize: '12px',
                             padding: '6px 12px',
                         }}
                     >
-                        공연일자 {sortBy === 'concertDate' ? (sortDir === 'asc' ? '↑' : '↓') : ''}
+                        공연일자{' '}
+                        {sortBy === 'concertDate'
+                            ? sortDir === 'asc'
+                                ? '↑'
+                                : '↓'
+                            : ''}
                     </button>
 
                     <button
                         onClick={() => {
-                            const newDir = sortBy === 'title' && sortDir === 'asc' ? 'desc' : 'asc';
+                            const newDir =
+                                sortBy === 'title' && sortDir === 'asc'
+                                    ? 'desc'
+                                    : 'asc';
                             onSortChange('title', newDir);
                         }}
                         style={{
@@ -419,12 +436,20 @@ const ConcertList = ({
                             padding: '6px 12px',
                         }}
                     >
-                        제목 {sortBy === 'title' ? (sortDir === 'asc' ? '↑' : '↓') : ''}
+                        제목{' '}
+                        {sortBy === 'title'
+                            ? sortDir === 'asc'
+                                ? '↑'
+                                : '↓'
+                            : ''}
                     </button>
 
                     <button
                         onClick={() => {
-                            const newDir = sortBy === 'artist' && sortDir === 'asc' ? 'desc' : 'asc';
+                            const newDir =
+                                sortBy === 'artist' && sortDir === 'asc'
+                                    ? 'desc'
+                                    : 'asc';
                             onSortChange('artist', newDir);
                         }}
                         style={{
@@ -434,7 +459,12 @@ const ConcertList = ({
                             padding: '6px 12px',
                         }}
                     >
-                        아티스트 {sortBy === 'artist' ? (sortDir === 'asc' ? '↑' : '↓') : ''}
+                        아티스트{' '}
+                        {sortBy === 'artist'
+                            ? sortDir === 'asc'
+                                ? '↑'
+                                : '↓'
+                            : ''}
                     </button>
                 </div>
             )}

@@ -619,9 +619,10 @@ const SellerConcertList = ({
                                         이전
                                     </button>
 
-{(() => {
+                                    {(() => {
                                         const currentPage = pagination.page;
-                                        const totalPages = pagination.totalPages;
+                                        const totalPages =
+                                            pagination.totalPages;
                                         const maxVisible = 5;
 
                                         let startPage, endPage;
@@ -632,25 +633,53 @@ const SellerConcertList = ({
                                             endPage = totalPages - 1;
                                         } else {
                                             // 현재 페이지를 중심으로 앞뒤 2개씩 표시
-                                            startPage = Math.max(0, currentPage - 2);
-                                            endPage = Math.min(totalPages - 1, currentPage + 2);
+                                            startPage = Math.max(
+                                                0,
+                                                currentPage - 2,
+                                            );
+                                            endPage = Math.min(
+                                                totalPages - 1,
+                                                currentPage + 2,
+                                            );
 
                                             // 시작이나 끝에 치우쳐있으면 조정
-                                            if (endPage - startPage < maxVisible - 1) {
+                                            if (
+                                                endPage - startPage <
+                                                maxVisible - 1
+                                            ) {
                                                 if (startPage === 0) {
-                                                    endPage = Math.min(totalPages - 1, startPage + maxVisible - 1);
-                                                } else if (endPage === totalPages - 1) {
-                                                    startPage = Math.max(0, endPage - maxVisible + 1);
+                                                    endPage = Math.min(
+                                                        totalPages - 1,
+                                                        startPage +
+                                                            maxVisible -
+                                                            1,
+                                                    );
+                                                } else if (
+                                                    endPage ===
+                                                    totalPages - 1
+                                                ) {
+                                                    startPage = Math.max(
+                                                        0,
+                                                        endPage -
+                                                            maxVisible +
+                                                            1,
+                                                    );
                                                 }
                                             }
                                         }
 
                                         const pages = [];
-                                        for (let i = startPage; i <= endPage; i++) {
+                                        for (
+                                            let i = startPage;
+                                            i <= endPage;
+                                            i++
+                                        ) {
                                             pages.push(
                                                 <button
                                                     key={i}
-                                                    onClick={() => handlePageChange(i)}
+                                                    onClick={() =>
+                                                        handlePageChange(i)
+                                                    }
                                                     className={`px-3 py-1 text-sm border rounded ${
                                                         i === currentPage
                                                             ? 'bg-blue-600 text-white border-blue-600'
@@ -658,7 +687,7 @@ const SellerConcertList = ({
                                                     }`}
                                                 >
                                                     {i + 1}
-                                                </button>
+                                                </button>,
                                             );
                                         }
 

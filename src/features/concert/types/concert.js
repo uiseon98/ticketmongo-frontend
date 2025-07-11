@@ -41,7 +41,7 @@ export const ConcertSortOptions = [
     { value: 'concertDate', label: '공연일순' },
     { value: 'createdAt', label: '최신순' },
     { value: 'title', label: '제목순' },
-    { value: 'artist', label: '아티스트순' }
+    { value: 'artist', label: '아티스트순' },
 ];
 
 /**
@@ -49,7 +49,7 @@ export const ConcertSortOptions = [
  */
 export const SortDirectionOptions = [
     { value: 'asc', label: '오름차순' },
-    { value: 'desc', label: '내림차순' }
+    { value: 'desc', label: '내림차순' },
 ];
 
 /**

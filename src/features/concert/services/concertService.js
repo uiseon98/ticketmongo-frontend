@@ -20,7 +20,9 @@ export const concertService = {
      * @param {string} params.sortDir - 정렬 방향 (기본값: 'asc')
      * @returns {Promise<ApiResponse<PageResponse<Concert[]>>>}
      */
-    async getConcerts(params = { page: 0, size: 20, sortBy: 'concertDate', sortDir: 'asc' }) {
+    async getConcerts(
+        params = { page: 0, size: 20, sortBy: 'concertDate', sortDir: 'asc' },
+    ) {
         try {
             // axios의 params 옵션을 사용해 쿼리 파라미터 자동 생성
             const response = await apiClient.get('/concerts', { params });
@@ -30,7 +32,7 @@ export const concertService = {
                 size: params.size,
                 sortBy: params.sortBy,
                 sortDir: params.sortDir,
-                totalElements: response.data?.totalElements
+                totalElements: response.data?.totalElements,
             });
 
             return response;
