@@ -469,8 +469,7 @@ export const fileUploadService = {
 
             img.src = url;
         });
-    }
-};
+    },
 
     /**
      * 파일 크기를 사람이 읽기 쉬운 형태로 변환

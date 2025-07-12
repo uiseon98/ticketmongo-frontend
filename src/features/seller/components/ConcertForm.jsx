@@ -875,8 +875,8 @@ const ConcertForm = ({
 
     const handleImageLoadError = (e) => {
         console.error('이미지 로드 실패:', e.target.src);
-            setImageLoadError(true);
-        };
+        setImageLoadError(true);
+    };
 
     const handleImageLoadSuccess = () => {
         console.log('이미지 로드 성공');
@@ -919,7 +919,9 @@ const ConcertForm = ({
                                 <div className="absolute inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center">
                                     <div className="text-center text-white">
                                         <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-                                        <div className="text-xs">로딩 중...</div>
+                                        <div className="text-xs">
+                                            로딩 중...
+                                        </div>
                                     </div>
                                 </div>
                             )}
@@ -927,7 +929,9 @@ const ConcertForm = ({
                     ) : (
                         <div className="w-full h-full bg-gray-800 text-gray-400 flex flex-col items-center justify-center text-sm p-4">
                             <div className="text-center">
-                                <div className="text-red-400 mb-2 text-lg">⚠️</div>
+                                <div className="text-red-400 mb-2 text-lg">
+                                    ⚠️
+                                </div>
                                 <div className="text-xs leading-relaxed">
                                     이미지를 불러올 수<br />
                                     없습니다.
