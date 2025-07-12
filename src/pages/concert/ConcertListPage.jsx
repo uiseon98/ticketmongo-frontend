@@ -178,36 +178,39 @@ function ConcertListPage() {
                 padding: 0,
             }}
         >
+            {/* 🎯 반응형 컨테이너 - 패딩과 간격 최적화 */}
             <div
-                className="container mx-auto p-4 space-y-6"
+                className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 space-y-4 sm:space-y-6"
                 style={{
                     backgroundColor: '#0F172A',
                     minHeight: '100vh',
                     color: '#FFFFFF',
                 }}
             >
-                {/* 로딩 중일 때도 다크 테마 유지 */}
+                {/* 🎯 로딩 상태 - 반응형 개선 */}
                 {loading && (
                     <div
+                        className="flex justify-center items-center min-h-[200px] sm:min-h-[300px]"
                         style={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            minHeight: '200px',
                             backgroundColor: '#0F172A',
                             color: '#FFFFFF',
                         }}
                     >
-                        콘서트 목록을 불러오는 중...
+                        <div className="text-center">
+                            <div className="inline-block animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-b-2 border-white mb-4"></div>
+                            <p className="text-sm sm:text-base">콘서트 목록을 불러오는 중...</p>
+                        </div>
                     </div>
                 )}
-                <h1 className="text-3xl font-bold mb-6 text-center text-white">
+
+                {/* 🎯 메인 제목 - 반응형 크기 조정 */}
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-center text-white mb-4 sm:mb-6 px-4">
                     모든 콘서트
                 </h1>
 
-                {/* 검색 바 컴포넌트 */}
+                {/* 🎯 검색 바 섹션 - 모바일 최적화 */}
                 <div
-                    className="p-4 rounded-lg shadow-md"
+                    className="p-3 sm:p-4 lg:p-6 rounded-lg shadow-md"
                     style={{
                         backgroundColor: '#1E293B',
                         border: '1px solid #374151',
@@ -219,10 +222,11 @@ function ConcertListPage() {
                         loading={loading}
                         placeholder="콘서트 제목, 아티스트, 장소 검색..."
                         autoFocus={false}
+                        className="w-full" // SearchBar 내부에서 반응형 처리
                     />
                 </div>
 
-                {/* 필터 패널 컴포넌트 */}
+                {/* 🎯 필터 패널 - 모바일에서 접기/펼치기 고려 */}
                 <div
                     className="rounded-lg shadow-md"
                     style={{
@@ -232,56 +236,74 @@ function ConcertListPage() {
                 >
                     <FilterPanel
                         onFilter={handleFilter}
-                        onReset={handleShowAll} // 🔥 새로 추가된 prop
+                        onReset={handleShowAll}
                         initialFilters={initialFilters}
                         loading={loading}
-                        compact={false}
-                        hasActiveFilters={hasActiveFilters} // 🔥 새로 추가된 prop
+                        compact={false} // 모바일에서는 컴팩트 모드 고려
+                        hasActiveFilters={hasActiveFilters}
+                        className="w-full" // FilterPanel 내부에서 반응형 처리
                     />
                 </div>
 
-                {/* 검색/필터 결과 표시 */}
-                {concerts.length > 0 &&
-                    (hasActiveSearch || hasActiveFilters) && (
-                        <div
-                            className="p-4 rounded-lg border-l-4"
-                            style={{
-                                backgroundColor: '#1E293B',
-                                borderLeftColor: '#3B82F6',
-                                border: '1px solid #374151',
-                            }}
-                        >
-                            <div className="flex justify-between items-center">
-                                <div>
-                                    <h3 className="font-semibold text-blue-800 mb-1">
-                                        {hasActiveSearch && hasActiveFilters
-                                            ? `"${query}" 검색 결과 (필터 적용됨)`
-                                            : hasActiveSearch
-                                              ? `"${query}" 검색 결과`
-                                              : '필터링 결과'}
-                                    </h3>
-                                    <p className="text-sm text-blue-600">
-                                        총 {totalElements}개의 콘서트를
-                                        찾았습니다.
-                                        {hasActiveSearch &&
-                                            ` | 검색어: "${query}"`}
-                                        {startDate && ` | 시작일: ${startDate}`}
-                                        {endDate && ` | 종료일: ${endDate}`}
-                                    </p>
+                {/* 🎯 검색/필터 결과 표시 - 모바일 최적화 */}
+                {concerts.length > 0 && (hasActiveSearch || hasActiveFilters) && (
+                    <div
+                        className="p-3 sm:p-4 lg:p-6 rounded-lg border-l-4"
+                        style={{
+                            backgroundColor: '#1E293B',
+                            borderLeftColor: '#3B82F6',
+                            border: '1px solid #374151',
+                        }}
+                    >
+                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4">
+                            <div className="flex-1">
+                                <h3 className="font-semibold text-blue-300 mb-1 text-sm sm:text-base">
+                                    {hasActiveSearch && hasActiveFilters
+                                        ? `"${query}" 검색 결과 (필터 적용됨)`
+                                        : hasActiveSearch
+                                          ? `"${query}" 검색 결과`
+                                          : '필터링 결과'}
+                                </h3>
+                                <div className="text-xs sm:text-sm text-blue-200 space-y-1">
+                                    <p>총 {totalElements}개의 콘서트를 찾았습니다.</p>
+                                    {/* 🎯 모바일에서는 조건들을 세로로 나열 */}
+                                    <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-1 sm:space-y-0">
+                                        {hasActiveSearch && (
+                                            <span className="flex items-center gap-1">
+                                                <span className="text-blue-300">🔍</span>
+                                                검색어: "{query}"
+                                            </span>
+                                        )}
+                                        {startDate && (
+                                            <span className="flex items-center gap-1">
+                                                <span className="text-blue-300">📅</span>
+                                                시작일: {startDate}
+                                            </span>
+                                        )}
+                                        {endDate && (
+                                            <span className="flex items-center gap-1">
+                                                <span className="text-blue-300">📅</span>
+                                                종료일: {endDate}
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
-                                <button
-                                    onClick={handleShowAll}
-                                    className="text-blue-600 hover:text-blue-800 text-sm font-medium px-3 py-1 rounded border border-blue-300 hover:bg-blue-50 transition-colors"
-                                    disabled={loading}
-                                >
-                                    {loading ? '로딩중...' : '🏠 전체 보기'}
-                                </button>
                             </div>
-                        </div>
-                    )}
 
-                {/* 콘서트 목록 컴포넌트 */}
-                <div className="bg-white rounded-lg shadow-md">
+                            {/* 🎯 전체 보기 버튼 - 모바일에서 풀 너비 */}
+                            <button
+                                onClick={handleShowAll}
+                                className="w-full sm:w-auto text-blue-300 hover:text-blue-100 text-sm font-medium px-4 py-2 rounded-lg border border-blue-400 hover:bg-blue-900 hover:bg-opacity-30 transition-colors disabled:opacity-50"
+                                disabled={loading}
+                            >
+                                {loading ? '로딩중...' : '🏠 전체 보기'}
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* 🎯 콘서트 목록 - 반응형 그리드 적용 */}
+                <div className="bg-gray-800 rounded-lg shadow-md border border-gray-600">
                     <ConcertList
                         concerts={concerts}
                         loading={loading}
@@ -291,7 +313,7 @@ function ConcertListPage() {
                         onRetry={handleRefresh}
                         currentPage={currentPage}
                         totalPages={totalPages}
-                        showAiSummary={true} // AI 요약 표시
+                        showAiSummary={true}
                         showPagination={true}
                         sortBy={sortBy}
                         sortDir={sortDir}
@@ -306,27 +328,40 @@ function ConcertListPage() {
                                     ? '필터 조건에 맞는 콘서트가 없습니다.'
                                     : '등록된 콘서트가 없습니다.'
                         }
+                        // 🎯 ConcertList에 반응형 관련 props 추가
+                        responsive={true}
+                        className="w-full"
                     />
                 </div>
 
-                {/* 페이지 하단 정보 */}
-                <div className="text-center text-gray-500 text-sm">
-                    <p>
+                {/* 🎯 페이지 하단 정보 - 모바일 최적화 */}
+                <div className="text-center text-gray-400 text-xs sm:text-sm px-4">
+                    <div className="flex flex-col sm:flex-row sm:justify-center sm:items-center gap-2">
                         {hasActiveSearch || hasActiveFilters ? (
                             <>
-                                {hasActiveSearch && `"${query}" 검색`}
-                                {hasActiveSearch && hasActiveFilters && ' + '}
-                                {hasActiveFilters && '필터'} 결과: 총{' '}
-                                {totalElements}개의 콘서트 중 {currentPage + 1}{' '}
-                                / {totalPages} 페이지
+                                <div className="flex flex-wrap justify-center gap-1">
+                                    {hasActiveSearch && (
+                                        <span className="bg-blue-900 bg-opacity-50 px-2 py-1 rounded text-blue-200">
+                                            "{query}" 검색
+                                        </span>
+                                    )}
+                                    {hasActiveFilters && (
+                                        <span className="bg-green-900 bg-opacity-50 px-2 py-1 rounded text-green-200">
+                                            필터 적용
+                                        </span>
+                                    )}
+                                </div>
+                                <span className="hidden sm:inline">|</span>
+                                <span>
+                                    총 {totalElements}개 중 {currentPage + 1} / {totalPages} 페이지
+                                </span>
                             </>
                         ) : (
-                            <>
-                                총 {totalElements}개의 콘서트 중{' '}
-                                {currentPage + 1} / {totalPages} 페이지
-                            </>
+                            <span>
+                                총 {totalElements}개의 콘서트 중 {currentPage + 1} / {totalPages} 페이지
+                            </span>
                         )}
-                    </p>
+                    </div>
                 </div>
             </div>
         </div>
