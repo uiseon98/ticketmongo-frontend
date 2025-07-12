@@ -724,7 +724,6 @@ const ConcertForm = ({
         const urlValidation = fileUploadService.validateImageUrl(url);
         if (!urlValidation.valid) {
             setImageLoadError(true);
-            return;
         }
 
         console.log('⚠️ 이미지 로드 테스트 시작');
@@ -889,6 +888,10 @@ const ConcertForm = ({
             return null;
         }
 
+        // CloudFront URL인 경우 특별 처리
+        const isCloudFrontUrl =
+            formData.posterImageUrl.includes('cloudfront.net');
+
         return (
             <div className="mt-4">
                 <div className="flex items-center justify-between mb-2">
@@ -905,7 +908,28 @@ const ConcertForm = ({
                 </div>
 
                 <div className="w-32 h-48 border border-gray-600 rounded-lg overflow-hidden relative">
-                    {!imageLoadError ? (
+                    {isCloudFrontUrl ? (
+                        // CloudFront URL인 경우 대체 표시
+                        <div className="w-full h-full bg-gray-700 text-gray-300 flex flex-col items-center justify-center text-sm p-4">
+                            <div className="text-center">
+                                <div className="text-green-400 mb-2 text-lg">
+                                    ✅
+                                </div>
+                                <div className="text-xs leading-relaxed">
+                                    이미지 업로드 완료
+                                    <br />
+                                    <span className="text-green-400">
+                                        CloudFront URL
+                                    </span>
+                                    <br />
+                                    미리보기는 CORS 정책으로
+                                    <br />
+                                    제한됩니다
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        // 일반 URL인 경우 기존 로직
                         <>
                             <img
                                 src={formData.posterImageUrl}
