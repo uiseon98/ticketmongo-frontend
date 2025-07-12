@@ -438,22 +438,17 @@ export const fileUploadService = {
                 };
             }
 
-            // URL 전체에서 이미지 확장자 검색 (중간에 있어도 찾음)
-            const fullUrl = url.toLowerCase();
-            const validExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
-
-            const hasImageExtension = validExtensions.some(
-                (ext) => fullUrl.includes(ext), // 끝이 아니라 포함 여부로 검사
-            );
-
-            if (hasImageExtension) {
-                console.log('✅ URL에서 이미지 확장자 발견:', url);
-                return { valid: true };
-            } else {
-                console.warn('⚠️ URL에서 이미지 확장자를 찾을 수 없음:', url);
-                // 확장자가 없어도 일단 통과 (너무 엄격하지 않게)
-                return { valid: true };
+            if (
+                url.includes('cloudfront.net') ||
+                url.includes('amazonaws.com')
+            ) {
+                console.log(
+                    '✅ CloudFront URL 감지 - 검증 통과 (CORS 이슈는 정상)',
+                );
+                return { valid: true, isCloudFront: true };
             }
+
+            return { valid: true };
         } catch (error) {
             return { valid: false, error: '올바른 URL 형식이 아닙니다.' };
         }
@@ -469,6 +464,17 @@ export const fileUploadService = {
      */
     async testImageLoad(url, timeout = 5000) {
         return new Promise((resolve) => {
+            // CloudFront URL인 경우 테스트 건너뛰기
+            if (
+                url.includes('cloudfront.net') ||
+                url.includes('amazonaws.com')
+            ) {
+                console.log(
+                    '⚠️ CloudFront URL - CORS 정책으로 로드 테스트 건너뜀 (정상)',
+                );
+                resolve({ loadable: true, skipTest: true, isCloudFront: true });
+                return;
+            }
             const img = new Image();
             const timeoutId = setTimeout(() => {
                 resolve({
