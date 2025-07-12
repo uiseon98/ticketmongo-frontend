@@ -446,17 +446,6 @@ export const fileUploadService = {
      */
     async testImageLoad(url, timeout = 5000) {
         return new Promise((resolve) => {
-            // CloudFront URL인 경우 테스트 건너뛰기
-            if (
-                url.includes('cloudfront.net') ||
-                url.includes('amazonaws.com')
-            ) {
-                console.log(
-                    '⚠️ CloudFront URL - CORS 정책으로 로드 테스트 건너뜀 (정상)',
-                );
-                resolve({ loadable: true, skipTest: true, isCloudFront: true });
-                return;
-            }
             const img = new Image();
             const timeoutId = setTimeout(() => {
                 resolve({
