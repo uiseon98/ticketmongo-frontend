@@ -415,6 +415,11 @@ const ConcertForm = ({
 
     // ====== 폼 닫기 핸들러 ======
     const handleClose = async () => {
+        console.log('🚪 폼 닫기 시도:', {
+            isFormDirty: isFormDirty,
+            uploadedInSessionCount: uploadedInSession.length,
+            currentPosterUrl: formData.posterImageUrl,
+        });
         let shouldClose = true;
 
         // 변경사항이 있는 경우 확인
@@ -424,21 +429,23 @@ const ConcertForm = ({
                 : '작성 중인 내용이 있습니다. 정말 취소하시겠습니까?\n(업로드된 이미지가 있다면 삭제됩니다)';
 
             shouldClose = confirm(message);
+            console.log('🔍 폼 닫기 확인 결과:', shouldClose);
         }
 
         if (shouldClose) {
-            // ✅ 세션 중 업로드된 파일들 롤백
+            // 세션 중 업로드된 파일들 롤백
             if (uploadedInSession.length > 0) {
+                console.log('🔄 폼 닫기 - 세션 롤백 시작:', uploadedInSession);
                 await rollbackSessionUploads();
 
                 if (isEditMode) {
-                    // ✅ 수정 모드: 원본 URL로 복구 (완전한 복구!)
+                    // 수정 모드: 원본 URL로 복구 (완전한 복구!)
                     setFormData((prev) => ({
                         ...prev,
                         posterImageUrl: originalPosterUrl,
                     }));
 
-                    // ✅ 원본 URL이 있다면 DB도 원본으로 복구
+                    // 원본 URL이 있다면 DB도 원본으로 복구
                     if (originalPosterUrl && concert?.concertId) {
                         try {
                             await fileUploadService.restoreOriginalPoster(
@@ -459,6 +466,7 @@ const ConcertForm = ({
 
             // 진행 중인 업로드 정리
             fileUploadService.clearActiveUploads();
+            console.log('✅ 폼 닫기 완료');
             onClose();
         }
     };
@@ -467,6 +475,12 @@ const ConcertForm = ({
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validateForm()) return;
+
+        console.log('📤 폼 제출 시작:', {
+            isEditMode: isEditMode,
+            formData: formData,
+            uploadedInSession: uploadedInSession,
+        });
 
         setLoading(true);
         setSubmitError('');
@@ -477,28 +491,32 @@ const ConcertForm = ({
                 ? await updateConcert()
                 : await createConcert();
 
+            console.log('✅ 폼 제출 결과:', result);
+
             if (result && result.success !== false) {
                 setSubmitSuccess(
                     isEditMode
                         ? '콘서트가 수정되었습니다.'
                         : '콘서트가 성공적으로 등록되었습니다.',
                 );
-
-                // ✅ 성공 시 세션 추적 초기화 (더 이상 롤백하지 않음)
+                // 성공 시 세션 추적 초기화 (더 이상 롤백하지 않음)
                 setUploadedInSession([]);
                 setIsFormDirty(false);
+
+                console.log('✅ 폼 제출 성공 - 세션 상태 초기화 완료');
 
                 setTimeout(() => {
                     onSuccess && onSuccess(result.data);
                     onClose();
                 }, 1500);
             } else {
+                console.error('❌ 폼 제출 실패:', result?.message);
                 setSubmitError(
                     result?.message || '처리 중 오류가 발생했습니다.',
                 );
-
-                // ✅ 실패 시 롤백
+                // 실패 시 롤백
                 if (uploadedInSession.length > 0) {
+                    console.log('🔄 폼 제출 실패 - 롤백 시작');
                     await rollbackSessionUploads();
                     if (isEditMode) {
                         setFormData((prev) => ({
@@ -529,8 +547,9 @@ const ConcertForm = ({
         } catch (error) {
             setSubmitError('네트워크 오류가 발생했습니다.');
 
-            // ✅ 에러 시에도 롤백
+            // 에러 시에도 롤백
             if (uploadedInSession.length > 0) {
+                console.log('🔄 폼 제출 에러 - 롤백 시작');
                 await rollbackSessionUploads();
                 if (isEditMode) {
                     setFormData((prev) => ({
@@ -719,44 +738,68 @@ const ConcertForm = ({
 
     const handleRemoveUploadedImage = async () => {
         if (!formData.posterImageUrl) {
+            console.log('🔍 이미지 제거 시도 - 제거할 URL이 없음');
             return;
         }
+
+        console.log('🗑️ 이미지 제거 시작:', {
+            currentUrl: formData.posterImageUrl,
+            isEditMode: isEditMode,
+            concertId: concert?.concertId,
+            sellerId: sellerId,
+        });
 
         if (
             !confirm(
                 '포스터 이미지를 완전히 삭제하시겠습니까?\n(Supabase와 DB에서 모두 제거됩니다)',
             )
         ) {
+            console.log('🔍 이미지 제거 취소됨');
             return;
         }
 
         try {
-            // ✅ 현재 URL이 세션 중 업로드된 것인지 확인 (캐시 버스터 제거)
+            // 현재 URL이 세션 중 업로드된 것인지 확인 (캐시 버스터 제거)
             const currentUrlBase = formData.posterImageUrl.split('?')[0];
             const isSessionUpload = uploadedInSession.includes(currentUrlBase);
 
+            console.log('🔍 제거 대상 분석:', {
+                currentUrlBase: currentUrlBase,
+                isSessionUpload: isSessionUpload,
+                uploadedInSession: uploadedInSession,
+            });
+
             if (isEditMode && concert?.concertId) {
-                // ✅ 현재 이미지 삭제 (고유 파일명이므로 안전)
+                // 수정 모드에서 기존 콘서트 이미지 삭제
+                console.log('🗑️ 수정 모드 - 특정 파일 삭제 API 호출');
+
                 const deleteResult = await fileUploadService.deleteSpecificFile(
                     currentUrlBase,
                     concert.concertId,
                     sellerId,
                 );
 
+                console.log('🔍 삭제 API 응답:', deleteResult);
+
                 if (deleteResult.success) {
-                    // ✅ 세션 추적에서 제거
+                    // 세션 추적에서 제거
                     if (isSessionUpload) {
+                        console.log('🔄 세션 추적에서 제거');
                         setUploadedInSession((prev) =>
                             prev.filter((url) => url !== currentUrlBase),
                         );
                     }
 
-                    // 프론트엔드 상태 초기화
+                    // 핵심: 폼 상태 업데이트
+                    console.log(
+                        '🔄 폼 상태 업데이트 - posterImageUrl을 빈 문자열로 설정',
+                    );
                     setFormData((prev) => ({
                         ...prev,
                         posterImageUrl: '',
                     }));
 
+                    // 기타 상태 초기화
                     setImageLoadError(false);
                     setSelectedFile(null);
                     setFilePreview(null);
@@ -766,22 +809,25 @@ const ConcertForm = ({
                     }
 
                     setIsFormDirty(true);
+                    console.log('✅ 이미지 제거 완료 - 상태 업데이트됨');
                     alert('포스터 이미지가 완전히 삭제되었습니다.');
                 } else {
+                    console.error('❌ 삭제 API 실패:', deleteResult.message);
                     alert(`포스터 삭제 실패: ${deleteResult.message}`);
                 }
             } else {
                 // 생성 모드 또는 임시 업로드의 경우
+                console.log('🗑️ 생성 모드 - 임시 파일 삭제');
                 if (isSessionUpload) {
-                    // ✅ 세션에서 제거하고 실제 파일도 삭제
                     try {
                         await fileUploadService.deleteSpecificFile(
                             currentUrlBase,
                             null,
                             sellerId,
                         );
+                        console.log('✅ 임시 파일 삭제 완료');
                     } catch (error) {
-                        console.error('임시 파일 삭제 실패:', error);
+                        console.error('❌ 임시 파일 삭제 실패:', error);
                     }
 
                     setUploadedInSession((prev) =>
@@ -789,9 +835,11 @@ const ConcertForm = ({
                     );
                 }
 
+                // 폼 상태 업데이트
+                console.log('🔄 생성 모드 - 폼 상태 초기화');
                 setFormData((prev) => ({
                     ...prev,
-                    posterImageUrl: '',
+                    posterImageUrl: '', // null이 아닌 빈 문자열
                 }));
 
                 setImageLoadError(false);
@@ -803,8 +851,15 @@ const ConcertForm = ({
                     fileInputRef.current.value = '';
                 }
 
+                console.log('✅ 생성 모드 이미지 제거 완료');
                 alert('이미지가 제거되었습니다.');
             }
+            // 디버깅: 최종 상태 확인
+            console.log('🔍 이미지 제거 후 최종 상태:', {
+                posterImageUrl: formData.posterImageUrl,
+                uploadedInSession: uploadedInSession,
+                isFormDirty: isFormDirty,
+            });
         } catch (error) {
             console.error('❌ 포스터 삭제 중 오류:', error);
             alert('포스터 삭제 중 오류가 발생했습니다.');
