@@ -945,7 +945,6 @@ const ConcertForm = ({
             </div>
         );
     };
-
     // 모달 모드가 아닐 때는 isOpen 체크 안 함
     if (modal && !isOpen) return null;
 
