@@ -697,13 +697,19 @@ const ConcertForm = ({
         setImageLoadError(false);
         setImageLoadTesting(false);
 
-        // URL 형식만 검증하고, 실제 로드 테스트는 건너뛰기
-        if (url.trim()) {
-            const urlValidation = fileUploadService.validateImageUrl(url);
-            if (!urlValidation.valid) {
-                setImageLoadError(true);
-            }
+        // URL이 비어있으면 검증 스킵
+        if (!url.trim()) {
+            return;
         }
+
+        // URL 형식 검증
+        const urlValidation = fileUploadService.validateImageUrl(url);
+        if (!urlValidation.valid) {
+            setImageLoadError(true);
+            return;
+        }
+
+        console.log('⚠️ CORS 정책으로 인해 이미지 로드 테스트를 건너뜁니다.');
     };
 
     const handleRemoveUploadedImage = async () => {
@@ -800,12 +806,127 @@ const ConcertForm = ({
         }
     };
 
-    const handleImageLoadError = () => {
+    const handleImageLoadError = (e) => {
+        console.error('이미지 로드 실패:', e.target.src);
         setImageLoadError(true);
+
+        // CORS 에러인지 확인
+        if (e.target.src.includes('amazonaws.com')) {
+            console.warn('AWS S3 CORS 설정을 확인해주세요.');
+        }
     };
 
     const handleImageLoadSuccess = () => {
+        console.log('이미지 로드 성공');
         setImageLoadError(false);
+    };
+
+    // 이미지 미리보기 렌더링 부분 개선
+    const renderImagePreview = () => {
+        if (!formData.posterImageUrl || errors.posterImageUrl) {
+            return null;
+        }
+
+        return (
+            <div className="mt-4">
+                <div className="flex items-center justify-between mb-2">
+                    <p className="text-sm font-medium text-gray-200">
+                        미리보기
+                    </p>
+                    <button
+                        type="button"
+                        onClick={handleRemoveUploadedImage}
+                        className="text-xs text-red-400 hover:text-red-300 transition-colors"
+                    >
+                        이미지 제거
+                    </button>
+                </div>
+                <div className="w-32 h-48 border border-gray-600 rounded-lg overflow-hidden relative">
+                    {!imageLoadError ? (
+                        <>
+                            <img
+                                src={formData.posterImageUrl}
+                                alt="포스터 미리보기"
+                                className="w-full h-full object-cover"
+                                onError={handleImageLoadError}
+                                onLoad={handleImageLoadSuccess}
+                                crossOrigin="anonymous" // CORS 시도
+                            />
+                            {imageLoadTesting && (
+                                <div className="absolute inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center">
+                                    <div className="text-center text-white">
+                                        <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+                                        <div className="text-xs">
+                                            로딩 중...
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </>
+                    ) : (
+                        <div className="w-full h-full bg-gray-800 text-gray-400 flex flex-col items-center justify-center text-sm p-4">
+                            <div className="text-center">
+                                <div className="text-red-400 mb-2 text-lg">
+                                    ⚠️
+                                </div>
+                                <div className="text-xs leading-relaxed">
+                                    이미지를 불러올 수<br />
+                                    없습니다.
+                                    <br />
+                                    {formData.posterImageUrl.includes(
+                                        'amazonaws.com',
+                                    ) ? (
+                                        <>
+                                            S3 CORS 설정을
+                                            <br />
+                                            확인해주세요.
+                                        </>
+                                    ) : (
+                                        <>URL을 확인해주세요.</>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                {imageLoadError && (
+                    <div className="mt-2 p-3 bg-yellow-800 border border-yellow-600 rounded text-yellow-200 text-sm">
+                        <div className="flex items-center gap-2">
+                            <span>⚠️</span>
+                            <div>
+                                <div className="font-medium">
+                                    이미지 로드 실패
+                                </div>
+                                <div className="text-xs mt-1 text-yellow-300">
+                                    {formData.posterImageUrl.includes(
+                                        'amazonaws.com',
+                                    ) ? (
+                                        <>
+                                            • AWS S3 CORS 설정이 필요합니다
+                                            <br />
+                                            • 버킷 정책에서 public read 권한을
+                                            확인하세요
+                                            <br />• 파일 업로드를 이용하시는
+                                            것을 권장합니다
+                                        </>
+                                    ) : (
+                                        <>
+                                            • URL이 올바른지 확인해주세요
+                                            <br />
+                                            • 외부 사이트의 경우 접근 제한이
+                                            있을 수 있습니다
+                                            <br />• 파일 업로드를 이용하시는
+                                            것을 권장합니다
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+        );
     };
 
     // 모달 모드가 아닐 때는 isOpen 체크 안 함
@@ -1358,66 +1479,9 @@ const ConcertForm = ({
                         있습니다.
                     </p>
 
-                    {formData.posterImageUrl && !errors.posterImageUrl && (
-                        <div className="mt-4">
-                            <div className="flex items-center justify-between mb-2">
-                                <p className="text-sm font-medium text-gray-200">
-                                    미리보기
-                                </p>
-                                <button
-                                    type="button"
-                                    onClick={handleRemoveUploadedImage}
-                                    className="text-xs text-red-400 hover:text-red-300 transition-colors"
-                                >
-                                    이미지 제거
-                                </button>
-                            </div>
-                            <div className="w-32 h-48 border border-gray-600 rounded-lg overflow-hidden relative">
-                                {!imageLoadError ? (
-                                    <>
-                                        <img
-                                            src={formData.posterImageUrl}
-                                            alt="포스터 미리보기"
-                                            className="w-full h-full object-cover"
-                                            onError={handleImageLoadError}
-                                            onLoad={handleImageLoadSuccess}
-                                        />
-                                        {imageLoadTesting && (
-                                            <div className="absolute inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center">
-                                                <div className="text-center text-white">
-                                                    <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-                                                    <div className="text-xs">
-                                                        로딩 중...
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </>
-                                ) : (
-                                    <div className="w-full h-full bg-gray-800 text-gray-400 flex flex-col items-center justify-center text-sm p-4">
-                                        <div className="text-center">
-                                            <div className="text-red-400 mb-2 text-lg">
-                                                ⚠️
-                                            </div>
-                                            <div className="text-xs leading-relaxed">
-                                                이미지를 불러올 수<br />
-                                                없습니다.
-                                                <br />
-                                                URL을 확인해주세요.
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-
-                            {imageLoadError && (
-                                <div className="mt-2 text-xs text-blue-400">
-                                    💡 파일 업로드를 이용하면 더 안정적으로
-                                    이미지를 등록할 수 있습니다.
-                                </div>
-                            )}
-                        </div>
-                    )}
+                    {formData.posterImageUrl &&
+                        !errors.posterImageUrl &&
+                        renderImagePreview()}
                 </div>
             </div>
 
