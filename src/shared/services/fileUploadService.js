@@ -442,8 +442,8 @@ export const fileUploadService = {
             const fullUrl = url.toLowerCase();
             const validExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
 
-            const hasImageExtension = validExtensions.some(ext =>
-                fullUrl.includes(ext)  // 끝이 아니라 포함 여부로 검사
+            const hasImageExtension = validExtensions.some(
+                (ext) => fullUrl.includes(ext), // 끝이 아니라 포함 여부로 검사
             );
 
             if (hasImageExtension) {
@@ -454,7 +454,6 @@ export const fileUploadService = {
                 // 확장자가 없어도 일단 통과 (너무 엄격하지 않게)
                 return { valid: true };
             }
-
         } catch (error) {
             return { valid: false, error: '올바른 URL 형식이 아닙니다.' };
         }
