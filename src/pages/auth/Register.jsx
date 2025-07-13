@@ -370,13 +370,13 @@ export default function Register() {
 
                             {/* 이용약관 동의 */}
                             <div className="bg-gray-700/50 p-4 rounded-lg border border-gray-600">
-                                <div className="flex items-start space-x-3">
+                                <div className="flex items-center space-x-3">
                                     <input
                                         type="checkbox"
                                         id="terms"
                                         checked={agreeTerms}
                                         onChange={(e) => setAgreeTerms(e.target.checked)}
-                                        className="mt-1 w-4 h-4 text-blue-600 bg-gray-800 border-gray-600 rounded focus:ring-blue-500 focus:ring-2"
+                                        className="w-4 h-4 text-blue-600 bg-gray-800 border-gray-600 rounded focus:ring-blue-500 focus:ring-2"
                                     />
                                     <label htmlFor="terms" className="text-sm text-gray-300">
                                         <span className="text-blue-400 hover:text-blue-300 cursor-pointer transition-colors">

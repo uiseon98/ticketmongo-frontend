@@ -183,7 +183,7 @@ export default function Login() {
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-3 bottom-3 text-gray-400 hover:text-gray-300 transition-colors"
+                                    className="absolute right-3 bottom-0 text-gray-400 hover:text-gray-300 transition-colors"
                                 >
                                     {showPassword ? (
                                         <EyeOff className="w-5 h-5" />
