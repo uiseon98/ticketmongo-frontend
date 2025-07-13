@@ -105,8 +105,8 @@ export const useSeatReservation = (concertId, options = {}) => {
             const stableManager = createStablePollingManager(concertId, {
                 onUpdate: (seatUpdates) => {
                     console.log('🔥 좌석 업데이트 수신:', seatUpdates);
-                    // 전체 새로고침 대신 부분 업데이트 사용
-                    updateSeatStatuses(seatUpdates);
+                    // 부분 업데이트 대신 전체 새로고침 사용하여 누락 방지
+                    refreshSeatStatuses();
                 },
                 onError: (error) => {
                     console.error('🔥 폴링 에러:', error);
