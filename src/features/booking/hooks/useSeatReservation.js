@@ -47,9 +47,33 @@ export const useSeatReservation = (concertId, options = {}) => {
             );
             setSelectedSeats(myReservedSeats);
         } catch (err) {
-            setError(err.message || '좌석 정보를 새로고침하지 못했습니다.');
+            setError(err.message || '좌석 정보를 가져오는 중 문제가 발생했습니다.');
         }
     }, [concertId]);
+
+    // 좌석 상태 부분 업데이트 함수 (실시간 폴링용)
+    const updateSeatStatuses = useCallback((seatUpdates) => {
+        console.log('🔥 좌석 상태 부분 업데이트:', seatUpdates);
+        
+        setSeatStatuses(prevSeats => {
+            const updatedSeats = [...prevSeats];
+            
+            // 받은 업데이트 데이터로 해당 좌석들만 업데이트
+            seatUpdates.forEach(updatedSeat => {
+                const index = updatedSeats.findIndex(seat => seat.seatId === updatedSeat.seatId);
+                if (index !== -1) {
+                    updatedSeats[index] = { ...updatedSeats[index], ...updatedSeat };
+                    console.log(`🔥 좌석 ${updatedSeat.seatId} 상태 업데이트: ${updatedSeats[index].status}`);
+                }
+            });
+            
+            // 내가 선점한 좌석 목록도 함께 업데이트
+            const myReservedSeats = updatedSeats.filter(s => s.isReservedByCurrentUser);
+            setSelectedSeats(myReservedSeats);
+            
+            return updatedSeats;
+        });
+    }, []);
 
     // 폴링 시스템 시작 함수
     const startPolling = useCallback(async () => {
@@ -82,7 +106,8 @@ export const useSeatReservation = (concertId, options = {}) => {
             const stableManager = createStablePollingManager(concertId, {
                 onUpdate: (seatUpdates) => {
                     console.log('🔥 좌석 업데이트 수신:', seatUpdates);
-                    refreshSeatStatuses();
+                    // 전체 새로고침 대신 부분 업데이트 사용
+                    updateSeatStatuses(seatUpdates);
                 },
                 onError: (error) => {
                     console.error('🔥 폴링 에러:', error);
@@ -155,7 +180,7 @@ export const useSeatReservation = (concertId, options = {}) => {
             // 시작 플래그 해제
             isStartingPollingRef.current = false;
         }
-    }, [concertId, isPolling, enablePolling, refreshSeatStatuses]);
+    }, [concertId, isPolling, enablePolling, refreshSeatStatuses, updateSeatStatuses]);
 
     // 폴링 사이클 실행 함수 (폴백용 - 일반 새로고침 모드)
     const executePollingCycle = useCallback(async () => {
@@ -251,11 +276,11 @@ export const useSeatReservation = (concertId, options = {}) => {
                     await releaseSeat(concertId, seat.seatId);
                 } else {
                     if (seat.status !== 'AVAILABLE')
-                        throw new Error('선택 불가 좌석');
-                    if (selectedSeats.length >= MAX_SEATS_SELECTABLE)
-                        throw new Error(
-                            `최대 ${MAX_SEATS_SELECTABLE}석 선택 가능`,
-                        );
+                        throw new Error('이미 선택된 좌석입니다');
+                    if (selectedSeats.length >= MAX_SEATS_SELECTABLE) {
+                        alert('좌석은 최대 2개까지 선점할 수 있습니다.');
+                        return;
+                    }
                     await reserveSeat(concertId, seat.seatId);
                 }
                 await refreshSeatStatuses(); // 상태 동기화
