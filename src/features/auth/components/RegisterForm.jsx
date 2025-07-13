@@ -41,7 +41,7 @@ export function SignupInput({
                     <button
                         type="button"
                         onClick={onToggle}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300" style={{marginTop: '1px'}}
                     >
                         {showValue ? (
                             <EyeOff className="w-5 h-5" />

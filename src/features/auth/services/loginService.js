@@ -1,5 +1,6 @@
 // 기존 src/services/auth.js의 로그인/소셜 로그인 함수와 src/context/AuthContext.jsx에서 직접 호출하던 사용자 인증 및 로그아웃 관련 API 로직을 이곳으로 통합합니다.
 import apiClient from '../../../shared/utils/apiClient'; // 공통 apiClient 임포트
+const API_BASE_URL = import.meta.env.VITE_APP_API_URL;
 
 /**
  * 사용자 로그인을 처리합니다.
@@ -40,7 +41,7 @@ export const socialLoginUser = (provider) => {
     // socialLoginUser는 브라우저 리다이렉트가 필요하므로 apiClient를 직접 사용하지 않습니다.
     // .env 파일의 VITE_APP_API_URL을 활용하여 백엔드 소셜 로그인 엔드포인트로 이동합니다.
     // API URL에서 '/api' 부분을 제거하여 기본 백엔드 URL을 만듭니다.
-    window.location.href = `${import.meta.env.VITE_APP_API_URL.replace('/api', '')}/oauth2/authorization/${provider}`;
+    window.location.href = `${API_BASE_URL.replace(/\/api$/, '')}/oauth2/authorization/${provider}`;
 };
 
 /**
