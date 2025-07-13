@@ -150,8 +150,17 @@ export default function App() {
     return (
         <div className="min-h-screen bg-gray-900">
             <Routes>
-                {/* ===== 인증 전용 라우트 ===== */}
-                <Route element={<AuthLayout />}>
+                {/* ===== 공개 페이지 라우트 ===== */}
+                <Route element={<PublicLayout />}>
+                    <Route path="/" element={<HomePage />} />
+                    <Route path="concerts" element={<ConcertListPage />} />
+                    <Route path="concerts/:concertId" element={<ConcertDetailPage />} />
+                    {PaymentRoutes()}
+                </Route>
+
+                {/* ===== 로그인 후 보호된 페이지 + 로그인/회원가입 (MainLayout 사용) ===== */}
+                <Route element={<MainLayout />}>
+                    {/* 로그인/회원가입 페이지 - 마이페이지와 동일한 레이아웃 */}
                     <Route
                         path="/login"
                         element={
@@ -174,18 +183,7 @@ export default function App() {
                             </ProtectedRoute>
                         }
                     />
-                </Route>
 
-                {/* ===== 공개 페이지 라우트 ===== */}
-                <Route element={<PublicLayout />}>
-                    <Route path="/" element={<HomePage />} />
-                    <Route path="concerts" element={<ConcertListPage />} />
-                    <Route path="concerts/:concertId" element={<ConcertDetailPage />} />
-                    {PaymentRoutes()}
-                </Route>
-
-                {/* ===== 로그인 후 보호된 페이지 (MainLayout 사용) ===== */}
-                <Route element={<MainLayout />}>
                     {/* 예매 관련 페이지 */}
                     <Route
                         path="concerts/:concertId/wait"

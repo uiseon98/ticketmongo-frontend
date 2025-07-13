@@ -11,7 +11,35 @@ import { registerInputType } from '../../features/auth/types/registerInputType';
 import { NotificationSection } from '../../features/user/components/BookingDetail/NotificationSection';
 import { NOTIFICATION_TYPE } from '../../features/user/services/bookingDetailService';
 
+// 반응형 Hook (Profile.jsx와 동일)
+const useResponsive = () => {
+    const [isMobile, setIsMobile] = useState(false);
+    const [screenWidth, setScreenWidth] = useState(
+        typeof window !== 'undefined' ? window.innerWidth : 1200
+    );
+
+    useEffect(() => {
+        const handleResize = () => {
+            const width = window.innerWidth;
+            setScreenWidth(width);
+            setIsMobile(width <= 768);
+        };
+
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    return {
+        isMobile,
+        isTablet: screenWidth <= 1024 && screenWidth > 768,
+        isDesktop: screenWidth > 1024,
+        screenWidth
+    };
+};
+
 export default function Register() {
+    const { isMobile, isTablet } = useResponsive();
     const [formData, setFormData] = useState({
         email: '',
         username: '',
@@ -174,136 +202,231 @@ export default function Register() {
     };
 
     return (
-        <div className="w-full max-w-md sm:max-w-lg bg-gray-800 p-8 sm:p-10 rounded-lg shadow-2xl space-y-8 transition-all">
-            {/* 알림 */}
-            {notification && (
-                <NotificationSection notification={notification} />
-            )}
-
-            {/* Title */}
-            <div className="text-center">
-                <h1 className="text-3xl font-bold text-white">계정 만들기</h1>
-                <p className="text-gray-400 text-sm mt-1">
-                    커뮤니티에 참여하고 안전하게 티켓 거래를 시작하세요
-                </p>
-            </div>
-
-            {/* Signup Form Fields */}
-            {registerInputType.map(
-                ({
-                    name,
-                    type,
-                    icon,
-                    placeholder,
-                    placeholderFull,
-                    toggle,
-                }) => (
-                    <SignupInput
-                        key={name}
-                        icon={icon}
-                        name={name}
-                        type={type}
-                        placeholder={placeholder}
-                        placeholderFull={placeholderFull}
-                        value={formData[name]}
-                        error={errors[name]}
-                        onChange={handleInputChange(name)}
-                        showToggle={toggle}
-                        showValue={
-                            name === 'password'
-                                ? showPassword
-                                : name === 'confirmPassword'
-                                  ? showConfirmPassword
-                                  : false
-                        }
-                        onToggle={() =>
-                            name === 'password'
-                                ? setShowPassword((prev) => !prev)
-                                : name === 'confirmPassword'
-                                  ? setShowConfirmPassword((prev) => !prev)
-                                  : null
-                        }
-                    />
-                ),
-            )}
-
-            {/* 프로필 이미지 업로드 */}
-            <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                    프로필 이미지
-                </label>
-                <div className="flex items-center space-x-4">
-                    <div className="w-16 h-16 bg-orange-300 rounded-full flex items-center justify-center overflow-hidden">
-                        {profilePreview ? (
-                            <img
-                                src={profilePreview}
-                                alt="Profile"
-                                className="w-full h-full object-cover"
-                            />
-                        ) : (
-                            <User className="w-8 h-8 text-orange-600" />
-                        )}
-                    </div>
-                    <label className="flex items-center space-x-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg cursor-pointer transition">
-                        <Upload className="w-4 h-4 text-gray-300" />
-                        <span className="text-gray-300 text-sm">
-                            파일 업로드
-                        </span>
-                        <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleFileUpload}
-                            className="hidden"
-                        />
-                    </label>
-                </div>
-            </div>
-
-            {/* 이용약관 동의 */}
-            <div className="flex items-start space-x-3">
-                <input
-                    type="checkbox"
-                    id="terms"
-                    checked={agreeTerms}
-                    onChange={(e) => setAgreeTerms(e.target.checked)}
-                    className="mt-1 w-4 h-4 text-blue-600 bg-gray-800 border-gray-600 rounded focus:ring-blue-500 focus:ring-2"
-                />
-                <label htmlFor="terms" className="text-sm text-gray-400">
-                    <span className="text-blue-400 hover:text-blue-300 cursor-pointer">
-                        이용약관
-                    </span>{' '}
-                    및{' '}
-                    <span className="text-blue-400 hover:text-blue-300 cursor-pointer">
-                        개인정보처리방침
-                    </span>
-                    에 동의합니다
-                </label>
-            </div>
-
-            {/* 회원가입 버튼 */}
-            <button
-                onClick={handleRegister}
-                disabled={isLoading || !agreeTerms}
-                className={`w-full font-medium py-3 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    isLoading || !agreeTerms
-                        ? 'bg-gray-600 cursor-not-allowed text-white'
-                        : 'bg-blue-600 hover:bg-blue-700 text-white'
-                }`}
+        <div
+            style={{
+                backgroundColor: '#111827', // gray-900
+                minHeight: '100vh',
+                width: '100vw',
+                margin: 0,
+                padding: 0,
+                overflowX: 'hidden',
+            }}
+        >
+            <div
+                className={isMobile
+                    ? "p-4 overflow-x-hidden"
+                    : isTablet
+                        ? "max-w-5xl mx-auto p-4 overflow-x-hidden"
+                        : "max-w-7xl mx-auto p-6 overflow-x-hidden"
+                }
+                style={{
+                    backgroundColor: '#111827',
+                    minHeight: '100vh',
+                    color: '#FFFFFF',
+                    boxSizing: 'border-box',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                }}
             >
-                {isLoading ? '처리 중...' : '계정 만들기'}
-            </button>
+                {/* 알림 */}
+                {notification && (
+                    <div className="fixed top-4 right-4 z-50">
+                        <NotificationSection notification={notification} />
+                    </div>
+                )}
 
-            {/* 로그인 링크 */}
-            <div className="text-center">
-                <p className="text-gray-400 text-sm">
-                    이미 계정이 있으신가요?{' '}
-                    <button
-                        onClick={() => navigate('/login')}
-                        className="text-blue-400 hover:text-blue-300 font-medium transition"
+                {/* Page Title */}
+                <div className="text-center mb-8">
+                    <h2
+                        className={isMobile
+                            ? "text-2xl font-bold mb-2 break-words"
+                            : isTablet
+                                ? "text-3xl font-bold mb-2 break-words"
+                                : "text-4xl font-bold mb-2 break-words"
+                        }
+                        style={{
+                            color: '#FFFFFF',
+                            wordBreak: 'keep-all',
+                            overflowWrap: 'break-word',
+                        }}
                     >
-                        로그인
-                    </button>
-                </p>
+                        계정 만들기
+                    </h2>
+                    <p
+                        className="text-gray-400"
+                        style={{
+                            fontSize: isMobile ? '14px' : '16px',
+                            padding: isMobile ? '0 16px' : '0',
+                        }}
+                    >
+                        커뮤니티에 참여하고 안전하게 티켓 거래를 시작하세요
+                    </p>
+                </div>
+
+                {/* Content Area - Profile.jsx와 동일한 카드 스타일 */}
+                <div
+                    className="w-full"
+                    style={{
+                        maxWidth: isMobile ? '100%' : isTablet ? '600px' : '700px',
+                    }}
+                >
+                    <div
+                        className="rounded-2xl"
+                        style={{
+                            backgroundColor: '#1f2937', // gray-800
+                            border: '1px solid #374151', // gray-700
+                            padding: isMobile ? '20px' : isTablet ? '24px' : '32px',
+                        }}
+                    >
+                        <div className="space-y-6">
+                            {/* Signup Form Fields */}
+                            {registerInputType.map(
+                                ({
+                                    name,
+                                    type,
+                                    icon,
+                                    placeholder,
+                                    placeholderFull,
+                                    toggle,
+                                }) => (
+                                    <div key={name} className="space-y-2">
+                                        <SignupInput
+                                            icon={icon}
+                                            name={name}
+                                            type={type}
+                                            placeholder={placeholder}
+                                            placeholderFull={placeholderFull}
+                                            value={formData[name]}
+                                            error={errors[name]}
+                                            onChange={handleInputChange(name)}
+                                            showToggle={toggle}
+                                            showValue={
+                                                name === 'password'
+                                                    ? showPassword
+                                                    : name === 'confirmPassword'
+                                                      ? showConfirmPassword
+                                                      : false
+                                            }
+                                            onToggle={() =>
+                                                name === 'password'
+                                                    ? setShowPassword((prev) => !prev)
+                                                    : name === 'confirmPassword'
+                                                      ? setShowConfirmPassword((prev) => !prev)
+                                                      : null
+                                            }
+                                        />
+                                    </div>
+                                ),
+                            )}
+
+                            {/* 프로필 이미지 업로드 */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-300 mb-3">
+                                    프로필 이미지
+                                </label>
+                                <div className="flex items-center space-x-4">
+                                    <div className="w-16 h-16 bg-orange-300 rounded-full flex items-center justify-center overflow-hidden border-2 border-gray-600">
+                                        {profilePreview ? (
+                                            <img
+                                                src={profilePreview}
+                                                alt="Profile Preview"
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <User className="w-8 h-8 text-orange-600" />
+                                        )}
+                                    </div>
+                                    <label className="flex items-center space-x-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg cursor-pointer transition-colors border border-gray-600">
+                                        <Upload className="w-4 h-4 text-gray-300" />
+                                        <span className="text-gray-300 text-sm font-medium">
+                                            파일 업로드
+                                        </span>
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleFileUpload}
+                                            className="hidden"
+                                        />
+                                    </label>
+                                    {profilePreview && (
+                                        <button
+                                            onClick={() => {
+                                                setProfileImage(null);
+                                                setProfilePreview(null);
+                                            }}
+                                            className="p-2 text-red-400 hover:text-red-300 hover:bg-red-900/20 rounded-lg transition-colors"
+                                            title="이미지 제거"
+                                        >
+                                            <X className="w-4 h-4" />
+                                        </button>
+                                    )}
+                                </div>
+                                <p className="text-xs text-gray-500 mt-2">
+                                    JPG, PNG 파일만 업로드 가능 (최대 5MB)
+                                </p>
+                            </div>
+
+                            {/* 이용약관 동의 */}
+                            <div className="bg-gray-700/50 p-4 rounded-lg border border-gray-600">
+                                <div className="flex items-start space-x-3">
+                                    <input
+                                        type="checkbox"
+                                        id="terms"
+                                        checked={agreeTerms}
+                                        onChange={(e) => setAgreeTerms(e.target.checked)}
+                                        className="mt-1 w-4 h-4 text-blue-600 bg-gray-800 border-gray-600 rounded focus:ring-blue-500 focus:ring-2"
+                                    />
+                                    <label htmlFor="terms" className="text-sm text-gray-300">
+                                        <span className="text-blue-400 hover:text-blue-300 cursor-pointer transition-colors">
+                                            이용약관
+                                        </span>
+                                        {' '}및{' '}
+                                        <span className="text-blue-400 hover:text-blue-300 cursor-pointer transition-colors">
+                                            개인정보처리방침
+                                        </span>
+                                        에 동의합니다
+                                    </label>
+                                </div>
+                            </div>
+
+                            {/* 회원가입 버튼 */}
+                            <button
+                                onClick={handleRegister}
+                                disabled={isLoading || !agreeTerms}
+                                className={`w-full font-medium py-3 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-center space-x-2 ${
+                                    isLoading || !agreeTerms
+                                        ? 'bg-gray-600 cursor-not-allowed text-gray-300'
+                                        : 'bg-blue-600 hover:bg-blue-700 text-white'
+                                }`}
+                            >
+                                {isLoading && (
+                                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                )}
+                                <span>{isLoading ? '처리 중...' : '계정 만들기'}</span>
+                            </button>
+
+                            {/* 로그인 링크 */}
+                            <div className="text-center pt-6 mt-6 border-t border-gray-600">
+                                <p className="text-gray-400 text-sm">
+                                    이미 계정이 있으신가요?{' '}
+                                    <button
+                                        onClick={() => navigate('/login')}
+                                        className="text-blue-400 hover:text-blue-300 font-medium transition-colors"
+                                    >
+                                        로그인
+                                    </button>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* 모바일에서 하단 여백 */}
+                {isMobile && (
+                    <div className="h-16" aria-hidden="true"></div>
+                )}
             </div>
         </div>
     );
