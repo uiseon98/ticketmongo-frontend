@@ -1,6 +1,6 @@
 // src/features/booking/components/SeatMap.jsx
 
-import React from 'react';
+import React, { useState } from 'react';
 
 // 좌석 상태에 따라 다른 Tailwind CSS 클래스를 반환하는 헬퍼 함수
 const getSeatStatusClass = (status, isSelected) => {
@@ -21,7 +21,9 @@ export default function SeatMap({
     seatStatuses = [],
     selectedSeats = [],
     onSeatClick,
+    isReserving = false,
 }) {
+    const [blinkingSeat, setBlinkingSeat] = useState(null);
     // 1. 좌석 데이터를 '섹션 > 열 > 좌석 배열' 구조로 그룹핑합니다.
     const sections = seatStatuses.reduce((acc, seat) => {
         const [section, row, numStr] = seat.seatInfo.split('-');
@@ -33,6 +35,21 @@ export default function SeatMap({
     }, {});
 
     const selectedSeatIds = new Set(selectedSeats.map((s) => s.seatId));
+
+    const handleSeatClick = (seat) => {
+        if (onSeatClick) {
+            setBlinkingSeat(seat.seatId);
+            onSeatClick(seat);
+        }
+    };
+
+    // isReserving이 false가 되면 깜빡임 중지
+    React.useEffect(() => {
+        if (!isReserving && blinkingSeat) {
+            const timer = setTimeout(() => setBlinkingSeat(null), 300);
+            return () => clearTimeout(timer);
+        }
+    }, [isReserving, blinkingSeat]);
 
     return (
         <div className="bg-[#22222C] p-4 sm:p-6 rounded-lg h-full">
@@ -73,13 +90,9 @@ export default function SeatMap({
                                                             key={seat.seatId}
                                                             className={`w-8 h-8 flex items-center justify-center text-xs font-bold text-white rounded-md transition-transform active:scale-90
                                                                 ${getSeatStatusClass(seat.status, selectedSeatIds.has(seat.seatId))}
+                                                                ${blinkingSeat === seat.seatId ? 'animate-pulse' : ''}
                                                             `}
-                                                            onClick={() =>
-                                                                onSeatClick &&
-                                                                onSeatClick(
-                                                                    seat,
-                                                                )
-                                                            }
+                                                            onClick={() => handleSeatClick(seat)}
                                                         >
                                                             {seat.num}
                                                         </div>
