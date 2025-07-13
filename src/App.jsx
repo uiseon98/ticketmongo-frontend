@@ -1,6 +1,6 @@
 // 루트 컴포넌트 - 콘서트 페이지와 통일된 디자인
 
-import React, { useContext } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 
 // 스타일 import
@@ -52,14 +52,64 @@ import NotFoundPage from './pages/NotFoundPage.jsx';
 import UnauthorizedAccessPage from './pages/UnauthorizedAccessPage';
 
 // 로딩 컴포넌트 (콘서트 페이지와 통일된 스타일)
-const LoadingComponent = () => (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="text-center">
-            <div className="loading-spinner mx-auto mb-4"></div>
-            <div className="loading-text">앱을 초기화하는 중...</div>
+// ✅ App.jsx에서 LoadingComponent 수정
+const LoadingComponent = () => {
+    const [isMobile, setIsMobile] = useState(false);
+    const [isTablet, setIsTablet] = useState(false);
+
+    useEffect(() => {
+        const handleResize = () => {
+            const width = window.innerWidth;
+            setIsMobile(width <= 768);
+            setIsTablet(width <= 1024 && width > 768);
+        };
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    return (
+        <div style={{
+            backgroundColor: '#111827',
+            minHeight: '100vh',
+            width: '100vw',
+            margin: 0,
+            padding: 0,
+            overflowX: 'hidden',
+        }}>
+            <div
+                className={isMobile
+                    ? "p-4 overflow-x-hidden"
+                    : isTablet
+                        ? "max-w-4xl mx-auto p-4 overflow-x-hidden"
+                        : "max-w-6xl mx-auto p-6 overflow-x-hidden"
+                }
+                style={{
+                    backgroundColor: '#111827',
+                    minHeight: '100vh',
+                    color: '#FFFFFF',
+                    boxSizing: 'border-box',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                }}
+            >
+                <div style={{
+                    textAlign: 'center',
+                    backgroundColor: '#1f2937',
+                    padding: isMobile ? '24px' : '40px',
+                    borderRadius: '12px',
+                    border: '1px solid #374151',
+                    maxWidth: isMobile ? '90%' : '400px',
+                    width: '100%',
+                }}>
+                    <div className="loading-spinner mx-auto mb-4"></div>
+                    <div className="loading-text">🎭 티켓몬을 초기화하는 중...</div>
+                </div>
+            </div>
         </div>
-    </div>
-);
+    );
+};
 
 // 임시 관리자 설정 페이지
 const TempSettingsPage = () => (
@@ -134,9 +184,8 @@ export default function App() {
                     {PaymentRoutes()}
                 </Route>
 
-                {/* ===== 로그인 후 보호된 페이지 ===== */}
+                {/* ===== 로그인 후 보호된 페이지 (MainLayout 사용) ===== */}
                 <Route element={<MainLayout />}>
-
                     {/* 예매 관련 페이지 */}
                     <Route
                         path="concerts/:concertId/wait"
@@ -184,60 +233,60 @@ export default function App() {
                             </ProtectedRoute>
                         }
                     />
+                </Route>
 
-                    {/* ===== 판매자 페이지 그룹 ===== */}
-                    <Route
-                        path="/seller"
-                        element={
-                            <ProtectedRoute
-                                condition={isLoggedIn && !isAdmin}
-                                fallback={<Navigate to="/unauthorized" replace />}
-                            >
-                                <SellerLayout />
-                            </ProtectedRoute>
-                        }
-                    >
-                        {/* 판매자 대시보드 */}
-                        <Route index element={<SellerHomePage />} />
-
-                        {/* 모든 로그인 유저 접근 가능 */}
-                        <Route path="apply" element={<SellerApplyPage />} />
-                        <Route path="status" element={<SellerStatusPage />} />
-
-                        {/* 판매자 권한 필요 */}
-                        <Route
-                            element={
-                                <ProtectedRoute
-                                    condition={isSeller}
-                                    fallback={<Navigate to="/unauthorized" replace />}
-                                >
-                                    <Outlet />
-                                </ProtectedRoute>
-                            }
+                {/* ===== 판매자 페이지 그룹 (별도 SellerLayout 사용) ===== */}
+                <Route
+                    path="/seller"
+                    element={
+                        <ProtectedRoute
+                            condition={isLoggedIn && !isAdmin}
+                            fallback={<Navigate to="/unauthorized" replace />}
                         >
-                            <Route path="concerts/register" element={<ConcertRegisterPage />} />
-                            <Route path="concerts/manage" element={<SellerConcertManagementPage />} />
-                        </Route>
-                    </Route>
+                            <SellerLayout />
+                        </ProtectedRoute>
+                    }
+                >
+                    {/* 판매자 대시보드 */}
+                    <Route index element={<SellerHomePage />} />
 
-                    {/* ===== 관리자 페이지 그룹 ===== */}
+                    {/* 모든 로그인 유저 접근 가능 */}
+                    <Route path="apply" element={<SellerApplyPage />} />
+                    <Route path="status" element={<SellerStatusPage />} />
+
+                    {/* 판매자 권한 필요 */}
                     <Route
-                        path="/admin"
                         element={
                             <ProtectedRoute
-                                condition={isLoggedIn && isAdmin}
+                                condition={isSeller}
                                 fallback={<Navigate to="/unauthorized" replace />}
                             >
-                                <AdminLayout />
+                                <Outlet />
                             </ProtectedRoute>
                         }
                     >
-                        <Route index element={<AdminDashboard />} />
-                        <Route path="seller-approvals" element={<SellerApproval />} />
-                        <Route path="sellers" element={<AdminSellerManagement />} />
-                        <Route path="history" element={<ApplicationHistoryPage />} />
-                        <Route path="settings" element={<TempSettingsPage />} />
+                        <Route path="concerts/register" element={<ConcertRegisterPage />} />
+                        <Route path="concerts/manage" element={<SellerConcertManagementPage />} />
                     </Route>
+                </Route>
+
+                {/* ===== 관리자 페이지 그룹 ===== */}
+                <Route
+                    path="/admin"
+                    element={
+                        <ProtectedRoute
+                            condition={isLoggedIn && isAdmin}
+                            fallback={<Navigate to="/unauthorized" replace />}
+                        >
+                            <AdminLayout />
+                        </ProtectedRoute>
+                    }
+                >
+                    <Route index element={<AdminDashboard />} />
+                    <Route path="seller-approvals" element={<SellerApproval />} />
+                    <Route path="sellers" element={<AdminSellerManagement />} />
+                    <Route path="history" element={<ApplicationHistoryPage />} />
+                    <Route path="settings" element={<TempSettingsPage />} />
                 </Route>
 
                 {/* ===== 에러 페이지 ===== */}
