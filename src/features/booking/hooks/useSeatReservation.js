@@ -6,11 +6,11 @@ import {
     releaseSeat,
     fetchAllSeatStatus,
 } from '../services/bookingService';
-import { 
+import {
     getPollingInterval,
     isBackendPollingSupported,
     pollSeatStatus,
-    createStablePollingManager
+    createStablePollingManager,
 } from '../services/seatService';
 import apiClient from '../../../shared/utils/apiClient';
 
@@ -29,13 +29,12 @@ export const useSeatReservation = (concertId, options = {}) => {
     const pollingManagerRef = useRef(null);
     const stablePollingManagerRef = useRef(null);
     const isStartingPollingRef = useRef(false);
-    
+
     useEffect(() => {
         selectedSeatsRef.current = selectedSeats;
     }, [selectedSeats]);
 
     const MAX_SEATS_SELECTABLE = 2;
-
 
     // 2. 데이터 새로고침 함수를 훅 내부에 정의합니다.
     const refreshSeatStatuses = useCallback(async () => {
@@ -81,10 +80,10 @@ export const useSeatReservation = (concertId, options = {}) => {
         if (isStartingPollingRef.current || isPolling || !enablePolling) {
             return;
         }
-        
+
         // 시작 플래그 설정
         isStartingPollingRef.current = true;
-        
+
         try {
             // 기존 폴링 세션 정리
             if (stablePollingManagerRef.current) {
@@ -94,7 +93,7 @@ export const useSeatReservation = (concertId, options = {}) => {
             if (pollingManagerRef.current) {
                 pollingManagerRef.current = null;
             }
-            
+
             setIsPolling(true);
             setConnectionStatus('connecting');
         
@@ -166,16 +165,15 @@ export const useSeatReservation = (concertId, options = {}) => {
                     }
                     
                     await executePollingCycle();
-                }
-                console.log('🔥 폴링 루프 종료');
-            };
-            
-            // 폴링 루프 시작 (비동기)
-            runPollingLoop();
-        }
-        
-        setConnectionStatus('connected');
-        
+                    }
+                    console.log('🔥 폴링 루프 종료');
+                };
+
+                // 폴링 루프 시작 (비동기)
+                runPollingLoop();
+            }
+
+            setConnectionStatus('connected');
         } finally {
             // 시작 플래그 해제
             isStartingPollingRef.current = false;
@@ -186,14 +184,13 @@ export const useSeatReservation = (concertId, options = {}) => {
     const executePollingCycle = useCallback(async () => {
         try {
             console.log('🔥 좌석 상태 새로고침 사이클 시작');
-            
+
             // refreshSeatStatuses 호출 (실시간 좌석 상태 동기화)
             console.log('🔥 refreshSeatStatuses 호출');
             await refreshSeatStatuses();
-            
+
             setError(null);
             setConnectionStatus('connected');
-            
         } catch (error) {
             console.error('🔥 폴링 사이클 에러:', error);
             setError(error.message);
@@ -206,16 +203,16 @@ export const useSeatReservation = (concertId, options = {}) => {
         console.log('🔥 폴링 시스템 중지');
         setIsPolling(false);
         setConnectionStatus('disconnected');
-        
+
         // 시작 플래그도 해제
         isStartingPollingRef.current = false;
-        
+
         // 안정적인 폴링 매니저 정리
         if (stablePollingManagerRef.current) {
             stablePollingManagerRef.current.stop();
             stablePollingManagerRef.current = null;
         }
-        
+
         pollingManagerRef.current = null;
     }, []);
 
@@ -253,7 +250,7 @@ export const useSeatReservation = (concertId, options = {}) => {
             if (pollingManagerRef.current) {
                 pollingManagerRef.current.stopPolling();
             }
-            
+
             // 좌석 해제
             if (selectedSeatsRef.current.length > 0) {
                 selectedSeatsRef.current.forEach((seat) => {
@@ -325,10 +322,10 @@ export const useSeatReservation = (concertId, options = {}) => {
             setSelectedSeats([]);
             setTimer(0);
             setError(null);
-            
+
             // 그 다음 서버 상태 동기화
             await refreshSeatStatuses();
-            
+
             console.log('좌석 복구 후 상태 초기화 완료');
         } catch (err) {
             console.error('좌석 복구 후 상태 초기화 실패:', err);
@@ -344,7 +341,7 @@ export const useSeatReservation = (concertId, options = {}) => {
         return {
             isPolling: isPolling,
             retryCount: 0,
-            lastUpdateTime: null
+            lastUpdateTime: null,
         };
     }, [isPolling]);
 

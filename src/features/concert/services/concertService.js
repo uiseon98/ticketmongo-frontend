@@ -11,23 +11,33 @@ export const concertService = {
     // ==================== 일반 사용자용 API ====================
 
     /**
-     * 콘서트 목록 조회 (페이지네이션)
+     * 콘서트 목록 조회 (페이지네이션 + 정렬)
      * 백엔드: GET /api/concerts
-     * @param {import('../types/concert.js').ConcertListParams} params - 페이지 정보
-     * @returns {Promise<import('../types/concert.js').ApiResponse<import('../types/concert.js').PageResponse<import('../types/concert.js').Concert[]>>>}
+     * @param {Object} params - 페이지 정보 + 정렬 정보
+     * @param {number} params.page - 페이지 번호 (기본값: 0)
+     * @param {number} params.size - 페이지 크기 (기본값: 20)
+     * @param {string} params.sortBy - 정렬 기준 (기본값: 'concertDate')
+     * @param {string} params.sortDir - 정렬 방향 (기본값: 'asc')
+     * @returns {Promise<ApiResponse<PageResponse<Concert[]>>>}
      */
-    async getConcerts(params = { page: 0, size: 20 }) {
+    async getConcerts(
+        params = { page: 0, size: 20, sortBy: 'concertDate', sortDir: 'asc' },
+    ) {
         try {
-            // axios의 params 옵션을 사용해 쿼리 파라미터 자동 생성 (?page=0&size=20)
+            // axios의 params 옵션을 사용해 쿼리 파라미터 자동 생성
             const response = await apiClient.get('/concerts', { params });
 
-            // apiClient가 이미 SuccessResponse를 처리해서 { success, message, data } 형태로 반환
+            console.log('✅ [API 응답] getConcerts 성공:', {
+                page: params.page,
+                size: params.size,
+                sortBy: params.sortBy,
+                sortDir: params.sortDir,
+                totalElements: response.data?.totalElements,
+            });
+
             return response;
         } catch (error) {
-            // 개발/디버깅용 에러 로깅
-            console.error('콘서트 목록 조회 실패:', error);
-
-            // 에러를 다시 throw해서 호출하는 쪽에서 처리할 수 있도록 함
+            console.error('❌ [API 오류] 콘서트 목록 조회 실패:', error);
             throw error;
         }
     },

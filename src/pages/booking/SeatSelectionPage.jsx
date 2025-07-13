@@ -43,7 +43,7 @@ export default function SeatSelectionPage() {
                     await concertService.getConcertById(concertId);
                 setConcertInfo(concertData.data);
                 await refreshSeatStatuses(); // 훅 내부의 함수를 호출해 좌석 정보 로드
-                
+
                 // 폴링 시스템 시작 (JWT 토큰 만료 시간 확인을 위해)
                 try {
                     await startPolling();
@@ -113,14 +113,13 @@ export default function SeatSelectionPage() {
             } else {
                 alert(`결제에 실패했습니다: ${error.message}`);
             }
-            
+
             // 현재 선택된 좌석이 있는 경우 좌석 해제 API 호출
             if (selectedSeats.length > 0) {
                 try {
                     // 좌석 해제 API 호출
                     await handleClearSelection();
                     console.log('좌석 해제 API 호출 성공');
-                    
                 } catch (error) {
                     console.error('좌석 해제 실패:', error);
                     // 좌석 해제 실패 시에도 상태 새로고침
