@@ -29,6 +29,11 @@ export const useSeatReservation = (concertId, options = {}) => {
     const pollingManagerRef = useRef(null);
     const stablePollingManagerRef = useRef(null);
     const isStartingPollingRef = useRef(false);
+    
+    // 하이브리드 폴링을 위한 상태 추가
+    const [pollingState, setPollingState] = useState('normal'); // 'normal', 'burst', 'waiting'
+    const pollingStartTimeRef = useRef(null);
+    const triggerDebounceRef = useRef(null);
 
     useEffect(() => {
         selectedSeatsRef.current = selectedSeats;
@@ -74,6 +79,44 @@ export const useSeatReservation = (concertId, options = {}) => {
         });
     }, []);
 
+    // 즉시 폴링 트리거 함수 (하이브리드 접근법)
+    const triggerImmediatePolling = useCallback(() => {
+        // 디바운싱 적용
+        if (triggerDebounceRef.current) {
+            clearTimeout(triggerDebounceRef.current);
+        }
+        
+        triggerDebounceRef.current = setTimeout(() => {
+            // 스마트 중단 로직: 현재 폴링이 거의 완료될 시점이면 중단하지 않음
+            if (pollingStartTimeRef.current) {
+                const timeElapsed = Date.now() - pollingStartTimeRef.current;
+                const SMART_ABORT_THRESHOLD = 25000; // 25초
+                
+                if (timeElapsed > SMART_ABORT_THRESHOLD) {
+                    console.log('🔥 폴링이 거의 완료되어 즉시 폴링 건너뜀');
+                    return;
+                }
+            }
+            
+            console.log('🚀 사용자 액션으로 인한 즉시 폴링 트리거');
+            setPollingState('burst');
+            
+            // 현재 진행 중인 폴링 중단하고 즉시 새로운 폴링 시작
+            if (stablePollingManagerRef.current) {
+                stablePollingManagerRef.current.stop();
+                
+                // 즉시 새로운 폴링 시작
+                setTimeout(() => {
+                    startPolling().then(() => {
+                        setPollingState('normal');
+                    }).catch(() => {
+                        setPollingState('normal');
+                    });
+                }, 100); // 약간의 지연으로 안정성 확보
+            }
+        }, 300); // 300ms 디바운스
+    }, []);
+
     // 폴링 시스템 시작 함수
     const startPolling = useCallback(async () => {
         // 중복 호출 방지
@@ -96,6 +139,7 @@ export const useSeatReservation = (concertId, options = {}) => {
 
             setIsPolling(true);
             setConnectionStatus('connecting');
+            pollingStartTimeRef.current = Date.now(); // 폴링 시작 시간 기록
         
         // 단순 주기적 폴링 시스템 사용
         if (isBackendPollingSupported()) {
@@ -250,6 +294,11 @@ export const useSeatReservation = (concertId, options = {}) => {
             if (pollingManagerRef.current) {
                 pollingManagerRef.current.stopPolling();
             }
+            
+            // 디바운스 타이머 정리
+            if (triggerDebounceRef.current) {
+                clearTimeout(triggerDebounceRef.current);
+            }
 
             // 좌석 해제
             if (selectedSeatsRef.current.length > 0) {
@@ -281,13 +330,16 @@ export const useSeatReservation = (concertId, options = {}) => {
                     await reserveSeat(concertId, seat.seatId);
                 }
                 await refreshSeatStatuses(); // 상태 동기화
+                
+                // 하이브리드 폴링: 좌석 액션 후 즉시 폴링 트리거
+                triggerImmediatePolling();
             } catch (err) {
                 setError(err.message);
             } finally {
                 setIsReserving(false);
             }
         },
-        [concertId, selectedSeats, refreshSeatStatuses],
+        [concertId, selectedSeats, refreshSeatStatuses, triggerImmediatePolling],
     );
 
     const handleClearSelection = useCallback(async () => {
@@ -299,12 +351,15 @@ export const useSeatReservation = (concertId, options = {}) => {
                 ),
             );
             await refreshSeatStatuses();
+            
+            // 하이브리드 폴링: 전체 해제 액션 후 즉시 폴링 트리거
+            triggerImmediatePolling();
         } catch (err) {
             setError(err.message);
         } finally {
             setIsReserving(false);
         }
-    }, [concertId, selectedSeats, refreshSeatStatuses]);
+    }, [concertId, selectedSeats, refreshSeatStatuses, triggerImmediatePolling]);
 
     const handleRemoveSeat = useCallback(
         (seatId) => {
@@ -355,9 +410,11 @@ export const useSeatReservation = (concertId, options = {}) => {
         isPolling,
         connectionStatus, // 연결 상태: 'disconnected', 'connecting', 'connected', 'error'
         pollingStatus: getPollingStatus(), // 폴링 상세 상태
+        pollingState, // 하이브리드 폴링 상태: 'normal', 'burst', 'waiting'
         refreshSeatStatuses, // 페이지가 최초 로드 시 호출할 함수
         startPolling, // 폴링 시스템 시작 함수
         stopPolling, // 폴링 시스템 정지 함수
+        triggerImmediatePolling, // 즉시 폴링 트리거 함수
         handleSeatClick,
         handleRemoveSeat,
         handleClearSelection,
