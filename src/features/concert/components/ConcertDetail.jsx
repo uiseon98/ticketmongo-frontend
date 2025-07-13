@@ -164,17 +164,26 @@ const ConcertDetail = ({
     };
 
     /**
-     * 🔥 포스터 이미지 에러 처리 (개선)
+     * 포스터 이미지 에러 처리 (개선)
      */
     const handleImageError = (event) => {
+        // 이미 기본 이미지인 경우 무한 루프 방지
+        if (event.target.src.includes('/images/basic-poster-image.png')) {
+            setImageError(true);
+            setImageLoaded(true); // 기본 이미지라도 로딩 완료로 처리
+            return;
+        }
+
+        // 에러 발생 시 기본 이미지로 변경
+        event.target.src = '/images/basic-poster-image.png';
         setImageError(true);
-        setImageLoaded(false);
     };
 
     const handleImageLoad = () => {
         setImageLoaded(true);
-        setImageError(false);
+        // 에러 상태는 초기화하지 않음 (기본 이미지 사용 여부 추적용)
     };
+
 
     /**
      * 예매 버튼 클릭 핸들러
@@ -362,31 +371,20 @@ const ConcertDetail = ({
                     {/* 🎯 포스터 이미지 섹션 (반응형) */}
                     <div className="flex-shrink-0 mx-auto lg:mx-0">
                         <div className="relative w-64 h-80 sm:w-72 sm:h-96 lg:w-80 lg:h-[480px] bg-gray-700 rounded-lg overflow-hidden shadow-lg">
-                            {concert.posterImageUrl && !imageError ? (
-                                <>
-                                    <img
-                                        src={concert.posterImageUrl}
-                                        alt={`${concert.title} 포스터`}
-                                        className="w-full h-full object-cover transition-opacity duration-300"
-                                        style={{ opacity: imageLoaded ? 1 : 0 }}
-                                        onError={handleImageError}
-                                        onLoad={handleImageLoad}
-                                        loading="lazy"
-                                    />
-                                    {!imageLoaded && (
-                                        <div className="absolute inset-0 flex items-center justify-center bg-gray-700">
-                                            <div className="w-8 h-8 border-4 border-gray-500 border-t-blue-500 rounded-full animate-spin"></div>
-                                        </div>
-                                    )}
-                                </>
-                            ) : (
-                                <div className="w-full h-full flex flex-col items-center justify-center text-gray-400 bg-gray-700">
-                                    <div className="text-4xl sm:text-5xl mb-4">🎭</div>
-                                    <div className="text-sm sm:text-base text-center px-4">
-                                        포스터
-                                        <br />
-                                        준비중
-                                    </div>
+                            <img
+                                src={concert.posterImageUrl || '/images/basic-poster-image.png'}
+                                alt={`${concert.title} 포스터`}
+                                className="w-full h-full object-cover transition-opacity duration-300"
+                                style={{ opacity: imageLoaded ? 1 : 0 }}
+                                onError={handleImageError}
+                                onLoad={handleImageLoad}
+                                loading="lazy"
+                            />
+
+                            {/* 로딩 중일 때만 스피너 표시 */}
+                            {!imageLoaded && !imageError && (
+                                <div className="absolute inset-0 flex items-center justify-center bg-gray-700">
+                                    <div className="w-8 h-8 border-4 border-gray-500 border-t-blue-500 rounded-full animate-spin"></div>
                                 </div>
                             )}
                         </div>
