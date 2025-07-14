@@ -3,10 +3,10 @@ import { NavLink, useLocation } from 'react-router-dom';
 
 // isMobile, sidebarOpen, setSidebarOpen props를 받습니다.
 const AdminSidebar = ({
-                          isMobile,
-                          sidebarOpen, // eslint-disable-line no-unused-vars
-                          setSidebarOpen,
-                      }) => {
+    isMobile,
+    sidebarOpen, // eslint-disable-line no-unused-vars
+    setSidebarOpen,
+}) => {
     // sidebarOpen prop은 AdminLayout에서 <aside> 태그의 스타일을 제어하는 데 사용되므로, AdminSidebar 내부에서는 직접 사용되지 않아 ESLint 경고가 발생합니다.
     // 이는 의도된 구조이므로, 해당 경고를 무시합니다.
 
