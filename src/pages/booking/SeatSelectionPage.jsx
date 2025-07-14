@@ -72,17 +72,23 @@ export default function SeatSelectionPage() {
     useEffect(() => {
         if (reservationError) {
             let friendlyMessage = '좌석 선택 중 문제가 발생했습니다.';
-            
+
             if (reservationError.includes('선택 불가')) {
-                friendlyMessage = '이미 선택된 좌석입니다. 다른 좌석을 선택해주세요.';
+                friendlyMessage =
+                    '이미 선택된 좌석입니다. 다른 좌석을 선택해주세요.';
             } else if (reservationError.includes('만료')) {
-                friendlyMessage = '선점 시간이 만료되었습니다. 다시 선택해주세요.';
-            } else if (reservationError.includes('네트워크') || reservationError.includes('연결')) {
+                friendlyMessage =
+                    '선점 시간이 만료되었습니다. 다시 선택해주세요.';
+            } else if (
+                reservationError.includes('네트워크') ||
+                reservationError.includes('연결')
+            ) {
                 friendlyMessage = '네트워크 연결을 확인하고 다시 시도해주세요.';
             } else if (reservationError.includes('서버')) {
-                friendlyMessage = '서버에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요.';
+                friendlyMessage =
+                    '서버에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요.';
             }
-            
+
             alert(friendlyMessage);
         }
     }, [reservationError]);
@@ -136,7 +142,9 @@ export default function SeatSelectionPage() {
     if (pageLoading)
         return <LoadingSpinner message="콘서트 정보를 불러오는 중..." />;
     if (pageError) {
-        alert(`죄송합니다. ${pageError.includes('불러오') ? '콘서트 정보를 가져오는 중 문제가 발생했습니다.' : '서비스에 일시적인 문제가 발생했습니다.'} 잠시 후 다시 시도해주세요.`);
+        alert(
+            `죄송합니다. ${pageError.includes('불러오') ? '콘서트 정보를 가져오는 중 문제가 발생했습니다.' : '서비스에 일시적인 문제가 발생했습니다.'} 잠시 후 다시 시도해주세요.`,
+        );
         return <LoadingSpinner message="다시 시도하는 중..." />;
     }
 
@@ -144,7 +152,7 @@ export default function SeatSelectionPage() {
         <div className="bg-[#111922] min-h-screen text-white p-4 sm:p-6 lg:p-8">
             <div className="max-w-screen-2xl mx-auto">
                 <ConcertInfoHeader concertInfo={concertInfo} />
-                
+
                 <div className="mt-8 flex flex-col lg:flex-row gap-8">
                     <div className="flex-grow lg:w-2/3">
                         <SeatMap
