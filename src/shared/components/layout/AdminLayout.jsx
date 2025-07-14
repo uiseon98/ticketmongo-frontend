@@ -67,7 +67,7 @@ const AdminLayout = () => {
                     top: `${headerHeightPx}px`, // Header 높이만큼 아래
                     marginLeft: `calc((100vw - min(100%, 1024px)) / 2 + 8px)`, // max-w-7xl 기준 중앙 정렬된 공간의 왼쪽 여백 + 8px
                 }}
-                onClick={() => setSidebarOpen(prev => !prev)}
+                onClick={() => setSidebarOpen((prev) => !prev)}
                 aria-label="메뉴 토글"
             >
                 {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
@@ -83,7 +83,9 @@ const AdminLayout = () => {
                 `}
                 style={{
                     // sidebarOpen 상태에 따라 transform 적용 (모든 환경에서 슬라이드)
-                    transform: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
+                    transform: sidebarOpen
+                        ? 'translateX(0)'
+                        : 'translateX(-100%)',
                     top: `${headerHeightPx}px`, // Header 높이만큼 아래로
                     height: `calc(100vh - ${headerHeightPx}px)`, // Header 높이 제외
                     marginLeft: `calc((100vw - min(100%, 1024px)) / 2)`, // max-w-7xl 기준 중앙 정렬된 공간의 왼쪽 여백
