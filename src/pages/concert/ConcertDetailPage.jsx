@@ -221,59 +221,74 @@ function ConcertDetailPage() {
         return (
             <div
                 style={{
-                    backgroundColor: '#0F172A',
+                    backgroundColor: '#0F172A', // 기존 색상 유지
                     minHeight: '100vh',
-                    width: '100%',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    color: '#FFFFFF',
-                    // 🎯 반응형 패딩
-                    padding: isMobile ? '16px' : '0',
+                    width: '100vw',
+                    margin: 0,
+                    padding: 0,
+                    overflowX: 'hidden',
                 }}
             >
                 <div
+                    className={isMobile
+                        ? "p-4 overflow-x-hidden"
+                        : isTablet
+                            ? "max-w-4xl mx-auto p-4 overflow-x-hidden"
+                            : "max-w-6xl mx-auto p-6 overflow-x-hidden"
+                    }
                     style={{
-                        textAlign: 'center',
-                        backgroundColor: '#1E293B',
-                        // 🎯 반응형 패딩
-                        padding: isMobile ? '24px' : '40px',
-                        borderRadius: '12px',
-                        border: '1px solid #374151',
-                        // 🎯 반응형 너비
-                        maxWidth: isMobile ? '90%' : '400px',
-                        width: '100%',
+                        backgroundColor: '#0F172A',
+                        minHeight: '100vh',
+                        color: '#FFFFFF',
+                        boxSizing: 'border-box',
                     }}
                 >
+                    {/* 스켈레톤 제목 */}
                     <div
+                        className={isMobile
+                            ? "mb-4"
+                            : isTablet
+                                ? "mb-5"
+                                : "mb-6"
+                        }
                         style={{
-                            // 🎯 반응형 크기
-                            width: isMobile ? '32px' : '40px',
-                            height: isMobile ? '32px' : '40px',
-                            border: '4px solid #374151',
-                            borderTop: '4px solid #3B82F6',
-                            borderRadius: '50%',
-                            animation: 'spin 1s linear infinite',
-                            margin: '0 auto 16px',
+                            height: isMobile ? '28px' : isTablet ? '32px' : '48px',
+                            backgroundColor: '#1E293B',
+                            borderRadius: '8px',
+                            maxWidth: '60%',
+                            margin: '0 auto',
+                            animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                         }}
                     />
-                    <div style={{
-                        color: '#FFFFFF',
-                        fontSize: isMobile ? '14px' : '18px' // 🎯 반응형 폰트
-                    }}>
-                        콘서트 상세 정보 로딩 중...
-                    </div>
 
-                    <style>{`
-                        @keyframes spin {
-                            from {
-                                transform: rotate(0deg);
-                            }
-                            to {
-                                transform: rotate(360deg);
-                            }
-                        }
-                    `}</style>
+                    {/* 로딩 카드 */}
+                    <div
+                        className="rounded-xl shadow-md"
+                        style={{
+                            backgroundColor: '#1E293B',
+                            border: '1px solid #374151',
+                            padding: isMobile ? '40px 20px' : isTablet ? '50px 30px' : '60px 40px',
+                            textAlign: 'center',
+                        }}
+                    >
+                        <div
+                            style={{
+                                width: isMobile ? '32px' : '40px',
+                                height: isMobile ? '32px' : '40px',
+                                border: '4px solid #374151',
+                                borderTop: '4px solid #3B82F6',
+                                borderRadius: '50%',
+                                animation: 'spin 1s linear infinite',
+                                margin: '0 auto 16px',
+                            }}
+                        />
+                        <div style={{
+                            color: '#FFFFFF',
+                            fontSize: isMobile ? '14px' : '18px'
+                        }}>
+                            콘서트 상세 정보 로딩 중...
+                        </div>
+                    </div>
                 </div>
             </div>
         );
