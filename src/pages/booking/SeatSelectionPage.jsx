@@ -1,4 +1,4 @@
-// src/pages/booking/SeatSelectionPage.jsx (개선된 버전)
+// src/pages/booking/SeatSelectionPage.jsx
 
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
@@ -18,11 +18,11 @@ export default function SeatSelectionPage() {
     const [pageError, setPageError] = useState(null);
     const { proceedToPayment, isProcessing, paymentError } = usePayment();
 
-    // ✅ handlePaymentSuccess 함수를 받아옴
+    // 1. 훅을 호출하여 좌석 관련 모든 상태와 함수를 가져옵니다.
     const {
         seatStatuses,
         selectedSeats,
-        error: reservationError,
+        error: reservationError, // 페이지 에러와 구분하기 위해 이름 변경
         timer,
         isPolling,
         refreshSeatStatuses,
@@ -31,26 +31,29 @@ export default function SeatSelectionPage() {
         handleSeatClick,
         handleRemoveSeat,
         handleClearSelection,
-        handlePaymentSuccess, // ✅ 새로 추가
-    } = useSeatReservation(concertId, { enablePolling: true });
+    } = useSeatReservation(concertId, { enablePolling: true }); // 폴링 활성화 (JWT 토큰 실제 만료 시간 확인을 위해)
 
-    // 페이지 최초 로드
+    // 2. 페이지 최초 로드 시, 콘서트 정보와 좌석 정보를 모두 로드합니다.
     useEffect(() => {
         const loadPageData = async () => {
             setPageLoading(true);
             setPageError(null);
             try {
-                const concertData = await concertService.getConcertById(concertId);
+                const concertData =
+                    await concertService.getConcertById(concertId);
                 setConcertInfo(concertData.data);
-                await refreshSeatStatuses();
+                await refreshSeatStatuses(); // 훅 내부의 함수를 호출해 좌석 정보 로드
 
+                // 폴링 시스템 시작 (JWT 토큰 만료 시간 확인을 위해)
                 try {
                     await startPolling();
                 } catch (error) {
                     console.log('폴링 시스템 시작 실패:', error);
                 }
             } catch (err) {
-                setPageError(err.message || '페이지 데이터를 불러오지 못했습니다.');
+                setPageError(
+                    err.message || '페이지 데이터를 불러오지 못했습니다.',
+                );
             } finally {
                 setPageLoading(false);
             }
@@ -58,91 +61,55 @@ export default function SeatSelectionPage() {
         loadPageData();
     }, [concertId, refreshSeatStatuses, startPolling]);
 
-    // 페이지 언마운트 시 폴링 정리
+    // 3. 페이지 언마운트 시 폴링 정리
     useEffect(() => {
         return () => {
             stopPolling();
         };
     }, [stopPolling]);
 
-    // ✅ 개선된 결제 핸들러
     const handleCheckout = async () => {
-        // 기본 검증
+        // 결제 전 좌석 선점 상태 확인
         if (selectedSeats.length === 0) {
             alert('선택된 좌석이 없습니다.');
             return;
         }
 
+        // 타이머 확인 - 선점 시간이 만료되었는지 체크
         if (timer <= 0) {
             alert('좌석 선점 시간이 만료되었습니다. 다시 선택해주세요.');
             handleClearSelection();
             return;
         }
 
-        // ✅ 결제 전 좌석 상태 재검증
-        console.log('🔍 결제 전 좌석 상태 재검증 시작...');
         try {
-            await refreshSeatStatuses();
-
-            // 선택된 좌석이 여전히 유효한지 확인
-            const currentSeatStatuses = seatStatuses;
-            const invalidSeats = selectedSeats.filter(selectedSeat => {
-                const currentSeat = currentSeatStatuses.find(s => s.seatId === selectedSeat.seatId);
-                return !currentSeat || currentSeat.status !== 'RESERVED' || !currentSeat.isReservedByCurrentUser;
-            });
-
-            if (invalidSeats.length > 0) {
-                alert('선택된 좌석 중 일부가 이미 다른 사용자에게 할당되었습니다. 좌석을 다시 선택해주세요.');
-                await refreshSeatStatuses();
-                return;
-            }
-
+            await proceedToPayment(concertId, selectedSeats);
+            alert('결제가 성공적으로 완료되었습니다.');
+            // 결제 성공 시 성공 페이지로 이동하는 로직 (필요 시)
         } catch (error) {
-            console.error('좌석 상태 재검증 실패:', error);
-            alert('좌석 상태를 확인할 수 없습니다. 잠시 후 다시 시도해주세요.');
-            return;
-        }
-
-        try {
-            // ✅ 결제 성공 콜백과 함께 결제 진행
-            await proceedToPayment(concertId, selectedSeats, handlePaymentSuccess);
-
-            console.log('✅ 결제 성공 처리 완료');
-            alert('결제가 성공적으로 완료되었습니다!');
-
-        } catch (error) {
-            console.error('💳 결제 실패:', error);
-
+            // 결제 훅에서 에러가 발생하면, 여기서 좌석 복구 로직을 실행
+            console.error('결제 실패:', error);
             if (error.message.includes('사용자가 결제를 취소했습니다.')) {
                 alert('결제가 취소되었습니다.');
-                // 결제 취소는 좌석을 유지
-                return;
-            }
-
-            // ✅ 결제 실패 시 더 구체적인 에러 처리
-            if (error.message.includes('선택하신 좌석이 이미 다른 사용자에게 판매되었습니다')) {
-                alert('선택하신 좌석이 이미 다른 사용자에게 판매되었습니다. 좌석을 다시 선택해주세요.');
-                await handleClearSelection();
-                await refreshSeatStatuses();
-            } else if (error.message.includes('매진되었습니다')) {
-                alert('선택하신 좌석이 매진되었습니다. 다른 좌석을 선택해주세요.');
-                await refreshSeatStatuses();
-            } else if (error.message.includes('선점 시간이 만료되었습니다')) {
-                alert('좌석 선점 시간이 만료되었습니다. 좌석을 다시 선택해주세요.');
-                await handleClearSelection();
-                await refreshSeatStatuses();
             } else {
                 alert(`결제에 실패했습니다: ${error.message}`);
+            }
 
-                // 일반적인 결제 실패 시 좌석 해제
-                if (selectedSeats.length > 0) {
-                    try {
-                        await handleClearSelection();
-                    } catch (releaseError) {
-                        console.error('좌석 해제 실패:', releaseError);
-                        await refreshSeatStatuses();
-                    }
+            // 현재 선택된 좌석이 있는 경우 좌석 해제 API 호출
+            if (selectedSeats.length > 0) {
+                try {
+                    // 좌석 해제 API 호출
+                    await handleClearSelection();
+                    console.log('좌석 해제 API 호출 성공');
+                } catch (error) {
+                    console.error('좌석 해제 실패:', error);
+                    // 좌석 해제 실패 시에도 상태 새로고침
+                    await refreshSeatStatuses();
                 }
+            } else {
+                // 선택된 좌석이 없는 경우 단순히 상태만 새로고침
+                console.log('선택된 좌석이 없어 상태만 새로고침합니다.');
+                await refreshSeatStatuses();
             }
         }
     };
@@ -155,42 +122,20 @@ export default function SeatSelectionPage() {
         <div className="bg-[#111922] min-h-screen text-white p-4 sm:p-6 lg:p-8">
             <div className="max-w-screen-2xl mx-auto">
                 <ConcertInfoHeader concertInfo={concertInfo} />
-
-                {/* ✅ 에러 메시지 개선 */}
-                {(reservationError || paymentError) && (
-                    <div className="mb-4 p-4 bg-red-900/50 border border-red-700 rounded-lg">
-                        <p className="text-red-200">
-                            {reservationError || paymentError}
-                        </p>
-                        <button
-                            onClick={() => refreshSeatStatuses()}
-                            className="mt-2 text-sm text-blue-300 hover:text-blue-100 underline"
-                        >
-                            좌석 상태 새로고침
-                        </button>
-                    </div>
+                {reservationError && (
+                    <ErrorMessage message={reservationError} />
                 )}
 
-                {/* ✅ 연결 상태 표시 개선 */}
-                <div className="mb-4 flex justify-between items-center">
-                    <div className="flex items-center space-x-2">
-                        <div className={`w-3 h-3 rounded-full ${
-                            isPolling ? 'bg-green-500 animate-pulse' : 'bg-gray-500'
-                        }`}></div>
-                        <span className="text-sm text-gray-400">
-                            {isPolling ? '실시간 동기화 중' : '동기화 중단'}
-                        </span>
-                    </div>
-
+                {/* 수동 새로고침 버튼 */}
+                <div className="mb-4 flex justify-end">
                     <button
                         onClick={refreshSeatStatuses}
-                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm"
+                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
                         disabled={pageLoading}
                     >
-                        {pageLoading ? '새로고침 중...' : '수동 새로고침'}
+                        {pageLoading ? '새로고침 중...' : '좌석 상태 새로고침'}
                     </button>
                 </div>
-
                 <div className="mt-8 flex flex-col lg:flex-row gap-8">
                     <div className="flex-grow lg:w-2/3">
                         <SeatMap
@@ -206,7 +151,6 @@ export default function SeatSelectionPage() {
                             onClear={handleClearSelection}
                             onRemove={handleRemoveSeat}
                             onCheckout={handleCheckout}
-                            isProcessing={isProcessing} // ✅ 결제 중 상태 전달
                         />
                     </div>
                 </div>
