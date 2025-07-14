@@ -7,7 +7,7 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 const useResponsive = () => {
     const [isMobile, setIsMobile] = useState(false);
     const [screenWidth, setScreenWidth] = useState(
-        typeof window !== 'undefined' ? window.innerWidth : 1200
+        typeof window !== 'undefined' ? window.innerWidth : 1200,
     );
 
     useEffect(() => {
@@ -26,7 +26,7 @@ const useResponsive = () => {
         isMobile,
         isTablet: screenWidth <= 1024 && screenWidth > 768,
         isDesktop: screenWidth > 1024,
-        screenWidth
+        screenWidth,
     };
 };
 
@@ -265,9 +265,10 @@ const SearchBar = ({
                 onKeyDown={handleKeyDown}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
-                placeholder={isMobile
-                    ? "콘서트, 아티스트 검색..." // 🎯 모바일에서 간단한 플레이스홀더
-                    : placeholder
+                placeholder={
+                    isMobile
+                        ? '콘서트, 아티스트 검색...' // 🎯 모바일에서 간단한 플레이스홀더
+                        : placeholder
                 }
                 disabled={disabled}
                 style={inputStyles}
@@ -276,8 +277,8 @@ const SearchBar = ({
                 autoComplete="off"
                 autoFocus={autoFocus}
                 // 🎯 모바일에서 가상 키보드 최적화
-                inputMode={isMobile ? "search" : undefined}
-                enterKeyHint={isMobile ? "search" : undefined}
+                inputMode={isMobile ? 'search' : undefined}
+                enterKeyHint={isMobile ? 'search' : undefined}
             />
 
             {/* 🔥 검색어 지우기 버튼 (조건 수정) */}
@@ -289,12 +290,22 @@ const SearchBar = ({
                     aria-label="검색어 지우기"
                     title="검색어 지우기 (ESC)"
                     // 🎯 모바일에서 터치 피드백
-                    onTouchStart={isMobile ? (e) => {
-                        e.currentTarget.style.backgroundColor = 'rgba(107, 114, 128, 0.2)';
-                    } : undefined}
-                    onTouchEnd={isMobile ? (e) => {
-                        e.currentTarget.style.backgroundColor = 'rgba(107, 114, 128, 0.1)';
-                    } : undefined}
+                    onTouchStart={
+                        isMobile
+                            ? (e) => {
+                                  e.currentTarget.style.backgroundColor =
+                                      'rgba(107, 114, 128, 0.2)';
+                              }
+                            : undefined
+                    }
+                    onTouchEnd={
+                        isMobile
+                            ? (e) => {
+                                  e.currentTarget.style.backgroundColor =
+                                      'rgba(107, 114, 128, 0.1)';
+                              }
+                            : undefined
+                    }
                 >
                     <svg
                         width={iconSize}
@@ -321,16 +332,26 @@ const SearchBar = ({
                 aria-label="검색 실행"
                 title="검색 실행 (Enter)"
                 // 🎯 모바일에서 터치 피드백
-                onTouchStart={isMobile ? (e) => {
-                    if (!disabled && !loading) {
-                        e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.2)';
-                    }
-                } : undefined}
-                onTouchEnd={isMobile ? (e) => {
-                    if (!disabled && !loading) {
-                        e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.1)';
-                    }
-                } : undefined}
+                onTouchStart={
+                    isMobile
+                        ? (e) => {
+                              if (!disabled && !loading) {
+                                  e.currentTarget.style.backgroundColor =
+                                      'rgba(59, 130, 246, 0.2)';
+                              }
+                          }
+                        : undefined
+                }
+                onTouchEnd={
+                    isMobile
+                        ? (e) => {
+                              if (!disabled && !loading) {
+                                  e.currentTarget.style.backgroundColor =
+                                      'rgba(59, 130, 246, 0.1)';
+                              }
+                          }
+                        : undefined
+                }
             >
                 {loading ? (
                     // 로딩 스피너

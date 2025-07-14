@@ -23,7 +23,9 @@
 }
 
 .logo:hover {
-    filter: drop-shadow(0 0 1.5rem rgba(59, 130, 246, 0.5)); /* 파란색 글로우 효과 */
+    filter: drop-shadow(
+        0 0 1.5rem rgba(59, 130, 246, 0.5)
+    ); /* 파란색 글로우 효과 */
     transform: scale(1.05);
 }
 

@@ -8,7 +8,7 @@ import Footer from './Footer';
 const useResponsive = () => {
     const [isMobile, setIsMobile] = useState(false);
     const [screenWidth, setScreenWidth] = useState(
-        typeof window !== 'undefined' ? window.innerWidth : 1200
+        typeof window !== 'undefined' ? window.innerWidth : 1200,
     );
 
     useEffect(() => {
@@ -27,7 +27,7 @@ const useResponsive = () => {
         isMobile,
         isTablet: screenWidth <= 1024 && screenWidth > 768,
         isDesktop: screenWidth > 1024,
-        screenWidth
+        screenWidth,
     };
 };
 
@@ -43,7 +43,7 @@ const usePageTransition = () => {
         // 스크롤을 상단으로 (부드럽게)
         window.scrollTo({
             top: 0,
-            behavior: 'smooth'
+            behavior: 'smooth',
         });
 
         // 전환 완료
@@ -67,14 +67,17 @@ export default function PublicLayout() {
         const updatePageMeta = () => {
             const path = location.pathname;
             let title = '티켓몬 - 콘서트 예매의 새로운 경험';
-            let description = '최고의 콘서트를 만나보세요. 안전하고 편리한 예매 서비스를 제공합니다.';
+            let description =
+                '최고의 콘서트를 만나보세요. 안전하고 편리한 예매 서비스를 제공합니다.';
 
             if (path === '/') {
                 title = '티켓몬 - 콘서트 예매의 새로운 경험';
-                description = '다양한 아티스트의 콘서트를 한 곳에서 예매하세요. 간편하고 안전한 티켓 예매 서비스.';
+                description =
+                    '다양한 아티스트의 콘서트를 한 곳에서 예매하세요. 간편하고 안전한 티켓 예매 서비스.';
             } else if (path === '/concerts') {
                 title = '콘서트 목록 - 티켓몬';
-                description = '다양한 장르의 콘서트를 탐색하고 원하는 공연을 찾아보세요.';
+                description =
+                    '다양한 장르의 콘서트를 탐색하고 원하는 공연을 찾아보세요.';
             } else if (path.includes('/concerts/')) {
                 title = '콘서트 상세 - 티켓몬';
                 description = '콘서트 상세 정보를 확인하고 바로 예매하세요.';
@@ -84,17 +87,22 @@ export default function PublicLayout() {
             document.title = title;
 
             // 메타 description 업데이트
-            const metaDescription = document.querySelector('meta[name="description"]');
+            const metaDescription = document.querySelector(
+                'meta[name="description"]',
+            );
             if (metaDescription) {
                 metaDescription.setAttribute('content', description);
             }
 
             // Open Graph 메타태그 업데이트
             const ogTitle = document.querySelector('meta[property="og:title"]');
-            const ogDescription = document.querySelector('meta[property="og:description"]');
+            const ogDescription = document.querySelector(
+                'meta[property="og:description"]',
+            );
 
             if (ogTitle) ogTitle.setAttribute('content', title);
-            if (ogDescription) ogDescription.setAttribute('content', description);
+            if (ogDescription)
+                ogDescription.setAttribute('content', description);
         };
 
         updatePageMeta();
@@ -153,9 +161,7 @@ export default function PublicLayout() {
                 )}
 
                 {/* 모바일에서 하단 여백 (필요시) */}
-                {isMobile && (
-                    <div className="h-16" aria-hidden="true"></div>
-                )}
+                {isMobile && <div className="h-16" aria-hidden="true"></div>}
             </main>
 
             {/* 푸터 - 콘서트 페이지와 동일한 스타일 */}
@@ -213,7 +219,7 @@ const ScrollToTopButton = () => {
     const scrollToTop = () => {
         window.scrollTo({
             top: 0,
-            behavior: 'smooth'
+            behavior: 'smooth',
         });
     };
 

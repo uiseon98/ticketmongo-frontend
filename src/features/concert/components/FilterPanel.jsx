@@ -7,7 +7,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 const useResponsive = () => {
     const [isMobile, setIsMobile] = useState(false);
     const [screenWidth, setScreenWidth] = useState(
-        typeof window !== 'undefined' ? window.innerWidth : 1200
+        typeof window !== 'undefined' ? window.innerWidth : 1200,
     );
 
     useEffect(() => {
@@ -26,7 +26,7 @@ const useResponsive = () => {
         isMobile,
         isTablet: screenWidth <= 1024 && screenWidth > 768,
         isDesktop: screenWidth > 1024,
-        screenWidth
+        screenWidth,
     };
 };
 
@@ -342,7 +342,13 @@ const FilterPanel = ({
      */
     const containerStyles = {
         // 🎯 반응형 패딩
-        padding: isMobile ? '16px' : isTablet ? '18px' : compact ? '12px' : '16px',
+        padding: isMobile
+            ? '16px'
+            : isTablet
+              ? '18px'
+              : compact
+                ? '12px'
+                : '16px',
         border: '1px solid #374151',
         borderRadius: isMobile ? '12px' : '8px',
         backgroundColor: '#1E293B',
@@ -356,7 +362,13 @@ const FilterPanel = ({
      * 섹션 스타일
      */
     const sectionStyles = {
-        marginBottom: isMobile ? '16px' : isTablet ? '18px' : compact ? '12px' : '16px',
+        marginBottom: isMobile
+            ? '16px'
+            : isTablet
+              ? '18px'
+              : compact
+                ? '12px'
+                : '16px',
     };
 
     /**
@@ -365,7 +377,13 @@ const FilterPanel = ({
     const labelStyles = {
         display: 'block',
         // 🎯 반응형 폰트 크기
-        fontSize: isMobile ? '14px' : isTablet ? '15px' : compact ? '13px' : '14px',
+        fontSize: isMobile
+            ? '14px'
+            : isTablet
+              ? '15px'
+              : compact
+                ? '13px'
+                : '14px',
         fontWeight: '600',
         color: '#FFFFFF',
         marginBottom: isMobile ? '8px' : '6px',
@@ -377,7 +395,13 @@ const FilterPanel = ({
     const inputStyles = {
         width: '100%',
         // 🎯 반응형 패딩 (모바일에서 터치 친화적)
-        padding: isMobile ? '14px 16px' : isTablet ? '12px 14px' : compact ? '6px 8px' : '8px 12px',
+        padding: isMobile
+            ? '14px 16px'
+            : isTablet
+              ? '12px 14px'
+              : compact
+                ? '6px 8px'
+                : '8px 12px',
         border: '1px solid #374151',
         borderRadius: isMobile ? '8px' : '4px',
         // 🎯 iOS zoom 방지를 위해 16px 유지
@@ -434,10 +458,22 @@ const FilterPanel = ({
      */
     const buttonBaseStyles = {
         // 🎯 반응형 패딩과 크기
-        padding: isMobile ? '12px 16px' : isTablet ? '10px 14px' : compact ? '6px 12px' : '8px 16px',
+        padding: isMobile
+            ? '12px 16px'
+            : isTablet
+              ? '10px 14px'
+              : compact
+                ? '6px 12px'
+                : '8px 16px',
         borderRadius: isMobile ? '8px' : '4px',
         // 🎯 반응형 폰트 크기
-        fontSize: isMobile ? '14px' : isTablet ? '14px' : compact ? '13px' : '14px',
+        fontSize: isMobile
+            ? '14px'
+            : isTablet
+              ? '14px'
+              : compact
+                ? '13px'
+                : '14px',
         fontWeight: '500',
         cursor: disabled || loading ? 'not-allowed' : 'pointer',
         transition: 'all 0.2s ease',
@@ -486,8 +522,20 @@ const FilterPanel = ({
                     style={{
                         ...labelStyles,
                         // 🎯 반응형 제목 크기
-                        fontSize: isMobile ? '16px' : isTablet ? '17px' : compact ? '14px' : '16px',
-                        marginBottom: isMobile ? '12px' : isTablet ? '14px' : compact ? '8px' : '12px',
+                        fontSize: isMobile
+                            ? '16px'
+                            : isTablet
+                              ? '17px'
+                              : compact
+                                ? '14px'
+                                : '16px',
+                        marginBottom: isMobile
+                            ? '12px'
+                            : isTablet
+                              ? '14px'
+                              : compact
+                                ? '8px'
+                                : '12px',
                         color: '#ffffff',
                     }}
                 >
@@ -499,7 +547,9 @@ const FilterPanel = ({
                     style={{
                         display: isMobile ? 'flex' : 'grid', // 모바일에서는 flex 사용
                         flexDirection: isMobile ? 'column' : undefined,
-                        gridTemplateColumns: isMobile ? undefined : '1fr auto 1fr',
+                        gridTemplateColumns: isMobile
+                            ? undefined
+                            : '1fr auto 1fr',
                         gap: isMobile ? '12px' : '8px',
                         alignItems: isMobile ? 'stretch' : 'end',
                     }}
@@ -524,7 +574,11 @@ const FilterPanel = ({
                         <div
                             style={{
                                 color: '#6b7280',
-                                fontSize: isTablet ? '16px' : compact ? '14px' : '16px',
+                                fontSize: isTablet
+                                    ? '16px'
+                                    : compact
+                                      ? '14px'
+                                      : '16px',
                                 paddingBottom: '8px',
                                 textAlign: 'center',
                             }}
@@ -570,7 +624,13 @@ const FilterPanel = ({
                     flexDirection: isMobile ? 'column' : 'row',
                     justifyContent: isMobile ? 'stretch' : 'flex-end',
                     gap: isMobile ? '12px' : '8px',
-                    marginTop: isMobile ? '16px' : isTablet ? '18px' : compact ? '12px' : '16px',
+                    marginTop: isMobile
+                        ? '16px'
+                        : isTablet
+                          ? '18px'
+                          : compact
+                            ? '12px'
+                            : '16px',
                 }}
             >
                 {/* 🔥 개선된 초기화/전체보기 버튼 */}
@@ -633,13 +693,14 @@ const FilterPanel = ({
                             </strong>{' '}
                             {isMobile
                                 ? '조건에 맞는 콘서트만 표시 중입니다.'
-                                : '조건에 맞는 콘서트만 표시 중입니다. "전체 보기"를 클릭하여 모든 콘서트를 확인하세요.'
-                            }
+                                : '조건에 맞는 콘서트만 표시 중입니다. "전체 보기"를 클릭하여 모든 콘서트를 확인하세요.'}
                         </>
                     ) : (
                         <>
-                            💡 <strong>팁:</strong> 날짜를 설정한 후 "필터 적용" 버튼을 눌러주세요.
-                            {!isMobile && ' 과거 날짜를 선택하면 이미 종료된 콘서트를 검색할 수 있습니다.'}
+                            💡 <strong>팁:</strong> 날짜를 설정한 후 "필터 적용"
+                            버튼을 눌러주세요.
+                            {!isMobile &&
+                                ' 과거 날짜를 선택하면 이미 종료된 콘서트를 검색할 수 있습니다.'}
                         </>
                     )}
                 </div>

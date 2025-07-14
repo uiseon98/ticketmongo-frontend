@@ -8,7 +8,7 @@ import { AuthContext } from '../../context/AuthContext';
 const useResponsive = () => {
     const [isMobile, setIsMobile] = useState(false);
     const [screenWidth, setScreenWidth] = useState(
-        typeof window !== 'undefined' ? window.innerWidth : 1200
+        typeof window !== 'undefined' ? window.innerWidth : 1200,
     );
 
     useEffect(() => {
@@ -27,7 +27,7 @@ const useResponsive = () => {
         isMobile,
         isTablet: screenWidth <= 1024 && screenWidth > 768,
         isDesktop: screenWidth > 1024,
-        screenWidth
+        screenWidth,
     };
 };
 
@@ -37,8 +37,14 @@ const SellerHomePage = () => {
     const { isMobile, isTablet } = useResponsive();
 
     // 판매자 권한 확인
-    const isAdmin = user && (user.role === 'ROLE_ADMIN' || (user.roles && user.roles.includes('ROLE_ADMIN')));
-    const isSeller = user && (user.role === 'ROLE_SELLER' || (user.roles && user.roles.includes('ROLE_SELLER')));
+    const isAdmin =
+        user &&
+        (user.role === 'ROLE_ADMIN' ||
+            (user.roles && user.roles.includes('ROLE_ADMIN')));
+    const isSeller =
+        user &&
+        (user.role === 'ROLE_SELLER' ||
+            (user.roles && user.roles.includes('ROLE_SELLER')));
 
     // 빠른 액션 데이터 (필요한 것만)
     const quickActions = [
@@ -74,7 +80,8 @@ const SellerHomePage = () => {
             return {
                 title: '관리자 대시보드',
                 subtitle: '판매자 기능을 체험해볼 수 있습니다',
-                message: '관리자로 로그인되어 있습니다. 관리자는 판매자 기능을 이용할 수 없습니다.',
+                message:
+                    '관리자로 로그인되어 있습니다. 관리자는 판매자 기능을 이용할 수 없습니다.',
             };
         } else if (isSeller) {
             return {
@@ -105,11 +112,12 @@ const SellerHomePage = () => {
             }}
         >
             <div
-                className={isMobile
-                    ? "p-4 overflow-x-hidden"
-                    : isTablet
-                        ? "max-w-4xl mx-auto p-4 overflow-x-hidden"
-                        : "max-w-6xl mx-auto p-6 overflow-x-hidden"
+                className={
+                    isMobile
+                        ? 'p-4 overflow-x-hidden'
+                        : isTablet
+                          ? 'max-w-4xl mx-auto p-4 overflow-x-hidden'
+                          : 'max-w-6xl mx-auto p-6 overflow-x-hidden'
                 }
                 style={{
                     backgroundColor: '#111827',
@@ -120,11 +128,12 @@ const SellerHomePage = () => {
             >
                 {/* 페이지 제목 - 콘서트 페이지와 동일한 스타일 */}
                 <h1
-                    className={isMobile
-                        ? "text-xl font-bold mb-4 text-center break-words"
-                        : isTablet
-                            ? "text-2xl font-bold mb-5 text-center break-words"
-                            : "text-4xl font-bold mb-6 text-center break-words"
+                    className={
+                        isMobile
+                            ? 'text-xl font-bold mb-4 text-center break-words'
+                            : isTablet
+                              ? 'text-2xl font-bold mb-5 text-center break-words'
+                              : 'text-4xl font-bold mb-6 text-center break-words'
                     }
                     style={{
                         color: '#FFFFFF',
@@ -148,50 +157,72 @@ const SellerHomePage = () => {
                 </p>
 
                 {/* 콘텐츠 영역 - 콘서트 페이지와 동일한 간격 시스템 */}
-                <div className={`space-y-${isMobile ? '4' : isTablet ? '5' : '8'}`}>
+                <div
+                    className={`space-y-${isMobile ? '4' : isTablet ? '5' : '8'}`}
+                >
                     {/* 환영 메시지 카드 */}
                     <div
                         className="rounded-xl shadow-md text-center"
                         style={{
                             backgroundColor: '#1f2937', // gray-800
                             border: '1px solid #374151', // gray-700
-                            padding: isMobile ? '24px' : isTablet ? '28px' : '32px',
+                            padding: isMobile
+                                ? '24px'
+                                : isTablet
+                                  ? '28px'
+                                  : '32px',
                         }}
                     >
                         <div className="text-6xl mb-4">
                             {isAdmin ? '👑' : isSeller ? '🎪' : '🎭'}
                         </div>
-                        <h2 className={`font-bold text-white mb-3 ${isMobile ? 'text-lg' : 'text-xl'}`}>
+                        <h2
+                            className={`font-bold text-white mb-3 ${isMobile ? 'text-lg' : 'text-xl'}`}
+                        >
                             {welcomeData.subtitle}
                         </h2>
-                        <p className={`text-gray-300 leading-relaxed ${isMobile ? 'text-sm' : 'text-base'}`}>
+                        <p
+                            className={`text-gray-300 leading-relaxed ${isMobile ? 'text-sm' : 'text-base'}`}
+                        >
                             {welcomeData.message}
                         </p>
                     </div>
 
                     {/* 빠른 액션 카드들 */}
                     <div>
-                        <h3 className={`font-bold text-white mb-4 ${isMobile ? 'text-lg' : 'text-xl'}`}>
+                        <h3
+                            className={`font-bold text-white mb-4 ${isMobile ? 'text-lg' : 'text-xl'}`}
+                        >
                             빠른 액션
                         </h3>
-                        <div className={`grid gap-4 ${
-                            isMobile
-                                ? 'grid-cols-1'
-                                : isTablet
-                                    ? 'grid-cols-2'
-                                    : 'grid-cols-3'
-                        }`}>
+                        <div
+                            className={`grid gap-4 ${
+                                isMobile
+                                    ? 'grid-cols-1'
+                                    : isTablet
+                                      ? 'grid-cols-2'
+                                      : 'grid-cols-3'
+                            }`}
+                        >
                             {quickActions.map((action, index) => (
                                 <button
                                     key={index}
                                     onClick={() => {
-                                        if (action.requiresSeller && !isSeller && !isAdmin) {
-                                            alert('이 기능을 사용하려면 판매자 권한이 필요합니다.');
+                                        if (
+                                            action.requiresSeller &&
+                                            !isSeller &&
+                                            !isAdmin
+                                        ) {
+                                            alert(
+                                                '이 기능을 사용하려면 판매자 권한이 필요합니다.',
+                                            );
                                             navigate('/seller/apply');
                                             return;
                                         }
                                         if (action.requiresSeller && isAdmin) {
-                                            alert('관리자는 판매자 기능을 사용할 수 없습니다.');
+                                            alert(
+                                                '관리자는 판매자 기능을 사용할 수 없습니다.',
+                                            );
                                             return;
                                         }
                                         navigate(action.path);
@@ -204,39 +235,52 @@ const SellerHomePage = () => {
                                     }}
                                     onMouseEnter={(e) => {
                                         if (!isMobile) {
-                                            e.target.style.borderColor = action.color;
+                                            e.target.style.borderColor =
+                                                action.color;
                                         }
                                     }}
                                     onMouseLeave={(e) => {
                                         if (!isMobile) {
-                                            e.target.style.borderColor = '#374151';
+                                            e.target.style.borderColor =
+                                                '#374151';
                                         }
                                     }}
                                 >
                                     <div className="flex items-start gap-4">
                                         <div
                                             className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
-                                            style={{ backgroundColor: action.color }}
+                                            style={{
+                                                backgroundColor: action.color,
+                                            }}
                                         >
-                                            <span className="text-xl">{action.icon}</span>
+                                            <span className="text-xl">
+                                                {action.icon}
+                                            </span>
                                         </div>
                                         <div className="flex-1">
-                                            <h4 className={`font-semibold text-white mb-1 ${isMobile ? 'text-base' : 'text-lg'}`}>
+                                            <h4
+                                                className={`font-semibold text-white mb-1 ${isMobile ? 'text-base' : 'text-lg'}`}
+                                            >
                                                 {action.title}
                                             </h4>
-                                            <p className={`text-gray-300 ${isMobile ? 'text-sm' : 'text-base'}`}>
+                                            <p
+                                                className={`text-gray-300 ${isMobile ? 'text-sm' : 'text-base'}`}
+                                            >
                                                 {action.description}
                                             </p>
-                                            {action.requiresSeller && !isSeller && !isAdmin && (
-                                                <p className="text-yellow-400 text-xs mt-1">
-                                                    * 판매자 권한 필요
-                                                </p>
-                                            )}
-                                            {action.requiresSeller && isAdmin && (
-                                                <p className="text-red-400 text-xs mt-1">
-                                                    * 관리자 접근 불가
-                                                </p>
-                                            )}
+                                            {action.requiresSeller &&
+                                                !isSeller &&
+                                                !isAdmin && (
+                                                    <p className="text-yellow-400 text-xs mt-1">
+                                                        * 판매자 권한 필요
+                                                    </p>
+                                                )}
+                                            {action.requiresSeller &&
+                                                isAdmin && (
+                                                    <p className="text-red-400 text-xs mt-1">
+                                                        * 관리자 접근 불가
+                                                    </p>
+                                                )}
                                         </div>
                                     </div>
                                 </button>
@@ -254,17 +298,25 @@ const SellerHomePage = () => {
                                 padding: isMobile ? '20px' : '24px',
                             }}
                         >
-                            <h3 className={`font-bold text-white mb-4 ${isMobile ? 'text-lg' : 'text-xl'}`}>
+                            <h3
+                                className={`font-bold text-white mb-4 ${isMobile ? 'text-lg' : 'text-xl'}`}
+                            >
                                 💡 판매자가 되는 방법
                             </h3>
-                            <div className={`space-y-4 text-gray-300 ${isMobile ? 'text-sm' : 'text-base'}`}>
+                            <div
+                                className={`space-y-4 text-gray-300 ${isMobile ? 'text-sm' : 'text-base'}`}
+                            >
                                 <div className="flex items-start gap-3">
                                     <span className="flex-shrink-0 w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
                                         1
                                     </span>
                                     <div>
-                                        <p className="font-medium text-white">판매자 권한 신청</p>
-                                        <p className="text-sm text-gray-400">사업자 정보와 필요 서류를 제출하세요</p>
+                                        <p className="font-medium text-white">
+                                            판매자 권한 신청
+                                        </p>
+                                        <p className="text-sm text-gray-400">
+                                            사업자 정보와 필요 서류를 제출하세요
+                                        </p>
                                     </div>
                                 </div>
                                 <div className="flex items-start gap-3">
@@ -272,8 +324,12 @@ const SellerHomePage = () => {
                                         2
                                     </span>
                                     <div>
-                                        <p className="font-medium text-white">승인 대기</p>
-                                        <p className="text-sm text-gray-400">관리자가 신청 내용을 검토합니다</p>
+                                        <p className="font-medium text-white">
+                                            승인 대기
+                                        </p>
+                                        <p className="text-sm text-gray-400">
+                                            관리자가 신청 내용을 검토합니다
+                                        </p>
                                     </div>
                                 </div>
                                 <div className="flex items-start gap-3">
@@ -281,8 +337,12 @@ const SellerHomePage = () => {
                                         3
                                     </span>
                                     <div>
-                                        <p className="font-medium text-white">승인 완료</p>
-                                        <p className="text-sm text-gray-400">콘서트 등록 및 관리가 가능합니다</p>
+                                        <p className="font-medium text-white">
+                                            승인 완료
+                                        </p>
+                                        <p className="text-sm text-gray-400">
+                                            콘서트 등록 및 관리가 가능합니다
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -290,7 +350,9 @@ const SellerHomePage = () => {
                                 <button
                                     onClick={() => navigate('/seller/apply')}
                                     className={`bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all ${
-                                        isMobile ? 'w-full py-3 px-6' : 'py-2 px-6'
+                                        isMobile
+                                            ? 'w-full py-3 px-6'
+                                            : 'py-2 px-6'
                                     }`}
                                 >
                                     판매자 권한 신청하기
@@ -301,9 +363,7 @@ const SellerHomePage = () => {
                 </div>
 
                 {/* 모바일에서 하단 여백 - 콘서트 페이지와 동일 */}
-                {isMobile && (
-                    <div className="h-16" aria-hidden="true"></div>
-                )}
+                {isMobile && <div className="h-16" aria-hidden="true"></div>}
             </div>
         </div>
     );

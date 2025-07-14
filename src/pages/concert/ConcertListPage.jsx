@@ -14,7 +14,7 @@ import { useConcerts } from '../../features/concert/hooks/useConcerts.js';
 const useResponsive = () => {
     const [isMobile, setIsMobile] = useState(false);
     const [screenWidth, setScreenWidth] = useState(
-        typeof window !== 'undefined' ? window.innerWidth : 1200
+        typeof window !== 'undefined' ? window.innerWidth : 1200,
     );
 
     useEffect(() => {
@@ -33,7 +33,7 @@ const useResponsive = () => {
         isMobile,
         isTablet: screenWidth <= 1024 && screenWidth > 768,
         isDesktop: screenWidth > 1024,
-        screenWidth
+        screenWidth,
     };
 };
 
@@ -111,8 +111,10 @@ function ConcertListPage() {
     const handleFilter = async (filterParams) => {
         try {
             const cleanFilterParams = {};
-            if (filterParams.startDate) cleanFilterParams.startDate = filterParams.startDate;
-            if (filterParams.endDate) cleanFilterParams.endDate = filterParams.endDate;
+            if (filterParams.startDate)
+                cleanFilterParams.startDate = filterParams.startDate;
+            if (filterParams.endDate)
+                cleanFilterParams.endDate = filterParams.endDate;
 
             const newSearchParams = new URLSearchParams();
 
@@ -188,11 +190,12 @@ function ConcertListPage() {
         >
             {/* 메인 컨테이너 - ConcertDetailPage와 동일한 구조 */}
             <div
-                className={isMobile
-                    ? "p-4 overflow-x-hidden"
-                    : isTablet
-                        ? "max-w-4xl mx-auto p-4 overflow-x-hidden"
-                        : "max-w-6xl mx-auto p-6 overflow-x-hidden"
+                className={
+                    isMobile
+                        ? 'p-4 overflow-x-hidden'
+                        : isTablet
+                          ? 'max-w-4xl mx-auto p-4 overflow-x-hidden'
+                          : 'max-w-6xl mx-auto p-6 overflow-x-hidden'
                 }
                 style={{
                     backgroundColor: '#111827',
@@ -214,11 +217,12 @@ function ConcertListPage() {
                         }}
                     >
                         <div
-                            className={isMobile
-                                ? "p-4 overflow-x-hidden"
-                                : isTablet
-                                    ? "max-w-4xl mx-auto p-4 overflow-x-hidden"
-                                    : "max-w-6xl mx-auto p-6 overflow-x-hidden"
+                            className={
+                                isMobile
+                                    ? 'p-4 overflow-x-hidden'
+                                    : isTablet
+                                      ? 'max-w-4xl mx-auto p-4 overflow-x-hidden'
+                                      : 'max-w-6xl mx-auto p-6 overflow-x-hidden'
                             }
                             style={{
                                 backgroundColor: '#111827',
@@ -229,11 +233,12 @@ function ConcertListPage() {
                         >
                             {/* 페이지 제목도 로딩 중에 표시 */}
                             <h1
-                                className={isMobile
-                                    ? "text-xl font-bold mb-4 text-center break-words"
-                                    : isTablet
-                                        ? "text-2xl font-bold mb-5 text-center break-words"
-                                        : "text-4xl font-bold mb-6 text-center break-words"
+                                className={
+                                    isMobile
+                                        ? 'text-xl font-bold mb-4 text-center break-words'
+                                        : isTablet
+                                          ? 'text-2xl font-bold mb-5 text-center break-words'
+                                          : 'text-4xl font-bold mb-6 text-center break-words'
                                 }
                                 style={{
                                     color: '#FFFFFF',
@@ -262,7 +267,11 @@ function ConcertListPage() {
                                 style={{
                                     backgroundColor: '#1f2937',
                                     border: '1px solid #374151',
-                                    padding: isMobile ? '40px 20px' : isTablet ? '50px 30px' : '60px 40px',
+                                    padding: isMobile
+                                        ? '40px 20px'
+                                        : isTablet
+                                          ? '50px 30px'
+                                          : '60px 40px',
                                     textAlign: 'center',
                                 }}
                             >
@@ -277,10 +286,12 @@ function ConcertListPage() {
                                         margin: '0 auto 16px',
                                     }}
                                 />
-                                <div style={{
-                                    color: '#FFFFFF',
-                                    fontSize: isMobile ? '14px' : '18px'
-                                }}>
+                                <div
+                                    style={{
+                                        color: '#FFFFFF',
+                                        fontSize: isMobile ? '14px' : '18px',
+                                    }}
+                                >
                                     콘서트 목록을 불러오는 중...
                                 </div>
                             </div>
@@ -290,11 +301,12 @@ function ConcertListPage() {
 
                 {/* 페이지 제목 - ConcertDetailPage와 동일한 스타일 */}
                 <h1
-                    className={isMobile
-                        ? "text-xl font-bold mb-4 text-center break-words"
-                        : isTablet
-                            ? "text-2xl font-bold mb-5 text-center break-words"
-                            : "text-4xl font-bold mb-6 text-center break-words"
+                    className={
+                        isMobile
+                            ? 'text-xl font-bold mb-4 text-center break-words'
+                            : isTablet
+                              ? 'text-2xl font-bold mb-5 text-center break-words'
+                              : 'text-4xl font-bold mb-6 text-center break-words'
                     }
                     style={{
                         color: '#FFFFFF',
@@ -318,15 +330,20 @@ function ConcertListPage() {
                 </p>
 
                 {/* 콘텐츠 영역 - ConcertDetailPage와 동일한 간격 시스템 */}
-                <div className={`space-y-${isMobile ? '4' : isTablet ? '5' : '8'}`}>
-
+                <div
+                    className={`space-y-${isMobile ? '4' : isTablet ? '5' : '8'}`}
+                >
                     {/* 검색 바 섹션 - ConcertDetailPage 카드 스타일 적용 */}
                     <div
                         className="rounded-xl shadow-md"
                         style={{
                             backgroundColor: '#1f2937', // gray-800
                             border: '1px solid #374151', // gray-700
-                            padding: isMobile ? '16px' : isTablet ? '20px' : '24px',
+                            padding: isMobile
+                                ? '16px'
+                                : isTablet
+                                  ? '20px'
+                                  : '24px',
                         }}
                     >
                         <SearchBar
@@ -358,64 +375,84 @@ function ConcertListPage() {
                     </div>
 
                     {/* 검색/필터 결과 표시 - ConcertDetailPage 스타일 */}
-                    {concerts.length > 0 && (hasActiveSearch || hasActiveFilters) && (
-                        <div
-                            className="rounded-xl shadow-md border-l-4"
-                            style={{
-                                backgroundColor: '#1f2937', // gray-800
-                                borderLeftColor: '#3B82F6', // blue-500
-                                border: '1px solid #374151', // gray-700
-                                padding: isMobile ? '16px' : isTablet ? '20px' : '24px',
-                            }}
-                        >
-                            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-                                <div className="flex-1">
-                                    <h3 className={`font-semibold text-blue-300 mb-2 ${isMobile ? 'text-base' : 'text-lg'}`}>
-                                        {hasActiveSearch && hasActiveFilters
-                                            ? `"${query}" 검색 결과 (필터 적용됨)`
-                                            : hasActiveSearch
-                                              ? `"${query}" 검색 결과`
-                                              : '필터링 결과'}
-                                    </h3>
-                                    <div className={`text-blue-200 space-y-1 ${isMobile ? 'text-sm' : 'text-base'}`}>
-                                        <p>총 {totalElements}개의 콘서트를 찾았습니다.</p>
-                                        <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-1 sm:space-y-0">
-                                            {hasActiveSearch && (
-                                                <span className="flex items-center gap-2">
-                                                    <span className="text-blue-300">🔍</span>
-                                                    검색어: "{query}"
-                                                </span>
-                                            )}
-                                            {startDate && (
-                                                <span className="flex items-center gap-2">
-                                                    <span className="text-blue-300">📅</span>
-                                                    시작일: {startDate}
-                                                </span>
-                                            )}
-                                            {endDate && (
-                                                <span className="flex items-center gap-2">
-                                                    <span className="text-blue-300">📅</span>
-                                                    종료일: {endDate}
-                                                </span>
-                                            )}
+                    {concerts.length > 0 &&
+                        (hasActiveSearch || hasActiveFilters) && (
+                            <div
+                                className="rounded-xl shadow-md border-l-4"
+                                style={{
+                                    backgroundColor: '#1f2937', // gray-800
+                                    borderLeftColor: '#3B82F6', // blue-500
+                                    border: '1px solid #374151', // gray-700
+                                    padding: isMobile
+                                        ? '16px'
+                                        : isTablet
+                                          ? '20px'
+                                          : '24px',
+                                }}
+                            >
+                                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                                    <div className="flex-1">
+                                        <h3
+                                            className={`font-semibold text-blue-300 mb-2 ${isMobile ? 'text-base' : 'text-lg'}`}
+                                        >
+                                            {hasActiveSearch && hasActiveFilters
+                                                ? `"${query}" 검색 결과 (필터 적용됨)`
+                                                : hasActiveSearch
+                                                  ? `"${query}" 검색 결과`
+                                                  : '필터링 결과'}
+                                        </h3>
+                                        <div
+                                            className={`text-blue-200 space-y-1 ${isMobile ? 'text-sm' : 'text-base'}`}
+                                        >
+                                            <p>
+                                                총 {totalElements}개의 콘서트를
+                                                찾았습니다.
+                                            </p>
+                                            <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-1 sm:space-y-0">
+                                                {hasActiveSearch && (
+                                                    <span className="flex items-center gap-2">
+                                                        <span className="text-blue-300">
+                                                            🔍
+                                                        </span>
+                                                        검색어: "{query}"
+                                                    </span>
+                                                )}
+                                                {startDate && (
+                                                    <span className="flex items-center gap-2">
+                                                        <span className="text-blue-300">
+                                                            📅
+                                                        </span>
+                                                        시작일: {startDate}
+                                                    </span>
+                                                )}
+                                                {endDate && (
+                                                    <span className="flex items-center gap-2">
+                                                        <span className="text-blue-300">
+                                                            📅
+                                                        </span>
+                                                        종료일: {endDate}
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                {/* 전체 보기 버튼 - ConcertDetailPage 버튼 스타일 */}
-                                <button
-                                    onClick={handleShowAll}
-                                    className={`${isMobile ? 'w-full' : 'w-auto'} text-blue-300 hover:text-blue-100 font-medium px-4 py-2 rounded-lg border border-blue-400 hover:bg-blue-900 hover:bg-opacity-30 transition-colors disabled:opacity-50`}
-                                    style={{
-                                        minHeight: isMobile ? '48px' : 'auto', // 모바일 터치 영역
-                                    }}
-                                    disabled={loading}
-                                >
-                                    {loading ? '로딩중...' : '🏠 전체 보기'}
-                                </button>
+                                    {/* 전체 보기 버튼 - ConcertDetailPage 버튼 스타일 */}
+                                    <button
+                                        onClick={handleShowAll}
+                                        className={`${isMobile ? 'w-full' : 'w-auto'} text-blue-300 hover:text-blue-100 font-medium px-4 py-2 rounded-lg border border-blue-400 hover:bg-blue-900 hover:bg-opacity-30 transition-colors disabled:opacity-50`}
+                                        style={{
+                                            minHeight: isMobile
+                                                ? '48px'
+                                                : 'auto', // 모바일 터치 영역
+                                        }}
+                                        disabled={loading}
+                                    >
+                                        {loading ? '로딩중...' : '🏠 전체 보기'}
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    )}
+                        )}
 
                     {/* 콘서트 목록 - ConcertDetailPage 카드 스타일 적용 */}
                     <div
@@ -478,14 +515,18 @@ function ConcertListPage() {
                                             </span>
                                         )}
                                     </div>
-                                    <span className="hidden sm:inline text-gray-500">|</span>
+                                    <span className="hidden sm:inline text-gray-500">
+                                        |
+                                    </span>
                                     <span>
-                                        총 {totalElements}개 중 {currentPage + 1} / {totalPages} 페이지
+                                        총 {totalElements}개 중{' '}
+                                        {currentPage + 1} / {totalPages} 페이지
                                     </span>
                                 </>
                             ) : (
                                 <span>
-                                    총 {totalElements}개의 콘서트 중 {currentPage + 1} / {totalPages} 페이지
+                                    총 {totalElements}개의 콘서트 중{' '}
+                                    {currentPage + 1} / {totalPages} 페이지
                                 </span>
                             )}
                         </div>
@@ -493,9 +534,7 @@ function ConcertListPage() {
                 </div>
 
                 {/* 모바일에서 하단 여백 - ConcertDetailPage와 동일 */}
-                {isMobile && (
-                    <div className="h-16" aria-hidden="true"></div>
-                )}
+                {isMobile && <div className="h-16" aria-hidden="true"></div>}
             </div>
         </div>
     );

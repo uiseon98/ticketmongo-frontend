@@ -237,9 +237,9 @@ const SellerConcertList = ({
 
     // 액션 메뉴 토글
     const toggleActionMenu = (concertId) => {
-        setExpandedActions(prev => ({
+        setExpandedActions((prev) => ({
             ...prev,
-            [concertId]: !prev[concertId]
+            [concertId]: !prev[concertId],
         }));
     };
 
@@ -358,7 +358,9 @@ const SellerConcertList = ({
                             {/* 백드롭 */}
                             <div
                                 className="fixed inset-0 z-10"
-                                onClick={() => toggleActionMenu(concert.concertId)}
+                                onClick={() =>
+                                    toggleActionMenu(concert.concertId)
+                                }
                             />
 
                             {/* 액션 메뉴 */}
@@ -366,7 +368,9 @@ const SellerConcertList = ({
                                 <button
                                     onClick={() => {
                                         if (concert.status === 'CANCELLED') {
-                                            alert('취소된 콘서트는 수정할 수 없습니다.');
+                                            alert(
+                                                '취소된 콘서트는 수정할 수 없습니다.',
+                                            );
                                             return;
                                         }
                                         onEditConcert && onEditConcert(concert);
@@ -412,7 +416,10 @@ const SellerConcertList = ({
             <div className="space-y-2">
                 {/* 공연일시 */}
                 <div className="flex items-center gap-2 text-sm">
-                    <Calendar size={14} className="text-gray-400 flex-shrink-0" />
+                    <Calendar
+                        size={14}
+                        className="text-gray-400 flex-shrink-0"
+                    />
                     <span className="text-gray-200">
                         {formatDate(concert.concertDate)}
                     </span>
@@ -446,7 +453,8 @@ const SellerConcertList = ({
             {/* 카드 푸터 */}
             <div className="mt-3 pt-3 border-t border-gray-600">
                 <div className="text-xs text-gray-400">
-                    {concert.updatedAt && concert.updatedAt !== concert.createdAt
+                    {concert.updatedAt &&
+                    concert.updatedAt !== concert.createdAt
                         ? `수정됨: ${formatDateTime(concert.updatedAt)}`
                         : `등록됨: ${formatDateTime(concert.createdAt)}`}
                 </div>
@@ -526,9 +534,7 @@ const SellerConcertList = ({
             </div>
 
             {/* 상태 */}
-            <div className="col-span-1">
-                {getStatusBadge(concert.status)}
-            </div>
+            <div className="col-span-1">{getStatusBadge(concert.status)}</div>
 
             {/* 작업 버튼들 */}
             <div className="col-span-2">
@@ -537,7 +543,9 @@ const SellerConcertList = ({
                         <button
                             onClick={() => {
                                 if (concert.status === 'CANCELLED') {
-                                    alert('취소된 콘서트는 수정할 수 없습니다.');
+                                    alert(
+                                        '취소된 콘서트는 수정할 수 없습니다.',
+                                    );
                                     return;
                                 }
                                 onEditConcert && onEditConcert(concert);
@@ -558,10 +566,13 @@ const SellerConcertList = ({
 
                     <div className="text-sm">
                         <span className="text-gray-300">
-                            {formatDateTime(concert.updatedAt || concert.createdAt)}
+                            {formatDateTime(
+                                concert.updatedAt || concert.createdAt,
+                            )}
                         </span>
                         <div className="text-xs text-gray-400 mt-0.5">
-                            {concert.updatedAt && concert.updatedAt !== concert.createdAt
+                            {concert.updatedAt &&
+                            concert.updatedAt !== concert.createdAt
                                 ? '수정됨'
                                 : '등록됨'}
                         </div>
@@ -620,7 +631,9 @@ const SellerConcertList = ({
                     {isMobile ? (
                         <div className="relative w-full">
                             <button
-                                onClick={() => setShowMobileFilters(!showMobileFilters)}
+                                onClick={() =>
+                                    setShowMobileFilters(!showMobileFilters)
+                                }
                                 className="w-full flex items-center justify-between px-3 py-2 bg-gray-600 text-gray-200 rounded-lg border border-gray-500 min-h-[44px]"
                             >
                                 <span>
@@ -636,14 +649,19 @@ const SellerConcertList = ({
                                                 ? '취소됨'
                                                 : '완료됨'}
                                 </span>
-                                <ChevronDown size={16} className={`transition-transform ${showMobileFilters ? 'rotate-180' : ''}`} />
+                                <ChevronDown
+                                    size={16}
+                                    className={`transition-transform ${showMobileFilters ? 'rotate-180' : ''}`}
+                                />
                             </button>
 
                             {showMobileFilters && (
                                 <>
                                     <div
                                         className="fixed inset-0 z-10"
-                                        onClick={() => setShowMobileFilters(false)}
+                                        onClick={() =>
+                                            setShowMobileFilters(false)
+                                        }
                                     />
                                     <div className="absolute top-full left-0 right-0 mt-1 bg-gray-700 border border-gray-600 rounded-lg shadow-lg z-20">
                                         {[
@@ -656,7 +674,9 @@ const SellerConcertList = ({
                                         ].map((status) => (
                                             <button
                                                 key={status}
-                                                onClick={() => handleStatusFilter(status)}
+                                                onClick={() =>
+                                                    handleStatusFilter(status)
+                                                }
                                                 className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-600 transition-colors ${
                                                     filters.status === status
                                                         ? 'bg-blue-600 text-white'
@@ -671,7 +691,8 @@ const SellerConcertList = ({
                                                         ? '예매중'
                                                         : status === 'SOLD_OUT'
                                                           ? '매진'
-                                                          : status === 'CANCELLED'
+                                                          : status ===
+                                                              'CANCELLED'
                                                             ? '취소됨'
                                                             : '완료됨'}
                                             </button>
@@ -768,13 +789,19 @@ const SellerConcertList = ({
                                 {/* 테이블 헤더 */}
                                 <div className="border-b border-gray-600">
                                     <div className="grid grid-cols-12 gap-4 p-4 text-sm font-medium text-gray-300">
-                                        <div className="col-span-3">콘서트 정보</div>
-                                        <div className="col-span-2">공연일시</div>
+                                        <div className="col-span-3">
+                                            콘서트 정보
+                                        </div>
+                                        <div className="col-span-2">
+                                            공연일시
+                                        </div>
                                         <div className="col-span-2">장소</div>
                                         <div className="col-span-1">좌석수</div>
                                         <div className="col-span-1">상태</div>
                                         <div className="col-span-2">작업</div>
-                                        <div className="col-span-1">AI 요약</div>
+                                        <div className="col-span-1">
+                                            AI 요약
+                                        </div>
                                     </div>
                                 </div>
 
@@ -820,7 +847,9 @@ const SellerConcertList = ({
                                 <div className="flex gap-1">
                                     <button
                                         onClick={() =>
-                                            handlePageChange(pagination.page - 1)
+                                            handlePageChange(
+                                                pagination.page - 1,
+                                            )
                                         }
                                         disabled={pagination.first}
                                         className="px-3 py-1 text-sm border border-gray-500 bg-gray-700 text-white rounded hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed min-h-[40px]"
@@ -830,7 +859,8 @@ const SellerConcertList = ({
 
                                     {(() => {
                                         const currentPage = pagination.page;
-                                        const totalPages = pagination.totalPages;
+                                        const totalPages =
+                                            pagination.totalPages;
                                         const maxVisible = isMobile ? 3 : 5;
 
                                         let startPage, endPage;
@@ -839,24 +869,54 @@ const SellerConcertList = ({
                                             startPage = 0;
                                             endPage = totalPages - 1;
                                         } else {
-                                            startPage = Math.max(0, currentPage - Math.floor(maxVisible / 2));
-                                            endPage = Math.min(totalPages - 1, currentPage + Math.floor(maxVisible / 2));
+                                            startPage = Math.max(
+                                                0,
+                                                currentPage -
+                                                    Math.floor(maxVisible / 2),
+                                            );
+                                            endPage = Math.min(
+                                                totalPages - 1,
+                                                currentPage +
+                                                    Math.floor(maxVisible / 2),
+                                            );
 
-                                            if (endPage - startPage < maxVisible - 1) {
+                                            if (
+                                                endPage - startPage <
+                                                maxVisible - 1
+                                            ) {
                                                 if (startPage === 0) {
-                                                    endPage = Math.min(totalPages - 1, startPage + maxVisible - 1);
-                                                } else if (endPage === totalPages - 1) {
-                                                    startPage = Math.max(0, endPage - maxVisible + 1);
+                                                    endPage = Math.min(
+                                                        totalPages - 1,
+                                                        startPage +
+                                                            maxVisible -
+                                                            1,
+                                                    );
+                                                } else if (
+                                                    endPage ===
+                                                    totalPages - 1
+                                                ) {
+                                                    startPage = Math.max(
+                                                        0,
+                                                        endPage -
+                                                            maxVisible +
+                                                            1,
+                                                    );
                                                 }
                                             }
                                         }
 
                                         const pages = [];
-                                        for (let i = startPage; i <= endPage; i++) {
+                                        for (
+                                            let i = startPage;
+                                            i <= endPage;
+                                            i++
+                                        ) {
                                             pages.push(
                                                 <button
                                                     key={i}
-                                                    onClick={() => handlePageChange(i)}
+                                                    onClick={() =>
+                                                        handlePageChange(i)
+                                                    }
                                                     className={`px-3 py-1 text-sm border rounded min-h-[40px] min-w-[40px] ${
                                                         i === currentPage
                                                             ? 'bg-blue-600 text-white border-blue-600'
@@ -873,7 +933,9 @@ const SellerConcertList = ({
 
                                     <button
                                         onClick={() =>
-                                            handlePageChange(pagination.page + 1)
+                                            handlePageChange(
+                                                pagination.page + 1,
+                                            )
                                         }
                                         disabled={pagination.last}
                                         className="px-3 py-1 text-sm border border-gray-500 bg-gray-700 text-white rounded hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed min-h-[40px]"
@@ -909,7 +971,9 @@ const SellerConcertList = ({
                             <AISummaryRegenerationSection
                                 sellerId={sellerId}
                                 concertId={selectedConcertForAi.concertId}
-                                currentAiSummary={selectedConcertForAi.aiSummary}
+                                currentAiSummary={
+                                    selectedConcertForAi.aiSummary
+                                }
                                 onSummaryUpdated={(newSummary) => {
                                     fetchConcerts();
                                 }}

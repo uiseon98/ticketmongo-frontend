@@ -7,7 +7,7 @@ import { ConcertStatusLabels, ConcertStatusColors } from '../types/concert.js';
 const useResponsive = () => {
     const [isMobile, setIsMobile] = useState(false);
     const [screenWidth, setScreenWidth] = useState(
-        typeof window !== 'undefined' ? window.innerWidth : 1200
+        typeof window !== 'undefined' ? window.innerWidth : 1200,
     );
 
     useEffect(() => {
@@ -26,15 +26,11 @@ const useResponsive = () => {
         isMobile,
         isTablet: screenWidth <= 1024 && screenWidth > 768,
         isDesktop: screenWidth > 1024,
-        screenWidth
+        screenWidth,
     };
 };
 
-const ConcertCard = ({
-    concert,
-    onClick,
-    className = '',
-}) => {
+const ConcertCard = ({ concert, onClick, className = '' }) => {
     const { isMobile, isTablet } = useResponsive();
 
     // 데이터 유효성 검증
@@ -82,8 +78,14 @@ const ConcertCard = ({
                 hour12: true,
             };
 
-            const formattedDate = dateTime.toLocaleDateString('ko-KR', dateOptions);
-            const formattedTime = dateTime.toLocaleTimeString('ko-KR', timeOptions);
+            const formattedDate = dateTime.toLocaleDateString(
+                'ko-KR',
+                dateOptions,
+            );
+            const formattedTime = dateTime.toLocaleTimeString(
+                'ko-KR',
+                timeOptions,
+            );
 
             return `${formattedDate} ${formattedTime}`;
         } catch (error) {
@@ -147,9 +149,14 @@ const ConcertCard = ({
             aria-label={`${concert.title} - ${concert.artist} 콘서트 정보`}
         >
             {/* 포스터 이미지 섹션 */}
-            <div className={`relative ${isMobile ? 'h-48' : 'h-64'} overflow-hidden bg-gray-700`}>
+            <div
+                className={`relative ${isMobile ? 'h-48' : 'h-64'} overflow-hidden bg-gray-700`}
+            >
                 <img
-                    src={concert.posterImageUrl || '/images/basic-poster-image.png'}
+                    src={
+                        concert.posterImageUrl ||
+                        '/images/basic-poster-image.png'
+                    }
                     alt={`${concert.title} 포스터`}
                     className="w-full h-full object-cover transition-opacity duration-300 opacity-0"
                     onLoad={handleImageLoad}
@@ -161,16 +168,26 @@ const ConcertCard = ({
                 {/* 기본 포스터 UI (이미지가 없을 때) */}
                 {!concert.posterImageUrl && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400">
-                        <div className={`${isMobile ? 'text-3xl' : 'text-4xl'} mb-2`}>🎭</div>
-                        <div className={`${isMobile ? 'text-xs' : 'text-sm'} text-center px-2`}>
-                            포스터<br />준비중
+                        <div
+                            className={`${isMobile ? 'text-3xl' : 'text-4xl'} mb-2`}
+                        >
+                            🎭
+                        </div>
+                        <div
+                            className={`${isMobile ? 'text-xs' : 'text-sm'} text-center px-2`}
+                        >
+                            포스터
+                            <br />
+                            준비중
                         </div>
                     </div>
                 )}
 
                 {/* 상태 배지 */}
                 <div className="absolute top-3 left-3">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(concert.status)}`}>
+                    <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(concert.status)}`}
+                    >
                         {ConcertStatusLabels[concert.status] || concert.status}
                     </span>
                 </div>
@@ -180,16 +197,22 @@ const ConcertCard = ({
             <div className={`p-${isMobile ? '4' : '5'} space-y-3`}>
                 {/* 제목과 아티스트 */}
                 <div>
-                    <h3 className={`${isMobile ? 'text-lg' : 'text-xl'} font-bold text-white mb-2 line-clamp-2`}>
+                    <h3
+                        className={`${isMobile ? 'text-lg' : 'text-xl'} font-bold text-white mb-2 line-clamp-2`}
+                    >
                         {concert.title}
                     </h3>
-                    <p className={`${isMobile ? 'text-sm' : 'text-base'} text-gray-300 truncate`}>
+                    <p
+                        className={`${isMobile ? 'text-sm' : 'text-base'} text-gray-300 truncate`}
+                    >
                         🎤 {concert.artist}
                     </p>
                 </div>
 
                 {/* 공연 정보 */}
-                <div className={`space-y-2 ${isMobile ? 'text-sm' : 'text-base'} text-gray-300`}>
+                <div
+                    className={`space-y-2 ${isMobile ? 'text-sm' : 'text-base'} text-gray-300`}
+                >
                     <div className="flex items-center gap-2">
                         <span className="text-blue-400">📅</span>
                         <span className="truncate">{formatDateTime()}</span>
@@ -203,7 +226,9 @@ const ConcertCard = ({
                     {concert.totalSeats && (
                         <div className="flex items-center gap-2">
                             <span className="text-purple-400">🎫</span>
-                            <span>총 {concert.totalSeats.toLocaleString()}석</span>
+                            <span>
+                                총 {concert.totalSeats.toLocaleString()}석
+                            </span>
                         </div>
                     )}
                 </div>

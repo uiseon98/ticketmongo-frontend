@@ -6,7 +6,7 @@ import { AuthContext } from '../context/AuthContext';
 const useResponsive = () => {
     const [isMobile, setIsMobile] = useState(false);
     const [screenWidth, setScreenWidth] = useState(
-        typeof window !== 'undefined' ? window.innerWidth : 1200
+        typeof window !== 'undefined' ? window.innerWidth : 1200,
     );
 
     useEffect(() => {
@@ -25,7 +25,7 @@ const useResponsive = () => {
         isMobile,
         isTablet: screenWidth <= 1024 && screenWidth > 768,
         isDesktop: screenWidth > 1024,
-        screenWidth
+        screenWidth,
     };
 };
 
@@ -90,8 +90,8 @@ const UnauthorizedAccessPage = () => {
     ];
 
     // 조건에 맞는 액션들만 필터링
-    const availableActions = quickActions.filter(action => 
-        action.showAlways || action.condition
+    const availableActions = quickActions.filter(
+        (action) => action.showAlways || action.condition,
     );
 
     const getWelcomeMessage = () => {
@@ -140,11 +140,12 @@ const UnauthorizedAccessPage = () => {
             }}
         >
             <div
-                className={isMobile
-                    ? "p-4 overflow-x-hidden"
-                    : isTablet
-                        ? "max-w-5xl mx-auto p-4 overflow-x-hidden"
-                        : "max-w-7xl mx-auto p-6 overflow-x-hidden"
+                className={
+                    isMobile
+                        ? 'p-4 overflow-x-hidden'
+                        : isTablet
+                          ? 'max-w-5xl mx-auto p-4 overflow-x-hidden'
+                          : 'max-w-7xl mx-auto p-6 overflow-x-hidden'
                 }
                 style={{
                     backgroundColor: '#111827',
@@ -166,9 +167,14 @@ const UnauthorizedAccessPage = () => {
                     {/* 403 숫자 */}
                     <div
                         style={{
-                            fontSize: isMobile ? '100px' : isTablet ? '120px' : '150px',
+                            fontSize: isMobile
+                                ? '100px'
+                                : isTablet
+                                  ? '120px'
+                                  : '150px',
                             fontWeight: 'bold',
-                            background: 'linear-gradient(135deg, #ef4444, #f97316, #f59e0b)',
+                            background:
+                                'linear-gradient(135deg, #ef4444, #f97316, #f59e0b)',
                             WebkitBackgroundClip: 'text',
                             WebkitTextFillColor: 'transparent',
                             backgroundClip: 'text',
@@ -185,11 +191,15 @@ const UnauthorizedAccessPage = () => {
                         style={{
                             backgroundColor: '#1f2937', // gray-800
                             border: '1px solid #374151', // gray-700
-                            padding: isMobile ? '32px 24px' : isTablet ? '40px 32px' : '48px 40px',
+                            padding: isMobile
+                                ? '32px 24px'
+                                : isTablet
+                                  ? '40px 32px'
+                                  : '48px 40px',
                             marginBottom: isMobile ? '24px' : '32px',
                         }}
                     >
-                        <div 
+                        <div
                             style={{
                                 fontSize: isMobile ? '48px' : '64px',
                                 marginBottom: '16px',
@@ -197,15 +207,19 @@ const UnauthorizedAccessPage = () => {
                         >
                             {welcomeData.emoji}
                         </div>
-                        <h1 
+                        <h1
                             className="font-bold text-white mb-4"
                             style={{
-                                fontSize: isMobile ? '24px' : isTablet ? '28px' : '32px',
+                                fontSize: isMobile
+                                    ? '24px'
+                                    : isTablet
+                                      ? '28px'
+                                      : '32px',
                             }}
                         >
                             {welcomeData.title}
                         </h1>
-                        <h2 
+                        <h2
                             className="text-gray-300 mb-4"
                             style={{
                                 fontSize: isMobile ? '16px' : '18px',
@@ -213,7 +227,7 @@ const UnauthorizedAccessPage = () => {
                         >
                             {welcomeData.subtitle}
                         </h2>
-                        <p 
+                        <p
                             className="text-gray-400 leading-relaxed"
                             style={{
                                 fontSize: isMobile ? '14px' : '16px',
@@ -229,8 +243,8 @@ const UnauthorizedAccessPage = () => {
                             isMobile
                                 ? 'grid-cols-1'
                                 : isTablet
-                                    ? 'grid-cols-2'
-                                    : 'grid-cols-3'
+                                  ? 'grid-cols-2'
+                                  : 'grid-cols-3'
                         }`}
                         style={{
                             marginBottom: isMobile ? '32px' : '40px',
@@ -254,27 +268,30 @@ const UnauthorizedAccessPage = () => {
                                 onClick={action.action}
                                 onMouseEnter={(e) => {
                                     if (!isMobile) {
-                                        e.currentTarget.style.borderColor = action.color;
+                                        e.currentTarget.style.borderColor =
+                                            action.color;
                                         e.currentTarget.style.boxShadow = `0 8px 25px ${action.color}33`;
                                     }
                                 }}
                                 onMouseLeave={(e) => {
                                     if (!isMobile) {
-                                        e.currentTarget.style.borderColor = '#374151';
-                                        e.currentTarget.style.boxShadow = 'none';
+                                        e.currentTarget.style.borderColor =
+                                            '#374151';
+                                        e.currentTarget.style.boxShadow =
+                                            'none';
                                     }
                                 }}
                             >
                                 <div
                                     className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
-                                    style={{ 
+                                    style={{
                                         backgroundColor: action.color,
                                         fontSize: isMobile ? '24px' : '28px',
                                     }}
                                 >
                                     {action.icon}
                                 </div>
-                                <h3 
+                                <h3
                                     className="font-bold text-white mb-2"
                                     style={{
                                         fontSize: isMobile ? '16px' : '18px',
@@ -282,7 +299,7 @@ const UnauthorizedAccessPage = () => {
                                 >
                                     {action.title}
                                 </h3>
-                                <p 
+                                <p
                                     className="text-gray-400"
                                     style={{
                                         fontSize: isMobile ? '14px' : '15px',
@@ -303,7 +320,7 @@ const UnauthorizedAccessPage = () => {
                             padding: isMobile ? '24px' : '32px',
                         }}
                     >
-                        <h3 
+                        <h3
                             className="text-lg font-semibold text-white mb-4 flex items-center justify-center gap-2"
                             style={{
                                 fontSize: isMobile ? '16px' : '18px',
@@ -311,22 +328,28 @@ const UnauthorizedAccessPage = () => {
                         >
                             ℹ️ 추가 정보
                         </h3>
-                        <div 
+                        <div
                             className={`${isMobile ? 'space-y-4' : 'grid grid-cols-2 gap-6'} text-gray-300 leading-relaxed`}
                             style={{
                                 fontSize: isMobile ? '14px' : '15px',
                             }}
                         >
                             <div>
-                                <h4 className="text-blue-400 mb-2 font-semibold">접근 권한이란?</h4>
+                                <h4 className="text-blue-400 mb-2 font-semibold">
+                                    접근 권한이란?
+                                </h4>
                                 <ul className="space-y-1 text-left">
                                     <li>• 페이지별로 다른 권한이 필요합니다</li>
-                                    <li>• 관리자, 판매자, 일반 사용자로 구분</li>
+                                    <li>
+                                        • 관리자, 판매자, 일반 사용자로 구분
+                                    </li>
                                     <li>• 보안을 위한 접근 제어 시스템</li>
                                 </ul>
                             </div>
                             <div>
-                                <h4 className="text-green-400 mb-2 font-semibold">권한 획득 방법</h4>
+                                <h4 className="text-green-400 mb-2 font-semibold">
+                                    권한 획득 방법
+                                </h4>
                                 <ul className="space-y-1 text-left">
                                     <li>• 일반 사용자: 회원가입 후 이용</li>
                                     <li>• 판매자: 별도 신청 및 승인 필요</li>
@@ -337,13 +360,15 @@ const UnauthorizedAccessPage = () => {
                     </div>
 
                     {/* 하단 연락처 정보 */}
-                    <div 
+                    <div
                         className="text-gray-500 mt-8"
                         style={{
                             fontSize: isMobile ? '12px' : '14px',
                         }}
                     >
-                        <p>권한 관련 문의는 고객센터(1588-1234)로 연락주세요.</p>
+                        <p>
+                            권한 관련 문의는 고객센터(1588-1234)로 연락주세요.
+                        </p>
                         <p className="mt-2">
                             &copy; 2025 TicketMon. All rights reserved.
                         </p>
