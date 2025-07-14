@@ -1476,9 +1476,10 @@ const ConcertForm = ({
                                         <div className="text-xs mt-1 text-yellow-300">
                                             • URL이 올바른지 확인해주세요
                                             <br />
-                                            • 외부 사이트의 경우 접근 제한이 있을 수 있습니다
-                                            <br />
-                                            • 파일 업로드를 이용하시는 것을 권장합니다
+                                            • 외부 사이트의 경우 접근 제한이
+                                            있을 수 있습니다
+                                            <br />• 파일 업로드를 이용하시는
+                                            것을 권장합니다
                                         </div>
                                     </div>
                                 </div>
@@ -1489,7 +1490,8 @@ const ConcertForm = ({
                         지원 형식: jpg, jpeg, png, gif, webp
                         <br className="sm:hidden" />
                         <span className="hidden sm:inline"> • </span>
-                        외부 이미지는 CORS 정책에 따라 로드되지 않을 수 있습니다.
+                        외부 이미지는 CORS 정책에 따라 로드되지 않을 수
+                        있습니다.
                     </p>
 
                     {formData.posterImageUrl &&
@@ -1548,7 +1550,10 @@ const ConcertForm = ({
                     {/* 성공/에러 메시지 - 반응형 */}
                     {submitSuccess && (
                         <div className="mx-4 sm:mx-6 mt-4 p-3 sm:p-4 bg-green-800 border border-green-600 rounded-lg flex items-start gap-2">
-                            <CheckCircle size={20} className="text-green-600 flex-shrink-0 mt-0.5" />
+                            <CheckCircle
+                                size={20}
+                                className="text-green-600 flex-shrink-0 mt-0.5"
+                            />
                             <span className="text-green-100 text-sm sm:text-base">
                                 {submitSuccess}
                             </span>
@@ -1556,7 +1561,10 @@ const ConcertForm = ({
                     )}
                     {submitError && (
                         <div className="mx-4 sm:mx-6 mt-4 p-3 sm:p-4 bg-red-800 border border-red-600 rounded-lg flex items-start gap-2">
-                            <AlertCircle size={20} className="text-red-600 flex-shrink-0 mt-0.5" />
+                            <AlertCircle
+                                size={20}
+                                className="text-red-600 flex-shrink-0 mt-0.5"
+                            />
                             <span className="text-red-100 text-sm sm:text-base break-words">
                                 {submitError}
                             </span>
@@ -1577,7 +1585,10 @@ const ConcertForm = ({
                 {/* 성공/에러 메시지 - 반응형 */}
                 {submitSuccess && (
                     <div className="mb-4 p-3 sm:p-4 bg-green-800 border-green-600 border rounded-lg flex items-start gap-2">
-                        <CheckCircle size={20} className="text-green-300 flex-shrink-0 mt-0.5" />
+                        <CheckCircle
+                            size={20}
+                            className="text-green-300 flex-shrink-0 mt-0.5"
+                        />
                         <span className="text-green-100 text-sm sm:text-base">
                             {submitSuccess}
                         </span>
@@ -1586,7 +1597,10 @@ const ConcertForm = ({
 
                 {submitError && (
                     <div className="mb-4 p-3 sm:p-4 bg-red-800 border-red-600 border rounded-lg flex items-start gap-2">
-                        <AlertCircle size={20} className="text-red-300 flex-shrink-0 mt-0.5" />
+                        <AlertCircle
+                            size={20}
+                            className="text-red-300 flex-shrink-0 mt-0.5"
+                        />
                         <span className="text-red-100 text-sm sm:text-base break-words">
                             {submitError}
                         </span>

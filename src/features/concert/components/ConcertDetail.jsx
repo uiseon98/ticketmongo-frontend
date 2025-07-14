@@ -87,8 +87,14 @@ const ConcertDetail = ({
                     hour12: true,
                 };
 
-                const formattedDate = dateTime.toLocaleDateString('ko-KR', dateOptions);
-                const formattedTime = dateTime.toLocaleTimeString('ko-KR', timeOptions);
+                const formattedDate = dateTime.toLocaleDateString(
+                    'ko-KR',
+                    dateOptions,
+                );
+                const formattedTime = dateTime.toLocaleTimeString(
+                    'ko-KR',
+                    timeOptions,
+                );
 
                 return `${formattedDate} ${formattedTime}`;
             } else {
@@ -104,8 +110,14 @@ const ConcertDetail = ({
                     hour12: true,
                 };
 
-                const formattedDate = dateTime.toLocaleDateString('ko-KR', dateOptions);
-                const formattedTime = dateTime.toLocaleTimeString('ko-KR', timeOptions);
+                const formattedDate = dateTime.toLocaleDateString(
+                    'ko-KR',
+                    dateOptions,
+                );
+                const formattedTime = dateTime.toLocaleTimeString(
+                    'ko-KR',
+                    timeOptions,
+                );
 
                 return `${formattedDate} ${formattedTime}`;
             }
@@ -122,7 +134,9 @@ const ConcertDetail = ({
         if (!concert?.endTime) return '';
 
         try {
-            const endDateTime = new Date(`${concert.concertDate}T${concert.endTime}`);
+            const endDateTime = new Date(
+                `${concert.concertDate}T${concert.endTime}`,
+            );
             return endDateTime.toLocaleTimeString('ko-KR', {
                 hour: '2-digit',
                 minute: '2-digit',
@@ -183,7 +197,6 @@ const ConcertDetail = ({
         setImageLoaded(true);
         // 에러 상태는 초기화하지 않음 (기본 이미지 사용 여부 추적용)
     };
-
 
     /**
      * 예매 버튼 클릭 핸들러
@@ -272,17 +285,41 @@ const ConcertDetail = ({
 
         switch (status) {
             case 'SCHEDULED':
-                return { ...baseStyles, backgroundColor: '#fef3c7', color: '#92400e' };
+                return {
+                    ...baseStyles,
+                    backgroundColor: '#fef3c7',
+                    color: '#92400e',
+                };
             case 'ON_SALE':
-                return { ...baseStyles, backgroundColor: '#d1fae5', color: '#065f46' };
+                return {
+                    ...baseStyles,
+                    backgroundColor: '#d1fae5',
+                    color: '#065f46',
+                };
             case 'SOLD_OUT':
-                return { ...baseStyles, backgroundColor: '#fee2e2', color: '#991b1b' };
+                return {
+                    ...baseStyles,
+                    backgroundColor: '#fee2e2',
+                    color: '#991b1b',
+                };
             case 'CANCELLED':
-                return { ...baseStyles, backgroundColor: '#f3f4f6', color: '#374151' };
+                return {
+                    ...baseStyles,
+                    backgroundColor: '#f3f4f6',
+                    color: '#374151',
+                };
             case 'COMPLETED':
-                return { ...baseStyles, backgroundColor: '#dbeafe', color: '#1e40af' };
+                return {
+                    ...baseStyles,
+                    backgroundColor: '#dbeafe',
+                    color: '#1e40af',
+                };
             default:
-                return { ...baseStyles, backgroundColor: '#f3f4f6', color: '#374151' };
+                return {
+                    ...baseStyles,
+                    backgroundColor: '#f3f4f6',
+                    color: '#374151',
+                };
         }
     };
 
@@ -298,8 +335,12 @@ const ConcertDetail = ({
                     <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-center justify-center min-h-[400px]">
                         <div className="w-12 h-12 border-4 border-gray-600 border-t-blue-500 rounded-full animate-spin"></div>
                         <div className="text-center lg:text-left">
-                            <div className="text-lg sm:text-xl text-gray-300">콘서트 정보를 불러오는 중...</div>
-                            <div className="text-sm text-gray-400 mt-2">잠시만 기다려주세요</div>
+                            <div className="text-lg sm:text-xl text-gray-300">
+                                콘서트 정보를 불러오는 중...
+                            </div>
+                            <div className="text-sm text-gray-400 mt-2">
+                                잠시만 기다려주세요
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -320,7 +361,9 @@ const ConcertDetail = ({
                             콘서트 정보를 불러올 수 없습니다
                         </h3>
                         <p className="text-sm sm:text-base text-gray-300 mb-6 max-w-md mx-auto">
-                            {typeof error === 'string' ? error : '알 수 없는 오류가 발생했습니다.'}
+                            {typeof error === 'string'
+                                ? error
+                                : '알 수 없는 오류가 발생했습니다.'}
                         </p>
 
                         {(showRefreshButton || onRefresh) && (
@@ -364,15 +407,16 @@ const ConcertDetail = ({
         <div className={`concert-detail ${className}`}>
             {/* 🎯 반응형 컨테이너 */}
             <div className="w-full max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 bg-gray-800 text-white rounded-lg relative">
-
                 {/* 🎯 상단: 포스터 + 기본 정보 (반응형 레이아웃) */}
                 <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 mb-6 lg:mb-8">
-
                     {/* 🎯 포스터 이미지 섹션 (반응형) */}
                     <div className="flex-shrink-0 mx-auto lg:mx-0">
                         <div className="relative w-64 h-80 sm:w-72 sm:h-96 lg:w-80 lg:h-[480px] bg-gray-700 rounded-lg overflow-hidden shadow-lg">
                             <img
-                                src={concert.posterImageUrl || '/images/basic-poster-image.png'}
+                                src={
+                                    concert.posterImageUrl ||
+                                    '/images/basic-poster-image.png'
+                                }
                                 alt={`${concert.title} 포스터`}
                                 className="w-full h-full object-cover transition-opacity duration-300"
                                 style={{ opacity: imageLoaded ? 1 : 0 }}
@@ -394,7 +438,8 @@ const ConcertDetail = ({
                     <div className="flex-1 text-center lg:text-left">
                         {/* 상태 배지 */}
                         <div style={getStatusBadgeStyles(concert.status)}>
-                            {ConcertStatusLabels[concert.status] || concert.status}
+                            {ConcertStatusLabels[concert.status] ||
+                                concert.status}
                         </div>
 
                         {/* 제목 */}
@@ -413,7 +458,9 @@ const ConcertDetail = ({
                             <div className="bg-gray-700 rounded-lg p-3 sm:p-4 border border-gray-600">
                                 <div className="flex items-center gap-2 text-blue-400 mb-1">
                                     <Calendar size={16} />
-                                    <span className="text-xs sm:text-sm font-medium">공연일시</span>
+                                    <span className="text-xs sm:text-sm font-medium">
+                                        공연일시
+                                    </span>
                                 </div>
                                 <div className="text-sm sm:text-base text-white font-medium">
                                     {formatConcertDateTime()}
@@ -429,7 +476,9 @@ const ConcertDetail = ({
                             <div className="bg-gray-700 rounded-lg p-3 sm:p-4 border border-gray-600">
                                 <div className="flex items-center gap-2 text-green-400 mb-1">
                                     <MapPin size={16} />
-                                    <span className="text-xs sm:text-sm font-medium">공연장</span>
+                                    <span className="text-xs sm:text-sm font-medium">
+                                        공연장
+                                    </span>
                                 </div>
                                 <div className="text-sm sm:text-base text-white font-medium truncate">
                                     {concert.venueName}
@@ -471,28 +520,46 @@ const ConcertDetail = ({
                 {/* 🎯 상세 정보 섹션들 (항상 펼쳐진 상태) */}
                 {!compact && (
                     <div className="space-y-4 sm:space-y-6">
-
                         {/* 공연 정보 섹션 */}
                         <div className="bg-gray-700 rounded-lg border border-gray-600 p-4">
                             <div className="flex items-center gap-3 mb-4">
                                 <Calendar className="text-blue-400" size={20} />
-                                <h3 className="text-lg sm:text-xl font-bold text-white">공연 정보</h3>
+                                <h3 className="text-lg sm:text-xl font-bold text-white">
+                                    공연 정보
+                                </h3>
                             </div>
 
                             <div className="space-y-3">
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
-                                        <div className="text-sm text-gray-400 mb-1">총 좌석 수</div>
+                                        <div className="text-sm text-gray-400 mb-1">
+                                            총 좌석 수
+                                        </div>
                                         <div className="flex items-center gap-2 text-white">
-                                            <Users size={16} className="text-purple-400" />
-                                            <span>{concert.totalSeats?.toLocaleString() || '정보 없음'}석</span>
+                                            <Users
+                                                size={16}
+                                                className="text-purple-400"
+                                            />
+                                            <span>
+                                                {concert.totalSeats?.toLocaleString() ||
+                                                    '정보 없음'}
+                                                석
+                                            </span>
                                         </div>
                                     </div>
                                     <div>
-                                        <div className="text-sm text-gray-400 mb-1">공연 시간</div>
+                                        <div className="text-sm text-gray-400 mb-1">
+                                            공연 시간
+                                        </div>
                                         <div className="flex items-center gap-2 text-white">
-                                            <Clock size={16} className="text-orange-400" />
-                                            <span>{concert.startTime} - {concert.endTime}</span>
+                                            <Clock
+                                                size={16}
+                                                className="text-orange-400"
+                                            />
+                                            <span>
+                                                {concert.startTime} -{' '}
+                                                {concert.endTime}
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
@@ -503,25 +570,39 @@ const ConcertDetail = ({
                         <div className="bg-gray-700 rounded-lg border border-gray-600 p-4">
                             <div className="flex items-center gap-3 mb-4">
                                 <Ticket className="text-green-400" size={20} />
-                                <h3 className="text-lg sm:text-xl font-bold text-white">예매 정보</h3>
+                                <h3 className="text-lg sm:text-xl font-bold text-white">
+                                    예매 정보
+                                </h3>
                             </div>
 
                             <div className="space-y-3">
                                 <div>
-                                    <div className="text-sm text-gray-400 mb-1">예매 기간</div>
-                                    <div className="text-white">{formatBookingPeriod()}</div>
+                                    <div className="text-sm text-gray-400 mb-1">
+                                        예매 기간
+                                    </div>
+                                    <div className="text-white">
+                                        {formatBookingPeriod()}
+                                    </div>
                                 </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
-                                        <div className="text-sm text-gray-400 mb-1">연령 제한</div>
+                                        <div className="text-sm text-gray-400 mb-1">
+                                            연령 제한
+                                        </div>
                                         <div className="text-white">
-                                            {concert.minAge ? `${concert.minAge}세 이상` : '전 연령 관람가'}
+                                            {concert.minAge
+                                                ? `${concert.minAge}세 이상`
+                                                : '전 연령 관람가'}
                                         </div>
                                     </div>
                                     <div>
-                                        <div className="text-sm text-gray-400 mb-1">최대 구매</div>
+                                        <div className="text-sm text-gray-400 mb-1">
+                                            최대 구매
+                                        </div>
                                         <div className="text-white">
-                                            1인당 {concert.maxTicketsPerUser || 4}매까지
+                                            1인당{' '}
+                                            {concert.maxTicketsPerUser || 4}
+                                            매까지
                                         </div>
                                     </div>
                                 </div>
@@ -546,9 +627,7 @@ const ConcertDetail = ({
                 )}
 
                 {/* 🎯 모바일에서 하단 여백 (고정 버튼 공간 확보) */}
-                {bookingInfo.show && isMobile && (
-                    <div className="h-20"></div>
-                )}
+                {bookingInfo.show && isMobile && <div className="h-20"></div>}
             </div>
         </div>
     );

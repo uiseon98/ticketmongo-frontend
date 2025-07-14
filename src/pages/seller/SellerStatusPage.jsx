@@ -8,7 +8,7 @@ import apiClient from '../../shared/utils/apiClient';
 const useResponsive = () => {
     const [isMobile, setIsMobile] = useState(false);
     const [screenWidth, setScreenWidth] = useState(
-        typeof window !== 'undefined' ? window.innerWidth : 1200
+        typeof window !== 'undefined' ? window.innerWidth : 1200,
     );
 
     useEffect(() => {
@@ -27,7 +27,7 @@ const useResponsive = () => {
         isMobile,
         isTablet: screenWidth <= 1024 && screenWidth > 768,
         isDesktop: screenWidth > 1024,
-        screenWidth
+        screenWidth,
     };
 };
 
@@ -42,7 +42,8 @@ const SellerStatusPage = () => {
 
     // 모달 관련 상태
     const [showWithdrawalModal, setShowWithdrawalModal] = useState(false);
-    const [showWithdrawalImpossibleModal, setShowWithdrawalImpossibleModal] = useState(false);
+    const [showWithdrawalImpossibleModal, setShowWithdrawalImpossibleModal] =
+        useState(false);
     const [confirmationInput, setConfirmationInput] = useState('');
 
     // 기존 useEffect와 핸들러들은 동일하게 유지...
@@ -61,7 +62,10 @@ const SellerStatusPage = () => {
                 setSellerStatus(response.data);
             } catch (err) {
                 console.error('판매자 상태 조회 실패:', err);
-                setError(err.response?.data?.message || '판매자 상태를 불러오는데 실패했습니다.');
+                setError(
+                    err.response?.data?.message ||
+                        '판매자 상태를 불러오는데 실패했습니다.',
+                );
             } finally {
                 setLoading(false);
             }
@@ -93,7 +97,9 @@ const SellerStatusPage = () => {
 
         try {
             await apiClient.delete('/users/me/role');
-            alert('판매자 권한 철회 요청이 성공적으로 처리되었습니다. 이용해 주셔서 감사합니다.');
+            alert(
+                '판매자 권한 철회 요청이 성공적으로 처리되었습니다. 이용해 주셔서 감사합니다.',
+            );
             setShowWithdrawalModal(false);
             setConfirmationInput('');
             window.location.reload();
@@ -130,11 +136,12 @@ const SellerStatusPage = () => {
                 }}
             >
                 <div
-                    className={isMobile
-                        ? "p-4 overflow-x-hidden"
-                        : isTablet
-                            ? "max-w-4xl mx-auto p-4 overflow-x-hidden"
-                            : "max-w-6xl mx-auto p-6 overflow-x-hidden"
+                    className={
+                        isMobile
+                            ? 'p-4 overflow-x-hidden'
+                            : isTablet
+                              ? 'max-w-4xl mx-auto p-4 overflow-x-hidden'
+                              : 'max-w-6xl mx-auto p-6 overflow-x-hidden'
                     }
                     style={{
                         backgroundColor: '#111827',
@@ -145,11 +152,12 @@ const SellerStatusPage = () => {
                 >
                     {/* 페이지 제목 */}
                     <h1
-                        className={isMobile
-                            ? "text-xl font-bold mb-4 text-center break-words"
-                            : isTablet
-                                ? "text-2xl font-bold mb-5 text-center break-words"
-                                : "text-4xl font-bold mb-6 text-center break-words"
+                        className={
+                            isMobile
+                                ? 'text-xl font-bold mb-4 text-center break-words'
+                                : isTablet
+                                  ? 'text-2xl font-bold mb-5 text-center break-words'
+                                  : 'text-4xl font-bold mb-6 text-center break-words'
                         }
                         style={{
                             color: '#FFFFFF',
@@ -178,7 +186,11 @@ const SellerStatusPage = () => {
                         style={{
                             backgroundColor: '#1f2937',
                             border: '1px solid #374151',
-                            padding: isMobile ? '40px 20px' : isTablet ? '50px 30px' : '60px 40px',
+                            padding: isMobile
+                                ? '40px 20px'
+                                : isTablet
+                                  ? '50px 30px'
+                                  : '60px 40px',
                             textAlign: 'center',
                             maxWidth: isMobile ? '100%' : '600px',
                             margin: '0 auto',
@@ -195,10 +207,12 @@ const SellerStatusPage = () => {
                                 margin: '0 auto 16px',
                             }}
                         />
-                        <div style={{
-                            color: '#FFFFFF',
-                            fontSize: isMobile ? '14px' : '18px'
-                        }}>
+                        <div
+                            style={{
+                                color: '#FFFFFF',
+                                fontSize: isMobile ? '14px' : '18px',
+                            }}
+                        >
                             판매자 상태 정보를 불러오는 중...
                         </div>
                     </div>
@@ -209,7 +223,9 @@ const SellerStatusPage = () => {
 
     if (error) {
         return (
-            <div className={`text-center text-red-500 ${isMobile ? 'py-6 px-4' : 'py-10'}`}>
+            <div
+                className={`text-center text-red-500 ${isMobile ? 'py-6 px-4' : 'py-10'}`}
+            >
                 에러: {error}
             </div>
         );
@@ -228,11 +244,12 @@ const SellerStatusPage = () => {
                 }}
             >
                 <div
-                    className={isMobile
-                        ? "p-4 overflow-x-hidden"
-                        : isTablet
-                            ? "max-w-4xl mx-auto p-4 overflow-x-hidden"
-                            : "max-w-6xl mx-auto p-6 overflow-x-hidden"
+                    className={
+                        isMobile
+                            ? 'p-4 overflow-x-hidden'
+                            : isTablet
+                              ? 'max-w-4xl mx-auto p-4 overflow-x-hidden'
+                              : 'max-w-6xl mx-auto p-6 overflow-x-hidden'
                     }
                     style={{
                         backgroundColor: '#111827',
@@ -255,13 +272,17 @@ const SellerStatusPage = () => {
                         }}
                     >
                         <div className="text-6xl mb-6">⚠️</div>
-                        <h3 className={`font-bold text-gray-300 mb-4 ${isMobile ? 'text-xl' : 'text-2xl'}`}>
+                        <h3
+                            className={`font-bold text-gray-300 mb-4 ${isMobile ? 'text-xl' : 'text-2xl'}`}
+                        >
                             판매자 상태 정보를 불러올 수 없습니다
                         </h3>
                         <button
                             onClick={() => window.location.reload()}
                             className={`bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all ${
-                                isMobile ? 'w-full py-4 px-6 text-lg' : 'py-3 px-8 text-base'
+                                isMobile
+                                    ? 'w-full py-4 px-6 text-lg'
+                                    : 'py-3 px-8 text-base'
                             }`}
                             style={{
                                 minHeight: isMobile ? '52px' : 'auto',
@@ -275,7 +296,13 @@ const SellerStatusPage = () => {
         );
     }
 
-    const { approvalStatus, lastReason, canReapply, applicationDate, lastProcessedDate } = sellerStatus;
+    const {
+        approvalStatus,
+        lastReason,
+        canReapply,
+        applicationDate,
+        lastProcessedDate,
+    } = sellerStatus;
 
     // approvalStatus 값에 따른 상태 메시지 결정
     let statusMessage = '';
@@ -322,11 +349,12 @@ const SellerStatusPage = () => {
             }}
         >
             <div
-                className={isMobile
-                    ? "p-4 overflow-x-hidden"
-                    : isTablet
-                        ? "max-w-4xl mx-auto p-4 overflow-x-hidden"
-                        : "max-w-6xl mx-auto p-6 overflow-x-hidden"
+                className={
+                    isMobile
+                        ? 'p-4 overflow-x-hidden'
+                        : isTablet
+                          ? 'max-w-4xl mx-auto p-4 overflow-x-hidden'
+                          : 'max-w-6xl mx-auto p-6 overflow-x-hidden'
                 }
                 style={{
                     backgroundColor: '#111827',
@@ -337,11 +365,12 @@ const SellerStatusPage = () => {
             >
                 {/* 페이지 제목 - 콘서트 페이지와 동일한 스타일 */}
                 <h1
-                    className={isMobile
-                        ? "text-xl font-bold mb-4 text-center break-words"
-                        : isTablet
-                            ? "text-2xl font-bold mb-5 text-center break-words"
-                            : "text-4xl font-bold mb-6 text-center break-words"
+                    className={
+                        isMobile
+                            ? 'text-xl font-bold mb-4 text-center break-words'
+                            : isTablet
+                              ? 'text-2xl font-bold mb-5 text-center break-words'
+                              : 'text-4xl font-bold mb-6 text-center break-words'
                     }
                     style={{
                         color: '#FFFFFF',
@@ -365,39 +394,52 @@ const SellerStatusPage = () => {
                 </p>
 
                 {/* 콘텐츠 영역 - 콘서트 페이지와 동일한 간격 시스템 */}
-                <div className={`space-y-${isMobile ? '4' : isTablet ? '5' : '8'}`}>
+                <div
+                    className={`space-y-${isMobile ? '4' : isTablet ? '5' : '8'}`}
+                >
                     {/* 메인 상태 카드 */}
                     <div
                         className="rounded-xl shadow-md"
                         style={{
                             backgroundColor: '#1f2937', // gray-800
                             border: '1px solid #374151', // gray-700
-                            padding: isMobile ? '24px' : isTablet ? '28px' : '32px',
+                            padding: isMobile
+                                ? '24px'
+                                : isTablet
+                                  ? '28px'
+                                  : '32px',
                             maxWidth: isMobile ? '100%' : '600px',
                             margin: '0 auto',
                         }}
                     >
                         {/* 현재 계정 정보 */}
                         <div className="mb-8">
-                            <h3 className={`font-bold text-white mb-4 ${isMobile ? 'text-lg' : 'text-xl'}`}>
+                            <h3
+                                className={`font-bold text-white mb-4 ${isMobile ? 'text-lg' : 'text-xl'}`}
+                            >
                                 현재 계정 정보
                             </h3>
                             <div className="flex items-center gap-4">
-                                <div
-                                    className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0"
-                                >
-                                    <span className="text-white text-lg">👤</span>
+                                <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <span className="text-white text-lg">
+                                        👤
+                                    </span>
                                 </div>
                                 <div className="flex-1">
-                                    <p className={`font-medium text-white ${isMobile ? 'text-base' : 'text-lg'}`}>
+                                    <p
+                                        className={`font-medium text-white ${isMobile ? 'text-base' : 'text-lg'}`}
+                                    >
                                         {user?.username || 'Guest'}
                                     </p>
-                                    <p className={`text-gray-300 ${isMobile ? 'text-sm' : 'text-base'}`}>
-                                        역할: {sellerStatus.role === 'ADMIN'
+                                    <p
+                                        className={`text-gray-300 ${isMobile ? 'text-sm' : 'text-base'}`}
+                                    >
+                                        역할:{' '}
+                                        {sellerStatus.role === 'ADMIN'
                                             ? '관리자'
                                             : sellerStatus.role === 'SELLER'
-                                                ? `판매자 (${statusMessage})`
-                                                : `일반 유저 (${statusMessage})`}
+                                              ? `판매자 (${statusMessage})`
+                                              : `일반 유저 (${statusMessage})`}
                                     </p>
                                 </div>
                             </div>
@@ -405,22 +447,37 @@ const SellerStatusPage = () => {
 
                         {/* 판매자 권한 신청 현황 */}
                         <div className="mb-8">
-                            <h3 className={`font-bold text-white mb-4 ${isMobile ? 'text-lg' : 'text-xl'}`}>
+                            <h3
+                                className={`font-bold text-white mb-4 ${isMobile ? 'text-lg' : 'text-xl'}`}
+                            >
                                 판매자 권한 신청 현황
                             </h3>
                             <div className="flex items-start gap-4">
-                                <div
-                                    className="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center flex-shrink-0"
-                                >
-                                    <span className="text-white text-lg">📋</span>
+                                <div className="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <span className="text-white text-lg">
+                                        📋
+                                    </span>
                                 </div>
                                 <div className="flex-1">
-                                    <p className={`font-medium text-white mb-2 ${isMobile ? 'text-base' : 'text-lg'}`}>
-                                        현재 신청 상태: <span className={statusColorClass}>{statusMessage}</span>
+                                    <p
+                                        className={`font-medium text-white mb-2 ${isMobile ? 'text-base' : 'text-lg'}`}
+                                    >
+                                        현재 신청 상태:{' '}
+                                        <span className={statusColorClass}>
+                                            {statusMessage}
+                                        </span>
                                     </p>
-                                    <div className={`text-gray-300 space-y-1 ${isMobile ? 'text-sm' : 'text-base'}`}>
-                                        <p>신청 일시: {formatDate(applicationDate)}</p>
-                                        <p>최종 처리 일시: {formatDate(lastProcessedDate)}</p>
+                                    <div
+                                        className={`text-gray-300 space-y-1 ${isMobile ? 'text-sm' : 'text-base'}`}
+                                    >
+                                        <p>
+                                            신청 일시:{' '}
+                                            {formatDate(applicationDate)}
+                                        </p>
+                                        <p>
+                                            최종 처리 일시:{' '}
+                                            {formatDate(lastProcessedDate)}
+                                        </p>
                                     </div>
                                     {lastReason && (
                                         <div className="mt-3">
@@ -436,7 +493,9 @@ const SellerStatusPage = () => {
                                             )}
                                             {approvalStatus === 'WITHDRAWN' && (
                                                 <p className="text-gray-400 text-sm">
-                                                    철회 사유: {lastReason || '본인 요청에 의해 철회됨'}
+                                                    철회 사유:{' '}
+                                                    {lastReason ||
+                                                        '본인 요청에 의해 철회됨'}
                                                 </p>
                                             )}
                                         </div>
@@ -466,7 +525,9 @@ const SellerStatusPage = () => {
                                             onClick={handleApplyClick}
                                             className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
                                             style={{
-                                                minHeight: isMobile ? '48px' : 'auto',
+                                                minHeight: isMobile
+                                                    ? '48px'
+                                                    : 'auto',
                                             }}
                                         >
                                             {approvalStatus === null
@@ -480,7 +541,9 @@ const SellerStatusPage = () => {
                                         onClick={handleWithdrawClick}
                                         className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
                                         style={{
-                                            minHeight: isMobile ? '48px' : 'auto',
+                                            minHeight: isMobile
+                                                ? '48px'
+                                                : 'auto',
                                         }}
                                     >
                                         권한 철회 신청
@@ -492,9 +555,7 @@ const SellerStatusPage = () => {
                 </div>
 
                 {/* 모바일에서 하단 여백 - 콘서트 페이지와 동일 */}
-                {isMobile && (
-                    <div className="h-16" aria-hidden="true"></div>
-                )}
+                {isMobile && <div className="h-16" aria-hidden="true"></div>}
             </div>
 
             {/* 모달들도 콘서트 페이지 스타일 적용 */}
@@ -509,14 +570,21 @@ const SellerStatusPage = () => {
                         }}
                     >
                         <div className="text-5xl mb-4">⚠️</div>
-                        <h3 className={`font-bold text-red-400 mb-4 ${isMobile ? 'text-lg' : 'text-xl'}`}>
+                        <h3
+                            className={`font-bold text-red-400 mb-4 ${isMobile ? 'text-lg' : 'text-xl'}`}
+                        >
                             권한 철회 불가
                         </h3>
-                        <p className={`text-gray-300 mb-6 leading-relaxed ${isMobile ? 'text-sm' : 'text-base'}`}>
-                            현재 진행 중인 또는 진행 예정 중인 콘서트가 있으므로, 권한 철회가 불가능합니다.
+                        <p
+                            className={`text-gray-300 mb-6 leading-relaxed ${isMobile ? 'text-sm' : 'text-base'}`}
+                        >
+                            현재 진행 중인 또는 진행 예정 중인 콘서트가
+                            있으므로, 권한 철회가 불가능합니다.
                         </p>
                         <button
-                            onClick={() => setShowWithdrawalImpossibleModal(false)}
+                            onClick={() =>
+                                setShowWithdrawalImpossibleModal(false)
+                            }
                             className={`bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors ${
                                 isMobile ? 'w-full py-3 px-6' : 'py-2 px-6'
                             }`}
@@ -537,19 +605,28 @@ const SellerStatusPage = () => {
                             padding: isMobile ? '24px' : '32px',
                         }}
                     >
-                        <h3 className={`font-bold text-white mb-4 ${isMobile ? 'text-lg' : 'text-xl'}`}>
+                        <h3
+                            className={`font-bold text-white mb-4 ${isMobile ? 'text-lg' : 'text-xl'}`}
+                        >
                             권한 철회 확인
                         </h3>
-                        <p className={`text-gray-300 mb-4 leading-relaxed ${isMobile ? 'text-sm' : 'text-base'}`}>
-                            판매자 권한을 철회하시겠습니까? 이 작업은 되돌릴 수 없습니다. 아래 문구를 정확히 입력하여 동의해주세요.
+                        <p
+                            className={`text-gray-300 mb-4 leading-relaxed ${isMobile ? 'text-sm' : 'text-base'}`}
+                        >
+                            판매자 권한을 철회하시겠습니까? 이 작업은 되돌릴 수
+                            없습니다. 아래 문구를 정확히 입력하여 동의해주세요.
                         </p>
-                        <p className={`text-yellow-300 font-semibold mb-3 break-words ${isMobile ? 'text-sm' : 'text-base'}`}>
+                        <p
+                            className={`text-yellow-300 font-semibold mb-3 break-words ${isMobile ? 'text-sm' : 'text-base'}`}
+                        >
                             {confirmationPhrasePlaceholder}
                         </p>
                         <input
                             type="text"
                             value={confirmationInput}
-                            onChange={(e) => setConfirmationInput(e.target.value)}
+                            onChange={(e) =>
+                                setConfirmationInput(e.target.value)
+                            }
                             placeholder={confirmationPhrasePlaceholder}
                             className={`w-full p-3 mb-6 rounded-lg text-white placeholder-gray-500 ${isMobile ? 'text-sm' : 'text-base'}`}
                             style={{
@@ -574,11 +651,15 @@ const SellerStatusPage = () => {
                                 className={`font-medium rounded-lg transition-colors ${
                                     isMobile ? 'py-3 px-6' : 'py-2 px-6'
                                 } ${
-                                    confirmationInput === confirmationPhrasePlaceholder
+                                    confirmationInput ===
+                                    confirmationPhrasePlaceholder
                                         ? 'bg-red-600 hover:bg-red-700 text-white'
                                         : 'bg-red-800 text-gray-400 cursor-not-allowed'
                                 }`}
-                                disabled={confirmationInput !== confirmationPhrasePlaceholder}
+                                disabled={
+                                    confirmationInput !==
+                                    confirmationPhrasePlaceholder
+                                }
                             >
                                 철회 확인
                             </button>

@@ -22,7 +22,7 @@ import { useBookingQueue } from '../../features/booking/hooks/useBookingQueue';
 const useResponsive = () => {
     const [isMobile, setIsMobile] = useState(false);
     const [screenWidth, setScreenWidth] = useState(
-        typeof window !== 'undefined' ? window.innerWidth : 1200
+        typeof window !== 'undefined' ? window.innerWidth : 1200,
     );
 
     useEffect(() => {
@@ -41,7 +41,7 @@ const useResponsive = () => {
         isMobile,
         isTablet: screenWidth <= 1024 && screenWidth > 768,
         isDesktop: screenWidth > 1024,
-        screenWidth
+        screenWidth,
     };
 };
 
@@ -91,7 +91,9 @@ function ConcertDetailPage() {
     const parsedConcertId = parseInt(concertId);
     if (isNaN(parsedConcertId)) {
         return (
-            <div className={`text-center text-red-500 ${isMobile ? 'py-6 px-4' : 'py-10'}`}>
+            <div
+                className={`text-center text-red-500 ${isMobile ? 'py-6 px-4' : 'py-10'}`}
+            >
                 잘못된 콘서트 ID 입니다.
             </div>
         );
@@ -230,11 +232,12 @@ function ConcertDetailPage() {
                 }}
             >
                 <div
-                    className={isMobile
-                        ? "p-4 overflow-x-hidden"
-                        : isTablet
-                            ? "max-w-4xl mx-auto p-4 overflow-x-hidden"
-                            : "max-w-6xl mx-auto p-6 overflow-x-hidden"
+                    className={
+                        isMobile
+                            ? 'p-4 overflow-x-hidden'
+                            : isTablet
+                              ? 'max-w-4xl mx-auto p-4 overflow-x-hidden'
+                              : 'max-w-6xl mx-auto p-6 overflow-x-hidden'
                     }
                     style={{
                         backgroundColor: '#0F172A',
@@ -245,19 +248,21 @@ function ConcertDetailPage() {
                 >
                     {/* 스켈레톤 제목 */}
                     <div
-                        className={isMobile
-                            ? "mb-4"
-                            : isTablet
-                                ? "mb-5"
-                                : "mb-6"
+                        className={
+                            isMobile ? 'mb-4' : isTablet ? 'mb-5' : 'mb-6'
                         }
                         style={{
-                            height: isMobile ? '28px' : isTablet ? '32px' : '48px',
+                            height: isMobile
+                                ? '28px'
+                                : isTablet
+                                  ? '32px'
+                                  : '48px',
                             backgroundColor: '#1E293B',
                             borderRadius: '8px',
                             maxWidth: '60%',
                             margin: '0 auto',
-                            animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                            animation:
+                                'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                         }}
                     />
 
@@ -267,7 +272,11 @@ function ConcertDetailPage() {
                         style={{
                             backgroundColor: '#1E293B',
                             border: '1px solid #374151',
-                            padding: isMobile ? '40px 20px' : isTablet ? '50px 30px' : '60px 40px',
+                            padding: isMobile
+                                ? '40px 20px'
+                                : isTablet
+                                  ? '50px 30px'
+                                  : '60px 40px',
                             textAlign: 'center',
                         }}
                     >
@@ -282,10 +291,12 @@ function ConcertDetailPage() {
                                 margin: '0 auto 16px',
                             }}
                         />
-                        <div style={{
-                            color: '#FFFFFF',
-                            fontSize: isMobile ? '14px' : '18px'
-                        }}>
+                        <div
+                            style={{
+                                color: '#FFFFFF',
+                                fontSize: isMobile ? '14px' : '18px',
+                            }}
+                        >
                             콘서트 상세 정보 로딩 중...
                         </div>
                     </div>
@@ -297,7 +308,9 @@ function ConcertDetailPage() {
     // 콘서트 정보 에러 시 에러 표시
     if (concertError) {
         return (
-            <div className={`text-center text-red-500 ${isMobile ? 'py-6 px-4' : 'py-10'}`}>
+            <div
+                className={`text-center text-red-500 ${isMobile ? 'py-6 px-4' : 'py-10'}`}
+            >
                 에러: {concertError}
             </div>
         );
@@ -306,7 +319,9 @@ function ConcertDetailPage() {
     // 콘서트 정보가 없으면 안내 메시지
     if (!concert) {
         return (
-            <div className={`text-center text-gray-500 ${isMobile ? 'py-6 px-4' : 'py-10'}`}>
+            <div
+                className={`text-center text-gray-500 ${isMobile ? 'py-6 px-4' : 'py-10'}`}
+            >
                 콘서트 정보를 찾을 수 없습니다.
             </div>
         );
@@ -329,11 +344,12 @@ function ConcertDetailPage() {
         >
             <div
                 // 🎯 반응형 클래스 적용
-                className={isMobile
-                    ? "p-4 overflow-x-hidden"
-                    : isTablet
-                        ? "max-w-4xl mx-auto p-4 overflow-x-hidden"
-                        : "max-w-6xl mx-auto p-6 overflow-x-hidden"
+                className={
+                    isMobile
+                        ? 'p-4 overflow-x-hidden'
+                        : isTablet
+                          ? 'max-w-4xl mx-auto p-4 overflow-x-hidden'
+                          : 'max-w-6xl mx-auto p-6 overflow-x-hidden'
                 }
                 style={{
                     backgroundColor: '#0F172A',
@@ -345,11 +361,12 @@ function ConcertDetailPage() {
             >
                 <h1
                     // 🎯 반응형 제목 크기
-                    className={isMobile
-                        ? "text-xl font-bold mb-4 text-center break-words"
-                        : isTablet
-                            ? "text-2xl font-bold mb-5 text-center break-words"
-                            : "text-4xl font-bold mb-6 text-center break-words"
+                    className={
+                        isMobile
+                            ? 'text-xl font-bold mb-4 text-center break-words'
+                            : isTablet
+                              ? 'text-2xl font-bold mb-5 text-center break-words'
+                              : 'text-4xl font-bold mb-6 text-center break-words'
                     }
                     style={{
                         color: '#FFFFFF',
@@ -364,16 +381,29 @@ function ConcertDetailPage() {
                 </h1>
 
                 {/* 🎯 반응형 그리드 레이아웃 */}
-                <div className={isMobile
-                    ? "space-y-6" // 모바일: 세로 스택
-                    : isTablet
-                        ? "space-y-6" // 태블릿: 세로 스택
-                        : "grid grid-cols-1 lg:grid-cols-3 gap-8" // 데스크톱: 3컬럼 그리드
-                }>
+                <div
+                    className={
+                        isMobile
+                            ? 'space-y-6' // 모바일: 세로 스택
+                            : isTablet
+                              ? 'space-y-6' // 태블릿: 세로 스택
+                              : 'grid grid-cols-1 lg:grid-cols-3 gap-8' // 데스크톱: 3컬럼 그리드
+                    }
+                >
                     {/* 좌측 상세 콘텐츠 */}
-                    <div className={isMobile ? "" : isTablet ? "" : "lg:col-span-2 space-y-8"}>
+                    <div
+                        className={
+                            isMobile
+                                ? ''
+                                : isTablet
+                                  ? ''
+                                  : 'lg:col-span-2 space-y-8'
+                        }
+                    >
                         {/* 각 섹션들 - 반응형 간격 적용 */}
-                        <div className={`space-y-${isMobile ? '4' : isTablet ? '5' : '8'}`}>
+                        <div
+                            className={`space-y-${isMobile ? '4' : isTablet ? '5' : '8'}`}
+                        >
                             {/* 콘서트 상세 정보 */}
                             <div
                                 className="rounded-xl shadow-md"
@@ -381,7 +411,11 @@ function ConcertDetailPage() {
                                     backgroundColor: '#1E293B',
                                     border: '1px solid #374151',
                                     // 🎯 반응형 패딩
-                                    padding: isMobile ? '16px' : isTablet ? '20px' : '24px',
+                                    padding: isMobile
+                                        ? '16px'
+                                        : isTablet
+                                          ? '20px'
+                                          : '24px',
                                 }}
                             >
                                 <ConcertDetail
@@ -402,7 +436,11 @@ function ConcertDetailPage() {
                                     style={{
                                         backgroundColor: '#1E293B',
                                         border: '1px solid #374151',
-                                        padding: isMobile ? '16px' : isTablet ? '20px' : '24px',
+                                        padding: isMobile
+                                            ? '16px'
+                                            : isTablet
+                                              ? '20px'
+                                              : '24px',
                                     }}
                                 >
                                     <AISummary
@@ -421,7 +459,11 @@ function ConcertDetailPage() {
                                 style={{
                                     backgroundColor: '#1E293B',
                                     border: '1px solid #374151',
-                                    padding: isMobile ? '16px' : isTablet ? '20px' : '24px',
+                                    padding: isMobile
+                                        ? '16px'
+                                        : isTablet
+                                          ? '20px'
+                                          : '24px',
                                 }}
                             >
                                 <ReviewList
@@ -453,7 +495,11 @@ function ConcertDetailPage() {
                                 style={{
                                     backgroundColor: '#1E293B',
                                     border: '1px solid #374151',
-                                    padding: isMobile ? '16px' : isTablet ? '20px' : '24px',
+                                    padding: isMobile
+                                        ? '16px'
+                                        : isTablet
+                                          ? '20px'
+                                          : '24px',
                                 }}
                             >
                                 <ExpectationList
@@ -469,9 +515,13 @@ function ConcertDetailPage() {
                                     compact={isMobile} // 🎯 모바일에서 컴팩트 모드
                                     expandedItems={expandedExpectations}
                                     currentUserId={currentUser?.userId}
-                                    onCreateExpectation={handleCreateExpectation}
+                                    onCreateExpectation={
+                                        handleCreateExpectation
+                                    }
                                     onEditExpectation={handleEditExpectation}
-                                    onDeleteExpectation={handleDeleteExpectation}
+                                    onDeleteExpectation={
+                                        handleDeleteExpectation
+                                    }
                                 />
                             </div>
                         </div>
@@ -479,11 +529,12 @@ function ConcertDetailPage() {
 
                     {/* 우측 티켓 정보 사이드바 */}
                     <div
-                        className={isMobile
-                            ? "p-4 rounded-xl shadow-md space-y-3" // 모바일: 일반 div
-                            : isTablet
-                                ? "p-5 rounded-xl shadow-md space-y-4" // 태블릿: 일반 div
-                                : "lg:sticky lg:top-24 lg:self-start p-6 rounded-xl shadow-md space-y-4 h-fit" // 데스크톱: sticky
+                        className={
+                            isMobile
+                                ? 'p-4 rounded-xl shadow-md space-y-3' // 모바일: 일반 div
+                                : isTablet
+                                  ? 'p-5 rounded-xl shadow-md space-y-4' // 태블릿: 일반 div
+                                  : 'lg:sticky lg:top-24 lg:self-start p-6 rounded-xl shadow-md space-y-4 h-fit' // 데스크톱: sticky
                         }
                         style={{
                             backgroundColor: '#1E293B',
@@ -493,7 +544,11 @@ function ConcertDetailPage() {
                         }}
                     >
                         <h2
-                            className={isMobile ? "text-lg font-bold" : "text-xl font-bold"}
+                            className={
+                                isMobile
+                                    ? 'text-lg font-bold'
+                                    : 'text-xl font-bold'
+                            }
                             style={{ color: '#3B82F6' }}
                         >
                             티켓 등급 및 가격
@@ -510,7 +565,9 @@ function ConcertDetailPage() {
                                     backgroundColor: '#374151',
                                     border: '1px solid #4B5563',
                                     // 🎯 반응형 패딩
-                                    padding: isMobile ? '12px 16px' : '16px 20px',
+                                    padding: isMobile
+                                        ? '12px 16px'
+                                        : '16px 20px',
                                 }}
                             >
                                 <span
@@ -531,7 +588,9 @@ function ConcertDetailPage() {
                         <button
                             onClick={enterQueue}
                             className={`w-full font-bold rounded-lg transition hover:scale-[1.02] disabled:cursor-not-allowed ${
-                                isMobile ? 'py-3 px-4 text-base mt-3' : 'py-3 px-6 text-lg mt-2'
+                                isMobile
+                                    ? 'py-3 px-4 text-base mt-3'
+                                    : 'py-3 px-6 text-lg mt-2'
                             }`}
                             style={{
                                 backgroundColor:

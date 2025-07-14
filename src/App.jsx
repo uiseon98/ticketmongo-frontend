@@ -69,20 +69,23 @@ const LoadingComponent = () => {
     }, []);
 
     return (
-        <div style={{
-            backgroundColor: '#111827',
-            minHeight: '100vh',
-            width: '100vw',
-            margin: 0,
-            padding: 0,
-            overflowX: 'hidden',
-        }}>
+        <div
+            style={{
+                backgroundColor: '#111827',
+                minHeight: '100vh',
+                width: '100vw',
+                margin: 0,
+                padding: 0,
+                overflowX: 'hidden',
+            }}
+        >
             <div
-                className={isMobile
-                    ? "p-4 overflow-x-hidden"
-                    : isTablet
-                        ? "max-w-4xl mx-auto p-4 overflow-x-hidden"
-                        : "max-w-6xl mx-auto p-6 overflow-x-hidden"
+                className={
+                    isMobile
+                        ? 'p-4 overflow-x-hidden'
+                        : isTablet
+                          ? 'max-w-4xl mx-auto p-4 overflow-x-hidden'
+                          : 'max-w-6xl mx-auto p-6 overflow-x-hidden'
                 }
                 style={{
                     backgroundColor: '#111827',
@@ -94,17 +97,21 @@ const LoadingComponent = () => {
                     justifyContent: 'center',
                 }}
             >
-                <div style={{
-                    textAlign: 'center',
-                    backgroundColor: '#1f2937',
-                    padding: isMobile ? '24px' : '40px',
-                    borderRadius: '12px',
-                    border: '1px solid #374151',
-                    maxWidth: isMobile ? '90%' : '400px',
-                    width: '100%',
-                }}>
+                <div
+                    style={{
+                        textAlign: 'center',
+                        backgroundColor: '#1f2937',
+                        padding: isMobile ? '24px' : '40px',
+                        borderRadius: '12px',
+                        border: '1px solid #374151',
+                        maxWidth: isMobile ? '90%' : '400px',
+                        width: '100%',
+                    }}
+                >
                     <div className="loading-spinner mx-auto mb-4"></div>
-                    <div className="loading-text">🎭 티켓몬을 초기화하는 중...</div>
+                    <div className="loading-text">
+                        🎭 티켓몬을 초기화하는 중...
+                    </div>
                 </div>
             </div>
         </div>
@@ -117,7 +124,9 @@ const TempSettingsPage = () => (
         <div className="card max-w-md mx-auto text-center">
             <div className="text-4xl mb-4">⚙️</div>
             <h2 className="text-xl font-bold text-white mb-2">설정 페이지</h2>
-            <p className="text-gray-400">관리자 설정 기능이 곧 추가될 예정입니다.</p>
+            <p className="text-gray-400">
+                관리자 설정 기능이 곧 추가될 예정입니다.
+            </p>
         </div>
     </div>
 );
@@ -180,13 +189,15 @@ export default function App() {
                 <Route element={<PublicLayout />}>
                     <Route path="/" element={<HomePage />} />
                     <Route path="concerts" element={<ConcertListPage />} />
-                    <Route path="concerts/:concertId" element={<ConcertDetailPage />} />
-                    {PaymentRoutes()}
+                    <Route
+                        path="concerts/:concertId"
+                        element={<ConcertDetailPage />}
+                    />
+                    <PaymentRoutes />
                 </Route>
 
                 {/* ===== 로그인 후 보호된 페이지 ===== */}
                 <Route element={<MainLayout />}>
-
                     {/* 예매 관련 페이지 */}
                     <Route
                         path="concerts/:concertId/wait"
@@ -241,7 +252,9 @@ export default function App() {
                         element={
                             <ProtectedRoute
                                 condition={isLoggedIn && !isAdmin}
-                                fallback={<Navigate to="/unauthorized" replace />}
+                                fallback={
+                                    <Navigate to="/unauthorized" replace />
+                                }
                             >
                                 <SellerLayout />
                             </ProtectedRoute>
@@ -259,14 +272,22 @@ export default function App() {
                             element={
                                 <ProtectedRoute
                                     condition={isSeller}
-                                    fallback={<Navigate to="/unauthorized" replace />}
+                                    fallback={
+                                        <Navigate to="/unauthorized" replace />
+                                    }
                                 >
                                     <Outlet />
                                 </ProtectedRoute>
                             }
                         >
-                            <Route path="concerts/register" element={<ConcertRegisterPage />} />
-                            <Route path="concerts/manage" element={<SellerConcertManagementPage />} />
+                            <Route
+                                path="concerts/register"
+                                element={<ConcertRegisterPage />}
+                            />
+                            <Route
+                                path="concerts/manage"
+                                element={<SellerConcertManagementPage />}
+                            />
                         </Route>
                     </Route>
 
@@ -276,22 +297,36 @@ export default function App() {
                         element={
                             <ProtectedRoute
                                 condition={isLoggedIn && isAdmin}
-                                fallback={<Navigate to="/unauthorized" replace />}
+                                fallback={
+                                    <Navigate to="/unauthorized" replace />
+                                }
                             >
                                 <AdminLayout />
                             </ProtectedRoute>
                         }
                     >
                         <Route index element={<AdminDashboard />} />
-                        <Route path="seller-approvals" element={<SellerApproval />} />
-                        <Route path="sellers" element={<AdminSellerManagement />} />
-                        <Route path="history" element={<ApplicationHistoryPage />} />
+                        <Route
+                            path="seller-approvals"
+                            element={<SellerApproval />}
+                        />
+                        <Route
+                            path="sellers"
+                            element={<AdminSellerManagement />}
+                        />
+                        <Route
+                            path="history"
+                            element={<ApplicationHistoryPage />}
+                        />
                         <Route path="settings" element={<TempSettingsPage />} />
                     </Route>
                 </Route>
 
                 {/* ===== 에러 페이지 ===== */}
-                <Route path="/unauthorized" element={<UnauthorizedAccessPage />} />
+                <Route
+                    path="/unauthorized"
+                    element={<UnauthorizedAccessPage />}
+                />
                 <Route path="*" element={<NotFoundPage />} />
             </Routes>
         </div>

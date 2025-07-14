@@ -153,25 +153,28 @@ const ReviewList = ({
     /**
      * 날짜 포맷팅 함수 (반응형)
      */
-    const formatDate = useCallback((dateString) => {
-        try {
-            const date = new Date(dateString);
-            if (isMobile) {
-                // 모바일에서는 짧은 형식
+    const formatDate = useCallback(
+        (dateString) => {
+            try {
+                const date = new Date(dateString);
+                if (isMobile) {
+                    // 모바일에서는 짧은 형식
+                    return date.toLocaleDateString('ko-KR', {
+                        month: 'short',
+                        day: 'numeric',
+                    });
+                }
                 return date.toLocaleDateString('ko-KR', {
+                    year: 'numeric',
                     month: 'short',
                     day: 'numeric',
                 });
+            } catch (error) {
+                return dateString;
             }
-            return date.toLocaleDateString('ko-KR', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-            });
-        } catch (error) {
-            return dateString;
-        }
-    }, [isMobile]);
+        },
+        [isMobile],
+    );
 
     /**
      * 평점 별 표시 함수 (반응형)
@@ -212,7 +215,10 @@ const ReviewList = ({
             }
         } else {
             const start = Math.max(0, currentPage - Math.floor(maxVisible / 2));
-            const end = Math.min(totalPages - 1, currentPage + Math.floor(maxVisible / 2));
+            const end = Math.min(
+                totalPages - 1,
+                currentPage + Math.floor(maxVisible / 2),
+            );
 
             for (let i = start; i <= end; i++) {
                 visiblePages.push(i);
@@ -245,7 +251,7 @@ const ReviewList = ({
         backgroundColor: '#374151',
         borderRadius: '8px',
         border: '1px solid #4B5563',
-        padding: isMobile ? '12px' : (compact ? '12px' : '16px'),
+        padding: isMobile ? '12px' : compact ? '12px' : '16px',
         color: '#FFFFFF',
         width: '100%',
         maxWidth: '100%',
@@ -270,7 +276,7 @@ const ReviewList = ({
      * 제목 스타일 (반응형)
      */
     const titleStyles = {
-        fontSize: isMobile ? '16px' : (compact ? '16px' : '18px'),
+        fontSize: isMobile ? '16px' : compact ? '16px' : '18px',
         fontWeight: 'bold',
         color: '#FFFFFF',
         display: 'flex',
@@ -340,7 +346,7 @@ const ReviewList = ({
      * 리뷰 카드 스타일 (반응형)
      */
     const reviewCardStyles = {
-        padding: isMobile ? '16px' : (compact ? '12px' : '16px'),
+        padding: isMobile ? '16px' : compact ? '12px' : '16px',
         border: '1px solid #4B5563',
         borderRadius: '8px',
         marginBottom: isMobile ? '16px' : '12px',
@@ -412,7 +418,11 @@ const ReviewList = ({
                         <div
                             key={`skeleton-${index}`}
                             style={{
-                                padding: isMobile ? '16px' : (compact ? '12px' : '16px'),
+                                padding: isMobile
+                                    ? '16px'
+                                    : compact
+                                      ? '12px'
+                                      : '16px',
                                 border: '1px solid #4B5563',
                                 borderRadius: '8px',
                                 marginBottom: isMobile ? '16px' : '12px',
@@ -424,7 +434,9 @@ const ReviewList = ({
                                 style={{
                                     display: 'flex',
                                     flexDirection: isMobile ? 'column' : 'row',
-                                    alignItems: isMobile ? 'flex-start' : 'center',
+                                    alignItems: isMobile
+                                        ? 'flex-start'
+                                        : 'center',
                                     marginBottom: '8px',
                                     gap: isMobile ? '8px' : '12px',
                                 }}
@@ -517,10 +529,12 @@ const ReviewList = ({
                         padding: isMobile ? '40px 20px' : '40px 20px',
                     }}
                 >
-                    <div style={{
-                        fontSize: isMobile ? '40px' : '48px',
-                        marginBottom: '16px'
-                    }}>
+                    <div
+                        style={{
+                            fontSize: isMobile ? '40px' : '48px',
+                            marginBottom: '16px',
+                        }}
+                    >
                         😵
                     </div>
                     <h3
@@ -592,14 +606,18 @@ const ReviewList = ({
                     )}
                 </div>
 
-                <div style={{
-                    textAlign: 'center',
-                    padding: isMobile ? '40px 20px' : '40px 20px'
-                }}>
-                    <div style={{
-                        fontSize: isMobile ? '40px' : '48px',
-                        marginBottom: '16px'
-                    }}>
+                <div
+                    style={{
+                        textAlign: 'center',
+                        padding: isMobile ? '40px 20px' : '40px 20px',
+                    }}
+                >
+                    <div
+                        style={{
+                            fontSize: isMobile ? '40px' : '48px',
+                            marginBottom: '16px',
+                        }}
+                    >
                         📝
                     </div>
                     <h3
@@ -611,12 +629,14 @@ const ReviewList = ({
                     >
                         아직 작성된 후기가 없습니다
                     </h3>
-                    <p style={{
-                        color: '#9ca3af',
-                        fontSize: isMobile ? '16px' : '14px',
-                        lineHeight: '1.5',
-                        marginBottom: isMobile ? '24px' : '16px',
-                    }}>
+                    <p
+                        style={{
+                            color: '#9ca3af',
+                            fontSize: isMobile ? '16px' : '14px',
+                            lineHeight: '1.5',
+                            marginBottom: isMobile ? '24px' : '16px',
+                        }}
+                    >
                         첫 번째 후기를 작성해보세요!
                     </p>
 
@@ -691,10 +711,12 @@ const ReviewList = ({
 
                     {/* 정렬 옵션 - 반응형 */}
                     {showSortOptions && (
-                        <div style={{
-                            ...sortContainerStyles,
-                            order: isMobile ? 1 : 2,
-                        }}>
+                        <div
+                            style={{
+                                ...sortContainerStyles,
+                                order: isMobile ? 1 : 2,
+                            }}
+                        >
                             <span
                                 style={{
                                     fontSize: isMobile ? '14px' : '12px',
@@ -709,7 +731,11 @@ const ReviewList = ({
                                 // 모바일: 드롭다운 형태
                                 <>
                                     <button
-                                        onClick={() => setSortDropdownOpen(!sortDropdownOpen)}
+                                        onClick={() =>
+                                            setSortDropdownOpen(
+                                                !sortDropdownOpen,
+                                            )
+                                        }
                                         style={{
                                             flex: 1,
                                             padding: '8px 12px',
@@ -726,10 +752,17 @@ const ReviewList = ({
                                         }}
                                     >
                                         <span>
-                                            {ReviewSortOptions.find(opt => opt.value === sortBy)?.label}
+                                            {
+                                                ReviewSortOptions.find(
+                                                    (opt) =>
+                                                        opt.value === sortBy,
+                                                )?.label
+                                            }
                                             {sortDir === 'desc' ? ' ↓' : ' ↑'}
                                         </span>
-                                        <span>{sortDropdownOpen ? '▲' : '▼'}</span>
+                                        <span>
+                                            {sortDropdownOpen ? '▲' : '▼'}
+                                        </span>
                                     </button>
 
                                     {sortDropdownOpen && (
@@ -737,23 +770,43 @@ const ReviewList = ({
                                             {ReviewSortOptions.map((option) => (
                                                 <button
                                                     key={option.value}
-                                                    onClick={() => handleSortChange(option.value)}
+                                                    onClick={() =>
+                                                        handleSortChange(
+                                                            option.value,
+                                                        )
+                                                    }
                                                     style={{
                                                         width: '100%',
                                                         padding: '12px 16px',
-                                                        backgroundColor: sortBy === option.value ? '#3b82f6' : 'transparent',
-                                                        color: sortBy === option.value ? '#ffffff' : '#d1d5db',
+                                                        backgroundColor:
+                                                            sortBy ===
+                                                            option.value
+                                                                ? '#3b82f6'
+                                                                : 'transparent',
+                                                        color:
+                                                            sortBy ===
+                                                            option.value
+                                                                ? '#ffffff'
+                                                                : '#d1d5db',
                                                         border: 'none',
                                                         fontSize: '14px',
                                                         cursor: 'pointer',
                                                         textAlign: 'left',
-                                                        borderBottom: '1px solid #4b5563',
+                                                        borderBottom:
+                                                            '1px solid #4b5563',
                                                     }}
                                                 >
                                                     {option.label}
-                                                    {sortBy === option.value && (
-                                                        <span style={{ float: 'right' }}>
-                                                            {sortDir === 'desc' ? '↓' : '↑'}
+                                                    {sortBy ===
+                                                        option.value && (
+                                                        <span
+                                                            style={{
+                                                                float: 'right',
+                                                            }}
+                                                        >
+                                                            {sortDir === 'desc'
+                                                                ? '↓'
+                                                                : '↑'}
                                                         </span>
                                                     )}
                                                 </button>
@@ -766,8 +819,12 @@ const ReviewList = ({
                                 ReviewSortOptions.map((option) => (
                                     <button
                                         key={option.value}
-                                        onClick={() => handleSortChange(option.value)}
-                                        style={getSortButtonStyles(sortBy === option.value)}
+                                        onClick={() =>
+                                            handleSortChange(option.value)
+                                        }
+                                        style={getSortButtonStyles(
+                                            sortBy === option.value,
+                                        )}
                                     >
                                         {option.label}
                                         {sortBy === option.value && (
@@ -811,9 +868,12 @@ const ReviewList = ({
                         key={review.id}
                         style={{
                             ...reviewCardStyles,
-                            ...(hoveredReviewId === review.id && onReviewClick && !isMobile
+                            ...(hoveredReviewId === review.id &&
+                            onReviewClick &&
+                            !isMobile
                                 ? {
-                                      boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)',
+                                      boxShadow:
+                                          '0 2px 8px rgba(59, 130, 246, 0.3)',
                                       transform: 'translateY(-1px)',
                                       borderColor: '#3B82F6',
                                   }
@@ -821,7 +881,9 @@ const ReviewList = ({
                         }}
                         onClick={() => handleReviewClick(review)}
                         onMouseEnter={() =>
-                            onReviewClick && !isMobile && setHoveredReviewId(review.id)
+                            onReviewClick &&
+                            !isMobile &&
+                            setHoveredReviewId(review.id)
                         }
                         onMouseLeave={() => setHoveredReviewId(null)}
                     >
@@ -846,7 +908,11 @@ const ReviewList = ({
                             >
                                 <span
                                     style={{
-                                        fontSize: isMobile ? '16px' : (compact ? '12px' : '14px'),
+                                        fontSize: isMobile
+                                            ? '16px'
+                                            : compact
+                                              ? '12px'
+                                              : '14px',
                                         fontWeight: '600',
                                         color: '#FFFFFF',
                                     }}
@@ -886,7 +952,11 @@ const ReviewList = ({
                         {/* 리뷰 제목 - 반응형 */}
                         <h4
                             style={{
-                                fontSize: isMobile ? '18px' : (compact ? '14px' : '16px'),
+                                fontSize: isMobile
+                                    ? '18px'
+                                    : compact
+                                      ? '14px'
+                                      : '16px',
                                 fontWeight: '600',
                                 color: '#FFFFFF',
                                 marginBottom: '8px',
@@ -901,38 +971,54 @@ const ReviewList = ({
                         <div>
                             <p
                                 style={{
-                                    fontSize: isMobile ? '16px' : (compact ? '13px' : '14px'),
+                                    fontSize: isMobile
+                                        ? '16px'
+                                        : compact
+                                          ? '13px'
+                                          : '14px',
                                     color: '#D1D5DB',
                                     lineHeight: '1.6',
                                     margin: '0',
                                     wordBreak: 'keep-all',
                                 }}
                             >
-                                {review.description.length > (isMobile ? 80 : 100) &&
+                                {review.description.length >
+                                    (isMobile ? 80 : 100) &&
                                 !compact &&
                                 !expandedItems?.has(review.id)
-                                    ? review.description.substring(0, isMobile ? 80 : 100) + '...'
+                                    ? review.description.substring(
+                                          0,
+                                          isMobile ? 80 : 100,
+                                      ) + '...'
                                     : review.description}
                             </p>
-                            {review.description.length > (isMobile ? 80 : 100) && !compact && (
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        onReviewClick(review);
-                                    }}
-                                    style={{
-                                        color: '#3B82F6',
-                                        fontSize: isMobile ? '14px' : '12px',
-                                        background: 'none',
-                                        border: 'none',
-                                        cursor: 'pointer',
-                                        marginTop: '8px',
-                                        padding: isMobile ? '8px 0' : '4px 0',
-                                    }}
-                                >
-                                    {expandedItems?.has(review.id) ? '접기' : '더보기'}
-                                </button>
-                            )}
+                            {review.description.length >
+                                (isMobile ? 80 : 100) &&
+                                !compact && (
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            onReviewClick(review);
+                                        }}
+                                        style={{
+                                            color: '#3B82F6',
+                                            fontSize: isMobile
+                                                ? '14px'
+                                                : '12px',
+                                            background: 'none',
+                                            border: 'none',
+                                            cursor: 'pointer',
+                                            marginTop: '8px',
+                                            padding: isMobile
+                                                ? '8px 0'
+                                                : '4px 0',
+                                        }}
+                                    >
+                                        {expandedItems?.has(review.id)
+                                            ? '접기'
+                                            : '더보기'}
+                                    </button>
+                                )}
                         </div>
 
                         {/* 수정/삭제 버튼 - 반응형 */}
@@ -952,7 +1038,9 @@ const ReviewList = ({
                                         onEditReview?.(review);
                                     }}
                                     style={{
-                                        padding: isMobile ? '8px 12px' : '6px 10px',
+                                        padding: isMobile
+                                            ? '8px 12px'
+                                            : '6px 10px',
                                         backgroundColor: '#3b82f6',
                                         color: '#ffffff',
                                         border: 'none',
@@ -971,7 +1059,9 @@ const ReviewList = ({
                                         onDeleteReview?.(review.id);
                                     }}
                                     style={{
-                                        padding: isMobile ? '8px 12px' : '6px 10px',
+                                        padding: isMobile
+                                            ? '8px 12px'
+                                            : '6px 10px',
                                         backgroundColor: '#ef4444',
                                         color: '#ffffff',
                                         border: 'none',
@@ -1000,7 +1090,8 @@ const ReviewList = ({
                         style={{
                             ...pageButtonBaseStyles,
                             opacity: currentPage === 0 ? 0.5 : 1,
-                            cursor: currentPage === 0 ? 'not-allowed' : 'pointer',
+                            cursor:
+                                currentPage === 0 ? 'not-allowed' : 'pointer',
                         }}
                     >
                         {isMobile ? '‹' : '← 이전'}
@@ -1013,7 +1104,9 @@ const ReviewList = ({
                                 <span
                                     key={`ellipsis-${index}`}
                                     style={{
-                                        padding: isMobile ? '8px 4px' : '6px 4px',
+                                        padding: isMobile
+                                            ? '8px 4px'
+                                            : '6px 4px',
                                         color: '#9ca3af',
                                     }}
                                 >
@@ -1044,7 +1137,10 @@ const ReviewList = ({
                         style={{
                             ...pageButtonBaseStyles,
                             opacity: currentPage >= totalPages - 1 ? 0.5 : 1,
-                            cursor: currentPage >= totalPages - 1 ? 'not-allowed' : 'pointer',
+                            cursor:
+                                currentPage >= totalPages - 1
+                                    ? 'not-allowed'
+                                    : 'pointer',
                         }}
                     >
                         {isMobile ? '›' : '다음 →'}
@@ -1067,7 +1163,8 @@ const ReviewList = ({
                         textAlign: isMobile ? 'center' : 'left',
                     }}
                 >
-                    💡 작성하신 리뷰는 다른 관람객들에게 큰 도움이 됩니다. 정직하고 자세한 후기를 작성해주세요!
+                    💡 작성하신 리뷰는 다른 관람객들에게 큰 도움이 됩니다.
+                    정직하고 자세한 후기를 작성해주세요!
                 </div>
             )}
 

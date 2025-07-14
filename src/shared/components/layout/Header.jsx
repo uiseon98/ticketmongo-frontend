@@ -7,7 +7,7 @@ import { Menu, X } from 'lucide-react';
 const useResponsive = () => {
     const [isMobile, setIsMobile] = useState(false);
     const [screenWidth, setScreenWidth] = useState(
-        typeof window !== 'undefined' ? window.innerWidth : 1200
+        typeof window !== 'undefined' ? window.innerWidth : 1200,
     );
 
     useEffect(() => {
@@ -26,7 +26,7 @@ const useResponsive = () => {
         isMobile,
         isTablet: screenWidth <= 1024 && screenWidth > 768,
         isDesktop: screenWidth > 1024,
-        screenWidth
+        screenWidth,
     };
 };
 
@@ -70,8 +70,9 @@ export default function Header() {
     return (
         <header className="bg-gray-900 border-b border-gray-700 shadow-lg sticky top-0 z-50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className={`flex items-center justify-between ${isMobile ? 'h-16' : 'h-20'}`}>
-
+                <div
+                    className={`flex items-center justify-between ${isMobile ? 'h-16' : 'h-20'}`}
+                >
                     {/* 왼쪽 영역: 로고 및 메인 네비게이션 */}
                     <div className="flex items-center space-x-8">
                         {/* 로고 */}
@@ -79,7 +80,9 @@ export default function Header() {
                             to="/"
                             className="flex items-center space-x-2 text-white hover:text-blue-400 transition-colors"
                         >
-                            <div className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold`}>
+                            <div
+                                className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold`}
+                            >
                                 🎭 TicketMon
                             </div>
                         </NavLink>
@@ -92,7 +95,9 @@ export default function Header() {
                                     to={link.to}
                                     className={({ isActive }) =>
                                         `text-gray-300 hover:text-white transition-colors font-medium ${
-                                            isActive ? 'text-blue-400 border-b-2 border-blue-400 pb-1' : ''
+                                            isActive
+                                                ? 'text-blue-400 border-b-2 border-blue-400 pb-1'
+                                                : ''
                                         }`
                                     }
                                 >
@@ -107,7 +112,9 @@ export default function Header() {
                         {loading ? (
                             <div className="flex items-center space-x-2">
                                 <div className="w-4 h-4 border-2 border-gray-400 border-t-blue-500 rounded-full animate-spin"></div>
-                                <span className="text-gray-400 text-sm">로딩중...</span>
+                                <span className="text-gray-400 text-sm">
+                                    로딩중...
+                                </span>
                             </div>
                         ) : user ? (
                             <div className="hidden md:flex items-center space-x-4">
@@ -173,7 +180,6 @@ export default function Header() {
                 {menuOpen && (
                     <div className="md:hidden border-t border-gray-700 bg-gray-800">
                         <div className="px-4 py-3 space-y-3">
-
                             {/* 모바일 네비게이션 링크들 */}
                             {mainNavigationLinks.map((link) => (
                                 <NavLink
@@ -182,7 +188,9 @@ export default function Header() {
                                     onClick={() => setMenuOpen(false)}
                                     className={({ isActive }) =>
                                         `block text-gray-300 hover:text-white transition-colors font-medium py-2 px-3 rounded-lg ${
-                                            isActive ? 'bg-gray-700 text-blue-400' : 'hover:bg-gray-700'
+                                            isActive
+                                                ? 'bg-gray-700 text-blue-400'
+                                                : 'hover:bg-gray-700'
                                         }`
                                     }
                                 >
@@ -196,7 +204,9 @@ export default function Header() {
                             {loading ? (
                                 <div className="flex items-center space-x-2 py-2 px-3">
                                     <div className="w-4 h-4 border-2 border-gray-400 border-t-blue-500 rounded-full animate-spin"></div>
-                                    <span className="text-gray-400 text-sm">로딩중...</span>
+                                    <span className="text-gray-400 text-sm">
+                                        로딩중...
+                                    </span>
                                 </div>
                             ) : user ? (
                                 <>
@@ -207,7 +217,9 @@ export default function Header() {
                                             onClick={() => setMenuOpen(false)}
                                             className={({ isActive }) =>
                                                 `block text-gray-300 hover:text-white transition-colors font-medium py-2 px-3 rounded-lg ${
-                                                    isActive ? 'bg-gray-700 text-blue-400' : 'hover:bg-gray-700'
+                                                    isActive
+                                                        ? 'bg-gray-700 text-blue-400'
+                                                        : 'hover:bg-gray-700'
                                                 }`
                                             }
                                         >
@@ -217,7 +229,9 @@ export default function Header() {
 
                                     {/* 사용자 정보 */}
                                     <div className="py-2 px-3 text-gray-200">
-                                        <div className="text-sm text-gray-400">로그인됨</div>
+                                        <div className="text-sm text-gray-400">
+                                            로그인됨
+                                        </div>
                                         <div className="font-medium text-blue-400">
                                             {user.username}님
                                         </div>

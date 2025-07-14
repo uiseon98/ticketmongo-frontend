@@ -38,8 +38,8 @@ class ErrorBoundary extends React.Component {
 
                             {/* 에러 설명 */}
                             <p className="text-gray-300 mb-6 leading-relaxed">
-                                예상치 못한 오류가 발생했습니다.
-                                페이지를 새로고침하거나 잠시 후 다시 시도해주세요.
+                                예상치 못한 오류가 발생했습니다. 페이지를
+                                새로고침하거나 잠시 후 다시 시도해주세요.
                             </p>
 
                             {/* 액션 버튼들 */}
@@ -52,7 +52,7 @@ class ErrorBoundary extends React.Component {
                                 </button>
 
                                 <button
-                                    onClick={() => window.location.href = '/'}
+                                    onClick={() => (window.location.href = '/')}
                                     className="w-full bg-gray-700 hover:bg-gray-600 text-white font-medium py-3 px-4 rounded-lg transition-colors"
                                 >
                                     🏠 홈으로 이동
@@ -105,8 +105,8 @@ const initializeOneSignal = async () => {
                     // 알림 권한 요청 자동화 방지 (사용자 동의 후 수동 요청)
                     autoRegister: false,
                     notifyButton: {
-                        enable: false // 기본 알림 버튼 비활성화
-                    }
+                        enable: false, // 기본 알림 버튼 비활성화
+                    },
                 });
 
                 console.log('OneSignal 초기화 완료');
@@ -129,7 +129,7 @@ window.addEventListener('error', (event) => {
         filename: event.filename,
         lineno: event.lineno,
         colno: event.colno,
-        error: event.error
+        error: event.error,
     });
 
     // 프로덕션에서 에러 리포팅 서비스로 전송
@@ -152,14 +152,23 @@ const measurePerformance = () => {
     if ('performance' in window && 'getEntriesByType' in performance) {
         window.addEventListener('load', () => {
             setTimeout(() => {
-                const navigation = performance.getEntriesByType('navigation')[0];
+                const navigation =
+                    performance.getEntriesByType('navigation')[0];
                 const paint = performance.getEntriesByType('paint');
 
                 console.log('성능 측정:', {
-                    'DOM 로딩 시간': Math.round(navigation.domContentLoadedEventEnd - navigation.navigationStart),
-                    '페이지 로딩 시간': Math.round(navigation.loadEventEnd - navigation.navigationStart),
-                    'First Paint': paint.find(p => p.name === 'first-paint')?.startTime,
-                    'First Contentful Paint': paint.find(p => p.name === 'first-contentful-paint')?.startTime
+                    'DOM 로딩 시간': Math.round(
+                        navigation.domContentLoadedEventEnd -
+                            navigation.navigationStart,
+                    ),
+                    '페이지 로딩 시간': Math.round(
+                        navigation.loadEventEnd - navigation.navigationStart,
+                    ),
+                    'First Paint': paint.find((p) => p.name === 'first-paint')
+                        ?.startTime,
+                    'First Contentful Paint': paint.find(
+                        (p) => p.name === 'first-contentful-paint',
+                    )?.startTime,
                 });
             }, 0);
         });
@@ -183,7 +192,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
             <BrowserRouter
                 future={{
                     v7_startTransition: true,
-                    v7_relativeSplatPath: true
+                    v7_relativeSplatPath: true,
                 }}
             >
                 <AuthProvider>
@@ -195,5 +204,5 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                 </AuthProvider>
             </BrowserRouter>
         </ErrorBoundary>
-    </React.StrictMode>
+    </React.StrictMode>,
 );

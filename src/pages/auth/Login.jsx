@@ -11,7 +11,7 @@ import { Eye, EyeOff, User, Lock } from 'lucide-react';
 const useResponsive = () => {
     const [isMobile, setIsMobile] = useState(false);
     const [screenWidth, setScreenWidth] = useState(
-        typeof window !== 'undefined' ? window.innerWidth : 1200
+        typeof window !== 'undefined' ? window.innerWidth : 1200,
     );
 
     useEffect(() => {
@@ -30,7 +30,7 @@ const useResponsive = () => {
         isMobile,
         isTablet: screenWidth <= 1024 && screenWidth > 768,
         isDesktop: screenWidth > 1024,
-        screenWidth
+        screenWidth,
     };
 };
 
@@ -83,11 +83,12 @@ export default function Login() {
             }}
         >
             <div
-                className={isMobile
-                    ? "p-4 overflow-x-hidden"
-                    : isTablet
-                        ? "max-w-5xl mx-auto p-4 overflow-x-hidden"
-                        : "max-w-7xl mx-auto p-6 overflow-x-hidden"
+                className={
+                    isMobile
+                        ? 'p-4 overflow-x-hidden'
+                        : isTablet
+                          ? 'max-w-5xl mx-auto p-4 overflow-x-hidden'
+                          : 'max-w-7xl mx-auto p-6 overflow-x-hidden'
                 }
                 style={{
                     backgroundColor: '#111827',
@@ -103,11 +104,12 @@ export default function Login() {
                 {/* Page Title */}
                 <div className="text-center mb-8">
                     <h2
-                        className={isMobile
-                            ? "text-2xl font-bold mb-2 break-words"
-                            : isTablet
-                                ? "text-3xl font-bold mb-2 break-words"
-                                : "text-4xl font-bold mb-2 break-words"
+                        className={
+                            isMobile
+                                ? 'text-2xl font-bold mb-2 break-words'
+                                : isTablet
+                                  ? 'text-3xl font-bold mb-2 break-words'
+                                  : 'text-4xl font-bold mb-2 break-words'
                         }
                         style={{
                             color: '#FFFFFF',
@@ -132,7 +134,11 @@ export default function Login() {
                 <div
                     className="w-full"
                     style={{
-                        maxWidth: isMobile ? '100%' : isTablet ? '500px' : '600px',
+                        maxWidth: isMobile
+                            ? '100%'
+                            : isTablet
+                              ? '500px'
+                              : '600px',
                     }}
                 >
                     <div
@@ -140,7 +146,11 @@ export default function Login() {
                         style={{
                             backgroundColor: '#1f2937', // gray-800
                             border: '1px solid #374151', // gray-700
-                            padding: isMobile ? '20px' : isTablet ? '24px' : '32px',
+                            padding: isMobile
+                                ? '20px'
+                                : isTablet
+                                  ? '24px'
+                                  : '32px',
                         }}
                     >
                         <form onSubmit={handleLogin} className="space-y-6">
@@ -156,7 +166,9 @@ export default function Login() {
                                     id="username"
                                     type="text"
                                     value={username}
-                                    onChange={(e) => setUsername(e.target.value)}
+                                    onChange={(e) =>
+                                        setUsername(e.target.value)
+                                    }
                                     placeholder="아이디를 입력하세요"
                                     className="w-full pl-10 pr-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                                 />
@@ -175,14 +187,18 @@ export default function Login() {
                                     id="password"
                                     type={showPassword ? 'text' : 'password'}
                                     value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
+                                    onChange={(e) =>
+                                        setPassword(e.target.value)
+                                    }
                                     placeholder="비밀번호를 입력하세요"
                                     className="w-full pl-10 pr-10 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                                 />
                                 <Lock className="absolute left-3 bottom-3 text-gray-400 w-5 h-5" />
                                 <button
                                     type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
+                                    onClick={() =>
+                                        setShowPassword(!showPassword)
+                                    }
                                     className="absolute right-3 bottom-0 text-gray-400 hover:text-gray-300 transition-colors"
                                 >
                                     {showPassword ? (
@@ -213,7 +229,9 @@ export default function Login() {
                                 {isLoading && (
                                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                                 )}
-                                <span>{isLoading ? '로그인 중...' : '로그인'}</span>
+                                <span>
+                                    {isLoading ? '로그인 중...' : '로그인'}
+                                </span>
                             </button>
                         </form>
 
@@ -274,7 +292,9 @@ export default function Login() {
                                 className="w-full flex items-center justify-center px-4 py-3 rounded-lg bg-[#03C75A] text-white hover:bg-green-600 transition-colors font-medium"
                             >
                                 <div className="w-5 h-5 mr-3 flex items-center justify-center">
-                                    <span className="text-white text-xs font-bold">N</span>
+                                    <span className="text-white text-xs font-bold">
+                                        N
+                                    </span>
                                 </div>
                                 네이버로 계속하기
                             </button>
@@ -296,9 +316,7 @@ export default function Login() {
                 </div>
 
                 {/* 모바일에서 하단 여백 */}
-                {isMobile && (
-                    <div className="h-16" aria-hidden="true"></div>
-                )}
+                {isMobile && <div className="h-16" aria-hidden="true"></div>}
             </div>
         </div>
     );
