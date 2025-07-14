@@ -150,17 +150,8 @@ export default function App() {
     return (
         <div className="min-h-screen bg-gray-900">
             <Routes>
-                {/* ===== 공개 페이지 라우트 ===== */}
-                <Route element={<PublicLayout />}>
-                    <Route path="/" element={<HomePage />} />
-                    <Route path="concerts" element={<ConcertListPage />} />
-                    <Route path="concerts/:concertId" element={<ConcertDetailPage />} />
-                    {PaymentRoutes()}
-                </Route>
-
-                {/* ===== 로그인 후 보호된 페이지 + 로그인/회원가입 (MainLayout 사용) ===== */}
-                <Route element={<MainLayout />}>
-                    {/* 로그인/회원가입 페이지 - 마이페이지와 동일한 레이아웃 */}
+                {/* ===== 인증 전용 라우트 ===== */}
+                <Route element={<AuthLayout />}>
                     <Route
                         path="/login"
                         element={
@@ -183,6 +174,18 @@ export default function App() {
                             </ProtectedRoute>
                         }
                     />
+                </Route>
+
+                {/* ===== 공개 페이지 라우트 ===== */}
+                <Route element={<PublicLayout />}>
+                    <Route path="/" element={<HomePage />} />
+                    <Route path="concerts" element={<ConcertListPage />} />
+                    <Route path="concerts/:concertId" element={<ConcertDetailPage />} />
+                    {PaymentRoutes()}
+                </Route>
+
+                {/* ===== 로그인 후 보호된 페이지 ===== */}
+                <Route element={<MainLayout />}>
 
                     {/* 예매 관련 페이지 */}
                     <Route
@@ -231,60 +234,60 @@ export default function App() {
                             </ProtectedRoute>
                         }
                     />
-                </Route>
 
-                {/* ===== 판매자 페이지 그룹 (별도 SellerLayout 사용) ===== */}
-                <Route
-                    path="/seller"
-                    element={
-                        <ProtectedRoute
-                            condition={isLoggedIn && !isAdmin}
-                            fallback={<Navigate to="/unauthorized" replace />}
-                        >
-                            <SellerLayout />
-                        </ProtectedRoute>
-                    }
-                >
-                    {/* 판매자 대시보드 */}
-                    <Route index element={<SellerHomePage />} />
-
-                    {/* 모든 로그인 유저 접근 가능 */}
-                    <Route path="apply" element={<SellerApplyPage />} />
-                    <Route path="status" element={<SellerStatusPage />} />
-
-                    {/* 판매자 권한 필요 */}
+                    {/* ===== 판매자 페이지 그룹 ===== */}
                     <Route
+                        path="/seller"
                         element={
                             <ProtectedRoute
-                                condition={isSeller}
+                                condition={isLoggedIn && !isAdmin}
                                 fallback={<Navigate to="/unauthorized" replace />}
                             >
-                                <Outlet />
+                                <SellerLayout />
                             </ProtectedRoute>
                         }
                     >
-                        <Route path="concerts/register" element={<ConcertRegisterPage />} />
-                        <Route path="concerts/manage" element={<SellerConcertManagementPage />} />
-                    </Route>
-                </Route>
+                        {/* 판매자 대시보드 */}
+                        <Route index element={<SellerHomePage />} />
 
-                {/* ===== 관리자 페이지 그룹 ===== */}
-                <Route
-                    path="/admin"
-                    element={
-                        <ProtectedRoute
-                            condition={isLoggedIn && isAdmin}
-                            fallback={<Navigate to="/unauthorized" replace />}
+                        {/* 모든 로그인 유저 접근 가능 */}
+                        <Route path="apply" element={<SellerApplyPage />} />
+                        <Route path="status" element={<SellerStatusPage />} />
+
+                        {/* 판매자 권한 필요 */}
+                        <Route
+                            element={
+                                <ProtectedRoute
+                                    condition={isSeller}
+                                    fallback={<Navigate to="/unauthorized" replace />}
+                                >
+                                    <Outlet />
+                                </ProtectedRoute>
+                            }
                         >
-                            <AdminLayout />
-                        </ProtectedRoute>
-                    }
-                >
-                    <Route index element={<AdminDashboard />} />
-                    <Route path="seller-approvals" element={<SellerApproval />} />
-                    <Route path="sellers" element={<AdminSellerManagement />} />
-                    <Route path="history" element={<ApplicationHistoryPage />} />
-                    <Route path="settings" element={<TempSettingsPage />} />
+                            <Route path="concerts/register" element={<ConcertRegisterPage />} />
+                            <Route path="concerts/manage" element={<SellerConcertManagementPage />} />
+                        </Route>
+                    </Route>
+
+                    {/* ===== 관리자 페이지 그룹 ===== */}
+                    <Route
+                        path="/admin"
+                        element={
+                            <ProtectedRoute
+                                condition={isLoggedIn && isAdmin}
+                                fallback={<Navigate to="/unauthorized" replace />}
+                            >
+                                <AdminLayout />
+                            </ProtectedRoute>
+                        }
+                    >
+                        <Route index element={<AdminDashboard />} />
+                        <Route path="seller-approvals" element={<SellerApproval />} />
+                        <Route path="sellers" element={<AdminSellerManagement />} />
+                        <Route path="history" element={<ApplicationHistoryPage />} />
+                        <Route path="settings" element={<TempSettingsPage />} />
+                    </Route>
                 </Route>
 
                 {/* ===== 에러 페이지 ===== */}
