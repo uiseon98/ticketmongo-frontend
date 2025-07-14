@@ -127,6 +127,11 @@ export default function App() {
                     }
                 />
 
+                {/* 결제 관련 라우트들 - 로그인 필요 */}
+                <Route path="payment/result/success" element={<PaymentSuccess />} />
+                <Route path="payment/result/fail" element={<PaymentFail />} />
+
+
                 {/* 프로필 페이지 라우트는 판매자 라우트 그룹 밖에 따로 위치 */}
                 <Route
                     path="/mypage/profile"
