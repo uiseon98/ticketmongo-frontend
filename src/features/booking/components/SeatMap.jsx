@@ -2,22 +2,18 @@
 
 import React from 'react';
 
-const getSeatStatusClass = (status, isSelected, isProcessing) => {
-    if (isProcessing && isSelected) {
-        return 'bg-yellow-500 animate-pulse cursor-wait'; // 처리 중
-    }
+// 좌석 상태에 따라 다른 Tailwind CSS 클래스를 반환하는 헬퍼 함수
+const getSeatStatusClass = (status, isSelected) => {
     if (isSelected) {
-        return 'bg-[#6B8EFE] ring-2 ring-white cursor-pointer';
+        return 'bg-[#6B8EFE] ring-2 ring-white cursor-pointer'; // 선택됨
     }
     switch (status) {
         case 'AVAILABLE':
-            return 'bg-[#22C55E] hover:bg-green-400 cursor-pointer';
+            return 'bg-[#22C55E] hover:bg-green-400 cursor-pointer'; // 선택 가능
         case 'BOOKED':
-            return 'bg-red-500 cursor-not-allowed';
-        case 'RESERVED': // 다른 사용자가 선점 중
-            return 'bg-orange-500 cursor-not-allowed';
+            return 'bg-red-500 cursor-not-allowed'; // 예매 완료
         default:
-            return 'bg-gray-600 cursor-not-allowed';
+            return 'bg-gray-600 cursor-not-allowed'; // 이용 불가
     }
 };
 
