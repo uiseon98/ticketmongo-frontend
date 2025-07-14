@@ -95,14 +95,13 @@ export default function App() {
             <Route element={<PublicLayout />}>
                 <Route path="/" element={<HomePage />} />
                 <Route path="concerts" element={<ConcertListPage />} />
-                {/* 임시로 주석 처리
-                <Route path="payment/result/success" element={<PaymentSuccess />} />
-                <Route path="payment/result/fail" element={<PaymentFail />} />
-                */}
                 <Route
                     path="concerts/:concertId"
                     element={<ConcertDetailPage />}
                 />
+                {/* 결제 관련 라우트들을 직접 작성 */}
+                <Route path="payment/result/success" element={<PaymentSuccess />} />
+                <Route path="payment/result/fail" element={<PaymentFail />} />
             </Route>
 
             {/** — 로그인 후 보호된 페이지 — **/}
