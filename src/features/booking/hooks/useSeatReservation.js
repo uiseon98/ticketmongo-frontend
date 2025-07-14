@@ -29,11 +29,6 @@ export const useSeatReservation = (concertId, options = {}) => {
     const pollingManagerRef = useRef(null);
     const stablePollingManagerRef = useRef(null);
     const isStartingPollingRef = useRef(false);
-    
-    // 하이브리드 폴링을 위한 상태 추가
-    const [pollingState, setPollingState] = useState('normal'); // 'normal', 'burst', 'waiting'
-    const pollingStartTimeRef = useRef(null);
-    const triggerDebounceRef = useRef(null);
 
     useEffect(() => {
         selectedSeatsRef.current = selectedSeats;
@@ -79,42 +74,10 @@ export const useSeatReservation = (concertId, options = {}) => {
         });
     }, []);
 
-    // 즉시 폴링 트리거 함수 (하이브리드 접근법)
+    // 간단한 폴링 - 복잡한 하이브리드 로직 제거
     const triggerImmediatePolling = useCallback(() => {
-        // 디바운싱 적용
-        if (triggerDebounceRef.current) {
-            clearTimeout(triggerDebounceRef.current);
-        }
-        
-        triggerDebounceRef.current = setTimeout(() => {
-            // 스마트 중단 로직: 현재 폴링이 거의 완료될 시점이면 중단하지 않음
-            if (pollingStartTimeRef.current) {
-                const timeElapsed = Date.now() - pollingStartTimeRef.current;
-                const SMART_ABORT_THRESHOLD = 25000; // 25초
-                
-                if (timeElapsed > SMART_ABORT_THRESHOLD) {
-                    console.log('🔥 폴링이 거의 완료되어 즉시 폴링 건너뜀');
-                    return;
-                }
-            }
-            
-            console.log('🚀 사용자 액션으로 인한 즉시 폴링 트리거');
-            setPollingState('burst');
-            
-            // 현재 진행 중인 폴링 중단하고 즉시 새로운 폴링 시작
-            if (stablePollingManagerRef.current) {
-                stablePollingManagerRef.current.stop();
-                
-                // 즉시 새로운 폴링 시작
-                setTimeout(() => {
-                    startPolling().then(() => {
-                        setPollingState('normal');
-                    }).catch(() => {
-                        setPollingState('normal');
-                    });
-                }, 100); // 약간의 지연으로 안정성 확보
-            }
-        }, 300); // 300ms 디바운스
+        // 복잡한 로직 제거, 단순히 로그만 남김
+        console.log('🚀 사용자 액션 발생 (폴링은 35초 주기로 계속 실행)');
     }, []);
 
     // 폴링 시스템 시작 함수
@@ -139,7 +102,6 @@ export const useSeatReservation = (concertId, options = {}) => {
 
             setIsPolling(true);
             setConnectionStatus('connecting');
-            pollingStartTimeRef.current = Date.now(); // 폴링 시작 시간 기록
         
         // 단순 주기적 폴링 시스템 사용
         if (isBackendPollingSupported()) {
@@ -147,9 +109,9 @@ export const useSeatReservation = (concertId, options = {}) => {
             
             // 폴링 매니저 생성
             const stableManager = createStablePollingManager(concertId, {
-                onUpdate: (seatUpdates) => {
-                    console.log('🔥 좌석 업데이트 수신:', seatUpdates);
-                    // 부분 업데이트 대신 전체 새로고침 사용하여 누락 방지
+                onUpdate: () => {
+                    console.log('🔥 폴링 업데이트 트리거 - 전체 좌석 상태 새로고침');
+                    // 항상 전체 새로고침으로 누락 방지
                     refreshSeatStatuses();
                 },
                 onError: (error) => {
@@ -294,11 +256,6 @@ export const useSeatReservation = (concertId, options = {}) => {
             if (pollingManagerRef.current) {
                 pollingManagerRef.current.stopPolling();
             }
-            
-            // 디바운스 타이머 정리
-            if (triggerDebounceRef.current) {
-                clearTimeout(triggerDebounceRef.current);
-            }
 
             // 좌석 해제
             if (selectedSeatsRef.current.length > 0) {
@@ -331,7 +288,7 @@ export const useSeatReservation = (concertId, options = {}) => {
                 }
                 await refreshSeatStatuses(); // 상태 동기화
                 
-                // 하이브리드 폴링: 좌석 액션 후 즉시 폴링 트리거
+                // 좌석 액션 후 즉시 폴링 트리거
                 triggerImmediatePolling();
             } catch (err) {
                 setError(err.message);
@@ -352,7 +309,7 @@ export const useSeatReservation = (concertId, options = {}) => {
             );
             await refreshSeatStatuses();
             
-            // 하이브리드 폴링: 전체 해제 액션 후 즉시 폴링 트리거
+            // 전체 해제 액션 후 즉시 폴링 트리거
             triggerImmediatePolling();
         } catch (err) {
             setError(err.message);
@@ -410,7 +367,6 @@ export const useSeatReservation = (concertId, options = {}) => {
         isPolling,
         connectionStatus, // 연결 상태: 'disconnected', 'connecting', 'connected', 'error'
         pollingStatus: getPollingStatus(), // 폴링 상세 상태
-        pollingState, // 하이브리드 폴링 상태: 'normal', 'burst', 'waiting'
         refreshSeatStatuses, // 페이지가 최초 로드 시 호출할 함수
         startPolling, // 폴링 시스템 시작 함수
         stopPolling, // 폴링 시스템 정지 함수
