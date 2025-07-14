@@ -14,10 +14,11 @@ export default function PaymentSuccess() {
             setError('예매 번호가 전달되지 않았습니다.');
             return;
         }
-            userService.getBookingDetail(bookingNumber)
-                .then((data) => setBooking(data))
-                .catch(() => setError('예매 정보를 불러오는 데 실패했습니다.'));
-        }, [bookingNumber]);
+        userService
+            .getBookingDetail(bookingNumber)
+            .then((data) => setBooking(data))
+            .catch(() => setError('예매 정보를 불러오는 데 실패했습니다.'));
+    }, [bookingNumber]);
 
     if (error) {
         return (

@@ -95,7 +95,10 @@ export default function App() {
             <Route element={<PublicLayout />}>
                 <Route path="/" element={<HomePage />} />
                 <Route path="concerts" element={<ConcertListPage />} />
-                <Route path="payment/result/success" element={<PaymentSuccess />} />
+                <Route
+                    path="payment/result/success"
+                    element={<PaymentSuccess />}
+                />
                 <Route path="payment/result/fail" element={<PaymentFail />} />
                 <Route
                     path="concerts/:concertId"
@@ -147,72 +150,66 @@ export default function App() {
                         )
                     }
                 />
+            </Route>
 
-                {/* 판매자 페이지 그룹 라우트: SellerLayout을 사용하여 사이드바를 포함 */}
+            {/* 판매자 페이지 그룹 라우트: SellerLayout을 사용하여 사이드바를 포함 */}
+            <Route
+                path="/seller"
+                element={
+                    // 비로그인 상태이거나 관리자(ROLE_ADMIN)인 경우 UnauthorizedAccessPage로 리다이렉트
+                    // 관리자는 판매자 페이지에 접근 불가
+                    !isLoggedIn || isAdmin ? (
+                        <Navigate to="/unauthorized" replace />
+                    ) : (
+                        <SellerLayout />
+                    )
+                }
+            >
+                {/* /seller 기본 경로: SellerHomePage (판매자 대시보드)로 연결 */}
+                <Route index element={<SellerHomePage />} />
+                {/* 판매자 권한 신청 페이지 (접근 로직은 SellerApplyPage 내부에서 처리) */}
+                <Route path="apply" element={<SellerApplyPage />} />
+                {/* 판매자 권한 상태 페이지 (모든 로그인 유저 접근 가능) */}
+                <Route path="status" element={<SellerStatusPage />} />
+                {/* 판매자 권한이 있는 경우에만 접근 가능한 페이지들 */}
                 <Route
-                    path="/seller"
                     element={
-                        // 비로그인 상태이거나 관리자(ROLE_ADMIN)인 경우 UnauthorizedAccessPage로 리다이렉트
-                        // 관리자는 판매자 페이지에 접근 불가
-                        !isLoggedIn || isAdmin ? (
-                            <Navigate to="/unauthorized" replace />
+                        isSeller ? (
+                            <Outlet /> // 판매자 권한이 있다면 하위 라우트들을 Outlet에 렌더링
                         ) : (
-                            <SellerLayout />
+                            // 판매자 권한이 없는 로그인 유저 (일반 유저)가 콘서트 관리 탭에 접근 시 UnauthorizedAccessPage로 리다이렉트
+                            <Navigate to="/unauthorized" replace />
                         )
                     }
                 >
-                    {/* /seller 기본 경로: SellerHomePage (판매자 대시보드)로 연결 */}
-                    <Route index element={<SellerHomePage />} />
-                    {/* 판매자 권한 신청 페이지 (접근 로직은 SellerApplyPage 내부에서 처리) */}
-                    <Route path="apply" element={<SellerApplyPage />} />
-                    {/* 판매자 권한 상태 페이지 (모든 로그인 유저 접근 가능) */}
-                    <Route path="status" element={<SellerStatusPage />} />
-                    {/* 판매자 권한이 있는 경우에만 접근 가능한 페이지들 */}
                     <Route
-                        element={
-                            isSeller ? (
-                                <Outlet /> // 판매자 권한이 있다면 하위 라우트들을 Outlet에 렌더링
-                            ) : (
-                                // 판매자 권한이 없는 로그인 유저 (일반 유저)가 콘서트 관리 탭에 접근 시 UnauthorizedAccessPage로 리다이렉트
-                                <Navigate to="/unauthorized" replace />
-                            )
-                        }
-                    >
-                        <Route
-                            path="concerts/register"
-                            element={<ConcertRegisterPage />}
-                        />
-                        <Route
-                            path="concerts/manage"
-                            element={<SellerConcertManagementPage />}
-                        />
-                    </Route>
+                        path="concerts/register"
+                        element={<ConcertRegisterPage />}
+                    />
+                    <Route
+                        path="concerts/manage"
+                        element={<SellerConcertManagementPage />}
+                    />
                 </Route>
+            </Route>
 
-                {/* 관리자 페이지 그룹 라우트: AdminLayout을 사용하여 사이드바를 포함 */}
-                <Route
-                    path="/admin"
-                    element={
-                        // 관리자가 아니거나 비로그인 상태일 경우 UnauthorizedAccessPage로 리다이렉트
-                        !isLoggedIn || !isAdmin ? (
-                            <Navigate to="/unauthorized" replace />
-                        ) : (
-                            <AdminLayout />
-                        )
-                    }
-                >
-                    <Route index element={<AdminDashboard />} />
-                    <Route
-                        path="seller-approvals"
-                        element={<SellerApproval />}
-                    />
-                    <Route path="sellers" element={<AdminSellerManagement />} />
-                    <Route
-                        path="history"
-                        element={<ApplicationHistoryPage />}
-                    />
-                    <Route path="settings" element={<TempSettingsPage />} />
-                </Route>
+            {/* 관리자 페이지 그룹 라우트: AdminLayout을 사용하여 사이드바를 포함 */}
+            <Route
+                path="/admin"
+                element={
+                    // 관리자가 아니거나 비로그인 상태일 경우 UnauthorizedAccessPage로 리다이렉트
+                    !isLoggedIn || !isAdmin ? (
+                        <Navigate to="/unauthorized" replace />
+                    ) : (
+                        <AdminLayout />
+                    )
+                }
+            >
+                <Route index element={<AdminDashboard />} />
+                <Route path="seller-approvals" element={<SellerApproval />} />
+                <Route path="sellers" element={<AdminSellerManagement />} />
+                <Route path="history" element={<ApplicationHistoryPage />} />
+                <Route path="settings" element={<TempSettingsPage />} />
             </Route>
 
             {/** — 권한 없음 페이지 — **/}
