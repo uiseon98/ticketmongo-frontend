@@ -23,7 +23,7 @@ const SellerLayout = () => {
         const width = window.innerWidth;
         const newIsMobile = width <= 768;
 
-        setIsMobile(prevIsMobile => {
+        setIsMobile((prevIsMobile) => {
             if (prevIsMobile !== newIsMobile) {
                 return newIsMobile;
             }
@@ -79,9 +79,11 @@ const SellerLayout = () => {
                 className="fixed left-0 top-20 h-[calc(100vh-5rem)] z-50 bg-gray-900 border-r border-gray-700"
                 style={{
                     width: '256px',
-                    transform: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
+                    transform: sidebarOpen
+                        ? 'translateX(0)'
+                        : 'translateX(-100%)',
                     transition: 'transform 0.3s ease-in-out',
-                    visibility: sidebarOpen ? 'visible' : 'hidden'
+                    visibility: sidebarOpen ? 'visible' : 'hidden',
                 }}
             >
                 <SellerSidebar
@@ -97,7 +99,7 @@ const SellerLayout = () => {
                 <div className="flex items-center justify-between p-6 bg-gray-900 border-b border-gray-700">
                     <div className="flex items-center gap-4">
                         <button
-                            onClick={() => setSidebarOpen(prev => !prev)}
+                            onClick={() => setSidebarOpen((prev) => !prev)}
                             className="bg-gray-800 hover:bg-gray-700 text-white p-3 rounded-lg shadow-lg transition-colors flex items-center justify-center"
                             aria-label="사이드바 메뉴 토글"
                         >
@@ -115,7 +117,9 @@ const SellerLayout = () => {
                                 />
                             </svg>
                         </button>
-                        <h1 className="text-xl font-semibold text-white">판매자 페이지</h1>
+                        <h1 className="text-xl font-semibold text-white">
+                            판매자 페이지
+                        </h1>
                     </div>
 
                     {/* 추가 액션 버튼들 (필요시) */}

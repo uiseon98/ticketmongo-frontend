@@ -13,6 +13,7 @@ export function SignupInput({
     showToggle = false,
     showValue = false,
     onToggle,
+    disabled = false,
 }) {
     return (
         <div>
@@ -30,18 +31,20 @@ export function SignupInput({
                     name={name}
                     value={value}
                     onChange={onChange}
+                    disabled={disabled}
                     placeholder={
                         placeholderFull || `${placeholder}를 입력하세요`
                     }
                     className={`w-full pl-10 pr-4 py-3 bg-gray-800 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-left ${
                         error ? 'border-red-500' : 'border-gray-700'
-                    }`}
+                    } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
                 />
                 {showToggle && (
                     <button
                         type="button"
                         onClick={onToggle}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300" style={{marginTop: '1px'}}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300"
+                        style={{ marginTop: '1px' }}
                     >
                         {showValue ? (
                             <EyeOff className="w-5 h-5" />

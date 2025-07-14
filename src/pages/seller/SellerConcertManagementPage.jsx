@@ -10,7 +10,7 @@ import { AlertCircle, Music, Plus } from 'lucide-react';
 const useResponsive = () => {
     const [isMobile, setIsMobile] = useState(false);
     const [screenWidth, setScreenWidth] = useState(
-        typeof window !== 'undefined' ? window.innerWidth : 1200
+        typeof window !== 'undefined' ? window.innerWidth : 1200,
     );
 
     useEffect(() => {
@@ -29,7 +29,7 @@ const useResponsive = () => {
         isMobile,
         isTablet: screenWidth <= 1024 && screenWidth > 768,
         isDesktop: screenWidth > 1024,
-        screenWidth
+        screenWidth,
     };
 };
 
@@ -83,11 +83,12 @@ const SellerConcertManagementPage = () => {
                 }}
             >
                 <div
-                    className={isMobile
-                        ? "p-4 overflow-x-hidden"
-                        : isTablet
-                            ? "max-w-4xl mx-auto p-4 overflow-x-hidden"
-                            : "max-w-6xl mx-auto p-6 overflow-x-hidden"
+                    className={
+                        isMobile
+                            ? 'p-4 overflow-x-hidden'
+                            : isTablet
+                              ? 'max-w-4xl mx-auto p-4 overflow-x-hidden'
+                              : 'max-w-6xl mx-auto p-6 overflow-x-hidden'
                     }
                     style={{
                         backgroundColor: '#111827',
@@ -98,11 +99,12 @@ const SellerConcertManagementPage = () => {
                 >
                     {/* 페이지 제목 - 콘서트 페이지와 동일한 스타일 */}
                     <h1
-                        className={isMobile
-                            ? "text-xl font-bold mb-4 text-center break-words"
-                            : isTablet
-                                ? "text-2xl font-bold mb-5 text-center break-words"
-                                : "text-4xl font-bold mb-6 text-center break-words"
+                        className={
+                            isMobile
+                                ? 'text-xl font-bold mb-4 text-center break-words'
+                                : isTablet
+                                  ? 'text-2xl font-bold mb-5 text-center break-words'
+                                  : 'text-4xl font-bold mb-6 text-center break-words'
                         }
                         style={{
                             color: '#FFFFFF',
@@ -120,23 +122,33 @@ const SellerConcertManagementPage = () => {
                         style={{
                             backgroundColor: '#1f2937', // gray-800
                             border: '1px solid #374151', // gray-700
-                            padding: isMobile ? '32px 24px' : isTablet ? '40px 32px' : '48px 40px',
+                            padding: isMobile
+                                ? '32px 24px'
+                                : isTablet
+                                  ? '40px 32px'
+                                  : '48px 40px',
                             textAlign: 'center',
                             maxWidth: isMobile ? '100%' : '500px',
                             margin: '0 auto',
                         }}
                     >
                         <div className="text-6xl mb-6">🔒</div>
-                        <h3 className={`font-bold text-red-400 mb-4 ${isMobile ? 'text-xl' : 'text-2xl'}`}>
+                        <h3
+                            className={`font-bold text-red-400 mb-4 ${isMobile ? 'text-xl' : 'text-2xl'}`}
+                        >
                             접근 권한이 없습니다
                         </h3>
-                        <p className={`text-gray-300 mb-8 leading-relaxed ${isMobile ? 'text-base' : 'text-lg'}`}>
+                        <p
+                            className={`text-gray-300 mb-8 leading-relaxed ${isMobile ? 'text-base' : 'text-lg'}`}
+                        >
                             콘서트 관리는 로그인한 판매자만 가능합니다.
                         </p>
                         <button
                             onClick={() => (window.location.href = '/login')}
                             className={`bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all ${
-                                isMobile ? 'w-full py-4 px-6 text-lg' : 'py-3 px-8 text-base'
+                                isMobile
+                                    ? 'w-full py-4 px-6 text-lg'
+                                    : 'py-3 px-8 text-base'
                             }`}
                             style={{
                                 minHeight: isMobile ? '52px' : 'auto',
@@ -162,11 +174,12 @@ const SellerConcertManagementPage = () => {
             }}
         >
             <div
-                className={isMobile
-                    ? "p-4 overflow-x-hidden"
-                    : isTablet
-                        ? "max-w-4xl mx-auto p-4 overflow-x-hidden"
-                        : "max-w-6xl mx-auto p-6 overflow-x-hidden"
+                className={
+                    isMobile
+                        ? 'p-4 overflow-x-hidden'
+                        : isTablet
+                          ? 'max-w-4xl mx-auto p-4 overflow-x-hidden'
+                          : 'max-w-6xl mx-auto p-6 overflow-x-hidden'
                 }
                 style={{
                     backgroundColor: '#111827',
@@ -177,11 +190,12 @@ const SellerConcertManagementPage = () => {
             >
                 {/* 페이지 제목 - 콘서트 페이지와 동일한 스타일 */}
                 <h1
-                    className={isMobile
-                        ? "text-xl font-bold mb-4 text-center break-words"
-                        : isTablet
-                            ? "text-2xl font-bold mb-5 text-center break-words"
-                            : "text-4xl font-bold mb-6 text-center break-words"
+                    className={
+                        isMobile
+                            ? 'text-xl font-bold mb-4 text-center break-words'
+                            : isTablet
+                              ? 'text-2xl font-bold mb-5 text-center break-words'
+                              : 'text-4xl font-bold mb-6 text-center break-words'
                     }
                     style={{
                         color: '#FFFFFF',
@@ -205,7 +219,9 @@ const SellerConcertManagementPage = () => {
                 </p>
 
                 {/* 콘텐츠 영역 - 콘서트 페이지와 동일한 간격 시스템 */}
-                <div className={`space-y-${isMobile ? '4' : isTablet ? '5' : '8'}`}>
+                <div
+                    className={`space-y-${isMobile ? '4' : isTablet ? '5' : '8'}`}
+                >
                     {/* 콘서트 목록 - 콘서트 페이지 카드 스타일 적용 */}
                     <div
                         className="rounded-xl shadow-md"
@@ -269,9 +285,7 @@ const SellerConcertManagementPage = () => {
                 )}
 
                 {/* 모바일에서 하단 여백 - 콘서트 페이지와 동일 */}
-                {isMobile && (
-                    <div className="h-16" aria-hidden="true"></div>
-                )}
+                {isMobile && <div className="h-16" aria-hidden="true"></div>}
             </div>
         </div>
     );

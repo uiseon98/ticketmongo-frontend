@@ -7,7 +7,7 @@ import Header from './Header';
 const useResponsive = () => {
     const [isMobile, setIsMobile] = useState(false);
     const [screenWidth, setScreenWidth] = useState(
-        typeof window !== 'undefined' ? window.innerWidth : 1200
+        typeof window !== 'undefined' ? window.innerWidth : 1200,
     );
 
     useEffect(() => {
@@ -26,7 +26,7 @@ const useResponsive = () => {
         isMobile,
         isTablet: screenWidth <= 1024 && screenWidth > 768,
         isDesktop: screenWidth > 1024,
-        screenWidth
+        screenWidth,
     };
 };
 
@@ -72,7 +72,9 @@ export default function MainLayout() {
             document.title = title;
 
             // 메타 description 업데이트
-            const metaDescription = document.querySelector('meta[name="description"]');
+            const metaDescription = document.querySelector(
+                'meta[name="description"]',
+            );
             if (metaDescription) {
                 metaDescription.setAttribute('content', description);
             }
@@ -113,14 +115,14 @@ export default function MainLayout() {
                 )}
 
                 {/* 실제 페이지 콘텐츠 */}
-                <div className={`transition-opacity duration-200 ${isLoading ? 'opacity-50' : 'opacity-100'}`}>
+                <div
+                    className={`transition-opacity duration-200 ${isLoading ? 'opacity-50' : 'opacity-100'}`}
+                >
                     <Outlet /> {/* 각 보호된 페이지 렌더 */}
                 </div>
 
                 {/* 모바일에서 하단 여백 (고정 버튼 등을 위한 공간) */}
-                {isMobile && (
-                    <div className="h-20" aria-hidden="true"></div>
-                )}
+                {isMobile && <div className="h-20" aria-hidden="true"></div>}
             </main>
 
             {/* 푸터 - 콘서트 페이지와 동일한 스타일 */}

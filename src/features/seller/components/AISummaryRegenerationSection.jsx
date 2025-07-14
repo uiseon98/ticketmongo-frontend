@@ -15,7 +15,7 @@ import { concertService } from '../../concert/services/concertService.js';
 const useResponsive = () => {
     const [isMobile, setIsMobile] = useState(false);
     const [screenWidth, setScreenWidth] = useState(
-        typeof window !== 'undefined' ? window.innerWidth : 1200
+        typeof window !== 'undefined' ? window.innerWidth : 1200,
     );
 
     useEffect(() => {
@@ -34,7 +34,7 @@ const useResponsive = () => {
         isMobile,
         isTablet: screenWidth <= 1024 && screenWidth > 768,
         isDesktop: screenWidth > 1024,
-        screenWidth
+        screenWidth,
     };
 };
 
@@ -61,11 +61,17 @@ const AISummaryRegenerationSection = ({
 
     // 기존 로직들... (isPastConcert, getConcertStatusMessage 등)
     const isPastConcert = useMemo(() => {
-        if (!concertData || !concertData.concertDate || !concertData.startTime) {
+        if (
+            !concertData ||
+            !concertData.concertDate ||
+            !concertData.startTime
+        ) {
             return false;
         }
         try {
-            const concertDateTime = new Date(`${concertData.concertDate}T${concertData.startTime}`);
+            const concertDateTime = new Date(
+                `${concertData.concertDate}T${concertData.startTime}`,
+            );
             const now = new Date();
             return concertDateTime < now;
         } catch (error) {
@@ -89,7 +95,10 @@ const AISummaryRegenerationSection = ({
             setError(null);
             setSuccess(false);
 
-            const response = await concertService.regenerateSellerAiSummary(sellerId, concertId);
+            const response = await concertService.regenerateSellerAiSummary(
+                sellerId,
+                concertId,
+            );
 
             if (response.success && response.data) {
                 setNewSummary(response.data);
@@ -106,14 +115,23 @@ const AISummaryRegenerationSection = ({
         } finally {
             setIsRegenerating(false);
         }
-    }, [sellerId, concertId, isRegenerating, cooldownRemaining, isPastConcert, onSummaryUpdated]);
+    }, [
+        sellerId,
+        concertId,
+        isRegenerating,
+        cooldownRemaining,
+        isPastConcert,
+        onSummaryUpdated,
+    ]);
 
-    const isButtonDisabled = isRegenerating || cooldownRemaining > 0 || isPastConcert;
+    const isButtonDisabled =
+        isRegenerating || cooldownRemaining > 0 || isPastConcert;
 
     const getButtonText = () => {
         if (isPastConcert) return '종료된 공연 (재생성 불가)';
         if (isRegenerating) return 'AI 요약 생성 중...';
-        if (cooldownRemaining > 0) return `${cooldownRemaining}초 후 재시도 가능`;
+        if (cooldownRemaining > 0)
+            return `${cooldownRemaining}초 후 재시도 가능`;
         return 'AI 요약 재생성';
     };
 
@@ -130,10 +148,10 @@ const AISummaryRegenerationSection = ({
             >
                 {/* 헤더 - 콘서트 페이지 스타일 */}
                 <div className="flex items-center justify-between mb-6">
-                    <h3 className={`font-bold text-white flex items-center gap-3 ${isMobile ? 'text-lg' : 'text-xl'}`}>
-                        <div
-                            className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center"
-                        >
+                    <h3
+                        className={`font-bold text-white flex items-center gap-3 ${isMobile ? 'text-lg' : 'text-xl'}`}
+                    >
+                        <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                             <Bot size={isMobile ? 16 : 20} color="white" />
                         </div>
                         AI 요약 관리
@@ -150,7 +168,11 @@ const AISummaryRegenerationSection = ({
                         style={{
                             minHeight: isMobile ? '44px' : 'auto',
                         }}
-                        title={isPastConcert ? '이미 종료된 공연의 AI 요약은 수정할 수 없습니다' : undefined}
+                        title={
+                            isPastConcert
+                                ? '이미 종료된 공연의 AI 요약은 수정할 수 없습니다'
+                                : undefined
+                        }
                     >
                         <RefreshCw
                             size={16}
@@ -165,24 +187,35 @@ const AISummaryRegenerationSection = ({
                     <div
                         className="flex items-center gap-3 mb-4 p-3 rounded-lg"
                         style={{
-                            backgroundColor: isPastConcert ? '#374151' : '#1e40af',
+                            backgroundColor: isPastConcert
+                                ? '#374151'
+                                : '#1e40af',
                             border: '1px solid #4b5563',
                         }}
                     >
                         <Calendar size={16} className="text-blue-400" />
                         <div>
-                            <div className={`font-medium text-white ${isMobile ? 'text-sm' : 'text-base'}`}>
-                                {isPastConcert ? '이미 종료된 공연입니다' : '진행 예정 공연'}
+                            <div
+                                className={`font-medium text-white ${isMobile ? 'text-sm' : 'text-base'}`}
+                            >
+                                {isPastConcert
+                                    ? '이미 종료된 공연입니다'
+                                    : '진행 예정 공연'}
                             </div>
-                            <div className={`text-gray-300 ${isMobile ? 'text-xs' : 'text-sm'}`}>
-                                {concertData.concertDate} {concertData.startTime}
+                            <div
+                                className={`text-gray-300 ${isMobile ? 'text-xs' : 'text-sm'}`}
+                            >
+                                {concertData.concertDate}{' '}
+                                {concertData.startTime}
                             </div>
                         </div>
                     </div>
                 )}
 
                 {/* 설명 텍스트 - 콘서트 페이지 스타일 */}
-                <div className={`mb-6 text-gray-300 ${isMobile ? 'text-sm' : 'text-base'}`}>
+                <div
+                    className={`mb-6 text-gray-300 ${isMobile ? 'text-sm' : 'text-base'}`}
+                >
                     <p>
                         {isPastConcert
                             ? '이미 종료된 공연의 AI 요약은 수정할 수 없습니다. 진행 중이거나 예정된 공연만 AI 요약을 재생성할 수 있습니다.'
@@ -190,14 +223,17 @@ const AISummaryRegenerationSection = ({
                     </p>
                     {cooldownRemaining > 0 && !isPastConcert && (
                         <p className="text-amber-400 text-sm mt-2">
-                            ⏰ 연속 요청 방지를 위해 {cooldownRemaining}초 후 재시도할 수 있습니다.
+                            ⏰ 연속 요청 방지를 위해 {cooldownRemaining}초 후
+                            재시도할 수 있습니다.
                         </p>
                     )}
                 </div>
 
                 {/* 현재 AI 요약 - 콘서트 페이지 스타일 */}
                 <div className="mb-4">
-                    <h4 className={`font-semibold text-white mb-3 flex items-center gap-2 ${isMobile ? 'text-base' : 'text-lg'}`}>
+                    <h4
+                        className={`font-semibold text-white mb-3 flex items-center gap-2 ${isMobile ? 'text-base' : 'text-lg'}`}
+                    >
                         <Clock size={16} className="text-gray-400" />
                         현재 AI 요약
                     </h4>
@@ -210,11 +246,15 @@ const AISummaryRegenerationSection = ({
                         }}
                     >
                         {currentAiSummary ? (
-                            <p className={`text-gray-200 leading-relaxed ${isMobile ? 'text-sm' : 'text-base'}`}>
+                            <p
+                                className={`text-gray-200 leading-relaxed ${isMobile ? 'text-sm' : 'text-base'}`}
+                            >
                                 {currentAiSummary}
                             </p>
                         ) : (
-                            <p className={`text-gray-400 italic ${isMobile ? 'text-sm' : 'text-base'}`}>
+                            <p
+                                className={`text-gray-400 italic ${isMobile ? 'text-sm' : 'text-base'}`}
+                            >
                                 아직 AI 요약이 생성되지 않았습니다.
                             </p>
                         )}
@@ -231,7 +271,9 @@ const AISummaryRegenerationSection = ({
                         }}
                     >
                         <CheckCircle size={16} className="text-green-400" />
-                        <span className={`text-green-100 font-medium ${isMobile ? 'text-sm' : 'text-base'}`}>
+                        <span
+                            className={`text-green-100 font-medium ${isMobile ? 'text-sm' : 'text-base'}`}
+                        >
                             AI 요약이 성공적으로 재생성되었습니다!
                             {lastRegeneratedAt && (
                                 <span className="text-green-200 font-normal ml-2">
@@ -245,7 +287,9 @@ const AISummaryRegenerationSection = ({
                 {/* 새로 생성된 AI 요약 - 콘서트 페이지 스타일 */}
                 {newSummary && (
                     <div className="mb-4">
-                        <h4 className={`font-semibold text-green-400 mb-3 flex items-center gap-2 ${isMobile ? 'text-base' : 'text-lg'}`}>
+                        <h4
+                            className={`font-semibold text-green-400 mb-3 flex items-center gap-2 ${isMobile ? 'text-base' : 'text-lg'}`}
+                        >
                             <CheckCircle size={16} />
                             새로 생성된 AI 요약
                         </h4>
@@ -257,7 +301,9 @@ const AISummaryRegenerationSection = ({
                                 border: '1px solid #059669', // green-600
                             }}
                         >
-                            <p className={`text-green-100 leading-relaxed ${isMobile ? 'text-sm' : 'text-base'}`}>
+                            <p
+                                className={`text-green-100 leading-relaxed ${isMobile ? 'text-sm' : 'text-base'}`}
+                            >
                                 {newSummary}
                             </p>
                         </div>
@@ -273,10 +319,16 @@ const AISummaryRegenerationSection = ({
                             border: '1px solid #dc2626', // red-600
                         }}
                     >
-                        <AlertCircle size={16} className="text-red-400 mt-0.5 flex-shrink-0" />
+                        <AlertCircle
+                            size={16}
+                            className="text-red-400 mt-0.5 flex-shrink-0"
+                        />
                         <div>
-                            <h4 className={`font-semibold text-red-100 mb-1 ${isMobile ? 'text-sm' : 'text-base'}`}>
-                                {error.message || 'AI 요약 재생성에 실패했습니다'}
+                            <h4
+                                className={`font-semibold text-red-100 mb-1 ${isMobile ? 'text-sm' : 'text-base'}`}
+                            >
+                                {error.message ||
+                                    'AI 요약 재생성에 실패했습니다'}
                             </h4>
                         </div>
                     </div>
@@ -293,18 +345,25 @@ const AISummaryRegenerationSection = ({
                         borderRadius: '12px',
                         padding: '16px',
                         boxShadow: '0 10px 25px rgba(0, 0, 0, 0.25)',
-                        transform: showPastConcertAlert ? 'translateX(0)' : 'translateX(100%)',
+                        transform: showPastConcertAlert
+                            ? 'translateX(0)'
+                            : 'translateX(100%)',
                         transition: 'transform 0.3s ease-in-out',
                     }}
                 >
                     <div className="flex items-start gap-3">
-                        <AlertCircle size={16} className="text-red-400 mt-0.5 flex-shrink-0" />
+                        <AlertCircle
+                            size={16}
+                            className="text-red-400 mt-0.5 flex-shrink-0"
+                        />
                         <div>
                             <h4 className="font-semibold text-red-100 text-sm mb-1">
                                 이미 종료된 공연입니다
                             </h4>
                             <p className="text-red-200 text-xs leading-relaxed">
-                                {concertData?.concertDate} {concertData?.startTime}에 진행된 공연의 AI 요약은 수정할 수 없습니다.
+                                {concertData?.concertDate}{' '}
+                                {concertData?.startTime}에 진행된 공연의 AI
+                                요약은 수정할 수 없습니다.
                             </p>
                         </div>
                     </div>

@@ -66,6 +66,13 @@ const validators = {
 
 // 3. 단일 필드 유효성 검증 함수
 const validateField = (field, value, formData = {}) => {
+    if (
+        Boolean(formData.isSocialUser) &&
+        (field === 'password' || field === 'confirmPassword')
+    ) {
+        return;
+    }
+
     const validator = validators[field];
     return validator ? validator(value, formData) : '';
 };

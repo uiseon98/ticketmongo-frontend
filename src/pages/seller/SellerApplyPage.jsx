@@ -16,7 +16,7 @@ import {
 const useResponsive = () => {
     const [isMobile, setIsMobile] = useState(false);
     const [screenWidth, setScreenWidth] = useState(
-        typeof window !== 'undefined' ? window.innerWidth : 1200
+        typeof window !== 'undefined' ? window.innerWidth : 1200,
     );
 
     useEffect(() => {
@@ -35,7 +35,7 @@ const useResponsive = () => {
         isMobile,
         isTablet: screenWidth <= 1024 && screenWidth > 768,
         isDesktop: screenWidth > 1024,
-        screenWidth
+        screenWidth,
     };
 };
 
@@ -315,11 +315,12 @@ const SellerApplyPage = () => {
                 }}
             >
                 <div
-                    className={isMobile
-                        ? "p-4 overflow-x-hidden"
-                        : isTablet
-                            ? "max-w-4xl mx-auto p-4 overflow-x-hidden"
-                            : "max-w-6xl mx-auto p-6 overflow-x-hidden"
+                    className={
+                        isMobile
+                            ? 'p-4 overflow-x-hidden'
+                            : isTablet
+                              ? 'max-w-4xl mx-auto p-4 overflow-x-hidden'
+                              : 'max-w-6xl mx-auto p-6 overflow-x-hidden'
                     }
                     style={{
                         backgroundColor: '#111827',
@@ -329,11 +330,12 @@ const SellerApplyPage = () => {
                     }}
                 >
                     <h1
-                        className={isMobile
-                            ? "text-xl font-bold mb-4 text-center break-words"
-                            : isTablet
-                                ? "text-2xl font-bold mb-5 text-center break-words"
-                                : "text-4xl font-bold mb-6 text-center break-words"
+                        className={
+                            isMobile
+                                ? 'text-xl font-bold mb-4 text-center break-words'
+                                : isTablet
+                                  ? 'text-2xl font-bold mb-5 text-center break-words'
+                                  : 'text-4xl font-bold mb-6 text-center break-words'
                         }
                         style={{
                             color: '#FFFFFF',
@@ -350,7 +352,11 @@ const SellerApplyPage = () => {
                         style={{
                             backgroundColor: '#1f2937',
                             border: '1px solid #374151',
-                            padding: isMobile ? '40px 20px' : isTablet ? '50px 30px' : '60px 40px',
+                            padding: isMobile
+                                ? '40px 20px'
+                                : isTablet
+                                  ? '50px 30px'
+                                  : '60px 40px',
                             textAlign: 'center',
                             maxWidth: isMobile ? '100%' : '600px',
                             margin: '0 auto',
@@ -367,10 +373,12 @@ const SellerApplyPage = () => {
                                 margin: '0 auto 16px',
                             }}
                         />
-                        <div style={{
-                            color: '#FFFFFF',
-                            fontSize: isMobile ? '14px' : '18px'
-                        }}>
+                        <div
+                            style={{
+                                color: '#FFFFFF',
+                                fontSize: isMobile ? '14px' : '18px',
+                            }}
+                        >
                             판매자 신청 페이지 로딩 중...
                         </div>
                     </div>
@@ -392,11 +400,12 @@ const SellerApplyPage = () => {
                 }}
             >
                 <div
-                    className={isMobile
-                        ? "p-4 overflow-x-hidden"
-                        : isTablet
-                            ? "max-w-4xl mx-auto p-4 overflow-x-hidden"
-                            : "max-w-6xl mx-auto p-6 overflow-x-hidden"
+                    className={
+                        isMobile
+                            ? 'p-4 overflow-x-hidden'
+                            : isTablet
+                              ? 'max-w-4xl mx-auto p-4 overflow-x-hidden'
+                              : 'max-w-6xl mx-auto p-6 overflow-x-hidden'
                     }
                     style={{
                         backgroundColor: '#111827',
@@ -419,16 +428,22 @@ const SellerApplyPage = () => {
                         }}
                     >
                         <div className="text-6xl mb-6">⚠️</div>
-                        <h3 className={`font-bold text-red-400 mb-4 ${isMobile ? 'text-xl' : 'text-2xl'}`}>
+                        <h3
+                            className={`font-bold text-red-400 mb-4 ${isMobile ? 'text-xl' : 'text-2xl'}`}
+                        >
                             오류가 발생했습니다
                         </h3>
-                        <p className={`text-gray-300 mb-6 leading-relaxed ${isMobile ? 'text-sm' : 'text-base'}`}>
+                        <p
+                            className={`text-gray-300 mb-6 leading-relaxed ${isMobile ? 'text-sm' : 'text-base'}`}
+                        >
                             {error}
                         </p>
                         <button
                             onClick={() => navigate('/seller/status')}
                             className={`bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all ${
-                                isMobile ? 'w-full py-4 px-6 text-lg' : 'py-3 px-8 text-base'
+                                isMobile
+                                    ? 'w-full py-4 px-6 text-lg'
+                                    : 'py-3 px-8 text-base'
                             }`}
                         >
                             상태 페이지로 이동
@@ -453,11 +468,12 @@ const SellerApplyPage = () => {
                 }}
             >
                 <div
-                    className={isMobile
-                        ? "p-4 overflow-x-hidden"
-                        : isTablet
-                            ? "max-w-4xl mx-auto p-4 overflow-x-hidden"
-                            : "max-w-6xl mx-auto p-6 overflow-x-hidden"
+                    className={
+                        isMobile
+                            ? 'p-4 overflow-x-hidden'
+                            : isTablet
+                              ? 'max-w-4xl mx-auto p-4 overflow-x-hidden'
+                              : 'max-w-6xl mx-auto p-6 overflow-x-hidden'
                     }
                     style={{
                         backgroundColor: '#111827',
@@ -480,16 +496,22 @@ const SellerApplyPage = () => {
                         }}
                     >
                         <div className="text-6xl mb-6">✅</div>
-                        <h3 className={`font-bold text-green-400 mb-4 ${isMobile ? 'text-xl' : 'text-2xl'}`}>
+                        <h3
+                            className={`font-bold text-green-400 mb-4 ${isMobile ? 'text-xl' : 'text-2xl'}`}
+                        >
                             신청이 완료되었습니다
                         </h3>
-                        <p className={`text-gray-300 mb-8 leading-relaxed ${isMobile ? 'text-base' : 'text-lg'}`}>
+                        <p
+                            className={`text-gray-300 mb-8 leading-relaxed ${isMobile ? 'text-base' : 'text-lg'}`}
+                        >
                             {successMessage}
                         </p>
                         <button
                             onClick={() => navigate('/seller/status')}
                             className={`bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all ${
-                                isMobile ? 'w-full py-4 px-6 text-lg' : 'py-3 px-8 text-base'
+                                isMobile
+                                    ? 'w-full py-4 px-6 text-lg'
+                                    : 'py-3 px-8 text-base'
                             }`}
                         >
                             상태 페이지로 이동
@@ -519,11 +541,12 @@ const SellerApplyPage = () => {
             }}
         >
             <div
-                className={isMobile
-                    ? "p-4 overflow-x-hidden"
-                    : isTablet
-                        ? "max-w-4xl mx-auto p-4 overflow-x-hidden"
-                        : "max-w-6xl mx-auto p-6 overflow-x-hidden"
+                className={
+                    isMobile
+                        ? 'p-4 overflow-x-hidden'
+                        : isTablet
+                          ? 'max-w-4xl mx-auto p-4 overflow-x-hidden'
+                          : 'max-w-6xl mx-auto p-6 overflow-x-hidden'
                 }
                 style={{
                     backgroundColor: '#111827',
@@ -534,11 +557,12 @@ const SellerApplyPage = () => {
             >
                 {/* 페이지 제목 - 다른 페이지들과 동일한 스타일 */}
                 <h1
-                    className={isMobile
-                        ? "text-xl font-bold mb-4 text-center break-words"
-                        : isTablet
-                            ? "text-2xl font-bold mb-5 text-center break-words"
-                            : "text-4xl font-bold mb-6 text-center break-words"
+                    className={
+                        isMobile
+                            ? 'text-xl font-bold mb-4 text-center break-words'
+                            : isTablet
+                              ? 'text-2xl font-bold mb-5 text-center break-words'
+                              : 'text-4xl font-bold mb-6 text-center break-words'
                     }
                     style={{
                         color: '#FFFFFF',
@@ -562,14 +586,20 @@ const SellerApplyPage = () => {
                 </p>
 
                 {/* 콘텐츠 영역 - 다른 페이지들과 동일한 간격 시스템 */}
-                <div className={`space-y-${isMobile ? '4' : isTablet ? '5' : '8'}`}>
+                <div
+                    className={`space-y-${isMobile ? '4' : isTablet ? '5' : '8'}`}
+                >
                     {/* 뒤로가기 버튼 */}
                     <div
                         className="rounded-xl shadow-md"
                         style={{
                             backgroundColor: '#1f2937', // gray-800
                             border: '1px solid #374151', // gray-700
-                            padding: isMobile ? '16px' : isTablet ? '20px' : '24px',
+                            padding: isMobile
+                                ? '16px'
+                                : isTablet
+                                  ? '20px'
+                                  : '24px',
                         }}
                     >
                         <button
@@ -586,32 +616,53 @@ const SellerApplyPage = () => {
                         style={{
                             backgroundColor: '#1f2937', // gray-800
                             border: '1px solid #374151', // gray-700
-                            padding: isMobile ? '20px' : isTablet ? '24px' : '32px',
+                            padding: isMobile
+                                ? '20px'
+                                : isTablet
+                                  ? '24px'
+                                  : '32px',
                         }}
                     >
-                        <h3 className={`font-bold text-white mb-4 ${isMobile ? 'text-lg' : 'text-xl'}`}>
+                        <h3
+                            className={`font-bold text-white mb-4 ${isMobile ? 'text-lg' : 'text-xl'}`}
+                        >
                             📋 신청자 정보
                         </h3>
                         <div className="flex items-start gap-4">
-                            <div
-                                className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0"
-                            >
+                            <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
                                 <span className="text-white text-lg">👤</span>
                             </div>
                             <div className="flex-1">
-                                <div className={`space-y-2 ${isMobile ? 'text-sm' : 'text-base'}`}>
+                                <div
+                                    className={`space-y-2 ${isMobile ? 'text-sm' : 'text-base'}`}
+                                >
                                     <p className="text-gray-300">
-                                        <span className="font-medium text-white">닉네임:</span> {applicantNickname}
-                                        <span className="ml-4 font-medium text-white">사용자 ID:</span> {applicantId}
+                                        <span className="font-medium text-white">
+                                            닉네임:
+                                        </span>{' '}
+                                        {applicantNickname}
+                                        <span className="ml-4 font-medium text-white">
+                                            사용자 ID:
+                                        </span>{' '}
+                                        {applicantId}
                                     </p>
                                     <p className="text-gray-300">
-                                        <span className="font-medium text-white">이름:</span> {applicantName}
+                                        <span className="font-medium text-white">
+                                            이름:
+                                        </span>{' '}
+                                        {applicantName}
                                     </p>
                                     <p className="text-gray-300">
-                                        <span className="font-medium text-white">이메일:</span> {applicantEmail}
+                                        <span className="font-medium text-white">
+                                            이메일:
+                                        </span>{' '}
+                                        {applicantEmail}
                                     </p>
                                     <p className="text-gray-300">
-                                        <span className="font-medium text-white">연락처:</span> {applicantPhone}
+                                        <span className="font-medium text-white">
+                                            연락처:
+                                        </span>{' '}
+                                        {applicantPhone}
                                     </p>
                                 </div>
                             </div>
@@ -624,17 +675,25 @@ const SellerApplyPage = () => {
                         style={{
                             backgroundColor: '#1f2937', // gray-800
                             border: '1px solid #374151', // gray-700
-                            padding: isMobile ? '20px' : isTablet ? '24px' : '32px',
+                            padding: isMobile
+                                ? '20px'
+                                : isTablet
+                                  ? '24px'
+                                  : '32px',
                         }}
                     >
-                        <h3 className={`font-bold text-white mb-6 ${isMobile ? 'text-lg' : 'text-xl'}`}>
+                        <h3
+                            className={`font-bold text-white mb-6 ${isMobile ? 'text-lg' : 'text-xl'}`}
+                        >
                             🏢 사업자 정보
                         </h3>
 
                         <form onSubmit={handleSubmit} className="space-y-6">
                             {/* Company Name */}
                             <div>
-                                <label className={`block text-white font-medium mb-2 ${isMobile ? 'text-sm' : 'text-base'}`}>
+                                <label
+                                    className={`block text-white font-medium mb-2 ${isMobile ? 'text-sm' : 'text-base'}`}
+                                >
                                     업체명 *
                                 </label>
                                 <input
@@ -646,7 +705,9 @@ const SellerApplyPage = () => {
                                     className={`w-full p-3 rounded-lg text-white placeholder-gray-500 ${isMobile ? 'text-sm' : 'text-base'}`}
                                     style={{
                                         backgroundColor: '#374151',
-                                        border: formErrors.companyName ? '1px solid #ef4444' : '1px solid #4b5563',
+                                        border: formErrors.companyName
+                                            ? '1px solid #ef4444'
+                                            : '1px solid #4b5563',
                                     }}
                                     required
                                 />
@@ -659,19 +720,25 @@ const SellerApplyPage = () => {
 
                             {/* Business Registration Number */}
                             <div>
-                                <label className={`block text-white font-medium mb-2 ${isMobile ? 'text-sm' : 'text-base'}`}>
+                                <label
+                                    className={`block text-white font-medium mb-2 ${isMobile ? 'text-sm' : 'text-base'}`}
+                                >
                                     사업자등록번호 *
                                 </label>
                                 <input
                                     type="text"
                                     name="businessNumber"
-                                    value={formatBusinessNumber(formData.businessNumber)}
+                                    value={formatBusinessNumber(
+                                        formData.businessNumber,
+                                    )}
                                     onChange={handleChange}
                                     placeholder="하이픈 없이 10자리 숫자"
                                     className={`w-full p-3 rounded-lg text-white placeholder-gray-500 ${isMobile ? 'text-sm' : 'text-base'}`}
                                     style={{
                                         backgroundColor: '#374151',
-                                        border: formErrors.businessNumber ? '1px solid #ef4444' : '1px solid #4b5563',
+                                        border: formErrors.businessNumber
+                                            ? '1px solid #ef4444'
+                                            : '1px solid #4b5563',
                                     }}
                                     required
                                 />
@@ -684,7 +751,9 @@ const SellerApplyPage = () => {
 
                             {/* Representative Name */}
                             <div>
-                                <label className={`block text-white font-medium mb-2 ${isMobile ? 'text-sm' : 'text-base'}`}>
+                                <label
+                                    className={`block text-white font-medium mb-2 ${isMobile ? 'text-sm' : 'text-base'}`}
+                                >
                                     담당자 이름 *
                                 </label>
                                 <input
@@ -697,7 +766,9 @@ const SellerApplyPage = () => {
                                     className={`w-full p-3 rounded-lg text-white placeholder-gray-500 ${isMobile ? 'text-sm' : 'text-base'} ${sameAsApplicant ? 'opacity-60' : ''}`}
                                     style={{
                                         backgroundColor: '#374151',
-                                        border: formErrors.representativeName ? '1px solid #ef4444' : '1px solid #4b5563',
+                                        border: formErrors.representativeName
+                                            ? '1px solid #ef4444'
+                                            : '1px solid #4b5563',
                                     }}
                                     required
                                 />
@@ -710,20 +781,26 @@ const SellerApplyPage = () => {
 
                             {/* Representative Phone */}
                             <div>
-                                <label className={`block text-white font-medium mb-2 ${isMobile ? 'text-sm' : 'text-base'}`}>
+                                <label
+                                    className={`block text-white font-medium mb-2 ${isMobile ? 'text-sm' : 'text-base'}`}
+                                >
                                     담당자 연락처 *
                                 </label>
                                 <input
                                     type="text"
                                     name="representativePhone"
-                                    value={formatPhoneNumber(formData.representativePhone)}
+                                    value={formatPhoneNumber(
+                                        formData.representativePhone,
+                                    )}
                                     onChange={handleChange}
                                     placeholder="숫자만 입력 (예: 01012345678)"
                                     disabled={sameAsApplicant}
                                     className={`w-full p-3 rounded-lg text-white placeholder-gray-500 ${isMobile ? 'text-sm' : 'text-base'} ${sameAsApplicant ? 'opacity-60' : ''}`}
                                     style={{
                                         backgroundColor: '#374151',
-                                        border: formErrors.representativePhone ? '1px solid #ef4444' : '1px solid #4b5563',
+                                        border: formErrors.representativePhone
+                                            ? '1px solid #ef4444'
+                                            : '1px solid #4b5563',
                                     }}
                                     required
                                 />
@@ -746,10 +823,14 @@ const SellerApplyPage = () => {
                                     <input
                                         type="checkbox"
                                         checked={sameAsApplicant}
-                                        onChange={(e) => setSameAsApplicant(e.target.checked)}
+                                        onChange={(e) =>
+                                            setSameAsApplicant(e.target.checked)
+                                        }
                                         className="w-5 h-5 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
                                     />
-                                    <span className={`text-gray-300 ${isMobile ? 'text-sm' : 'text-base'}`}>
+                                    <span
+                                        className={`text-gray-300 ${isMobile ? 'text-sm' : 'text-base'}`}
+                                    >
                                         신청자와 동일
                                     </span>
                                 </label>
@@ -757,20 +838,28 @@ const SellerApplyPage = () => {
 
                             {/* Upload Supporting Documents 섹션 */}
                             <div>
-                                <h4 className={`font-bold text-white mb-4 ${isMobile ? 'text-base' : 'text-lg'}`}>
+                                <h4
+                                    className={`font-bold text-white mb-4 ${isMobile ? 'text-base' : 'text-lg'}`}
+                                >
                                     📎 제출 서류 업로드
                                 </h4>
-                                <p className={`text-gray-400 mb-4 ${isMobile ? 'text-sm' : 'text-base'}`}>
+                                <p
+                                    className={`text-gray-400 mb-4 ${isMobile ? 'text-sm' : 'text-base'}`}
+                                >
                                     PDF 또는 JPG 파일 (최대 10MB)
                                 </p>
 
                                 {/* 드래그 앤 드롭 영역 */}
                                 <div
                                     className={`border-dashed border-2 p-6 rounded-xl text-center cursor-pointer transition-colors ${
-                                        isDragOver ? 'border-blue-500 bg-blue-50 bg-opacity-10' : 'border-gray-500'
+                                        isDragOver
+                                            ? 'border-blue-500 bg-blue-50 bg-opacity-10'
+                                            : 'border-gray-500'
                                     }`}
                                     style={{
-                                        backgroundColor: isDragOver ? '#1e293b' : '#374151',
+                                        backgroundColor: isDragOver
+                                            ? '#1e293b'
+                                            : '#374151',
                                         minHeight: isMobile ? '120px' : '150px',
                                     }}
                                     onDragOver={handleDragOver}
@@ -782,11 +871,17 @@ const SellerApplyPage = () => {
                                         className="cursor-pointer block h-full w-full flex flex-col items-center justify-center"
                                     >
                                         <div className="text-4xl mb-3">📁</div>
-                                        <p className={`text-white font-bold mb-2 ${isMobile ? 'text-sm' : 'text-lg'}`}>
-                                            파일을 여기로 드래그 앤 드롭하거나 클릭하여 찾아보기
+                                        <p
+                                            className={`text-white font-bold mb-2 ${isMobile ? 'text-sm' : 'text-lg'}`}
+                                        >
+                                            파일을 여기로 드래그 앤 드롭하거나
+                                            클릭하여 찾아보기
                                         </p>
-                                        <p className={`text-gray-400 mb-4 ${isMobile ? 'text-xs' : 'text-sm'}`}>
-                                            Drag and drop files here or click to browse
+                                        <p
+                                            className={`text-gray-400 mb-4 ${isMobile ? 'text-xs' : 'text-sm'}`}
+                                        >
+                                            Drag and drop files here or click to
+                                            browse
                                         </p>
                                         <input
                                             type="file"
@@ -799,10 +894,16 @@ const SellerApplyPage = () => {
                                         <button
                                             type="button"
                                             onClick={() =>
-                                                document.getElementById('businessLicenseFile').click()
+                                                document
+                                                    .getElementById(
+                                                        'businessLicenseFile',
+                                                    )
+                                                    .click()
                                             }
                                             className={`bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors ${
-                                                isMobile ? 'py-2 px-4 text-sm' : 'py-3 px-6 text-base'
+                                                isMobile
+                                                    ? 'py-2 px-4 text-sm'
+                                                    : 'py-3 px-6 text-base'
                                             }`}
                                         >
                                             파일 선택
@@ -817,13 +918,17 @@ const SellerApplyPage = () => {
 
                                     {filePreview && (
                                         <div className="mt-4">
-                                            <p className={`text-gray-400 mb-2 ${isMobile ? 'text-sm' : 'text-base'}`}>
+                                            <p
+                                                className={`text-gray-400 mb-2 ${isMobile ? 'text-sm' : 'text-base'}`}
+                                            >
                                                 파일 미리보기:{' '}
                                                 <span className="text-white font-semibold">
                                                     {selectedFileName}
                                                 </span>
                                             </p>
-                                            {businessLicenseFile?.type.startsWith('image/') ? (
+                                            {businessLicenseFile?.type.startsWith(
+                                                'image/',
+                                            ) ? (
                                                 <img
                                                     src={filePreview}
                                                     alt="파일 미리보기"
@@ -831,26 +936,32 @@ const SellerApplyPage = () => {
                                                 />
                                             ) : (
                                                 <p className="text-gray-500">
-                                                    PDF 파일은 미리보기를 지원하지 않습니다. 파일이 업로드됩니다.
+                                                    PDF 파일은 미리보기를
+                                                    지원하지 않습니다. 파일이
+                                                    업로드됩니다.
                                                 </p>
                                             )}
                                         </div>
                                     )}
 
-                                    {sellerStatus?.uploadedFileUrl && !businessLicenseFile && (
-                                        <div className="mt-2 text-sm text-gray-400">
-                                            기존 업로드 파일:{' '}
-                                            <a
-                                                href={sellerStatus.uploadedFileUrl}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="text-blue-400 hover:underline"
-                                            >
-                                                파일 보기
-                                            </a>
-                                            (새 파일을 업로드하면 기존 파일은 대체됩니다.)
-                                        </div>
-                                    )}
+                                    {sellerStatus?.uploadedFileUrl &&
+                                        !businessLicenseFile && (
+                                            <div className="mt-2 text-sm text-gray-400">
+                                                기존 업로드 파일:{' '}
+                                                <a
+                                                    href={
+                                                        sellerStatus.uploadedFileUrl
+                                                    }
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-blue-400 hover:underline"
+                                                >
+                                                    파일 보기
+                                                </a>
+                                                (새 파일을 업로드하면 기존
+                                                파일은 대체됩니다.)
+                                            </div>
+                                        )}
                                 </div>
                             </div>
 
@@ -859,7 +970,9 @@ const SellerApplyPage = () => {
                                 type="submit"
                                 disabled={loading}
                                 className={`w-full font-medium rounded-lg transition-all ${
-                                    isMobile ? 'py-4 px-6 text-lg' : 'py-3 px-8 text-base'
+                                    isMobile
+                                        ? 'py-4 px-6 text-lg'
+                                        : 'py-3 px-8 text-base'
                                 } ${
                                     loading
                                         ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
@@ -889,20 +1002,28 @@ const SellerApplyPage = () => {
                             </h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-gray-300 leading-relaxed">
                                 <div>
-                                    <h4 className="text-blue-400 mb-3 font-semibold">필수 제출 서류</h4>
+                                    <h4 className="text-blue-400 mb-3 font-semibold">
+                                        필수 제출 서류
+                                    </h4>
                                     <ul className="space-y-1 pl-4">
-                                        <li>• 사업자등록증 (PDF 또는 이미지)</li>
+                                        <li>
+                                            • 사업자등록증 (PDF 또는 이미지)
+                                        </li>
                                         <li>• 정확한 사업자등록번호 입력</li>
                                         <li>• 담당자 연락처 (본인 확인용)</li>
                                         <li>• 업체명 및 대표자 정보</li>
                                     </ul>
                                 </div>
                                 <div>
-                                    <h4 className="text-green-400 mb-3 font-semibold">심사 과정</h4>
+                                    <h4 className="text-green-400 mb-3 font-semibold">
+                                        심사 과정
+                                    </h4>
                                     <ul className="space-y-1 pl-4">
                                         <li>• 신청 후 관리자 검토 진행</li>
                                         <li>• 평균 1-3일 내 결과 통보</li>
-                                        <li>• 승인 시 즉시 판매자 기능 이용 가능</li>
+                                        <li>
+                                            • 승인 시 즉시 판매자 기능 이용 가능
+                                        </li>
                                         <li>• 반려 시 재신청 가능</li>
                                     </ul>
                                 </div>
@@ -915,7 +1036,9 @@ const SellerApplyPage = () => {
                 {isMobile && (
                     <button
                         onClick={() => {
-                            alert(`💡 신청 안내\n\n필수 제출 서류:\n• 사업자등록증 (PDF 또는 이미지)\n• 정확한 사업자등록번호 입력\n• 담당자 연락처 (본인 확인용)\n• 업체명 및 대표자 정보\n\n심사 과정:\n• 신청 후 관리자 검토 진행\n• 평균 1-3일 내 결과 통보\n• 승인 시 즉시 판매자 기능 이용 가능\n• 반려 시 재신청 가능`);
+                            alert(
+                                `💡 신청 안내\n\n필수 제출 서류:\n• 사업자등록증 (PDF 또는 이미지)\n• 정확한 사업자등록번호 입력\n• 담당자 연락처 (본인 확인용)\n• 업체명 및 대표자 정보\n\n심사 과정:\n• 신청 후 관리자 검토 진행\n• 평균 1-3일 내 결과 통보\n• 승인 시 즉시 판매자 기능 이용 가능\n• 반려 시 재신청 가능`,
+                            );
                         }}
                         className="fixed bottom-6 right-6 w-14 h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg z-50 flex items-center justify-center transition-all"
                         style={{
@@ -934,9 +1057,7 @@ const SellerApplyPage = () => {
                 )}
 
                 {/* 모바일에서 하단 여백 - 다른 페이지들과 동일 */}
-                {isMobile && (
-                    <div className="h-16" aria-hidden="true"></div>
-                )}
+                {isMobile && <div className="h-16" aria-hidden="true"></div>}
             </div>
         </div>
     );

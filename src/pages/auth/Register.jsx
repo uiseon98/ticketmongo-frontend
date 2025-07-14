@@ -15,7 +15,7 @@ import { NOTIFICATION_TYPE } from '../../features/user/services/bookingDetailSer
 const useResponsive = () => {
     const [isMobile, setIsMobile] = useState(false);
     const [screenWidth, setScreenWidth] = useState(
-        typeof window !== 'undefined' ? window.innerWidth : 1200
+        typeof window !== 'undefined' ? window.innerWidth : 1200,
     );
 
     useEffect(() => {
@@ -34,7 +34,7 @@ const useResponsive = () => {
         isMobile,
         isTablet: screenWidth <= 1024 && screenWidth > 768,
         isDesktop: screenWidth > 1024,
-        screenWidth
+        screenWidth,
     };
 };
 
@@ -49,6 +49,7 @@ export default function Register() {
         nickname: '',
         phone: '',
         address: '',
+        isSocialUser: false,
     });
 
     const [showPassword, setShowPassword] = useState(false);
@@ -78,11 +79,12 @@ export default function Register() {
                             ...prev,
                             email: result.data.email,
                             name: result.data.name,
+                            isSocialUser: true,
                         }));
                     } else {
                         showNotification(result.error, NOTIFICATION_TYPE.ERROR);
                     }
-                } catch (error) {
+                } catch {
                     showNotification(
                         '서버 오류로 사용자 정보를 불러올 수 없습니다.',
                         NOTIFICATION_TYPE.ERROR,
@@ -213,11 +215,12 @@ export default function Register() {
             }}
         >
             <div
-                className={isMobile
-                    ? "p-4 overflow-x-hidden"
-                    : isTablet
-                        ? "max-w-5xl mx-auto p-4 overflow-x-hidden"
-                        : "max-w-7xl mx-auto p-6 overflow-x-hidden"
+                className={
+                    isMobile
+                        ? 'p-4 overflow-x-hidden'
+                        : isTablet
+                          ? 'max-w-5xl mx-auto p-4 overflow-x-hidden'
+                          : 'max-w-7xl mx-auto p-6 overflow-x-hidden'
                 }
                 style={{
                     backgroundColor: '#111827',
@@ -240,11 +243,12 @@ export default function Register() {
                 {/* Page Title */}
                 <div className="text-center mb-8">
                     <h2
-                        className={isMobile
-                            ? "text-2xl font-bold mb-2 break-words"
-                            : isTablet
-                                ? "text-3xl font-bold mb-2 break-words"
-                                : "text-4xl font-bold mb-2 break-words"
+                        className={
+                            isMobile
+                                ? 'text-2xl font-bold mb-2 break-words'
+                                : isTablet
+                                  ? 'text-3xl font-bold mb-2 break-words'
+                                  : 'text-4xl font-bold mb-2 break-words'
                         }
                         style={{
                             color: '#FFFFFF',
@@ -269,7 +273,11 @@ export default function Register() {
                 <div
                     className="w-full"
                     style={{
-                        maxWidth: isMobile ? '100%' : isTablet ? '600px' : '700px',
+                        maxWidth: isMobile
+                            ? '100%'
+                            : isTablet
+                              ? '600px'
+                              : '700px',
                     }}
                 >
                     <div
@@ -277,7 +285,11 @@ export default function Register() {
                         style={{
                             backgroundColor: '#1f2937', // gray-800
                             border: '1px solid #374151', // gray-700
-                            padding: isMobile ? '20px' : isTablet ? '24px' : '32px',
+                            padding: isMobile
+                                ? '20px'
+                                : isTablet
+                                  ? '24px'
+                                  : '32px',
                         }}
                     >
                         <div className="space-y-6">
@@ -290,35 +302,61 @@ export default function Register() {
                                     placeholder,
                                     placeholderFull,
                                     toggle,
-                                }) => (
-                                    <div key={name} className="space-y-2">
-                                        <SignupInput
-                                            icon={icon}
-                                            name={name}
-                                            type={type}
-                                            placeholder={placeholder}
-                                            placeholderFull={placeholderFull}
-                                            value={formData[name]}
-                                            error={errors[name]}
-                                            onChange={handleInputChange(name)}
-                                            showToggle={toggle}
-                                            showValue={
-                                                name === 'password'
-                                                    ? showPassword
-                                                    : name === 'confirmPassword'
-                                                      ? showConfirmPassword
-                                                      : false
-                                            }
-                                            onToggle={() =>
-                                                name === 'password'
-                                                    ? setShowPassword((prev) => !prev)
-                                                    : name === 'confirmPassword'
-                                                      ? setShowConfirmPassword((prev) => !prev)
-                                                      : null
-                                            }
-                                        />
-                                    </div>
-                                ),
+                                }) => {
+                                    const isPasswordField =
+                                        name === 'password' ||
+                                        name === 'confirmPassword';
+
+                                    const isDisabled =
+                                        formData.isSocialUser &&
+                                        isPasswordField;
+
+                                    placeholderFull =
+                                        isDisabled && isPasswordField
+                                            ? '소셜 로그인 사용자는 입력할 필요가 없습니다'
+                                            : placeholderFull;
+
+                                    return (
+                                        <div key={name} className="space-y-2">
+                                            <SignupInput
+                                                icon={icon}
+                                                name={name}
+                                                type={type}
+                                                placeholder={placeholder}
+                                                placeholderFull={
+                                                    placeholderFull
+                                                }
+                                                value={formData[name]}
+                                                error={errors[name]}
+                                                onChange={handleInputChange(
+                                                    name,
+                                                )}
+                                                disabled={isDisabled}
+                                                showToggle={toggle}
+                                                showValue={
+                                                    name === 'password'
+                                                        ? showPassword
+                                                        : name ===
+                                                            'confirmPassword'
+                                                          ? showConfirmPassword
+                                                          : false
+                                                }
+                                                onToggle={() =>
+                                                    name === 'password'
+                                                        ? setShowPassword(
+                                                              (prev) => !prev,
+                                                          )
+                                                        : name ===
+                                                            'confirmPassword'
+                                                          ? setShowConfirmPassword(
+                                                                (prev) => !prev,
+                                                            )
+                                                          : null
+                                                }
+                                            />
+                                        </div>
+                                    );
+                                },
                             )}
 
                             {/* 프로필 이미지 업로드 */}
@@ -375,14 +413,19 @@ export default function Register() {
                                         type="checkbox"
                                         id="terms"
                                         checked={agreeTerms}
-                                        onChange={(e) => setAgreeTerms(e.target.checked)}
+                                        onChange={(e) =>
+                                            setAgreeTerms(e.target.checked)
+                                        }
                                         className="w-4 h-4 text-blue-600 bg-gray-800 border-gray-600 rounded focus:ring-blue-500 focus:ring-2"
                                     />
-                                    <label htmlFor="terms" className="text-sm text-gray-300">
+                                    <label
+                                        htmlFor="terms"
+                                        className="text-sm text-gray-300"
+                                    >
                                         <span className="text-blue-400 hover:text-blue-300 cursor-pointer transition-colors">
                                             이용약관
-                                        </span>
-                                        {' '}및{' '}
+                                        </span>{' '}
+                                        및{' '}
                                         <span className="text-blue-400 hover:text-blue-300 cursor-pointer transition-colors">
                                             개인정보처리방침
                                         </span>
@@ -404,7 +447,9 @@ export default function Register() {
                                 {isLoading && (
                                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                                 )}
-                                <span>{isLoading ? '처리 중...' : '계정 만들기'}</span>
+                                <span>
+                                    {isLoading ? '처리 중...' : '계정 만들기'}
+                                </span>
                             </button>
 
                             {/* 로그인 링크 */}
@@ -424,9 +469,7 @@ export default function Register() {
                 </div>
 
                 {/* 모바일에서 하단 여백 */}
-                {isMobile && (
-                    <div className="h-16" aria-hidden="true"></div>
-                )}
+                {isMobile && <div className="h-16" aria-hidden="true"></div>}
             </div>
         </div>
     );
