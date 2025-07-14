@@ -69,7 +69,11 @@ export default function PublicLayout() {
         <div className="min-h-screen flex flex-col bg-gray-900">
             <Header />
 
-            <main className="flex-1 bg-gray-900 relative" id="main-content" role="main">
+            <main
+                className="flex-1 bg-gray-900 relative"
+                id="main-content"
+                role="main"
+            >
                 {/* 결제 페이지는 전환 효과 없이 바로 렌더링 */}
                 {isPaymentPage ? (
                     <Outlet />
