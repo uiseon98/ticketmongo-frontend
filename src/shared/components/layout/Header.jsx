@@ -46,21 +46,22 @@ export default function Header() {
         user &&
         (user.role === 'ROLE_ADMIN' ||
             (user.roles && user.roles.includes('ROLE_ADMIN')));
+    const isSeller = // isSeller 변수도 필요할 수 있으므로 추가
+        user &&
+        (user.role === 'ROLE_SELLER' ||
+            (user.roles && user.roles.includes('ROLE_SELLER')));
 
     // 왼쪽 영역: 로고 및 메인 네비게이션에 포함될 링크들
+    // '관리자 페이지' 링크 제거(오른쪽 영역으로 이동)
     const mainNavigationLinks = [
         { to: '/', label: '홈' },
         { to: '/concerts', label: '콘서트' },
+        // { to: '/admin', label: '관리자 페이지' }
     ];
 
     // 사용자가 로그인되어 있을 때 왼쪽 네비게이션에 추가될 링크
     if (!loading && user) {
-        if (isAdmin) {
-            mainNavigationLinks.push({
-                to: '/admin',
-                label: 'Admin Dashboard',
-            });
-        }
+        // 관리자 페이지 링크는 mainNavigationLinks에서 제거
         mainNavigationLinks.push({
             to: '/mypage/profile',
             label: '마이페이지',
@@ -118,7 +119,7 @@ export default function Header() {
                             </div>
                         ) : user ? (
                             <div className="hidden md:flex items-center space-x-4">
-                                {/* 관리자가 아닐 때만 판매자 페이지 링크 표시 */}
+                                {/* 일반 유저/판매자일 때 판매자 페이지 링크 표시 */}
                                 {!isAdmin && (
                                     <NavLink
                                         to="/seller"
@@ -129,6 +130,20 @@ export default function Header() {
                                         }
                                     >
                                         판매자 페이지
+                                    </NavLink>
+                                )}
+
+                                {/* 관리자일 때 관리자 페이지 링크 표시 (새로운 위치) */}
+                                {isAdmin && (
+                                    <NavLink
+                                        to="/admin"
+                                        className={({ isActive }) =>
+                                            `text-gray-300 hover:text-white transition-colors font-medium ${
+                                                isActive ? 'text-blue-400' : ''
+                                            }`
+                                        }
+                                    >
+                                        관리자 대시보드
                                     </NavLink>
                                 )}
 
@@ -224,6 +239,23 @@ export default function Header() {
                                             }
                                         >
                                             판매자 페이지
+                                        </NavLink>
+                                    )}
+
+                                    {/* 관리자일 때 관리자 페이지 링크 표시 (모바일) */}
+                                    {isAdmin && (
+                                        <NavLink
+                                            to="/admin"
+                                            onClick={() => setMenuOpen(false)}
+                                            className={({ isActive }) =>
+                                                `block text-gray-300 hover:text-white transition-colors font-medium py-2 px-3 rounded-lg ${
+                                                    isActive
+                                                        ? 'bg-gray-700 text-blue-400'
+                                                        : 'hover:bg-gray-700'
+                                                }`
+                                            }
+                                        >
+                                            관리자 대시보드
                                         </NavLink>
                                     )}
 
