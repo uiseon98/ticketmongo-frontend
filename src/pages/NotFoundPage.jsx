@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 const useResponsive = () => {
     const [isMobile, setIsMobile] = useState(false);
     const [screenWidth, setScreenWidth] = useState(
-        typeof window !== 'undefined' ? window.innerWidth : 1200
+        typeof window !== 'undefined' ? window.innerWidth : 1200,
     );
 
     useEffect(() => {
@@ -24,7 +24,7 @@ const useResponsive = () => {
         isMobile,
         isTablet: screenWidth <= 1024 && screenWidth > 768,
         isDesktop: screenWidth > 1024,
-        screenWidth
+        screenWidth,
     };
 };
 
@@ -68,11 +68,12 @@ function NotFoundPage() {
             }}
         >
             <div
-                className={isMobile
-                    ? "p-4 overflow-x-hidden"
-                    : isTablet
-                        ? "max-w-5xl mx-auto p-4 overflow-x-hidden"
-                        : "max-w-7xl mx-auto p-6 overflow-x-hidden"
+                className={
+                    isMobile
+                        ? 'p-4 overflow-x-hidden'
+                        : isTablet
+                          ? 'max-w-5xl mx-auto p-4 overflow-x-hidden'
+                          : 'max-w-7xl mx-auto p-6 overflow-x-hidden'
                 }
                 style={{
                     backgroundColor: '#111827',
@@ -94,9 +95,14 @@ function NotFoundPage() {
                     {/* 404 숫자 */}
                     <div
                         style={{
-                            fontSize: isMobile ? '120px' : isTablet ? '150px' : '200px',
+                            fontSize: isMobile
+                                ? '120px'
+                                : isTablet
+                                  ? '150px'
+                                  : '200px',
                             fontWeight: 'bold',
-                            background: 'linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899)',
+                            background:
+                                'linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899)',
                             WebkitBackgroundClip: 'text',
                             WebkitTextFillColor: 'transparent',
                             backgroundClip: 'text',
@@ -113,27 +119,36 @@ function NotFoundPage() {
                         style={{
                             backgroundColor: '#1f2937', // gray-800
                             border: '1px solid #374151', // gray-700
-                            padding: isMobile ? '32px 24px' : isTablet ? '40px 32px' : '48px 40px',
+                            padding: isMobile
+                                ? '32px 24px'
+                                : isTablet
+                                  ? '40px 32px'
+                                  : '48px 40px',
                             marginBottom: isMobile ? '24px' : '32px',
                         }}
                     >
                         <div className="text-6xl mb-6">🔍</div>
-                        <h1 
+                        <h1
                             className="font-bold text-white mb-4"
                             style={{
-                                fontSize: isMobile ? '24px' : isTablet ? '28px' : '32px',
+                                fontSize: isMobile
+                                    ? '24px'
+                                    : isTablet
+                                      ? '28px'
+                                      : '32px',
                             }}
                         >
                             페이지를 찾을 수 없습니다
                         </h1>
-                        <p 
+                        <p
                             className="text-gray-300 leading-relaxed"
                             style={{
                                 fontSize: isMobile ? '16px' : '18px',
                                 marginBottom: isMobile ? '24px' : '32px',
                             }}
                         >
-                            요청하신 페이지가 존재하지 않거나 삭제되었을 수 있습니다.
+                            요청하신 페이지가 존재하지 않거나 삭제되었을 수
+                            있습니다.
                             <br />
                             아래 버튼을 통해 다른 페이지로 이동해보세요.
                         </p>
@@ -145,8 +160,8 @@ function NotFoundPage() {
                             isMobile
                                 ? 'grid-cols-1'
                                 : isTablet
-                                    ? 'grid-cols-2'
-                                    : 'grid-cols-3'
+                                  ? 'grid-cols-2'
+                                  : 'grid-cols-3'
                         }`}
                         style={{
                             marginBottom: isMobile ? '32px' : '40px',
@@ -175,24 +190,26 @@ function NotFoundPage() {
                                     }
                                 }}
                                 onMouseEnter={(e) => {
-                                    e.currentTarget.style.borderColor = action.color;
+                                    e.currentTarget.style.borderColor =
+                                        action.color;
                                     e.currentTarget.style.boxShadow = `0 8px 25px ${action.color}33`;
                                 }}
                                 onMouseLeave={(e) => {
-                                    e.currentTarget.style.borderColor = '#374151';
+                                    e.currentTarget.style.borderColor =
+                                        '#374151';
                                     e.currentTarget.style.boxShadow = 'none';
                                 }}
                             >
                                 <div
                                     className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
-                                    style={{ 
+                                    style={{
                                         backgroundColor: action.color,
                                         fontSize: isMobile ? '24px' : '28px',
                                     }}
                                 >
                                     {action.icon}
                                 </div>
-                                <h3 
+                                <h3
                                     className="font-bold text-white mb-2"
                                     style={{
                                         fontSize: isMobile ? '16px' : '18px',
@@ -200,7 +217,7 @@ function NotFoundPage() {
                                 >
                                     {action.title}
                                 </h3>
-                                <p 
+                                <p
                                     className="text-gray-400"
                                     style={{
                                         fontSize: isMobile ? '14px' : '15px',
@@ -221,7 +238,7 @@ function NotFoundPage() {
                             padding: isMobile ? '24px' : '32px',
                         }}
                     >
-                        <h3 
+                        <h3
                             className="text-lg font-semibold text-white mb-4 flex items-center justify-center gap-2"
                             style={{
                                 fontSize: isMobile ? '16px' : '18px',
@@ -229,14 +246,16 @@ function NotFoundPage() {
                         >
                             💡 도움말
                         </h3>
-                        <div 
+                        <div
                             className={`${isMobile ? 'space-y-4' : 'grid grid-cols-2 gap-6'} text-gray-300 leading-relaxed`}
                             style={{
                                 fontSize: isMobile ? '14px' : '15px',
                             }}
                         >
                             <div>
-                                <h4 className="text-blue-400 mb-2 font-semibold">페이지를 찾을 수 없는 이유</h4>
+                                <h4 className="text-blue-400 mb-2 font-semibold">
+                                    페이지를 찾을 수 없는 이유
+                                </h4>
                                 <ul className="space-y-1 text-left">
                                     <li>• URL을 잘못 입력했을 가능성</li>
                                     <li>• 페이지가 이동되거나 삭제됨</li>
@@ -244,10 +263,14 @@ function NotFoundPage() {
                                 </ul>
                             </div>
                             <div>
-                                <h4 className="text-green-400 mb-2 font-semibold">해결 방법</h4>
+                                <h4 className="text-green-400 mb-2 font-semibold">
+                                    해결 방법
+                                </h4>
                                 <ul className="space-y-1 text-left">
                                     <li>• URL 주소 확인 후 다시 시도</li>
-                                    <li>• 메인 페이지에서 원하는 페이지 찾기</li>
+                                    <li>
+                                        • 메인 페이지에서 원하는 페이지 찾기
+                                    </li>
                                     <li>• 문제 지속 시 고객센터 문의</li>
                                 </ul>
                             </div>
@@ -255,13 +278,15 @@ function NotFoundPage() {
                     </div>
 
                     {/* 하단 연락처 정보 */}
-                    <div 
+                    <div
                         className="text-gray-500 mt-8"
                         style={{
                             fontSize: isMobile ? '12px' : '14px',
                         }}
                     >
-                        <p>문제가 지속되면 고객센터(1588-1234)로 문의해주세요.</p>
+                        <p>
+                            문제가 지속되면 고객센터(1588-1234)로 문의해주세요.
+                        </p>
                         <p className="mt-2">
                             &copy; 2025 TicketMon. All rights reserved.
                         </p>

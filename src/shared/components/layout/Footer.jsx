@@ -5,7 +5,7 @@ import { NavLink } from 'react-router-dom';
 const useResponsive = () => {
     const [isMobile, setIsMobile] = useState(false);
     const [screenWidth, setScreenWidth] = useState(
-        typeof window !== 'undefined' ? window.innerWidth : 1200
+        typeof window !== 'undefined' ? window.innerWidth : 1200,
     );
 
     useEffect(() => {
@@ -24,7 +24,7 @@ const useResponsive = () => {
         isMobile,
         isTablet: screenWidth <= 1024 && screenWidth > 768,
         isDesktop: screenWidth > 1024,
-        screenWidth
+        screenWidth,
     };
 };
 
@@ -40,7 +40,7 @@ function Footer() {
                 { name: '티켓 예매', path: '/concerts' },
                 { name: '이벤트', path: '#' },
                 { name: '공지사항', path: '#' },
-            ]
+            ],
         },
         {
             title: '고객지원',
@@ -49,7 +49,7 @@ function Footer() {
                 { name: '고객센터', path: '#' },
                 { name: '환불 정책', path: '#' },
                 { name: '이용약관', path: '#' },
-            ]
+            ],
         },
         {
             title: '회사정보',
@@ -58,8 +58,8 @@ function Footer() {
                 { name: '채용정보', path: '#' },
                 { name: '개인정보처리방침', path: '#' },
                 { name: '제휴문의', path: '#' },
-            ]
-        }
+            ],
+        },
     ];
 
     return (
@@ -70,29 +70,34 @@ function Footer() {
 
                 {/* 하단 카피라이트 및 추가 정보 */}
                 <div className={`py-${isMobile ? '4' : '6'}`}>
-                    <div className={`flex ${isMobile ? 'flex-col space-y-4' : isTablet ? 'flex-col sm:flex-row space-y-4 sm:space-y-0' : 'flex-row'} justify-between items-center`}>
-                        
+                    <div
+                        className={`flex ${isMobile ? 'flex-col space-y-4' : isTablet ? 'flex-col sm:flex-row space-y-4 sm:space-y-0' : 'flex-row'} justify-between items-center`}
+                    >
                         {/* 카피라이트 */}
-                        <div className={`text-gray-400 ${isMobile ? 'text-sm text-center' : 'text-base'}`}>
+                        <div
+                            className={`text-gray-400 ${isMobile ? 'text-sm text-center' : 'text-base'}`}
+                        >
                             <p>&copy; 2025 TicketMon. All rights reserved.</p>
                         </div>
 
                         {/* 추가 링크들 */}
-                        <div className={`flex ${isMobile ? 'flex-col space-y-2' : 'flex-row space-x-6'} ${isMobile ? 'text-center' : ''}`}>
-                            <NavLink 
-                                to="#" 
+                        <div
+                            className={`flex ${isMobile ? 'flex-col space-y-2' : 'flex-row space-x-6'} ${isMobile ? 'text-center' : ''}`}
+                        >
+                            <NavLink
+                                to="#"
                                 className={`text-gray-400 hover:text-white transition-colors ${isMobile ? 'text-sm' : 'text-base'}`}
                             >
                                 개인정보처리방침
                             </NavLink>
-                            <NavLink 
-                                to="#" 
+                            <NavLink
+                                to="#"
                                 className={`text-gray-400 hover:text-white transition-colors ${isMobile ? 'text-sm' : 'text-base'}`}
                             >
                                 이용약관
                             </NavLink>
-                            <NavLink 
-                                to="#" 
+                            <NavLink
+                                to="#"
                                 className={`text-gray-400 hover:text-white transition-colors ${isMobile ? 'text-sm' : 'text-base'}`}
                             >
                                 쿠키정책

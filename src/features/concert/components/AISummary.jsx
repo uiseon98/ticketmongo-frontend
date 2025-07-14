@@ -57,45 +57,48 @@ const AISummary = ({
      * ### ## # -> <strong> 태그로 변환
      * 줄바꿈 처리
      */
-    const formatMarkdownToHtml = useCallback((text) => {
-        if (!text || typeof text !== 'string') return '';
+    const formatMarkdownToHtml = useCallback(
+        (text) => {
+            if (!text || typeof text !== 'string') return '';
 
-        let formattedText = text;
+            let formattedText = text;
 
-        // ### 전체 평가 - 파란색 (반응형 폰트 크기)
-        const mainHeaderSize = isMobile ? '16px' : '14px';
-        formattedText = formattedText.replace(
-            /### (.+?)(?=\n|$)/g,
-            `<strong style="font-size: ${mainHeaderSize}; color: #60A5FA; display: block; margin: ${isMobile ? '10px 0' : '8px 0'}; font-weight: 700;">$1</strong>`,
-        );
+            // ### 전체 평가 - 파란색 (반응형 폰트 크기)
+            const mainHeaderSize = isMobile ? '16px' : '14px';
+            formattedText = formattedText.replace(
+                /### (.+?)(?=\n|$)/g,
+                `<strong style="font-size: ${mainHeaderSize}; color: #60A5FA; display: block; margin: ${isMobile ? '10px 0' : '8px 0'}; font-weight: 700;">$1</strong>`,
+            );
 
-        // ## 좋은 점, 아쉬운 점 (반응형 폰트 크기)
-        const subHeaderSize = isMobile ? '15px' : '14px';
-        formattedText = formattedText.replace(
-            /## (.+?)(?=\n|$)/g,
-            `<strong style="font-size: ${subHeaderSize}; color: #FFFFFF; display: block; margin: ${isMobile ? '10px 0 6px 0' : '8px 0'}; font-weight: 600;">$1</strong>`,
-        );
+            // ## 좋은 점, 아쉬운 점 (반응형 폰트 크기)
+            const subHeaderSize = isMobile ? '15px' : '14px';
+            formattedText = formattedText.replace(
+                /## (.+?)(?=\n|$)/g,
+                `<strong style="font-size: ${subHeaderSize}; color: #FFFFFF; display: block; margin: ${isMobile ? '10px 0 6px 0' : '8px 0'}; font-weight: 600;">$1</strong>`,
+            );
 
-        // # 기타 헤더 (반응형 폰트 크기)
-        formattedText = formattedText.replace(
-            /# (.+?)(?=\n|$)/g,
-            `<strong style="font-size: ${subHeaderSize}; color: #FFFFFF; display: block; margin: ${isMobile ? '10px 0 6px 0' : '8px 0'}; font-weight: 600;">$1</strong>`,
-        );
+            // # 기타 헤더 (반응형 폰트 크기)
+            formattedText = formattedText.replace(
+                /# (.+?)(?=\n|$)/g,
+                `<strong style="font-size: ${subHeaderSize}; color: #FFFFFF; display: block; margin: ${isMobile ? '10px 0 6px 0' : '8px 0'}; font-weight: 600;">$1</strong>`,
+            );
 
-        // 줄바꿈을 <br> 태그로 변환
-        formattedText = formattedText.replace(/\n/g, '<br>');
+            // 줄바꿈을 <br> 태그로 변환
+            formattedText = formattedText.replace(/\n/g, '<br>');
 
-        // 연속된 <br> 태그 정리 (3개 이상을 2개로)
-        formattedText = formattedText.replace(/(<br>\s*){3,}/g, '<br><br>');
+            // 연속된 <br> 태그 정리 (3개 이상을 2개로)
+            formattedText = formattedText.replace(/(<br>\s*){3,}/g, '<br><br>');
 
-        // 불필요한 특수문자 제거
-        formattedText = formattedText.replace(
-            /[^\u1100-\u11FF\u3130-\u318F\uAC00-\uD7A3\sa-zA-Z0-9.,!?()'":-<>=#:]/g,
-            '',
-        );
+            // 불필요한 특수문자 제거
+            formattedText = formattedText.replace(
+                /[^\u1100-\u11FF\u3130-\u318F\uAC00-\uD7A3\sa-zA-Z0-9.,!?()'":-<>=#:]/g,
+                '',
+            );
 
-        return formattedText;
-    }, [isMobile]);
+            return formattedText;
+        },
+        [isMobile],
+    );
 
     /**
      * 요약 텍스트가 길어서 줄여야 하는지 판단 (반응형)
@@ -103,7 +106,9 @@ const AISummary = ({
     const shouldTruncate = useCallback(() => {
         if (!summary) return false;
         // 모바일에서는 더 짧게 자르기
-        const adjustedMaxLength = isMobile ? Math.floor(maxLength * 0.8) : maxLength;
+        const adjustedMaxLength = isMobile
+            ? Math.floor(maxLength * 0.8)
+            : maxLength;
         return summary.length > adjustedMaxLength;
     }, [summary, maxLength, isMobile]);
 
@@ -119,13 +124,23 @@ const AISummary = ({
             displayText = summary; // 전체 텍스트
         } else {
             // 접힌 상태면 maxLength만큼 자르고 "..." 추가
-            const adjustedMaxLength = isMobile ? Math.floor(maxLength * 0.8) : maxLength;
-            displayText = summary.substring(0, adjustedMaxLength).trim() + '...';
+            const adjustedMaxLength = isMobile
+                ? Math.floor(maxLength * 0.8)
+                : maxLength;
+            displayText =
+                summary.substring(0, adjustedMaxLength).trim() + '...';
         }
 
         // 마크다운을 HTML로 변환
         return formatMarkdownToHtml(displayText);
-    }, [summary, shouldTruncate, isExpanded, maxLength, formatMarkdownToHtml, isMobile]);
+    }, [
+        summary,
+        shouldTruncate,
+        isExpanded,
+        maxLength,
+        formatMarkdownToHtml,
+        isMobile,
+    ]);
 
     /**
      * AI 요약 상태 확인
@@ -165,11 +180,11 @@ const AISummary = ({
     // ===== 반응형 스타일 정의 =====
 
     const containerStyles = {
-        padding: isMobile ? '16px' : (compact ? '12px' : '16px'),
+        padding: isMobile ? '16px' : compact ? '12px' : '16px',
         backgroundColor: '#374151',
         border: '1px solid #4B5563',
         borderRadius: '8px',
-        marginBottom: isMobile ? '16px' : (compact ? '12px' : '16px'),
+        marginBottom: isMobile ? '16px' : compact ? '12px' : '16px',
         width: '100%',
         boxSizing: 'border-box',
     };
@@ -186,7 +201,7 @@ const AISummary = ({
     };
 
     const titleStyles = {
-        fontSize: isMobile ? '18px' : (compact ? '14px' : '16px'),
+        fontSize: isMobile ? '18px' : compact ? '14px' : '16px',
         fontWeight: '600',
         color: '#FFFFFF',
         display: 'flex',
@@ -214,7 +229,7 @@ const AISummary = ({
     };
 
     const summaryTextStyles = {
-        fontSize: isMobile ? '16px' : (compact ? '13px' : '14px'),
+        fontSize: isMobile ? '16px' : compact ? '13px' : '14px',
         lineHeight: isMobile ? '1.7' : '1.6',
         color: '#D1D5DB',
         marginBottom: shouldTruncate() ? (isMobile ? '12px' : '8px') : '0',
@@ -327,21 +342,25 @@ const AISummary = ({
                             }}
                             onMouseLeave={(e) => {
                                 if (!loading && !isMobile) {
-                                    e.target.style.backgroundColor = 'transparent';
+                                    e.target.style.backgroundColor =
+                                        'transparent';
                                     e.target.style.borderColor = '#4B5563';
                                 }
                             }}
                         >
                             {loading ? (
                                 <>
-                                    <span style={{
-                                        width: '16px',
-                                        height: '16px',
-                                        border: '2px solid #9CA3AF',
-                                        borderTop: '2px solid transparent',
-                                        borderRadius: '50%',
-                                        animation: 'spin 1s linear infinite',
-                                    }}></span>
+                                    <span
+                                        style={{
+                                            width: '16px',
+                                            height: '16px',
+                                            border: '2px solid #9CA3AF',
+                                            borderTop: '2px solid transparent',
+                                            borderRadius: '50%',
+                                            animation:
+                                                'spin 1s linear infinite',
+                                        }}
+                                    ></span>
                                     생성 중...
                                 </>
                             ) : (
@@ -352,26 +371,32 @@ const AISummary = ({
                 </div>
 
                 <div style={emptyStateStyles}>
-                    <div style={{
-                        fontSize: isMobile ? '40px' : '32px',
-                        marginBottom: isMobile ? '12px' : '8px'
-                    }}>
+                    <div
+                        style={{
+                            fontSize: isMobile ? '40px' : '32px',
+                            marginBottom: isMobile ? '12px' : '8px',
+                        }}
+                    >
                         🤷‍♂️
                     </div>
-                    <div style={{
-                        fontSize: isMobile ? '16px' : '14px',
-                        marginBottom: '8px',
-                        fontWeight: '500',
-                    }}>
+                    <div
+                        style={{
+                            fontSize: isMobile ? '16px' : '14px',
+                            marginBottom: '8px',
+                            fontWeight: '500',
+                        }}
+                    >
                         {summaryStatus === 'empty'
                             ? 'AI 요약 정보가 없습니다'
                             : summary}
                     </div>
-                    <div style={{
-                        fontSize: isMobile ? '14px' : '12px',
-                        color: '#9ca3af',
-                        lineHeight: '1.5',
-                    }}>
+                    <div
+                        style={{
+                            fontSize: isMobile ? '14px' : '12px',
+                            color: '#9ca3af',
+                            lineHeight: '1.5',
+                        }}
+                    >
                         리뷰가 충분히 쌓이면 AI 요약이 자동으로 생성됩니다
                     </div>
                 </div>
@@ -422,14 +447,16 @@ const AISummary = ({
                     >
                         {loading ? (
                             <>
-                                <span style={{
-                                    width: '16px',
-                                    height: '16px',
-                                    border: '2px solid #9CA3AF',
-                                    borderTop: '2px solid transparent',
-                                    borderRadius: '50%',
-                                    animation: 'spin 1s linear infinite',
-                                }}></span>
+                                <span
+                                    style={{
+                                        width: '16px',
+                                        height: '16px',
+                                        border: '2px solid #9CA3AF',
+                                        borderTop: '2px solid transparent',
+                                        borderRadius: '50%',
+                                        animation: 'spin 1s linear infinite',
+                                    }}
+                                ></span>
                                 생성 중...
                             </>
                         ) : (
@@ -456,7 +483,8 @@ const AISummary = ({
                         aria-label={isExpanded ? '요약 접기' : '전체 보기'}
                         onMouseEnter={(e) => {
                             if (!isMobile) {
-                                e.target.style.backgroundColor = 'rgba(59, 130, 246, 0.1)';
+                                e.target.style.backgroundColor =
+                                    'rgba(59, 130, 246, 0.1)';
                             }
                         }}
                         onMouseLeave={(e) => {
@@ -483,7 +511,8 @@ const AISummary = ({
             {/* AI 요약 설명 - 반응형 */}
             {!compact && (
                 <div style={explanationStyles}>
-                    💡 이 요약은 실제 관람객들의 후기를 바탕으로 AI가 자동 생성했습니다
+                    💡 이 요약은 실제 관람객들의 후기를 바탕으로 AI가 자동
+                    생성했습니다
                 </div>
             )}
 

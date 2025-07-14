@@ -7,7 +7,7 @@ import ConcertForm from '../../features/seller/components/ConcertForm.jsx';
 const useResponsive = () => {
     const [isMobile, setIsMobile] = useState(false);
     const [screenWidth, setScreenWidth] = useState(
-        typeof window !== 'undefined' ? window.innerWidth : 1200
+        typeof window !== 'undefined' ? window.innerWidth : 1200,
     );
 
     useEffect(() => {
@@ -26,7 +26,7 @@ const useResponsive = () => {
         isMobile,
         isTablet: screenWidth <= 1024 && screenWidth > 768,
         isDesktop: screenWidth > 1024,
-        screenWidth
+        screenWidth,
     };
 };
 
@@ -51,11 +51,12 @@ const ConcertRegisterPage = () => {
                 }}
             >
                 <div
-                    className={isMobile
-                        ? "p-4 overflow-x-hidden"
-                        : isTablet
-                            ? "max-w-4xl mx-auto p-4 overflow-x-hidden"
-                            : "max-w-6xl mx-auto p-6 overflow-x-hidden"
+                    className={
+                        isMobile
+                            ? 'p-4 overflow-x-hidden'
+                            : isTablet
+                              ? 'max-w-4xl mx-auto p-4 overflow-x-hidden'
+                              : 'max-w-6xl mx-auto p-6 overflow-x-hidden'
                     }
                     style={{
                         backgroundColor: '#111827',
@@ -66,11 +67,12 @@ const ConcertRegisterPage = () => {
                 >
                     {/* 페이지 제목 - 콘서트 페이지와 동일한 스타일 */}
                     <h1
-                        className={isMobile
-                            ? "text-xl font-bold mb-4 text-center break-words"
-                            : isTablet
-                                ? "text-2xl font-bold mb-5 text-center break-words"
-                                : "text-4xl font-bold mb-6 text-center break-words"
+                        className={
+                            isMobile
+                                ? 'text-xl font-bold mb-4 text-center break-words'
+                                : isTablet
+                                  ? 'text-2xl font-bold mb-5 text-center break-words'
+                                  : 'text-4xl font-bold mb-6 text-center break-words'
                         }
                         style={{
                             color: '#FFFFFF',
@@ -88,23 +90,33 @@ const ConcertRegisterPage = () => {
                         style={{
                             backgroundColor: '#1f2937', // gray-800
                             border: '1px solid #374151', // gray-700
-                            padding: isMobile ? '32px 24px' : isTablet ? '40px 32px' : '48px 40px',
+                            padding: isMobile
+                                ? '32px 24px'
+                                : isTablet
+                                  ? '40px 32px'
+                                  : '48px 40px',
                             textAlign: 'center',
                             maxWidth: isMobile ? '100%' : '500px',
                             margin: '0 auto',
                         }}
                     >
                         <div className="text-6xl mb-6">🔒</div>
-                        <h3 className={`font-bold text-red-400 mb-4 ${isMobile ? 'text-xl' : 'text-2xl'}`}>
+                        <h3
+                            className={`font-bold text-red-400 mb-4 ${isMobile ? 'text-xl' : 'text-2xl'}`}
+                        >
                             접근 권한이 없습니다
                         </h3>
-                        <p className={`text-gray-300 mb-8 leading-relaxed ${isMobile ? 'text-base' : 'text-lg'}`}>
+                        <p
+                            className={`text-gray-300 mb-8 leading-relaxed ${isMobile ? 'text-base' : 'text-lg'}`}
+                        >
                             콘서트 등록은 로그인한 판매자만 가능합니다.
                         </p>
                         <button
                             onClick={() => navigate('/login')}
                             className={`bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all ${
-                                isMobile ? 'w-full py-4 px-6 text-lg' : 'py-3 px-8 text-base'
+                                isMobile
+                                    ? 'w-full py-4 px-6 text-lg'
+                                    : 'py-3 px-8 text-base'
                             }`}
                             style={{
                                 minHeight: isMobile ? '52px' : 'auto',
@@ -142,11 +154,12 @@ const ConcertRegisterPage = () => {
             }}
         >
             <div
-                className={isMobile
-                    ? "p-4 overflow-x-hidden"
-                    : isTablet
-                        ? "max-w-4xl mx-auto p-4 overflow-x-hidden"
-                        : "max-w-6xl mx-auto p-6 overflow-x-hidden"
+                className={
+                    isMobile
+                        ? 'p-4 overflow-x-hidden'
+                        : isTablet
+                          ? 'max-w-4xl mx-auto p-4 overflow-x-hidden'
+                          : 'max-w-6xl mx-auto p-6 overflow-x-hidden'
                 }
                 style={{
                     backgroundColor: '#111827',
@@ -157,11 +170,12 @@ const ConcertRegisterPage = () => {
             >
                 {/* 페이지 제목 - 콘서트 페이지와 동일한 스타일 */}
                 <h1
-                    className={isMobile
-                        ? "text-xl font-bold mb-4 text-center break-words"
-                        : isTablet
-                            ? "text-2xl font-bold mb-5 text-center break-words"
-                            : "text-4xl font-bold mb-6 text-center break-words"
+                    className={
+                        isMobile
+                            ? 'text-xl font-bold mb-4 text-center break-words'
+                            : isTablet
+                              ? 'text-2xl font-bold mb-5 text-center break-words'
+                              : 'text-4xl font-bold mb-6 text-center break-words'
                     }
                     style={{
                         color: '#FFFFFF',
@@ -185,14 +199,20 @@ const ConcertRegisterPage = () => {
                 </p>
 
                 {/* 콘텐츠 영역 - 콘서트 페이지와 동일한 간격 시스템 */}
-                <div className={`space-y-${isMobile ? '4' : isTablet ? '5' : '8'}`}>
+                <div
+                    className={`space-y-${isMobile ? '4' : isTablet ? '5' : '8'}`}
+                >
                     {/* 뒤로가기 버튼 */}
                     <div
                         className="rounded-xl shadow-md"
                         style={{
                             backgroundColor: '#1f2937', // gray-800
                             border: '1px solid #374151', // gray-700
-                            padding: isMobile ? '16px' : isTablet ? '20px' : '24px',
+                            padding: isMobile
+                                ? '16px'
+                                : isTablet
+                                  ? '20px'
+                                  : '24px',
                         }}
                     >
                         <button
@@ -216,7 +236,8 @@ const ConcertRegisterPage = () => {
                             <div className="text-center">
                                 <div className="text-2xl mb-2">💡</div>
                                 <p className="text-gray-300 text-sm leading-relaxed">
-                                    모든 필드를 정확히 입력해주세요. 등록 후 수정이 가능합니다.
+                                    모든 필드를 정확히 입력해주세요. 등록 후
+                                    수정이 가능합니다.
                                 </p>
                             </div>
                         </div>
@@ -256,16 +277,22 @@ const ConcertRegisterPage = () => {
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-gray-300 leading-relaxed">
                                 <div>
-                                    <h4 className="text-blue-400 mb-3 font-semibold">필수 정보</h4>
+                                    <h4 className="text-blue-400 mb-3 font-semibold">
+                                        필수 정보
+                                    </h4>
                                     <ul className="space-y-1 pl-4">
                                         <li>• 콘서트 제목 및 아티스트명</li>
                                         <li>• 공연장 정보 (이름, 주소)</li>
-                                        <li>• 공연 일시 (날짜, 시작/종료 시간)</li>
+                                        <li>
+                                            • 공연 일시 (날짜, 시작/종료 시간)
+                                        </li>
                                         <li>• 좌석 수 및 예매 기간</li>
                                     </ul>
                                 </div>
                                 <div>
-                                    <h4 className="text-green-400 mb-3 font-semibold">추가 팁</h4>
+                                    <h4 className="text-green-400 mb-3 font-semibold">
+                                        추가 팁
+                                    </h4>
                                     <ul className="space-y-1 pl-4">
                                         <li>• 포스터 이미지로 주목도 향상</li>
                                         <li>• 상세한 콘서트 설명 작성</li>
@@ -282,7 +309,9 @@ const ConcertRegisterPage = () => {
                 {isMobile && (
                     <button
                         onClick={() => {
-                            alert(`📋 콘서트 등록 가이드\n\n필수 정보:\n• 콘서트 제목 및 아티스트명\n• 공연장 정보 (이름, 주소)\n• 공연 일시 (날짜, 시작/종료 시간)\n• 좌석 수 및 예매 기간\n\n추가 팁:\n• 포스터 이미지로 주목도 향상\n• 상세한 콘서트 설명 작성\n• 적절한 연령 제한 설정\n• 등록 후 언제든 수정 가능`);
+                            alert(
+                                `📋 콘서트 등록 가이드\n\n필수 정보:\n• 콘서트 제목 및 아티스트명\n• 공연장 정보 (이름, 주소)\n• 공연 일시 (날짜, 시작/종료 시간)\n• 좌석 수 및 예매 기간\n\n추가 팁:\n• 포스터 이미지로 주목도 향상\n• 상세한 콘서트 설명 작성\n• 적절한 연령 제한 설정\n• 등록 후 언제든 수정 가능`,
+                            );
                         }}
                         className="fixed bottom-6 right-6 w-14 h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg z-50 flex items-center justify-center transition-all"
                         style={{
@@ -301,9 +330,7 @@ const ConcertRegisterPage = () => {
                 )}
 
                 {/* 모바일에서 하단 여백 - 콘서트 페이지와 동일 */}
-                {isMobile && (
-                    <div className="h-16" aria-hidden="true"></div>
-                )}
+                {isMobile && <div className="h-16" aria-hidden="true"></div>}
             </div>
         </div>
     );

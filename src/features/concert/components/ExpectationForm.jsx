@@ -255,11 +255,14 @@ const ExpectationForm = ({
     /**
      * 기대점수 호버 핸들러 (데스크톱용)
      */
-    const handleRatingHover = useCallback((rating) => {
-        if (!isMobile) {
-            setHoveredRating(rating);
-        }
-    }, [isMobile]);
+    const handleRatingHover = useCallback(
+        (rating) => {
+            if (!isMobile) {
+                setHoveredRating(rating);
+            }
+        },
+        [isMobile],
+    );
 
     /**
      * 기대점수 호버 해제 핸들러 (데스크톱용)
@@ -305,7 +308,15 @@ const ExpectationForm = ({
                 console.error('기대평 제출 실패:', error);
             }
         },
-        [formData, disabled, loading, validateForm, onSubmit, mode, initialData],
+        [
+            formData,
+            disabled,
+            loading,
+            validateForm,
+            onSubmit,
+            mode,
+            initialData,
+        ],
     );
 
     /**
@@ -375,7 +386,7 @@ const ExpectationForm = ({
     const renderExpectationStars = useCallback(() => {
         const stars = [];
         const displayRating = hoveredRating || formData.expectationRating;
-        const starSize = isMobile ? '28px' : (compact ? '24px' : '32px');
+        const starSize = isMobile ? '28px' : compact ? '24px' : '32px';
         const starPadding = isMobile ? '8px' : '4px';
 
         for (let i = 1; i <= 5; i++) {
@@ -429,7 +440,7 @@ const ExpectationForm = ({
         backgroundColor: '#1E293B',
         borderRadius: '8px',
         border: '1px solid #4b5563',
-        padding: isMobile ? '16px' : (compact ? '16px' : '24px'),
+        padding: isMobile ? '16px' : compact ? '16px' : '24px',
         maxWidth: isMobile ? '100%' : '500px', // 기대평 폼은 리뷰보다 작게
         margin: '0 auto',
         color: '#FFFFFF',
@@ -441,10 +452,10 @@ const ExpectationForm = ({
      * 제목 스타일 (반응형)
      */
     const titleStyles = {
-        fontSize: isMobile ? '18px' : (compact ? '18px' : '20px'),
+        fontSize: isMobile ? '18px' : compact ? '18px' : '20px',
         fontWeight: 'bold',
         color: '#FFFFFF',
-        marginBottom: isMobile ? '16px' : (compact ? '16px' : '20px'),
+        marginBottom: isMobile ? '16px' : compact ? '16px' : '20px',
         textAlign: 'center',
         display: 'flex',
         flexDirection: isMobile ? 'column' : 'row',
@@ -458,7 +469,7 @@ const ExpectationForm = ({
      * 폼 그룹 스타일 (반응형)
      */
     const formGroupStyles = {
-        marginBottom: isMobile ? '20px' : (compact ? '16px' : '20px'),
+        marginBottom: isMobile ? '20px' : compact ? '16px' : '20px',
     };
 
     /**
@@ -466,7 +477,7 @@ const ExpectationForm = ({
      */
     const labelStyles = {
         display: 'block',
-        fontSize: isMobile ? '16px' : (compact ? '14px' : '16px'),
+        fontSize: isMobile ? '16px' : compact ? '14px' : '16px',
         fontWeight: '600',
         color: '#D1D5DB',
         marginBottom: '8px',
@@ -477,10 +488,10 @@ const ExpectationForm = ({
      */
     const inputBaseStyles = {
         width: '100%',
-        padding: isMobile ? '12px 16px' : (compact ? '8px 12px' : '12px 16px'),
+        padding: isMobile ? '12px 16px' : compact ? '8px 12px' : '12px 16px',
         border: '2px solid #4B5563',
         borderRadius: '6px',
-        fontSize: isMobile ? '16px' : (compact ? '14px' : '16px'), // iOS 줌 방지
+        fontSize: isMobile ? '16px' : compact ? '14px' : '16px', // iOS 줌 방지
         backgroundColor: disabled ? '#374151' : '#374151',
         color: disabled ? '#9CA3AF' : '#FFFFFF',
         transition: 'border-color 0.2s ease',
@@ -504,7 +515,7 @@ const ExpectationForm = ({
      */
     const textareaStyles = {
         ...getInputStyles('comment'),
-        minHeight: isMobile ? '100px' : (compact ? '60px' : '80px'), // 기대평은 리뷰보다 작게
+        minHeight: isMobile ? '100px' : compact ? '60px' : '80px', // 기대평은 리뷰보다 작게
         resize: 'vertical',
         fontFamily: 'inherit',
     };
@@ -534,7 +545,7 @@ const ExpectationForm = ({
      */
     const ratingContainerStyles = {
         textAlign: 'center',
-        padding: isMobile ? '16px' : (compact ? '12px' : '16px'),
+        padding: isMobile ? '16px' : compact ? '12px' : '16px',
         backgroundColor: '#fef3c7', // 노란색 계열 배경
         borderRadius: '6px',
         border: '1px solid #F59E0B',
@@ -544,7 +555,7 @@ const ExpectationForm = ({
      * 기대점수 라벨 스타일 (반응형)
      */
     const ratingLabelStyles = {
-        fontSize: isMobile ? '16px' : (compact ? '14px' : '16px'),
+        fontSize: isMobile ? '16px' : compact ? '14px' : '16px',
         color: '#92400e', // 노란색 계열 텍스트
         marginTop: '8px',
         fontWeight: '600',
@@ -555,9 +566,9 @@ const ExpectationForm = ({
      * 버튼 기본 스타일 (반응형)
      */
     const buttonBaseStyles = {
-        padding: isMobile ? '12px 20px' : (compact ? '8px 16px' : '12px 24px'),
+        padding: isMobile ? '12px 20px' : compact ? '8px 16px' : '12px 24px',
         borderRadius: '6px',
-        fontSize: isMobile ? '16px' : (compact ? '14px' : '16px'),
+        fontSize: isMobile ? '16px' : compact ? '14px' : '16px',
         fontWeight: '600',
         border: 'none',
         cursor: disabled || loading ? 'not-allowed' : 'pointer',
@@ -600,7 +611,7 @@ const ExpectationForm = ({
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: isMobile ? '24px' : (compact ? '20px' : '24px'),
+        marginTop: isMobile ? '24px' : compact ? '20px' : '24px',
         gap: isMobile ? '0' : '0',
     };
 
@@ -614,7 +625,11 @@ const ExpectationForm = ({
             {/* 폼 제목 - 반응형 */}
             <h2 style={titleStyles}>
                 <span>
-                    {mode === 'edit' ? <>✨ 기대평 수정</> : <>✍️ 기대평 작성</>}
+                    {mode === 'edit' ? (
+                        <>✨ 기대평 수정</>
+                    ) : (
+                        <>✍️ 기대평 작성</>
+                    )}
                 </span>
                 <span
                     style={{
@@ -635,23 +650,34 @@ const ExpectationForm = ({
                 <div style={formGroupStyles}>
                     <label style={labelStyles}>기대점수 *</label>
                     <div style={ratingContainerStyles}>
-                        <div style={{
-                            marginBottom: '12px',
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            flexWrap: 'nowrap',
-                            gap: isMobile ? '4px' : '0',
-                        }}>
+                        <div
+                            style={{
+                                marginBottom: '12px',
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                flexWrap: 'nowrap',
+                                gap: isMobile ? '4px' : '0',
+                            }}
+                        >
                             {renderExpectationStars()}
                         </div>
                         <div style={ratingLabelStyles}>
-                            <span style={{ fontSize: isMobile ? '20px' : '18px' }}>
-                                {ExpectationRatingEmojis[hoveredRating || formData.expectationRating]}
-                            </span>
-                            {' '}
-                            {ExpectationRatingLabels[hoveredRating || formData.expectationRating]}
-                            {' '}
+                            <span
+                                style={{ fontSize: isMobile ? '20px' : '18px' }}
+                            >
+                                {
+                                    ExpectationRatingEmojis[
+                                        hoveredRating ||
+                                            formData.expectationRating
+                                    ]
+                                }
+                            </span>{' '}
+                            {
+                                ExpectationRatingLabels[
+                                    hoveredRating || formData.expectationRating
+                                ]
+                            }{' '}
                             ({hoveredRating || formData.expectationRating}/5)
                         </div>
                     </div>
@@ -732,15 +758,17 @@ const ExpectationForm = ({
                     >
                         {loading ? (
                             <>
-                                <span style={{
-                                    width: '16px',
-                                    height: '16px',
-                                    border: '2px solid #ffffff',
-                                    borderTop: '2px solid transparent',
-                                    borderRadius: '50%',
-                                    animation: 'spin 1s linear infinite',
-                                    marginRight: '6px',
-                                }}></span>
+                                <span
+                                    style={{
+                                        width: '16px',
+                                        height: '16px',
+                                        border: '2px solid #ffffff',
+                                        borderTop: '2px solid transparent',
+                                        borderRadius: '50%',
+                                        animation: 'spin 1s linear infinite',
+                                        marginRight: '6px',
+                                    }}
+                                ></span>
                                 {mode === 'edit' ? '수정 중...' : '작성 중...'}
                             </>
                         ) : (
@@ -779,7 +807,8 @@ const ExpectationForm = ({
                         textAlign: isMobile ? 'center' : 'left',
                     }}
                 >
-                    💡 기대평은 공연 관람 전에 작성하는 기대감 표현입니다. 관람 후에는 별도의 리뷰를 작성하실 수 있어요!
+                    💡 기대평은 공연 관람 전에 작성하는 기대감 표현입니다. 관람
+                    후에는 별도의 리뷰를 작성하실 수 있어요!
                 </div>
             )}
 

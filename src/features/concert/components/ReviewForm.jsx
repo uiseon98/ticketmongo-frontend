@@ -255,11 +255,14 @@ const ReviewForm = ({
     /**
      * 별점 호버 핸들러 (데스크톱용)
      */
-    const handleRatingHover = useCallback((rating) => {
-        if (!isMobile) {
-            setHoveredRating(rating);
-        }
-    }, [isMobile]);
+    const handleRatingHover = useCallback(
+        (rating) => {
+            if (!isMobile) {
+                setHoveredRating(rating);
+            }
+        },
+        [isMobile],
+    );
 
     /**
      * 별점 호버 해제 핸들러 (데스크톱용)
@@ -389,7 +392,7 @@ const ReviewForm = ({
     const renderStars = useCallback(() => {
         const stars = [];
         const displayRating = hoveredRating || formData.rating;
-        const starSize = isMobile ? '28px' : (compact ? '24px' : '32px');
+        const starSize = isMobile ? '28px' : compact ? '24px' : '32px';
         const starPadding = isMobile ? '8px' : '4px';
 
         for (let i = 1; i <= 5; i++) {
@@ -443,7 +446,7 @@ const ReviewForm = ({
         backgroundColor: '#1E293B',
         borderRadius: '8px',
         border: '1px solid #4b5563',
-        padding: isMobile ? '16px' : (compact ? '16px' : '24px'),
+        padding: isMobile ? '16px' : compact ? '16px' : '24px',
         maxWidth: isMobile ? '100%' : '600px',
         margin: '0 auto',
         color: '#FFFFFF',
@@ -455,10 +458,10 @@ const ReviewForm = ({
      * 제목 스타일 (반응형)
      */
     const titleStyles = {
-        fontSize: isMobile ? '18px' : (compact ? '18px' : '20px'),
+        fontSize: isMobile ? '18px' : compact ? '18px' : '20px',
         fontWeight: 'bold',
         color: '#FFFFFF',
-        marginBottom: isMobile ? '16px' : (compact ? '16px' : '20px'),
+        marginBottom: isMobile ? '16px' : compact ? '16px' : '20px',
         textAlign: 'center',
         lineHeight: '1.4',
     };
@@ -467,7 +470,7 @@ const ReviewForm = ({
      * 폼 그룹 스타일 (반응형)
      */
     const formGroupStyles = {
-        marginBottom: isMobile ? '20px' : (compact ? '16px' : '20px'),
+        marginBottom: isMobile ? '20px' : compact ? '16px' : '20px',
     };
 
     /**
@@ -475,7 +478,7 @@ const ReviewForm = ({
      */
     const labelStyles = {
         display: 'block',
-        fontSize: isMobile ? '16px' : (compact ? '14px' : '16px'),
+        fontSize: isMobile ? '16px' : compact ? '14px' : '16px',
         fontWeight: '600',
         color: '#D1D5DB',
         marginBottom: '8px',
@@ -486,10 +489,10 @@ const ReviewForm = ({
      */
     const inputBaseStyles = {
         width: '100%',
-        padding: isMobile ? '12px 16px' : (compact ? '8px 12px' : '12px 16px'),
+        padding: isMobile ? '12px 16px' : compact ? '8px 12px' : '12px 16px',
         border: '2px solid #4B5563',
         borderRadius: '6px',
-        fontSize: isMobile ? '16px' : (compact ? '14px' : '16px'), // iOS 줌 방지
+        fontSize: isMobile ? '16px' : compact ? '14px' : '16px', // iOS 줌 방지
         backgroundColor: disabled ? '#374151' : '#374151',
         color: disabled ? '#9CA3AF' : '#FFFFFF',
         transition: 'border-color 0.2s ease',
@@ -513,7 +516,7 @@ const ReviewForm = ({
      */
     const textareaStyles = {
         ...getInputStyles('description'),
-        minHeight: isMobile ? '120px' : (compact ? '80px' : '120px'),
+        minHeight: isMobile ? '120px' : compact ? '80px' : '120px',
         resize: 'vertical',
         fontFamily: 'inherit',
     };
@@ -543,7 +546,7 @@ const ReviewForm = ({
      */
     const ratingContainerStyles = {
         textAlign: 'center',
-        padding: isMobile ? '16px' : (compact ? '12px' : '16px'),
+        padding: isMobile ? '16px' : compact ? '12px' : '16px',
         backgroundColor: '#374151',
         borderRadius: '6px',
         border: '1px solid #4B5563',
@@ -553,7 +556,7 @@ const ReviewForm = ({
      * 별점 라벨 스타일 (반응형)
      */
     const ratingLabelStyles = {
-        fontSize: isMobile ? '16px' : (compact ? '14px' : '16px'),
+        fontSize: isMobile ? '16px' : compact ? '14px' : '16px',
         color: '#3b82f6',
         marginTop: '8px',
         fontWeight: '600',
@@ -564,9 +567,9 @@ const ReviewForm = ({
      * 버튼 기본 스타일 (반응형)
      */
     const buttonBaseStyles = {
-        padding: isMobile ? '12px 20px' : (compact ? '8px 16px' : '12px 24px'),
+        padding: isMobile ? '12px 20px' : compact ? '8px 16px' : '12px 24px',
         borderRadius: '6px',
-        fontSize: isMobile ? '16px' : (compact ? '14px' : '16px'),
+        fontSize: isMobile ? '16px' : compact ? '14px' : '16px',
         fontWeight: '600',
         border: 'none',
         cursor: disabled || loading ? 'not-allowed' : 'pointer',
@@ -609,7 +612,7 @@ const ReviewForm = ({
         flexDirection: isMobile ? 'row' : 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: isMobile ? '24px' : (compact ? '20px' : '24px'),
+        marginTop: isMobile ? '24px' : compact ? '20px' : '24px',
         gap: isMobile ? '0' : '0',
     };
 
@@ -673,21 +676,24 @@ const ReviewForm = ({
                 <div style={formGroupStyles}>
                     <label style={labelStyles}>평점 *</label>
                     <div style={ratingContainerStyles}>
-                        <div style={{
-                            marginBottom: '12px',
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            flexWrap: isMobile ? 'nowrap' : 'nowrap',
-                            gap: isMobile ? '4px' : '0',
-                        }}>
+                        <div
+                            style={{
+                                marginBottom: '12px',
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                flexWrap: isMobile ? 'nowrap' : 'nowrap',
+                                gap: isMobile ? '4px' : '0',
+                            }}
+                        >
                             {renderStars()}
                         </div>
                         <div style={ratingLabelStyles}>
-                            <span style={{ fontSize: isMobile ? '20px' : '18px' }}>
+                            <span
+                                style={{ fontSize: isMobile ? '20px' : '18px' }}
+                            >
                                 {RatingEmojis[hoveredRating || formData.rating]}
-                            </span>
-                            {' '}
+                            </span>{' '}
                             {RatingLabels[hoveredRating || formData.rating]} (
                             {hoveredRating || formData.rating}/5)
                         </div>
@@ -767,15 +773,17 @@ const ReviewForm = ({
                     >
                         {loading ? (
                             <>
-                                <span style={{
-                                    width: '16px',
-                                    height: '16px',
-                                    border: '2px solid #ffffff',
-                                    borderTop: '2px solid transparent',
-                                    borderRadius: '50%',
-                                    animation: 'spin 1s linear infinite',
-                                    marginRight: '6px',
-                                }}></span>
+                                <span
+                                    style={{
+                                        width: '16px',
+                                        height: '16px',
+                                        border: '2px solid #ffffff',
+                                        borderTop: '2px solid transparent',
+                                        borderRadius: '50%',
+                                        animation: 'spin 1s linear infinite',
+                                        marginRight: '6px',
+                                    }}
+                                ></span>
                                 {mode === 'edit' ? '수정 중...' : '작성 중...'}
                             </>
                         ) : (
