@@ -1,215 +1,223 @@
-// src/features/concert/components/ConcertCard.jsx
+// 루트 컴포넌트
 
-import React, { useState, useEffect } from 'react';
-import { ConcertStatusLabels, ConcertStatusColors } from '../types/concert.js';
+// 애플리케이션의 주요 라우팅 규칙을 정의
+import React, { useContext } from 'react';
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 
-// 반응형 Hook
-const useResponsive = () => {
-    const [isMobile, setIsMobile] = useState(false);
-    const [screenWidth, setScreenWidth] = useState(
-        typeof window !== 'undefined' ? window.innerWidth : 1200
-    );
+// 레이아웃
+import MainLayout from './shared/components/layout/MainLayout';
+import AuthLayout from './shared/components/layout/AuthLayout';
+import PublicLayout from './shared/components/layout/PublicLayout.jsx';
+import SellerLayout from './shared/components/layout/SellerLayout';
+import AdminLayout from './shared/components/layout/AdminLayout';
 
-    useEffect(() => {
-        const handleResize = () => {
-            const width = window.innerWidth;
-            setScreenWidth(width);
-            setIsMobile(width <= 768);
-        };
+// Auth Context
+import { AuthContext } from './context/AuthContext';
 
-        handleResize();
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
+// 홈페이지 & 인증 페이지
+import HomePage from './pages/home/Home.jsx';
+import LoginPage from './pages/auth/Login.jsx';
+import RegisterPage from './pages/auth/Register.jsx';
+import ProfilePage from './pages/mypage/Profile.jsx';
+import BookingDetailPage from './pages/mypage/BookingDetail.jsx';
 
-    return {
-        isMobile,
-        isTablet: screenWidth <= 1024 && screenWidth > 768,
-        isDesktop: screenWidth > 1024,
-        screenWidth
-    };
-};
+// 콘서트 페이지
+import ConcertListPage from './pages/concert/ConcertListPage.jsx';
+import ConcertDetailPage from './pages/concert/ConcertDetailPage.jsx';
 
-const ConcertCard = ({
-    concert,
-    onClick,
-    className = '',
-}) => {
-    const { isMobile, isTablet } = useResponsive();
+// 예매 페이지
+import WaitingPage from './pages/booking/WaitingPage.jsx';
+import SeatSelectionPage from './pages/booking/SeatSelectionPage.jsx';
 
-    // 데이터 유효성 검증
-    if (!concert) {
-        return (
-            <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 text-center text-red-400">
-                ⚠️ 콘서트 정보를 불러올 수 없습니다.
-            </div>
-        );
+//결제결과 페이지
+import { PaymentRoutes } from './features/payment/RoutePayment.jsx';
+
+// 판매자 페이지 (새로 만들거나 기존 페이지 재활용)
+import SellerHomePage from './pages/seller/SellerHomePage.jsx'; // 판매자 홈 페이지
+import SellerStatusPage from './pages/seller/SellerStatusPage.jsx'; // 판매자 상태 페이지
+import SellerApplyPage from './pages/seller/SellerApplyPage.jsx'; // 판매자 권한 신청 페이지
+import ConcertRegisterPage from './pages/seller/ConcertRegisterPage.jsx'; // 콘서트 등록 페이지
+import SellerConcertManagementPage from './pages/seller/SellerConcertManagementPage.jsx'; // 판매자 콘서트
+
+// 관리자 페이지
+import AdminDashboard from './pages/admin/Dashboard';
+import AdminSellerManagement from './pages/admin/AdminSellerManagement';
+import SellerApproval from './pages/admin/SellerApproval.jsx';
+import ApplicationHistoryPage from './pages/admin/ApplicationHistoryPage.jsx';
+
+// --- 임시 관리자 페이지 컴포넌트 ---
+const TempSettingsPage = () => (
+    <div className="text-white p-4">설정 페이지 (임시)</div>
+);
+// --------------------------------------------------
+
+import NotFoundPage from './pages/NotFoundPage.jsx';
+import UnauthorizedAccessPage from './pages/UnauthorizedAccessPage';
+
+// App 컴포넌트: 라우팅 정의 및 네비게이션 제공
+export default function App() {
+    const { user, loading } = useContext(AuthContext);
+
+    if (loading) {
+        return <div className="text-center py-20">로딩 중…</div>;
     }
 
-    // 날짜 포맷팅
-    const formatDateTime = () => {
-        try {
-            if (!concert.concertDate || !concert.startTime) {
-                return '날짜 미정';
-            }
-
-            const dateTimeString = `${concert.concertDate}T${concert.startTime}`;
-            const dateTime = new Date(dateTimeString);
-
-            if (isNaN(dateTime.getTime())) {
-                return '날짜 미정';
-            }
-
-            if (isMobile) {
-                return dateTime.toLocaleDateString('ko-KR', {
-                    month: 'short',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                });
-            }
-
-            const dateOptions = {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                weekday: 'short',
-            };
-
-            const timeOptions = {
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true,
-            };
-
-            const formattedDate = dateTime.toLocaleDateString('ko-KR', dateOptions);
-            const formattedTime = dateTime.toLocaleTimeString('ko-KR', timeOptions);
-
-            return `${formattedDate} ${formattedTime}`;
-        } catch (error) {
-            return `${concert.concertDate} ${concert.startTime}`;
-        }
-    };
-
-    // 이미지 에러 처리
-    const handleImageError = (event) => {
-        event.target.src = '/images/basic-poster-image.png';
-        event.target.onerror = () => {
-            event.target.style.display = 'none';
-        };
-    };
-
-    const handleImageLoad = (event) => {
-        event.target.style.opacity = '1';
-    };
-
-    const handleCardClick = () => {
-        if (onClick && typeof onClick === 'function') {
-            onClick(concert);
-        }
-    };
-
-    // 상태별 색상
-    function getStatusColor(status) {
-        switch (status) {
-            case 'SCHEDULED':
-                return 'bg-yellow-600 text-yellow-100';
-            case 'ON_SALE':
-                return 'bg-green-600 text-green-100';
-            case 'SOLD_OUT':
-                return 'bg-red-600 text-red-100';
-            case 'CANCELLED':
-                return 'bg-gray-600 text-gray-100';
-            case 'COMPLETED':
-                return 'bg-blue-600 text-blue-100';
-            default:
-                return 'bg-gray-600 text-gray-100';
-        }
-    }
+    // 역할 확인 헬퍼 변수
+    // user.role은 단일 문자열, user.roles는 배열일 수 있으므로 두 경우 모두 처리
+    const isAdmin =
+        user &&
+        (user.role === 'ROLE_ADMIN' ||
+            (user.roles && user.roles.includes('ROLE_ADMIN')));
+    const isSeller =
+        user &&
+        (user.role === 'ROLE_SELLER' ||
+            (user.roles && user.roles.includes('ROLE_SELLER')));
+    const isLoggedIn = !!user;
 
     return (
-        <div
-            className={`
-                bg-gray-800 border border-gray-700 rounded-lg overflow-hidden shadow-lg
-                cursor-pointer transform transition-all duration-300
-                hover:scale-105 hover:shadow-xl hover:border-gray-500
-                ${className}
-            `}
-            onClick={handleCardClick}
-            onKeyDown={(e) => {
-                if (onClick && (e.key === 'Enter' || e.key === ' ')) {
-                    e.preventDefault();
-                    handleCardClick();
-                }
-            }}
-            tabIndex={onClick ? 0 : -1}
-            role={onClick ? 'button' : 'article'}
-            aria-label={`${concert.title} - ${concert.artist} 콘서트 정보`}
-        >
-            {/* 포스터 이미지 섹션 */}
-            <div className={`relative ${isMobile ? 'h-48' : 'h-64'} overflow-hidden bg-gray-700`}>
-                <img
-                    src={concert.posterImageUrl || '/images/basic-poster-image.png'}
-                    alt={`${concert.title} 포스터`}
-                    className="w-full h-full object-cover transition-opacity duration-300 opacity-0"
-                    onLoad={handleImageLoad}
-                    onError={handleImageError}
-                    loading="lazy"
-                    decoding="async"
+        <Routes>
+            {/** — 인증 전용 — **/}
+            <Route element={<AuthLayout />}>
+                <Route
+                    path="/login"
+                    element={user ? <Navigate to="/" replace /> : <LoginPage />}
+                />
+                <Route
+                    path="/register"
+                    element={
+                        user ? <Navigate to="/" replace /> : <RegisterPage />
+                    }
+                />
+            </Route>
+
+            {/** — 공개 페이지 — **/}
+            <Route element={<PublicLayout />}>
+                <Route path="/" element={<HomePage />} />
+                <Route path="concerts" element={<ConcertListPage />} />
+                {PaymentRoutes()}
+                <Route
+                    path="concerts/:concertId"
+                    element={<ConcertDetailPage />}
+                />
+            </Route>
+
+            {/** — 로그인 후 보호된 페이지 — **/}
+            <Route element={<MainLayout />}>
+                <Route
+                    path="concerts/:concertId/wait" // 새로운 경로 추가
+                    element={
+                        user ? (
+                            <WaitingPage />
+                        ) : (
+                            <Navigate to="/login" replace />
+                        )
+                    }
+                />
+                <Route
+                    path="concerts/:concertId/reserve"
+                    element={
+                        user ? (
+                            <SeatSelectionPage />
+                        ) : (
+                            <Navigate to="/login" replace />
+                        )
+                    }
                 />
 
-                {/* 기본 포스터 UI (이미지가 없을 때) */}
-                {!concert.posterImageUrl && (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400">
-                        <div className={`${isMobile ? 'text-3xl' : 'text-4xl'} mb-2`}>🎭</div>
-                        <div className={`${isMobile ? 'text-xs' : 'text-sm'} text-center px-2`}>
-                            포스터<br />준비중
-                        </div>
-                    </div>
-                )}
+                {/* 프로필 페이지 라우트는 판매자 라우트 그룹 밖에 따로 위치 */}
+                <Route
+                    path="/mypage/profile"
+                    element={
+                        user ? (
+                            <ProfilePage />
+                        ) : (
+                            <Navigate to="/login" replace />
+                        )
+                    }
+                />
+                <Route
+                    path="/bookingDetail/:bookingNumber"
+                    element={
+                        user ? (
+                            <BookingDetailPage />
+                        ) : (
+                            <Navigate to="/login" replace />
+                        )
+                    }
+                />
 
-                {/* 상태 배지 */}
-                <div className="absolute top-3 left-3">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(concert.status)}`}>
-                        {ConcertStatusLabels[concert.status] || concert.status}
-                    </span>
-                </div>
-            </div>
+                {/* 판매자 페이지 그룹 라우트: SellerLayout을 사용하여 사이드바를 포함 */}
+                <Route
+                    path="/seller"
+                    element={
+                        // 비로그인 상태이거나 관리자(ROLE_ADMIN)인 경우 UnauthorizedAccessPage로 리다이렉트
+                        // 관리자는 판매자 페이지에 접근 불가
+                        !isLoggedIn || isAdmin ? (
+                            <Navigate to="/unauthorized" replace />
+                        ) : (
+                            <SellerLayout />
+                        )
+                    }
+                >
+                    {/* /seller 기본 경로: SellerHomePage (판매자 대시보드)로 연결 */}
+                    <Route index element={<SellerHomePage />} />
+                    {/* 판매자 권한 신청 페이지 (접근 로직은 SellerApplyPage 내부에서 처리) */}
+                    <Route path="apply" element={<SellerApplyPage />} />
+                    {/* 판매자 권한 상태 페이지 (모든 로그인 유저 접근 가능) */}
+                    <Route path="status" element={<SellerStatusPage />} />
+                    {/* 판매자 권한이 있는 경우에만 접근 가능한 페이지들 */}
+                    <Route
+                        element={
+                            isSeller ? (
+                                <Outlet /> // 판매자 권한이 있다면 하위 라우트들을 Outlet에 렌더링
+                            ) : (
+                                // 판매자 권한이 없는 로그인 유저 (일반 유저)가 콘서트 관리 탭에 접근 시 UnauthorizedAccessPage로 리다이렉트
+                                <Navigate to="/unauthorized" replace />
+                            )
+                        }
+                    >
+                        <Route
+                            path="concerts/register"
+                            element={<ConcertRegisterPage />}
+                        />
+                        <Route
+                            path="concerts/manage"
+                            element={<SellerConcertManagementPage />}
+                        />
+                    </Route>
+                </Route>
 
-            {/* 콘서트 정보 섹션 */}
-            <div className={`p-${isMobile ? '4' : '5'} space-y-3`}>
-                {/* 제목과 아티스트 */}
-                <div>
-                    <h3 className={`${isMobile ? 'text-lg' : 'text-xl'} font-bold text-white mb-2 line-clamp-2`}>
-                        {concert.title}
-                    </h3>
-                    <p className={`${isMobile ? 'text-sm' : 'text-base'} text-gray-300 truncate`}>
-                        🎤 {concert.artist}
-                    </p>
-                </div>
+                {/* 관리자 페이지 그룹 라우트: AdminLayout을 사용하여 사이드바를 포함 */}
+                <Route
+                    path="/admin"
+                    element={
+                        // 관리자가 아니거나 비로그인 상태일 경우 UnauthorizedAccessPage로 리다이렉트
+                        !isLoggedIn || !isAdmin ? (
+                            <Navigate to="/unauthorized" replace />
+                        ) : (
+                            <AdminLayout />
+                        )
+                    }
+                >
+                    <Route index element={<AdminDashboard />} />
+                    <Route
+                        path="seller-approvals"
+                        element={<SellerApproval />}
+                    />
+                    <Route path="sellers" element={<AdminSellerManagement />} />
+                    <Route
+                        path="history"
+                        element={<ApplicationHistoryPage />}
+                    />
+                    <Route path="settings" element={<TempSettingsPage />} />
+                </Route>
+            </Route>
 
-                {/* 공연 정보 */}
-                <div className={`space-y-2 ${isMobile ? 'text-sm' : 'text-base'} text-gray-300`}>
-                    <div className="flex items-center gap-2">
-                        <span className="text-blue-400">📅</span>
-                        <span className="truncate">{formatDateTime()}</span>
-                    </div>
+            {/** — 권한 없음 페이지 — **/}
+            <Route path="/unauthorized" element={<UnauthorizedAccessPage />} />
 
-                    <div className="flex items-center gap-2">
-                        <span className="text-green-400">📍</span>
-                        <span className="truncate">{concert.venueName}</span>
-                    </div>
-
-                    {concert.totalSeats && (
-                        <div className="flex items-center gap-2">
-                            <span className="text-purple-400">🎫</span>
-                            <span>총 {concert.totalSeats.toLocaleString()}석</span>
-                        </div>
-                    )}
-                </div>
-            </div>
-        </div>
+            {/** — 404 처리 — **/}
+            <Route path="*" element={<NotFoundPage />} />
+        </Routes>
     );
-};
-
-export default ConcertCard;
+}
