@@ -58,8 +58,9 @@ const AdminLayout = () => {
         // MainLayout의 flex-1을 이어받아 남은 공간을 채움
         // 데스크톱에서는 사이드바(flex item)와 콘텐츠(flex-1)를 옆으로 배치하는 flex 컨테이너 역할
         // 모바일에서는 flex-col로 쌓이되, 사이드바는 fixed로 오버레이 처리
-        <div className="flex flex-1"> {/* AdminLayout의 최상위 컨테이너 */}
-
+        <div className="flex flex-1">
+            {' '}
+            {/* AdminLayout의 최상위 컨테이너 */}
             {/* 사이드바 영역 */}
             <aside
                 // 모바일에서는 fixed로 화면에 오버레이 (숨겨져 있다가 열림)
@@ -70,9 +71,14 @@ const AdminLayout = () => {
                     w-64 flex-shrink-0
                 `}
                 style={{
-                    transform: isMobile && !sidebarOpen ? 'translateX(-100%)' : 'translateX(0)', // 모바일에서만 슬라이드
+                    transform:
+                        isMobile && !sidebarOpen
+                            ? 'translateX(-100%)'
+                            : 'translateX(0)', // 모바일에서만 슬라이드
                     top: isMobile ? `${headerHeightPx}px` : '0', // 모바일에서 Header 높이만큼 아래로
-                    height: isMobile ? `calc(100vh - ${headerHeightPx}px)` : '100%', // 모바일에서 Header 높이 제외
+                    height: isMobile
+                        ? `calc(100vh - ${headerHeightPx}px)`
+                        : '100%', // 모바일에서 Header 높이 제외
                 }}
             >
                 <AdminSidebar
@@ -81,7 +87,6 @@ const AdminLayout = () => {
                     setSidebarOpen={setSidebarOpen}
                 />
             </aside>
-
             {/* 오버레이 (모바일에서 사이드바가 열려있을 때만 표시) */}
             {isMobile && sidebarOpen && (
                 <div
@@ -90,7 +95,6 @@ const AdminLayout = () => {
                     onClick={handleOverlayClick}
                 />
             )}
-
             {/* 메인 콘텐츠 영역 */}
             {/* 데스크톱에서는 사이드바 옆에, 모바일에서는 전체 너비 사용 */}
             <div
@@ -125,7 +129,9 @@ const AdminLayout = () => {
                             관리자 페이지
                         </h1>
                     </div>
-                    <div className="flex items-center gap-2">{/* 추가 액션 버튼들 (필요시) */}</div>
+                    <div className="flex items-center gap-2">
+                        {/* 추가 액션 버튼들 (필요시) */}
+                    </div>
                 </div>
 
                 <Outlet />
