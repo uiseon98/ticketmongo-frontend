@@ -90,7 +90,7 @@ export async function pollSeatStatus(
         // URL 및 파라미터 구성
         const params = new URLSearchParams({
             ...(lastUpdateTime && { lastUpdateTime: lastUpdateTime }), // lastUpdateTime이 string으로 전달되므로 toString() 불필요
-            replace: 'true' // 기존 세션 교체 모드 활성화
+            replace: 'true', // 기존 세션 교체 모드 활성화
         });
         const url = `${import.meta.env.VITE_APP_API_URL}/seats/concerts/${concertId}/polling?${params}`;
 
@@ -283,7 +283,7 @@ export function createStablePollingManager(concertId, options = {}) {
 
         try {
             isPollingInProgress = true; // 폴링 시작 플래그 설정
-            
+
             // 새로운 AbortController 생성
             abortController = new AbortController();
 
@@ -295,10 +295,13 @@ export function createStablePollingManager(concertId, options = {}) {
 
             // 모든 응답에 대해 onUpdate 호출 (안정성 향상)
             if (onUpdate) {
-                console.log('🔥 폴링 응답 수신 - 업데이트 트리거:', response.type);
+                console.log(
+                    '🔥 폴링 응답 수신 - 업데이트 트리거:',
+                    response.type,
+                );
                 onUpdate();
             }
-            
+
             if (response.type === 'session_conflict') {
                 console.log(
                     '🔥 409 Conflict - 백엔드에서 중복 세션 거절 (정상 동작, 계속 폴링)',
