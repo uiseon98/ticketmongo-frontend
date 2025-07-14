@@ -95,8 +95,10 @@ export default function App() {
             <Route element={<PublicLayout />}>
                 <Route path="/" element={<HomePage />} />
                 <Route path="concerts" element={<ConcertListPage />} />
+                {/* 임시로 주석 처리
                 <Route path="payment/result/success" element={<PaymentSuccess />} />
                 <Route path="payment/result/fail" element={<PaymentFail />} />
+                */}
                 <Route
                     path="concerts/:concertId"
                     element={<ConcertDetailPage />}
