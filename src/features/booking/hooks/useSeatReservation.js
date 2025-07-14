@@ -1,4 +1,4 @@
-// src/features/booking/hooks/useSeatReservation.js
+// src/features/booking/hooks/useSeatReservation.js (개선된 버전)
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import {
@@ -9,24 +9,25 @@ import {
 import {
     getPollingInterval,
     isBackendPollingSupported,
-    pollSeatStatus,
     createStablePollingManager,
 } from '../services/seatService';
-import apiClient from '../../../shared/utils/apiClient';
 
 export const useSeatReservation = (concertId, options = {}) => {
     const { enablePolling = true } = options;
-    // 1. 모든 관련 상태는 훅 내에서만 관리합니다.
+
+    // 기존 상태들
     const [seatStatuses, setSeatStatuses] = useState([]);
     const [selectedSeats, setSelectedSeats] = useState([]);
     const [isReserving, setIsReserving] = useState(false);
     const [error, setError] = useState(null);
     const [timer, setTimer] = useState(0);
     const [isPolling, setIsPolling] = useState(false);
-    const [connectionStatus, setConnectionStatus] = useState('disconnected'); // 'disconnected', 'connecting', 'connected', 'error'
+    const [connectionStatus, setConnectionStatus] = useState('disconnected');
+
+    // ✅ 새로운 상태: 로컬에서 임시로 BOOKED 처리된 좌석들
+    const [localBookedSeats, setLocalBookedSeats] = useState(new Set());
 
     const selectedSeatsRef = useRef(selectedSeats);
-    const pollingManagerRef = useRef(null);
     const stablePollingManagerRef = useRef(null);
     const isStartingPollingRef = useRef(false);
 
@@ -36,218 +37,86 @@ export const useSeatReservation = (concertId, options = {}) => {
 
     const MAX_SEATS_SELECTABLE = 2;
 
-    // 2. 데이터 새로고침 함수를 훅 내부에 정의합니다.
+    // ✅ 좌석 상태 조회 시 로컬 BOOKED 상태 반영
+    const getEffectiveSeatStatus = useCallback((seat) => {
+        if (localBookedSeats.has(seat.seatId)) {
+            return { ...seat, status: 'BOOKED' };
+        }
+        return seat;
+    }, [localBookedSeats]);
+
+    // 데이터 새로고침 함수 (로컬 상태 반영)
     const refreshSeatStatuses = useCallback(async () => {
         try {
             const data = await fetchAllSeatStatus(concertId);
-            setSeatStatuses(data);
-            const myReservedSeats = data.filter(
+
+            // ✅ 서버에서 받은 데이터에 로컬 BOOKED 상태 적용
+            const effectiveData = data.map(seat => getEffectiveSeatStatus(seat));
+            setSeatStatuses(effectiveData);
+
+            const myReservedSeats = effectiveData.filter(
                 (s) => s.isReservedByCurrentUser,
             );
             setSelectedSeats(myReservedSeats);
+
+            // ✅ 서버에서 실제로 BOOKED된 좌석은 로컬 BOOKED에서 제거
+            const serverBookedSeatIds = data
+                .filter(seat => seat.status === 'BOOKED')
+                .map(seat => seat.seatId);
+
+            setLocalBookedSeats(prev => {
+                const newSet = new Set(prev);
+                serverBookedSeatIds.forEach(seatId => newSet.delete(seatId));
+                return newSet;
+            });
+
         } catch (err) {
             setError(err.message || '좌석 정보를 새로고침하지 못했습니다.');
         }
-    }, [concertId]);
+    }, [concertId, getEffectiveSeatStatus]);
 
-    // 폴링 시스템 시작 함수
-    const startPolling = useCallback(async () => {
-        // 중복 호출 방지
-        if (isStartingPollingRef.current || isPolling || !enablePolling) {
-            return;
-        }
+    // ✅ 결제 성공 시 호출되는 함수
+    const handlePaymentSuccess = useCallback((paidSeats) => {
+        console.log('🎉 결제 성공 - 좌석을 로컬에서 BOOKED 처리:', paidSeats);
 
-        // 시작 플래그 설정
-        isStartingPollingRef.current = true;
+        const paidSeatIds = paidSeats.map(seat => seat.seatId);
 
-        try {
-            // 기존 폴링 세션 정리
-            if (stablePollingManagerRef.current) {
-                stablePollingManagerRef.current.stop();
-                stablePollingManagerRef.current = null;
-            }
-            if (pollingManagerRef.current) {
-                pollingManagerRef.current = null;
-            }
+        // 로컬에서 즉시 BOOKED 처리
+        setLocalBookedSeats(prev => {
+            const newSet = new Set(prev);
+            paidSeatIds.forEach(seatId => newSet.add(seatId));
+            return newSet;
+        });
 
-            setIsPolling(true);
-            setConnectionStatus('connecting');
+        // 좌석 상태 즉시 업데이트
+        setSeatStatuses(prev =>
+            prev.map(seat =>
+                paidSeatIds.includes(seat.seatId)
+                    ? { ...seat, status: 'BOOKED', isReservedByCurrentUser: false }
+                    : seat
+            )
+        );
 
-            // 단순 주기적 폴링 시스템 사용
-            if (isBackendPollingSupported()) {
-                console.log('🔥 폴링 시스템 시작 (35초 간격)');
+        // 선택된 좌석 초기화
+        setSelectedSeats([]);
+        setTimer(0);
 
-                // 폴링 매니저 생성
-                const stableManager = createStablePollingManager(concertId, {
-                    onUpdate: (seatUpdates) => {
-                        console.log('🔥 좌석 업데이트 수신:', seatUpdates);
-                        refreshSeatStatuses();
-                    },
-                    onError: (error) => {
-                        console.error('🔥 폴링 에러:', error);
-                        setError(error.message);
-                        setConnectionStatus('error');
-                    },
-                    onStatusChange: (isConnected) => {
-                        setConnectionStatus(
-                            isConnected ? 'connected' : 'disconnected',
-                        );
-                    },
-                });
+        // 백그라운드에서 서버 상태 동기화 (에러가 발생해도 UI에는 영향 없음)
+        setTimeout(() => {
+            refreshSeatStatuses().catch(console.error);
+        }, 1000);
 
-                stablePollingManagerRef.current = stableManager;
-                stableManager.start();
+    }, [refreshSeatStatuses]);
 
-                pollingManagerRef.current = {
-                    stopPolling: () => {
-                        stableManager.stop();
-                        setIsPolling(false);
-                        setConnectionStatus('disconnected');
-                    },
-                };
-            } else {
-                // 폴백: 일반 주기적 새로고침
-                console.log(
-                    '🔥 백엔드 Long Polling 비활성화 - 일반 주기적 새로고침 모드',
-                );
-
-                const pollingInterval = getPollingInterval();
-                console.log(
-                    `🔥 ${pollingInterval / 1000}초 주기 좌석 상태 새로고침 시스템 시작`,
-                );
-
-                // 폴링 관리 객체 저장 (먼저 설정)
-                pollingManagerRef.current = {
-                    stopPolling: () => {
-                        setIsPolling(false);
-                        setConnectionStatus('disconnected');
-                    },
-                };
-
-                // 즉시 한 번 실행
-                await executePollingCycle();
-
-                // 폴링 사이클을 순차적으로 실행하는 함수
-                const runPollingLoop = async () => {
-                    let cycleCount = 0;
-                    while (isPolling && enablePolling) {
-                        cycleCount++;
-                        console.log(`🔥 폴링 사이클 #${cycleCount} 대기 중...`);
-
-                        // 다음 폴링까지 설정된 간격 대기
-                        const pollingInterval = getPollingInterval();
-                        await new Promise((resolve) =>
-                            setTimeout(resolve, pollingInterval),
-                        );
-
-                        // 상태 재확인
-                        if (!isPolling || !enablePolling) {
-                            console.log('🔥 폴링 루프 중단:', {
-                                isPolling,
-                                enablePolling,
-                            });
-                            break;
-                        }
-
-                        await executePollingCycle();
-                    }
-                    console.log('🔥 폴링 루프 종료');
-                };
-
-                // 폴링 루프 시작 (비동기)
-                runPollingLoop();
-            }
-
-            setConnectionStatus('connected');
-        } finally {
-            // 시작 플래그 해제
-            isStartingPollingRef.current = false;
-        }
-    }, [concertId, isPolling, enablePolling, refreshSeatStatuses]);
-
-    // 폴링 사이클 실행 함수 (폴백용 - 일반 새로고침 모드)
-    const executePollingCycle = useCallback(async () => {
-        try {
-            console.log('🔥 좌석 상태 새로고침 사이클 시작');
-
-            // refreshSeatStatuses 호출 (실시간 좌석 상태 동기화)
-            console.log('🔥 refreshSeatStatuses 호출');
-            await refreshSeatStatuses();
-
-            setError(null);
-            setConnectionStatus('connected');
-        } catch (error) {
-            console.error('🔥 폴링 사이클 에러:', error);
-            setError(error.message);
-            setConnectionStatus('error');
-        }
-    }, [concertId, refreshSeatStatuses]);
-
-    // 폴링 시스템 정지 함수
-    const stopPolling = useCallback(() => {
-        console.log('🔥 폴링 시스템 중지');
-        setIsPolling(false);
-        setConnectionStatus('disconnected');
-
-        // 시작 플래그도 해제
-        isStartingPollingRef.current = false;
-
-        // 안정적인 폴링 매니저 정리
-        if (stablePollingManagerRef.current) {
-            stablePollingManagerRef.current.stop();
-            stablePollingManagerRef.current = null;
-        }
-
-        pollingManagerRef.current = null;
-    }, []);
-
-    // 타이머 로직 (이전과 동일)
-    useEffect(() => {
-        if (selectedSeats.length > 0 && timer === 0) {
-            const minSeconds = Math.min(
-                ...selectedSeats.map((s) => s.remainingSeconds),
-            );
-            setTimer(minSeconds > 0 ? minSeconds : 0);
-        } else if (selectedSeats.length === 0) {
-            setTimer(0);
-        }
-    }, [selectedSeats]);
-
-    useEffect(() => {
-        if (timer <= 0) {
-            if (selectedSeatsRef.current.length > 0) {
-                alert('선점 시간이 만료되었습니다.');
-                handleClearSelection().catch(console.error);
-            }
-            return;
-        }
-        const interval = setInterval(() => setTimer((prev) => prev - 1), 1000);
-        return () => clearInterval(interval);
-    }, [timer]);
-
-    // 언마운트 시 좌석 해제 및 폴링 정리
-    useEffect(() => {
-        return () => {
-            // 폴링 정리
-            if (stablePollingManagerRef.current) {
-                stablePollingManagerRef.current.stop();
-            }
-            if (pollingManagerRef.current) {
-                pollingManagerRef.current.stopPolling();
-            }
-
-            // 좌석 해제
-            if (selectedSeatsRef.current.length > 0) {
-                selectedSeatsRef.current.forEach((seat) => {
-                    releaseSeat(concertId, seat.seatId).catch(console.error);
-                });
-            }
-        };
-    }, [concertId]);
-
-    // 3. 모든 핸들러 함수를 훅 내부에 정의합니다.
+    // ✅ 좌석 클릭 핸들러 개선 (로컬 BOOKED 상태 체크)
     const handleSeatClick = useCallback(
         async (seat) => {
+            // 로컬에서 BOOKED 처리된 좌석은 클릭 불가
+            if (localBookedSeats.has(seat.seatId)) {
+                setError('이미 예매 완료된 좌석입니다.');
+                return;
+            }
+
             setIsReserving(true);
             setError(null);
             try {
@@ -265,15 +134,88 @@ export const useSeatReservation = (concertId, options = {}) => {
                         );
                     await reserveSeat(concertId, seat.seatId);
                 }
-                await refreshSeatStatuses(); // 상태 동기화
+                await refreshSeatStatuses();
             } catch (err) {
                 setError(err.message);
+
+                // ✅ 에러 발생 시 서버 상태 강제 동기화
+                setTimeout(() => {
+                    refreshSeatStatuses().catch(console.error);
+                }, 500);
             } finally {
                 setIsReserving(false);
             }
         },
-        [concertId, selectedSeats, refreshSeatStatuses],
+        [concertId, selectedSeats, localBookedSeats, refreshSeatStatuses],
     );
+
+    // ✅ 폴링 시스템 개선 (더 자주 동기화)
+    const startPolling = useCallback(async () => {
+        if (isStartingPollingRef.current || isPolling || !enablePolling) {
+            return;
+        }
+
+        isStartingPollingRef.current = true;
+
+        try {
+            if (stablePollingManagerRef.current) {
+                stablePollingManagerRef.current.stop();
+            }
+
+            setIsPolling(true);
+            setConnectionStatus('connecting');
+
+            if (isBackendPollingSupported()) {
+                const stableManager = createStablePollingManager(concertId, {
+                    onUpdate: (seatUpdates) => {
+                        console.log('🔄 실시간 좌석 업데이트 수신:', seatUpdates);
+                        refreshSeatStatuses();
+                    },
+                    onError: (error) => {
+                        console.error('🚨 폴링 에러:', error);
+                        setError(error.message);
+                        setConnectionStatus('error');
+                    },
+                    onStatusChange: (isConnected) => {
+                        setConnectionStatus(isConnected ? 'connected' : 'disconnected');
+                    },
+                });
+
+                stablePollingManagerRef.current = stableManager;
+                stableManager.start();
+            } else {
+                // ✅ 폴백 모드: 더 짧은 간격으로 폴링 (15초)
+                const shorterInterval = 15000;
+                console.log(`🔄 ${shorterInterval / 1000}초 간격 빠른 동기화 모드`);
+
+                const runQuickPolling = async () => {
+                    while (isPolling && enablePolling) {
+                        await new Promise(resolve => setTimeout(resolve, shorterInterval));
+                        if (!isPolling || !enablePolling) break;
+                        await refreshSeatStatuses().catch(console.error);
+                    }
+                };
+
+                runQuickPolling();
+            }
+
+            setConnectionStatus('connected');
+        } finally {
+            isStartingPollingRef.current = false;
+        }
+    }, [concertId, isPolling, enablePolling, refreshSeatStatuses]);
+
+    // 나머지 함수들은 기존과 동일...
+    const stopPolling = useCallback(() => {
+        setIsPolling(false);
+        setConnectionStatus('disconnected');
+        isStartingPollingRef.current = false;
+
+        if (stablePollingManagerRef.current) {
+            stablePollingManagerRef.current.stop();
+            stablePollingManagerRef.current = null;
+        }
+    }, []);
 
     const handleClearSelection = useCallback(async () => {
         setIsReserving(true);
@@ -300,37 +242,44 @@ export const useSeatReservation = (concertId, options = {}) => {
         [selectedSeats, handleSeatClick],
     );
 
-    // 좌석 복구 후 상태 초기화 함수
-    const handleRestoreComplete = useCallback(async () => {
-        try {
-            // 먼저 상태를 완전히 초기화
-            setSelectedSeats([]);
+    // 타이머 로직
+    useEffect(() => {
+        if (selectedSeats.length > 0 && timer === 0) {
+            const minSeconds = Math.min(
+                ...selectedSeats.map((s) => s.remainingSeconds),
+            );
+            setTimer(minSeconds > 0 ? minSeconds : 0);
+        } else if (selectedSeats.length === 0) {
             setTimer(0);
-            setError(null);
-
-            // 그 다음 서버 상태 동기화
-            await refreshSeatStatuses();
-
-            console.log('좌석 복구 후 상태 초기화 완료');
-        } catch (err) {
-            console.error('좌석 복구 후 상태 초기화 실패:', err);
-            setError(err.message);
         }
-    }, [refreshSeatStatuses]);
+    }, [selectedSeats]);
 
-    // 폴링 상태 정보 가져오기
-    const getPollingStatus = useCallback(() => {
-        if (stablePollingManagerRef.current) {
-            return stablePollingManagerRef.current.getStatus();
+    useEffect(() => {
+        if (timer <= 0) {
+            if (selectedSeatsRef.current.length > 0) {
+                alert('선점 시간이 만료되었습니다.');
+                handleClearSelection().catch(console.error);
+            }
+            return;
         }
-        return {
-            isPolling: isPolling,
-            retryCount: 0,
-            lastUpdateTime: null,
+        const interval = setInterval(() => setTimer((prev) => prev - 1), 1000);
+        return () => clearInterval(interval);
+    }, [timer, handleClearSelection]);
+
+    // 언마운트 시 정리
+    useEffect(() => {
+        return () => {
+            if (stablePollingManagerRef.current) {
+                stablePollingManagerRef.current.stop();
+            }
+            if (selectedSeatsRef.current.length > 0) {
+                selectedSeatsRef.current.forEach((seat) => {
+                    releaseSeat(concertId, seat.seatId).catch(console.error);
+                });
+            }
         };
-    }, [isPolling]);
+    }, [concertId]);
 
-    // 4. 페이지에서 필요한 모든 것을 반환합니다.
     return {
         seatStatuses,
         selectedSeats,
@@ -338,14 +287,13 @@ export const useSeatReservation = (concertId, options = {}) => {
         error,
         timer,
         isPolling,
-        connectionStatus, // 연결 상태: 'disconnected', 'connecting', 'connected', 'error'
-        pollingStatus: getPollingStatus(), // 폴링 상세 상태
-        refreshSeatStatuses, // 페이지가 최초 로드 시 호출할 함수
-        startPolling, // 폴링 시스템 시작 함수
-        stopPolling, // 폴링 시스템 정지 함수
+        connectionStatus,
+        refreshSeatStatuses,
+        startPolling,
+        stopPolling,
         handleSeatClick,
         handleRemoveSeat,
         handleClearSelection,
-        handleRestoreComplete, // 좌석 복구 후 상태 초기화 함수
+        handlePaymentSuccess, // ✅ 새로 추가된 함수
     };
 };

@@ -1,4 +1,4 @@
-// src/features/booking/components/SelectionPanel.jsx
+// src/features/booking/components/SelectionPanel.jsx (개선된 버전)
 import { X, Clock } from 'lucide-react';
 
 const formatTime = (totalSeconds) => {
@@ -14,6 +14,7 @@ export default function SelectionPanel({
     onClear,
     onRemove,
     onCheckout,
+    isProcessing = false, // ✅ NEW: 결제 중 상태 추가
 }) {
     const TICKET_PRICE = 50000; // 티켓 가격 (나중에는 API에서 받아올 수 있음)
     const SERVICE_FEE = 2000; // 고정 수수료
@@ -40,10 +41,13 @@ export default function SelectionPanel({
                                     <span className="text-gray-300 text-sm">
                                         {seat.seatInfo}
                                     </span>
-                                    {/* 개별 좌석 X 버튼은 클릭 핸들러를 연결해야 함 */}
+                                    {/* ✅ IMPROVED: 결제 중일 때 개별 좌석 제거 버튼 비활성화 */}
                                     <button
                                         onClick={() => onRemove(seat.seatId)}
-                                        className="text-gray-500 hover:text-white"
+                                        disabled={isProcessing}
+                                        className={`text-gray-500 hover:text-white transition-colors ${
+                                            isProcessing ? 'opacity-50 cursor-not-allowed' : ''
+                                        }`}
                                         aria-label={`${seat.seatInfo} 좌석 선택 취소`}
                                     >
                                         <X size={16} />
@@ -51,11 +55,15 @@ export default function SelectionPanel({
                                 </div>
                             ))}
                         </div>
+                        {/* ✅ IMPROVED: 결제 중일 때 전체 선택 취소 버튼 비활성화 */}
                         <button
                             onClick={onClear}
-                            className="text-sm text-[#6B8EFE] hover:underline mt-2"
+                            disabled={isProcessing}
+                            className={`text-sm text-[#6B8EFE] hover:underline mt-2 transition-colors ${
+                                isProcessing ? 'opacity-50 cursor-not-allowed' : ''
+                            }`}
                         >
-                            전체 선택 취소
+                            {isProcessing ? '결제 진행 중...' : '전체 선택 취소'}
                         </button>
                     </>
                 ) : (
@@ -105,13 +113,42 @@ export default function SelectionPanel({
                     </div>
                     <span className="text-gray-400">결제 남은 시간</span>
                 </div>
+
+                {/* ✅ IMPROVED: 결제 중 상태에 따른 버튼 텍스트 및 스타일 변경 */}
                 <button
                     onClick={onCheckout}
-                    disabled={selectedSeats.length === 0}
-                    className="w-full bg-[#6B8EFE] text-white font-bold py-3 rounded-lg hover:bg-opacity-90 transition-transform active:scale-95 disabled:bg-gray-500 disabled:cursor-not-allowed"
+                    disabled={selectedSeats.length === 0 || isProcessing}
+                    className={`w-full font-bold py-3 rounded-lg transition-all duration-200 ${
+                        isProcessing
+                            ? 'bg-yellow-600 text-white cursor-wait'
+                            : selectedSeats.length === 0
+                            ? 'bg-gray-500 text-gray-300 cursor-not-allowed'
+                            : 'bg-[#6B8EFE] text-white hover:bg-opacity-90 active:scale-95'
+                    }`}
                 >
-                    결제하기
+                    {isProcessing ? (
+                        <div className="flex items-center justify-center gap-2">
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            결제 진행 중...
+                        </div>
+                    ) : (
+                        '결제하기'
+                    )}
                 </button>
+
+                {/* ✅ NEW: 결제 중일 때 추가 안내 메시지 */}
+                {isProcessing && (
+                    <p className="text-xs text-center text-yellow-300 animate-pulse">
+                        결제 창에서 진행해주세요. 페이지를 벗어나지 마세요.
+                    </p>
+                )}
+
+                {/* ✅ NEW: 좌석 선점 시간 경고 */}
+                {timer > 0 && timer <= 60 && selectedSeats.length > 0 && (
+                    <p className="text-xs text-center text-red-300 animate-pulse">
+                        ⚠️ 선점 시간이 1분 미만 남았습니다!
+                    </p>
+                )}
             </div>
         </div>
     );
