@@ -5,12 +5,17 @@ import SellerSidebar from '../../../features/seller/components/SellerSidebar';
 const SellerLayout = () => {
     const location = useLocation();
 
+    // Header.jsx의 useResponsive와 동일하게 isMobile 상태를 관리
     const [isMobile, setIsMobile] = useState(() => {
         if (typeof window !== 'undefined') {
             return window.innerWidth <= 768;
         }
         return false;
     });
+    // Header 높이를 동적으로 가져오기 (MainLayout이 Header 높이를 prop으로 넘겨주거나, Header 내부에서 상태를 공유하는 것이 이상적)
+    // 현재 Header.jsx를 보면 isMobile에 따라 h-16 (64px) 또는 h-20 (80px)으로 변하므로, 이 값을 여기서 동적으로 받아와야 함
+    // 일단 여기서는 5rem (80px)을 기본으로 하고, 모바일 시 4rem (64px)으로 가정
+    const headerHeightPx = isMobile ? 64 : 80; // Header.jsx의 h-16 (64px), h-20 (80px)에 맞춰 설정
 
     // 사이드바 열림/닫힘 상태 (SellerLayout 내에서 관리)
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -50,28 +55,28 @@ const SellerLayout = () => {
     }, [sidebarOpen]);
 
     return (
-        <div className="flex flex-1 relative">
-            {/* 오버레이 */}
-            {sidebarOpen && (
-                <div
-                    className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
-                    style={{ top: '5rem' }}
-                    onClick={handleOverlayClick}
-                />
-            )}
-
+        // MainLayout의 flex-1을 이어받아 남은 공간을 채움
+        // 데스크톱에서는 사이드바(flex item)와 콘텐츠(flex-1)를 옆으로 배치하는 flex 컨테이너 역할
+        // 모바일에서는 flex-col로 쌓이되, 사이드바는 fixed로 오버레이 처리
+        <div className="flex flex-1">
             {/* 사이드바 영역 */}
             <aside
-                className="fixed left-0 top-0 h-full z-50 bg-gray-900 border-r border-gray-700
-                           transition-transform duration-300 ease-in-out
-                           lg:static lg:h-auto lg:translate-x-0 lg:w-64 lg:flex-shrink-0"
+                // 모바일에서는 fixed로 화면에 오버레이 (숨겨져 있다가 열림)
+                // 데스크톱 (md 이상)에서는 static flex item으로 문서 흐름에 포함
+                className={`
+                    ${isMobile ? 'fixed left-0 top-0 h-full z-50' : 'hidden md:block'} /* 모바일에서는 fixed, 데스크톱에서는 기본적으로 block */
+                    bg-gray-900 border-r border-gray-700 transition-transform duration-300 ease-in-out
+                    w-64 flex-shrink-0
+                `}
                 style={{
-                    width: '256px',
-                    transform: sidebarOpen
-                        ? 'translateX(0)'
-                        : 'translateX(-100%)',
-                    top: '5rem',
-                    height: 'calc(100vh - 5rem)',
+                    transform:
+                        isMobile && !sidebarOpen
+                            ? 'translateX(-100%)'
+                            : 'translateX(0)', // 모바일에서만 슬라이드
+                    top: isMobile ? `${headerHeightPx}px` : '0', // 모바일에서 Header 높이만큼 아래로
+                    height: isMobile
+                        ? `calc(100vh - ${headerHeightPx}px)`
+                        : '100%', // 모바일에서 Header 높이 제외
                 }}
             >
                 <SellerSidebar
@@ -81,14 +86,27 @@ const SellerLayout = () => {
                 />
             </aside>
 
-            {/* 메인 콘텐츠 영역 (사이드바 공간 확보) */}
-            {/* lg:ml-64 대신 동적 style로 marginLeft 적용 */}
+            {/* 오버레이 (모바일에서 사이드바가 열려있을 때만 표시) */}
+            {isMobile && sidebarOpen && (
+                <div
+                    className="fixed inset-0 bg-black bg-opacity-50 z-40"
+                    style={{ top: `${headerHeightPx}px` }}
+                    onClick={handleOverlayClick}
+                />
+            )}
+
+            {/* 메인 콘텐츠 영역 */}
+            {/* 데스크톱에서는 사이드바 옆에, 모바일에서는 전체 너비 사용 */}
             <div
                 className="flex-1 flex flex-col p-6"
-                style={{ marginLeft: isMobile ? '0' : '256px' }} // isMobile 상태에 따라 동적으로 마진 조절
+                // 데스크톱에서는 (isMobile이 false일 때) ml-64 (사이드바 너비)
+                // 모바일에서는 ml-0
+                style={{ marginLeft: isMobile ? '0' : '256px' }}
             >
-                {/* 햄버거 메뉴 버튼 및 '판매자 페이지' 제목 */}
-                <div className="flex items-center justify-between pb-6 mb-6 lg:hidden">
+                {/* 햄버거 메뉴 버튼 및 페이지 제목 (모바일에서만 보임) */}
+                <div className="flex items-center justify-between pb-6 mb-6 md:hidden">
+                    {' '}
+                    {/* md:hidden 사용 */}
                     <div className="flex items-center gap-4">
                         <button
                             onClick={() => setSidebarOpen((prev) => !prev)}
