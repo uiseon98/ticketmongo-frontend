@@ -99,6 +99,9 @@ export default function App() {
                     path="concerts/:concertId"
                     element={<ConcertDetailPage />}
                 />
+                {/* 결제 관련 라우트들을 직접 작성 */}
+                <Route path="payment/result/success" element={<PaymentSuccess />} />
+                <Route path="payment/result/fail" element={<PaymentFail />} />
             </Route>
 
             {/** — 로그인 후 보호된 페이지 — **/}
