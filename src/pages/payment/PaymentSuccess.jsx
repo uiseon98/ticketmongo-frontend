@@ -41,10 +41,17 @@ export default function PaymentSuccess() {
 
     const {
         concertTitle = '',
-        concertDateTime = '',
-        seatLabels = [],
+        concertDate = '',
+        startTime = '',
+        endTime = '',
+        seatList = [],
         totalAmount = 0,
     } = booking || {};
+
+    // DTO 필드명에 맞춰 데이터 가공
+    const concertDateTime = concertDate + ' ' + startTime +
+                           (endTime ? '~' + endTime : '');
+    const seatLabels = seatList || [];
 
     return (
         <div className="px-40 flex flex-1 justify-center py-5 bg-gray-900 min-h-screen">
