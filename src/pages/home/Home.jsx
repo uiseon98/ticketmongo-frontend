@@ -41,10 +41,7 @@ function Home() {
                     // 직접 배열인 경우
                     concertData = response.data;
                 } else {
-                    console.warn(
-                        '⚠️ 예상치 못한 데이터 구조:',
-                        response.data,
-                    );
+                    console.warn('⚠️ 예상치 못한 데이터 구조:', response.data);
                     concertData = [];
                 }
             } else if (Array.isArray(response)) {
@@ -84,7 +81,9 @@ function Home() {
 
             console.log(`🔍 검색 시작: "${searchKeyword}"`);
 
-            const response = await concertService.searchConcerts(searchKeyword.trim());
+            const response = await concertService.searchConcerts(
+                searchKeyword.trim(),
+            );
 
             // concertService.searchConcerts와 동일한 응답 처리
             let searchResults = [];
@@ -96,7 +95,10 @@ function Home() {
                     // 페이지네이션 구조인 경우
                     searchResults = response.data.content;
                 } else {
-                    console.warn('⚠️ 예상치 못한 검색 응답 구조:', response.data);
+                    console.warn(
+                        '⚠️ 예상치 못한 검색 응답 구조:',
+                        response.data,
+                    );
                     searchResults = [];
                 }
             } else if (Array.isArray(response)) {
@@ -106,7 +108,6 @@ function Home() {
             setConcerts(searchResults);
 
             console.log(`✅ 검색 완료: ${searchResults.length}개 결과 발견`);
-
         } catch (err) {
             console.error(`❌ 검색 실패 (키워드: ${searchKeyword}):`, err);
 
@@ -208,7 +209,9 @@ function Home() {
                                 </div>
                                 <button
                                     onClick={handleSearch}
-                                    disabled={searchLoading || !searchKeyword.trim()}
+                                    disabled={
+                                        searchLoading || !searchKeyword.trim()
+                                    }
                                     className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white px-4 md:px-6 py-3 transition-colors font-medium text-sm md:text-base"
                                 >
                                     {searchLoading ? '검색 중...' : '검색'}
@@ -247,12 +250,16 @@ function Home() {
                     {currentLoading ? (
                         <div className="flex justify-center items-center py-20">
                             <div className="text-gray-300 text-lg animate-pulse">
-                                {isSearchMode ? '검색 중입니다...' : '콘서트를 불러오는 중입니다...'}
+                                {isSearchMode
+                                    ? '검색 중입니다...'
+                                    : '콘서트를 불러오는 중입니다...'}
                             </div>
                         </div>
                     ) : error ? (
                         <div className="flex flex-col justify-center items-center py-20">
-                            <div className="text-red-400 text-lg mb-4">{error}</div>
+                            <div className="text-red-400 text-lg mb-4">
+                                {error}
+                            </div>
                             {isSearchMode && (
                                 <button
                                     onClick={handleClearSearch}
@@ -267,8 +274,7 @@ function Home() {
                             <div className="text-gray-400 text-lg mb-4">
                                 {isSearchMode
                                     ? `"${searchKeyword}"에 대한 검색 결과가 없습니다.`
-                                    : '표시할 콘서트가 없습니다.'
-                                }
+                                    : '표시할 콘서트가 없습니다.'}
                             </div>
                             {isSearchMode && (
                                 <button

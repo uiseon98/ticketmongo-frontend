@@ -17,7 +17,7 @@ export const PAYMENT_STATUS = {
     PARTIAL_CANCELED: '부분 취소',
     FAILED: '결제 실패',
     EXPIRED: '결제 시간 만료',
-    REFUND: '환불 완료'
+    REFUND: '환불 완료',
 };
 
 export const PAYMENT_METHOD = {

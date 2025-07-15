@@ -23,15 +23,15 @@ export const ToastProvider = ({ children }) => {
             type,
             duration: options.duration || 3000,
             position: options.position || 'top-center',
-            ...options
+            ...options,
         };
 
-        setToasts(prev => [...prev, toast]);
+        setToasts((prev) => [...prev, toast]);
         return id;
     }, []);
 
     const removeToast = useCallback((id) => {
-        setToasts(prev => prev.filter(toast => toast.id !== id));
+        setToasts((prev) => prev.filter((toast) => toast.id !== id));
     }, []);
 
     const clearAllToasts = useCallback(() => {
@@ -39,21 +39,33 @@ export const ToastProvider = ({ children }) => {
     }, []);
 
     // 편의 메서드들
-    const showSuccess = useCallback((message, options) => {
-        return addToast(message, 'success', options);
-    }, [addToast]);
+    const showSuccess = useCallback(
+        (message, options) => {
+            return addToast(message, 'success', options);
+        },
+        [addToast],
+    );
 
-    const showError = useCallback((message, options) => {
-        return addToast(message, 'error', options);
-    }, [addToast]);
+    const showError = useCallback(
+        (message, options) => {
+            return addToast(message, 'error', options);
+        },
+        [addToast],
+    );
 
-    const showWarning = useCallback((message, options) => {
-        return addToast(message, 'warning', options);
-    }, [addToast]);
+    const showWarning = useCallback(
+        (message, options) => {
+            return addToast(message, 'warning', options);
+        },
+        [addToast],
+    );
 
-    const showInfo = useCallback((message, options) => {
-        return addToast(message, 'info', options);
-    }, [addToast]);
+    const showInfo = useCallback(
+        (message, options) => {
+            return addToast(message, 'info', options);
+        },
+        [addToast],
+    );
 
     const value = {
         toasts,
@@ -63,12 +75,10 @@ export const ToastProvider = ({ children }) => {
         showSuccess,
         showError,
         showWarning,
-        showInfo
+        showInfo,
     };
 
     return (
-        <ToastContext.Provider value={value}>
-            {children}
-        </ToastContext.Provider>
+        <ToastContext.Provider value={value}>{children}</ToastContext.Provider>
     );
 };

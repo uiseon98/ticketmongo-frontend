@@ -28,7 +28,10 @@ export const useExpectations = (concertId) => {
                     size: pageSize, // 🔧 수정: 고정된 pageSize 사용
                 };
 
-                const response = await expectationService.getConcertExpectations(requestParams);
+                const response =
+                    await expectationService.getConcertExpectations(
+                        requestParams,
+                    );
 
                 if (response && response.data) {
                     setExpectations(response.data.content || []);
