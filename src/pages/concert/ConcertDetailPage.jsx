@@ -622,6 +622,7 @@ function ConcertDetailPage() {
                                 concert.status === 'SOLD_OUT' ||
                                 concert.status === 'CANCELLED' ||
                                 concert.status === 'COMPLETED' ||
+                                concert.status === 'SCHEDULED' ||
                                 isEntering
                             }
                         >
