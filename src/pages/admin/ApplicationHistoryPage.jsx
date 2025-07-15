@@ -5,10 +5,36 @@ import ErrorMessage from '../../shared/components/ui/ErrorMessage';
 import Button from '../../shared/components/ui/Button';
 import Modal from '../../shared/components/ui/Modal';
 import InputField from '../../shared/components/ui/InputField';
-import { useSearchParams } from 'react-router-dom';
-// import { useSearchParams, useNavigate } from 'react-router-dom'; // useNavigate 임포트 추가
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
 // import useDebounce from '../../shared/hooks/useDebounce'; // 임시로 주석 처리
+
+// 반응형 Hook
+const useResponsive = () => {
+    const [isMobile, setIsMobile] = useState(false);
+    const [screenWidth, setScreenWidth] = useState(
+        typeof window !== 'undefined' ? window.innerWidth : 1200,
+    );
+
+    useEffect(() => {
+        const handleResize = () => {
+            const width = window.innerWidth;
+            setScreenWidth(width);
+            setIsMobile(width <= 768);
+        };
+
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    return {
+        isMobile,
+        isTablet: screenWidth <= 1024 && screenWidth > 768,
+        isDesktop: screenWidth > 1024,
+        screenWidth,
+    };
+};
 
 // 판매자 승인 이력 타입 (백엔드 SellerApprovalHistory.ActionType과 일치)
 const SELLER_HISTORY_TYPES = [
@@ -32,7 +58,9 @@ const STATUS_LABELS = {
 
 const ApplicationHistoryPage = () => {
     const [searchParams, setSearchParams] = useSearchParams();
-    // const navigate = useNavigate(); // useNavigate 훅 사용
+    const navigate = useNavigate(); // useNavigate 훅 사용
+
+    const { isMobile, isTablet } = useResponsive(); // 반응형 훅 사용
 
     const userIdFromUrl = searchParams.get('userId');
     const userNicknameFromUrl = searchParams.get('userNickname');
@@ -417,223 +445,460 @@ const ApplicationHistoryPage = () => {
     };
 
     if (loading) {
-        return <LoadingSpinner message="판매자 이력 데이터를 불러오는 중..." />;
-    }
+        return (
+            <div
+                style={{
+                    backgroundColor: '#111827', // gray-900
+                    minHeight: '100vh',
+                    width: '100vw',
+                    margin: 0,
+                    padding: 0,
+                    overflowX: 'hidden',
+                }}
+            >
+                <div
+                    className={
+                        isMobile
+                            ? 'p-4 overflow-x-hidden'
+                            : isTablet
+                              ? 'max-w-4xl mx-auto p-4 overflow-x-hidden'
+                              : 'max-w-6xl mx-auto p-6 overflow-x-hidden'
+                    }
+                    style={{
+                        backgroundColor: '#111827',
+                        minHeight: '100vh',
+                        color: '#FFFFFF',
+                        boxSizing: 'border-box',
+                    }}
+                >
+                    {/* 페이지 제목 */}
+                    <h1
+                        className={
+                            isMobile
+                                ? 'text-xl font-bold mb-4 text-center break-words animate-shimmer-text'
+                                : isTablet
+                                  ? 'text-2xl font-bold mb-5 text-center break-words animate-shimmer-text'
+                                  : 'text-4xl font-bold mb-6 text-center break-words animate-shimmer-text'
+                        }
+                        style={{
+                            color: '#FFFFFF',
+                            padding: isMobile ? '0 8px' : '0',
+                            wordBreak: 'keep-all',
+                            overflowWrap: 'break-word',
+                        }}
+                    >
+                        판매자 권한 이력 조회로 이동 중...
+                    </h1>
 
-    if (error) {
-        return <ErrorMessage message={error} />;
-    }
+                    {/* 부제목 */}
+                    <p
+                        className={`text-center mb-${isMobile ? '6' : isTablet ? '8' : '10'} text-gray-400`}
+                        style={{
+                            fontSize: isMobile ? '14px' : '16px',
+                            padding: isMobile ? '0 16px' : '0',
+                        }}
+                    >
+                        모든 판매자 신청 및 처리 이력을 확인합니다.
+                    </p>
 
-    return (
-        <div className="pt-12 px-8 pb-8 bg-[#111922] text-white min-h-[calc(100vh-64px)]">
-            <h2 className="text-3xl font-bold mb-8">판매자 권한 이력 조회</h2>
-
-            <section className="bg-[#1a232f] p-6 rounded-lg shadow-md">
-                <h3 className="text-xl font-semibold mb-10">
-                    {getDynamicTitle()}
-                </h3>
-
-                {/* 🔧 상단 컨트롤 바 (pageSize 왼쪽 정렬, 검색창 & 필터 오른쪽 정렬) */}
-                <div className="flex justify-between items-center gap-4 mb-3 flex-wrap">
-                    {/* 왼쪽: 표시 개수 선택 */}
-                    <div className="flex items-center gap-2 text-sm text-gray-300">
-                        <span>표시</span>
-                        <select
-                            id="pageSize"
-                            value={pageSize}
-                            onChange={handlePageSizeChange}
-                            className="px-2 py-1.5 bg-[#0A0D11] border border-[#243447] rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#6366F1]"
+                    {/* 로딩 카드 */}
+                    <div
+                        className="rounded-xl shadow-md"
+                        style={{
+                            backgroundColor: '#1f2937',
+                            border: '1px solid #374151',
+                            padding: isMobile
+                                ? '40px 20px'
+                                : isTablet
+                                  ? '50px 30px'
+                                  : '60px 40px',
+                            textAlign: 'center',
+                            maxWidth: isMobile ? '100%' : '600px',
+                            margin: '0 auto',
+                        }}
+                    >
+                        <div
+                            style={{
+                                width: isMobile ? '32px' : '40px',
+                                height: isMobile ? '32px' : '40px',
+                                border: '4px solid #374151',
+                                borderTop: '4px solid #3B82F6',
+                                borderRadius: '50%',
+                                animation: 'spin 1s linear infinite',
+                                margin: '0 auto 16px',
+                            }}
+                        />
+                        <div
+                            style={{
+                                color: '#FFFFFF',
+                                fontSize: isMobile ? '14px' : '18px',
+                            }}
                         >
-                            <option value={5}>5개</option>
-                            <option value={10}>10개</option>
-                            <option value={20}>20개</option>
-                        </select>
-                    </div>
-
-                    {/* 오른쪽: 검색창 + 이력 타입 필터 */}
-                    <div className="flex flex-wrap gap-3 items-center justify-end">
-                        {/* 검색창 */}
-                        <div className="min-w-[300px]">
-                            <InputField
-                                name="searchKeyword"
-                                value={searchTerm}
-                                onChange={handleKeywordChange}
-                                onKeyDown={handleSearchOnEnter}
-                                placeholder="유저 ID, 닉네임, 업체명 등"
-                                clearable={true}
-                                onClear={handleClearSearch}
-                                paddingClassName="py-1 px-2"
-                            />
-                        </div>
-
-                        {/* 이력 타입 필터 */}
-                        <div className="w-[140px]">
-                            <select
-                                id="typeFilter"
-                                value={typeFilter}
-                                onChange={handleTypeFilterChange}
-                                className="w-full px-2 py-1.5 bg-[#0A0D11] border border-[#243447] rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#6366F1]"
-                            >
-                                {SELLER_HISTORY_TYPES.map((type) => (
-                                    <option key={type} value={type}>
-                                        {STATUS_LABELS[type] || type}
-                                    </option>
-                                ))}
-                            </select>
+                            판매자 이력 데이터를 불러오는 중...
                         </div>
                     </div>
                 </div>
+            </div>
+        );
+    }
 
-                {allHistory.length === 0 ? (
-                    <p className="text-gray-400">표시할 이력이 없습니다.</p>
-                ) : (
-                    <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-700">
-                            <thead className="bg-[#243447]">
-                                <tr>
-                                    <th className="px-2 py-2 w-16 text-center text-xs font-medium text-gray-300 uppercase tracking-wider min-w-[40px]">
-                                        이력
-                                        <br />
-                                        ID
-                                    </th>
-                                    <th className="px-2 py-2 w-16 text-center text-xs font-medium text-gray-300 uppercase tracking-wider min-w-[40px]">
-                                        유저
-                                        <br />
-                                        ID
-                                    </th>
-                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                        닉네임 (아이디)
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                        상태(사유)
-                                    </th>
-                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                        일시
-                                    </th>
-                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                        상세보기
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody className="bg-[#1a232f] divide-y divide-gray-700">
-                                {allHistory.map((history) => (
-                                    <tr key={history.id}>
-                                        <td className="px-3 py-3 whitespace-nowrap text-sm font-medium text-white">
-                                            {history.id}
-                                        </td>
-                                        <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-300">
-                                            {history.userId}
-                                        </td>
-                                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300 text-left">
-                                            {history.userNickname}
-                                            <br />({history.username})
-                                        </td>
-                                        <td className="px-4 py-3 whitespace-nowrap text-sm text-left text-gray-300">
-                                            {history.type === 'REJECTED' ||
-                                            history.type === 'REVOKED'
-                                                ? `${STATUS_LABELS[history.type]} (${history.reason || '사유 없음'})`
-                                                : STATUS_LABELS[history.type] ||
-                                                  history.type}
-                                        </td>
-                                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300 text-left">
-                                            {new Date(
-                                                history.createdAt,
-                                            ).toLocaleDateString()}{' '}
-                                            <br />(
-                                            {new Date(
-                                                history.createdAt,
-                                            ).toLocaleTimeString()}
-                                            )
-                                        </td>
-                                        <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
-                                            <Button
-                                                onClick={() =>
-                                                    handleViewUserHistory(
-                                                        history,
-                                                    )
-                                                }
-                                                className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 text-xs"
-                                            >
-                                                상세
-                                            </Button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                        {/* 페이지네이션 */}
-                        <div className="flex justify-center items-center space-x-2 mt-4">
-                            {/* 처음으로 버튼 */}
-                            {totalPages > 0 && (
-                                <Button
-                                    onClick={() => handlePageChange(0)}
-                                    disabled={currentPage === 0}
-                                    className="px-3 py-1 text-xs bg-transparent hover:bg-[#243447] text-white border border-transparent"
-                                >
-                                    처음으로
-                                </Button>
-                            )}
-                            {/* 이전 버튼 (개별) */}
-                            <Button
-                                onClick={() =>
-                                    handlePageChange(currentPage - 1)
-                                }
-                                disabled={currentPage === 0}
-                                className="px-3 py-1 text-xs bg-transparent hover:bg-[#243447] text-white border border-transparent"
-                            >
-                                이전
-                            </Button>
-                            {/* 동적으로 페이지 번호 생성 */}
-                            {getVisiblePageNumbers().map((pageNum, index) =>
-                                pageNum === '...' ? (
-                                    <span
-                                        key={`ellipsis-${index}`}
-                                        className="px-3 py-1 text-xs text-gray-400"
-                                    >
-                                        ...
-                                    </span>
-                                ) : (
-                                    <Button
-                                        key={pageNum}
-                                        onClick={() =>
-                                            handlePageChange(pageNum)
-                                        }
-                                        className={`px-3 py-1 text-xs ${
-                                            currentPage === pageNum
-                                                ? 'bg-[#6366F1] text-white rounded-lg'
-                                                : 'bg-transparent text-gray-300 hover:bg-[#243447]'
-                                        } border-none`}
-                                    >
-                                        {pageNum + 1}
-                                    </Button>
-                                ),
-                            )}
-                            {/* 다음 버튼 (개별) */}
-                            <Button
-                                onClick={() =>
-                                    handlePageChange(currentPage + 1)
-                                }
-                                disabled={currentPage >= totalPages - 1}
-                                className="px-3 py-1 text-xs bg-transparent hover:bg-[#243447] text-white border border-transparent"
-                            >
-                                다음
-                            </Button>
-                            {/* 마지막으로 버튼 */}
-                            {totalPages > 0 && (
-                                <Button
-                                    onClick={() =>
-                                        handlePageChange(totalPages - 1)
-                                    }
-                                    disabled={currentPage === totalPages - 1}
-                                    className="px-3 py-1 text-xs bg-transparent hover:bg-[#243447] text-white border border-transparent"
-                                >
-                                    마지막으로
-                                </Button>
-                            )}
-                        </div>
+    if (error) {
+        return (
+            <div
+                style={{
+                    backgroundColor: '#111827',
+                    minHeight: '100vh',
+                    width: '100vw',
+                    margin: 0,
+                    padding: 0,
+                    overflowX: 'hidden',
+                }}
+            >
+                <div
+                    className={
+                        isMobile
+                            ? 'p-4 overflow-x-hidden'
+                            : isTablet
+                              ? 'max-w-4xl mx-auto p-4 overflow-x-hidden'
+                              : 'max-w-6xl mx-auto p-6 overflow-x-hidden'
+                    }
+                    style={{
+                        backgroundColor: '#111827',
+                        minHeight: '100vh',
+                        color: '#FFFFFF',
+                        boxSizing: 'border-box',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                >
+                    <div
+                        className="rounded-xl shadow-md text-center"
+                        style={{
+                            backgroundColor: '#1f2937',
+                            border: '1px solid #374151',
+                            padding: isMobile ? '32px 24px' : '40px 32px',
+                            maxWidth: '500px',
+                            width: '100%',
+                        }}
+                    >
+                        <div className="text-6xl mb-6">⚠️</div>
+                        <h3
+                            className={`font-bold text-red-400 mb-4 ${isMobile ? 'text-xl' : 'text-2xl'}`}
+                        >
+                            오류가 발생했습니다
+                        </h3>
+                        <p
+                            className={`text-gray-300 mb-6 leading-relaxed ${isMobile ? 'text-sm' : 'text-base'}`}
+                        >
+                            {error}
+                        </p>
+                        <button
+                            onClick={() => window.location.reload()}
+                            className={`bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all ${
+                                isMobile
+                                    ? 'w-full py-4 px-6 text-lg'
+                                    : 'py-3 px-8 text-base'
+                            }`}
+                            style={{
+                                minHeight: isMobile ? '52px' : 'auto',
+                            }}
+                        >
+                            다시 시도
+                        </button>
                     </div>
-                )}
-            </section>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div
+            style={{
+                backgroundColor: '#111827', // gray-900
+                minHeight: '100vh',
+                width: '100vw',
+                margin: 0,
+                padding: 0,
+                overflowX: 'hidden',
+            }}
+        >
+            <div
+                className={
+                    isMobile
+                        ? 'p-4 overflow-x-hidden'
+                        : isTablet
+                          ? 'max-w-4xl mx-auto p-4 overflow-x-hidden'
+                          : 'max-w-6xl mx-auto p-6 overflow-x-hidden'
+                }
+                style={{
+                    backgroundColor: '#111827',
+                    minHeight: '100vh',
+                    color: '#FFFFFF',
+                    boxSizing: 'border-box',
+                }}
+            >
+                {/* 페이지 제목 */}
+                <h1
+                    className={
+                        isMobile
+                            ? 'text-xl font-bold mb-4 text-center break-words'
+                            : isTablet
+                              ? 'text-2xl font-bold mb-5 text-center break-words'
+                              : 'text-4xl font-bold mb-6 text-center break-words'
+                    }
+                    style={{
+                        color: '#FFFFFF',
+                        padding: isMobile ? '0 8px' : '0',
+                        wordBreak: 'keep-all',
+                        overflowWrap: 'break-word',
+                    }}
+                >
+                    판매자 권한 이력 조회
+                </h1>
+
+                {/* 부제목 */}
+                <p
+                    className={`text-center mb-${isMobile ? '6' : isTablet ? '8' : '10'} text-gray-400`}
+                    style={{
+                        fontSize: isMobile ? '14px' : '16px',
+                        padding: isMobile ? '0 16px' : '0',
+                    }}
+                >
+                    모든 판매자 신청 및 처리 이력을 확인합니다.
+                </p>
+
+                {/* 대시보드로 돌아가기 버튼 추가 */}
+                <div className={`mb-6 text-left ${isMobile ? 'mt-4' : 'mt-8'}`}>
+                    <Button
+                        onClick={() => navigate('/admin')}
+                        className={`bg-gray-700 hover:bg-gray-600 text-white ${isMobile ? 'w-full py-3 text-base' : 'px-6 py-2 text-sm'}`}
+                    >
+                        ← 관리자 대시보드로 돌아가기
+                    </Button>
+                </div>
+
+                {/* 콘텐츠 영역 */}
+                <div
+                    className={`space-y-${isMobile ? '4' : isTablet ? '5' : '8'}`}
+                >
+                    <div
+                        className="rounded-xl shadow-md"
+                        style={{
+                            backgroundColor: '#1f2937', // gray-800
+                            border: '1px solid #374151', // gray-700
+                        }}
+                    >
+                        {/* 🔧 상단 컨트롤 바 (pageSize 왼쪽 정렬, 검색창 & 필터 오른쪽 정렬) */}
+                        <div className="p-6 flex justify-between items-center gap-4 mb-3 flex-wrap">
+                            {/* 왼쪽: 표시 개수 선택 */}
+                            <div className="flex items-center gap-2 text-sm text-gray-300">
+                                <span>표시</span>
+                                <select
+                                    id="pageSize"
+                                    value={pageSize}
+                                    onChange={handlePageSizeChange}
+                                    className="px-2 py-1.5 bg-[#0A0D11] border border-[#243447] rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#6366F1]"
+                                >
+                                    <option value={5}>5개</option>
+                                    <option value={10}>10개</option>
+                                    <option value={20}>20개</option>
+                                </select>
+                            </div>
+
+                            {/* 오른쪽: 검색창 + 이력 타입 필터 */}
+                            <div className="flex flex-wrap gap-3 items-center justify-end">
+                                {/* 검색창 */}
+                                <div className="min-w-[300px]">
+                                    <InputField
+                                        name="searchKeyword"
+                                        value={searchTerm}
+                                        onChange={handleKeywordChange}
+                                        onKeyDown={handleSearchOnEnter}
+                                        placeholder="유저 ID, 닉네임, 업체명 등"
+                                        clearable={true}
+                                        onClear={handleClearSearch}
+                                        paddingClassName="py-1 px-2"
+                                    />
+                                </div>
+
+                                {/* 이력 타입 필터 */}
+                                <div className="w-[140px]">
+                                    <select
+                                        id="typeFilter"
+                                        value={typeFilter}
+                                        onChange={handleTypeFilterChange}
+                                        className="w-full px-2 py-1.5 bg-[#0A0D11] border border-[#243447] rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#6366F1]"
+                                    >
+                                        {SELLER_HISTORY_TYPES.map((type) => (
+                                            <option key={type} value={type}>
+                                                {STATUS_LABELS[type] || type}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        {allHistory.length === 0 ? (
+                            <p className="text-gray-400 text-center py-6">
+                                표시할 이력이 없습니다.
+                            </p>
+                        ) : (
+                            <div className="overflow-x-auto">
+                                <table className="min-w-full divide-y divide-gray-700">
+                                    <thead className="bg-[#243447]">
+                                        <tr>
+                                            <th className="px-2 py-2 w-16 text-center text-xs font-medium text-gray-300 uppercase tracking-wider min-w-[40px]">
+                                                이력
+                                                <br />
+                                                ID
+                                            </th>
+                                            <th className="px-2 py-2 w-16 text-center text-xs font-medium text-gray-300 uppercase tracking-wider min-w-[40px]">
+                                                유저
+                                                <br />
+                                                ID
+                                            </th>
+                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                닉네임 (아이디)
+                                            </th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                상태(사유)
+                                            </th>
+                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                일시
+                                            </th>
+                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                상세보기
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="bg-[#1a232f] divide-y divide-gray-700">
+                                        {allHistory.map((history) => (
+                                            <tr key={history.id}>
+                                                <td className="px-3 py-3 whitespace-nowrap text-sm font-medium text-white">
+                                                    {history.id}
+                                                </td>
+                                                <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-300">
+                                                    {history.userId}
+                                                </td>
+                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300 text-left">
+                                                    {history.userNickname}
+                                                    <br />({history.username})
+                                                </td>
+                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-left text-gray-300">
+                                                    {history.type ===
+                                                        'REJECTED' ||
+                                                    history.type === 'REVOKED'
+                                                        ? `${STATUS_LABELS[history.type]} (${history.reason || '사유 없음'})`
+                                                        : STATUS_LABELS[
+                                                              history.type
+                                                          ] || history.type}
+                                                </td>
+                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300 text-left">
+                                                    {new Date(
+                                                        history.createdAt,
+                                                    ).toLocaleDateString()}{' '}
+                                                    <br />(
+                                                    {new Date(
+                                                        history.createdAt,
+                                                    ).toLocaleTimeString()}
+                                                    )
+                                                </td>
+                                                <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
+                                                    <Button
+                                                        onClick={() =>
+                                                            handleViewUserHistory(
+                                                                history,
+                                                            )
+                                                        }
+                                                        className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 text-xs"
+                                                    >
+                                                        상세
+                                                    </Button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                                {/* 페이지네이션 */}
+                                <div className="flex justify-center items-center space-x-2 mt-4 p-4">
+                                    {totalPages > 0 && (
+                                        <Button
+                                            onClick={() => handlePageChange(0)}
+                                            disabled={currentPage === 0}
+                                            className="px-3 py-1 text-xs bg-transparent hover:bg-[#243447] text-white border border-transparent"
+                                        >
+                                            처음으로
+                                        </Button>
+                                    )}
+                                    <Button
+                                        onClick={() =>
+                                            handlePageChange(currentPage - 1)
+                                        }
+                                        disabled={currentPage === 0}
+                                        className="px-3 py-1 text-xs bg-transparent hover:bg-[#243447] text-white border border-transparent"
+                                    >
+                                        이전
+                                    </Button>
+                                    {getVisiblePageNumbers().map(
+                                        (pageNum, index) =>
+                                            pageNum === '...' ? (
+                                                <span
+                                                    key={`ellipsis-${index}`}
+                                                    className="px-3 py-1 text-xs text-gray-400"
+                                                >
+                                                    ...
+                                                </span>
+                                            ) : (
+                                                <Button
+                                                    key={pageNum}
+                                                    onClick={() =>
+                                                        handlePageChange(
+                                                            pageNum,
+                                                        )
+                                                    }
+                                                    className={`px-3 py-1 text-xs ${
+                                                        currentPage === pageNum
+                                                            ? 'bg-[#6366F1] text-white rounded-lg'
+                                                            : 'bg-transparent text-gray-300 hover:bg-[#243447]'
+                                                    } border-none`}
+                                                >
+                                                    {pageNum + 1}
+                                                </Button>
+                                            ),
+                                    )}
+                                    <Button
+                                        onClick={() =>
+                                            handlePageChange(currentPage + 1)
+                                        }
+                                        disabled={currentPage >= totalPages - 1}
+                                        className="px-3 py-1 text-xs bg-transparent hover:bg-[#243447] text-white border border-transparent"
+                                    >
+                                        다음
+                                    </Button>
+                                    {totalPages > 0 && (
+                                        <Button
+                                            onClick={() =>
+                                                handlePageChange(totalPages - 1)
+                                            }
+                                            disabled={
+                                                currentPage === totalPages - 1
+                                            }
+                                            className="px-3 py-1 text-xs bg-transparent hover:bg-[#243447] text-white border border-transparent"
+                                        >
+                                            마지막으로
+                                        </Button>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* 모바일에서 하단 여백 */}
+                {isMobile && <div className="h-16" aria-hidden="true"></div>}
+            </div>
 
             {/* 판매자 이력 상세 모달 */}
             {showHistoryModal && selectedUserHistory && (
@@ -642,7 +907,7 @@ const ApplicationHistoryPage = () => {
                     onClose={() => setShowHistoryModal(false)}
                     title={`'${selectedUserHistory.username}' (${selectedUserHistory.userNickname}) 님의 이력 상세`}
                     size="large"
-                    modalClassName="bg-[#1a232f]"
+                    modalClassName="bg-[#1a232f]" // 모달 배경색
                 >
                     {/* 신청서 상세 정보 (API-04-07로 가져온 데이터) */}
                     <div className="mb-6">
@@ -736,7 +1001,6 @@ const ApplicationHistoryPage = () => {
                                 </tr>
                             </thead>
                             <tbody className="bg-[#1a232f] divide-y divide-gray-700">
-                                {/* 선택된 이력 항목만 표시 */}
                                 <tr className="cursor-pointer hover:bg-gray-800">
                                     <td className="px-4 py-3 text-sm text-white">
                                         {selectedUserHistory.id}

@@ -1,18 +1,46 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { adminSellerService } from '../../features/admin/services/adminSellerService';
-import LoadingSpinner from '../../shared/components/ui/LoadingSpinner';
-import ErrorMessage from '../../shared/components/ui/ErrorMessage';
-import Button from '../../shared/components/ui/Button';
-import Modal from '../../shared/components/ui/Modal';
-import InputField from '../../shared/components/ui/InputField';
+import LoadingSpinner from '../../shared/components/ui/LoadingSpinner'; // LoadingSpinner 컴포넌트
+import ErrorMessage from '../../shared/components/ui/ErrorMessage'; // ErrorMessage 컴포넌트
+import Button from '../../shared/components/ui/Button'; // Button 컴포넌트
+import Modal from '../../shared/components/ui/Modal'; // Modal 컴포넌트
+import InputField from '../../shared/components/ui/InputField'; // InputField 컴포넌트
 import { useNavigate } from 'react-router-dom';
 import {
     formatPhoneNumber,
     formatBusinessNumber,
-} from '../../shared/utils/formatters'; // 포맷팅 함수 임포트
+} from '../../shared/utils/formatters';
+
+// 반응형 Hook
+const useResponsive = () => {
+    const [isMobile, setIsMobile] = useState(false);
+    const [screenWidth, setScreenWidth] = useState(
+        typeof window !== 'undefined' ? window.innerWidth : 1200,
+    );
+
+    useEffect(() => {
+        const handleResize = () => {
+            const width = window.innerWidth;
+            setScreenWidth(width);
+            setIsMobile(width <= 768);
+        };
+
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    return {
+        isMobile,
+        isTablet: screenWidth <= 1024 && screenWidth > 768,
+        isDesktop: screenWidth > 1024,
+        screenWidth,
+    };
+};
 
 const AdminDashboard = () => {
     const navigate = useNavigate();
+    const { isMobile, isTablet } = useResponsive(); // 반응형 훅 사용
 
     // --- 대시보드 요약 데이터 상태 ---
     const [pendingCount, setPendingCount] = useState(0);
@@ -151,7 +179,7 @@ const AdminDashboard = () => {
         } finally {
             setProcessModalLoading(false);
         }
-    }, [navigate]);
+    }, []);
 
     // Quick Actions: 다음 대기 신청 승인/반려 모달 내 처리 함수
     const confirmProcessPending = useCallback(
@@ -234,180 +262,474 @@ const AdminDashboard = () => {
         }
     }, [searchKeyword]);
 
+    // SellerHomePage의 quickActions 데이터 구조를 참고하여 AdminDashboard용 정의
+    const adminQuickActions = [
+        {
+            title: '판매자 신청 처리',
+            description: '대기 중인 판매자 신청을 승인/반려합니다',
+            icon: '📄', // 아이콘은 이모지로 대체
+            path: '/admin/seller-approvals',
+            color: '#10b981', // green-600
+        },
+        {
+            title: '판매자 목록 관리',
+            description: '현재 판매자 목록을 조회하고 관리합니다',
+            icon: '👥',
+            path: '/admin/sellers',
+            color: '#3b82f6', // blue-600
+        },
+        {
+            title: '이력 조회',
+            description: '모든 판매자 신청/처리 이력을 확인합니다',
+            icon: '📜',
+            path: '/admin/history',
+            color: '#8b5cf6', // purple-600
+        },
+        // {
+        //     title: '시스템 설정',
+        //     description: '시스템 관련 설정을 관리합니다',
+        //     icon: '⚙️',
+        //     path: '/admin/settings',
+        //     color: '#f59e0b', // amber-600
+        // },
+    ];
+
     // --- 로딩 및 에러 처리 UI ---
     if (loading) {
-        return <LoadingSpinner message="대시보드 데이터를 불러오는 중..." />;
+        return (
+            <div
+                style={{
+                    backgroundColor: '#111827', // gray-900
+                    minHeight: '100vh',
+                    width: '100vw',
+                    margin: 0,
+                    padding: 0,
+                    overflowX: 'hidden',
+                }}
+            >
+                <div
+                    className={
+                        isMobile
+                            ? 'p-4 overflow-x-hidden'
+                            : isTablet
+                              ? 'max-w-4xl mx-auto p-4 overflow-x-hidden'
+                              : 'max-w-6xl mx-auto p-6 overflow-x-hidden'
+                    }
+                    style={{
+                        backgroundColor: '#111827',
+                        minHeight: '100vh',
+                        color: '#FFFFFF',
+                        boxSizing: 'border-box',
+                    }}
+                >
+                    {/* 페이지 제목(`animate-shimmer-text` 클래스 추가) */}
+                    <h1
+                        className={
+                            isMobile
+                                ? 'text-xl font-bold mb-4 text-center break-words animate-shimmer-text'
+                                : isTablet
+                                  ? 'text-2xl font-bold mb-5 text-center break-words animate-shimmer-text'
+                                  : 'text-4xl font-bold mb-6 text-center break-words animate-shimmer-text'
+                        }
+                        style={{
+                            color: '#FFFFFF',
+                            padding: isMobile ? '0 8px' : '0',
+                            wordBreak: 'keep-all',
+                            overflowWrap: 'break-word',
+                        }}
+                    >
+                        관리자 대시보드로 이동 중...
+                    </h1>
+
+                    {/* 부제목 */}
+                    <p
+                        className={`text-center mb-${isMobile ? '6' : isTablet ? '8' : '10'} text-gray-400`}
+                        style={{
+                            fontSize: isMobile ? '14px' : '16px',
+                            padding: isMobile ? '0 16px' : '0',
+                        }}
+                    >
+                        시스템 관리 및 판매자 관리를 수행하세요
+                    </p>
+
+                    {/* 로딩 카드 */}
+                    <div
+                        className="rounded-xl shadow-md"
+                        style={{
+                            backgroundColor: '#1f2937', // gray-800
+                            border: '1px solid #374151', // gray-700
+                            padding: isMobile
+                                ? '40px 20px'
+                                : isTablet
+                                  ? '50px 30px'
+                                  : '60px 40px',
+                            textAlign: 'center',
+                            maxWidth: isMobile ? '100%' : '600px',
+                            margin: '0 auto',
+                        }}
+                    >
+                        <div
+                            style={{
+                                width: isMobile ? '32px' : '40px',
+                                height: isMobile ? '32px' : '40px',
+                                border: '4px solid #374151',
+                                borderTop: '4px solid #3B82F6',
+                                borderRadius: '50%',
+                                animation: 'spin 1s linear infinite',
+                                margin: '0 auto 16px',
+                            }}
+                        />
+                        <div
+                            style={{
+                                color: '#FFFFFF',
+                                fontSize: isMobile ? '14px' : '18px',
+                            }}
+                        >
+                            대시보드 데이터를 불러오는 중...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
     }
 
     if (error) {
-        return <ErrorMessage message={error} />;
+        return (
+            <div
+                style={{
+                    backgroundColor: '#111827', // gray-900
+                    minHeight: '100vh',
+                    width: '100vw',
+                    margin: 0,
+                    padding: 0,
+                    overflowX: 'hidden',
+                }}
+            >
+                <div
+                    className={
+                        isMobile
+                            ? 'p-4 overflow-x-hidden'
+                            : isTablet
+                              ? 'max-w-4xl mx-auto p-4 overflow-x-hidden'
+                              : 'max-w-6xl mx-auto p-6 overflow-x-hidden'
+                    }
+                    style={{
+                        backgroundColor: '#111827',
+                        minHeight: '100vh',
+                        color: '#FFFFFF',
+                        boxSizing: 'border-box',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                >
+                    {/* 에러 카드 */}
+                    <div
+                        className="rounded-xl shadow-md text-center"
+                        style={{
+                            backgroundColor: '#1f2937',
+                            border: '1px solid #374151',
+                            padding: isMobile ? '32px 24px' : '40px 32px',
+                            maxWidth: '500px',
+                            width: '100%',
+                        }}
+                    >
+                        <div className="text-6xl mb-6">⚠️</div>
+                        <h3
+                            className={`font-bold text-red-400 mb-4 ${isMobile ? 'text-xl' : 'text-2xl'}`}
+                        >
+                            오류가 발생했습니다
+                        </h3>
+                        <p
+                            className={`text-gray-300 mb-6 leading-relaxed ${isMobile ? 'text-sm' : 'text-base'}`}
+                        >
+                            {error}
+                        </p>
+                        <button
+                            onClick={() => window.location.reload()}
+                            className={`bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all ${
+                                isMobile
+                                    ? 'w-full py-4 px-6 text-lg'
+                                    : 'py-3 px-8 text-base'
+                            }`}
+                            style={{
+                                minHeight: isMobile ? '52px' : 'auto',
+                            }}
+                        >
+                            다시 시도
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
     }
 
     return (
-        <div className="p-6 bg-[#111922] text-white min-h-[calc(100vh-64px)]">
-            {/* Dashboard 제목 섹션 */}
-            <div className="p-4 flex flex-row gap-y-3 items-start justify-between flex-wrap content-start self-stretch shrink-0 relative">
-                <div className="flex flex-col gap-0 items-start justify-start shrink-0 w-72 min-w-[288px] relative">
-                    <div className="text-[#ffffff] text-left font-['Inter-Bold',_sans-serif] text-[32px] leading-10 font-bold relative self-stretch">
-                        Dashboard{' '}
-                    </div>
-                </div>
-            </div>
+        <div
+            style={{
+                backgroundColor: '#111827', // gray-900
+                minHeight: '100vh',
+                width: '100vw',
+                margin: 0,
+                padding: 0,
+                overflowX: 'hidden',
+            }}
+        >
+            <div
+                // 반응형 `max-w` 및 `padding` 클래스 적용
+                className={
+                    isMobile
+                        ? 'p-4 overflow-x-hidden'
+                        : isTablet
+                          ? 'max-w-4xl mx-auto p-4 overflow-x-hidden'
+                          : 'max-w-6xl mx-auto p-6 overflow-x-hidden'
+                }
+                style={{
+                    backgroundColor: '#111827',
+                    minHeight: '100vh',
+                    color: '#FFFFFF',
+                    boxSizing: 'border-box',
+                }}
+            >
+                {/* 페이지 제목 */}
+                <h1
+                    className={
+                        isMobile
+                            ? 'text-xl font-bold mb-4 text-center break-words'
+                            : isTablet
+                              ? 'text-2xl font-bold mb-5 text-center break-words'
+                              : 'text-4xl font-bold mb-6 text-center break-words'
+                    }
+                    style={{
+                        color: '#FFFFFF',
+                        padding: isMobile ? '0 8px' : '0',
+                        wordBreak: 'keep-all',
+                        overflowWrap: 'break-word',
+                    }}
+                >
+                    관리자 대시보드
+                </h1>
 
-            {/* 요약 카드 섹션 */}
-            <div className="p-4 flex flex-row gap-4 items-start justify-start flex-wrap content-start self-stretch shrink-0 relative">
-                {/* Pending Seller Applications 카드 */}
-                <div className="rounded-lg border-solid border-[#334a66] border p-6 flex flex-col gap-2 items-start justify-start flex-1 min-w-[158px] relative">
-                    <div className="flex flex-col gap-0 items-start justify-start self-stretch shrink-0 relative">
-                        <div className="text-[#ffffff] text-left font-['Inter-Medium',_sans-serif] text-base leading-6 font-medium relative self-stretch">
-                            Pending Seller Applications{' '}
-                        </div>
-                        <img
-                            src="/admin-vector-01.svg"
-                            alt="Pending Applications Icon"
-                            className="w-6 h-6 mt-2"
-                        />
-                    </div>
-                    <div className="flex flex-col gap-0 items-start justify-start self-stretch shrink-0 relative">
-                        <div className="text-[#ffffff] text-left font-['Inter-Bold',_sans-serif] text-2xl leading-[30px] font-bold relative self-stretch">
-                            {pendingCount}{' '}
-                        </div>
-                    </div>
-                </div>
-                {/* Current Sellers 카드 */}
-                <div className="rounded-lg border-solid border-[#334a66] border p-6 flex flex-col gap-2 items-start justify-start flex-1 min-w-[158px] relative">
-                    <div className="flex flex-col gap-0 items-start justify-start self-stretch shrink-0 relative">
-                        <div className="text-[#ffffff] text-left font-['Inter-Medium',_sans-serif] text-base leading-6 font-medium relative self-stretch">
-                            Current Sellers{' '}
-                        </div>
-                        <img
-                            src="/admin-vector-02.svg"
-                            alt="Current Sellers Icon"
-                            className="w-6 h-6 mt-2"
-                        />
-                    </div>
-                    <div className="flex flex-col gap-0 items-start justify-start self-stretch shrink-0 relative">
-                        <div className="text-[#ffffff] text-left font-['Inter-Bold',_sans-serif] text-2xl leading-[30px] font-bold relative self-stretch">
-                            {currentSellersCount}{' '}
-                        </div>
-                    </div>
-                </div>
-                {/*/!* Recent Activities 카드 *!/*/}
-                {/*<div className="rounded-lg border-solid border-[#334a66] border p-6 flex flex-col gap-2 items-start justify-start flex-1 min-w-[158px] relative">*/}
-                {/*    <div className="flex flex-col gap-0 items-start justify-start self-stretch shrink-0 relative">*/}
-                {/*        <div className="text-[#ffffff] text-left font-['Inter-Medium',_sans-serif] text-base leading-6 font-medium relative self-stretch">*/}
-                {/*            Recent Activities{' '}*/}
-                {/*        </div>*/}
-                {/*        <img*/}
-                {/*            src="/admin-vector-01.svg"*/}
-                {/*            alt="Recent Activities Icon"*/}
-                {/*            className="w-6 h-6 mt-2"*/}
-                {/*        />*/}
-                {/*    </div>*/}
-                {/*    <div className="flex flex-col gap-0 items-start justify-start self-stretch shrink-0 relative">*/}
-                {/*        <div className="text-[#ffffff] text-left font-['Inter-Bold',_sans-serif] text-2xl leading-[30px] font-bold relative self-stretch">*/}
-                {/*            {recentActivities.length > 0*/}
-                {/*                ? recentActivities.length*/}
-                {/*                : 0}{' '}*/}
-                {/*        </div>*/}
-                {/*    </div>*/}
-                {/*</div>*/}
-            </div>
+                {/* 부제목 */}
+                <p
+                    className={`text-center mb-${isMobile ? '6' : isTablet ? '8' : '10'} text-gray-400`}
+                    style={{
+                        fontSize: isMobile ? '14px' : '16px',
+                        padding: isMobile ? '0 16px' : '0',
+                    }}
+                >
+                    시스템 관리 및 판매자 관리를 수행하세요
+                </p>
 
-            {/* Quick Actions 섹션 */}
-            <div className="pt-5 pr-4 pb-3 pl-4 flex flex-col gap-0 items-start justify-start self-stretch shrink-0 relative">
-                <div className="text-[#ffffff] text-left font-['Inter-Bold',_sans-serif] text-[22px] leading-7 font-bold relative self-stretch">
-                    Quick Actions{' '}
-                </div>
-            </div>
-            <div className="flex flex-row items-start justify-between self-stretch shrink-0 relative">
-                <div className="pt-3 pr-4 pb-3 pl-4 flex flex-row gap-3 items-start justify-start flex-wrap content-start flex-1 relative">
-                    {/* 다음 대기 신청 처리 버튼 */}
-                    <Button
-                        onClick={handleProcessNextPending}
-                        className="bg-[#1a78e5] hover:bg-[#156cb2] text-white px-4 py-2 rounded-lg shadow-md"
-                        disabled={pendingCount === 0}
+                {/* 콘텐츠 영역 */}
+                <div
+                    className={`space-y-${isMobile ? '4' : isTablet ? '5' : '8'}`}
+                >
+                    {/* 요약 카드 섹션 */}
+                    <div
+                        className="rounded-xl shadow-md text-center"
+                        style={{
+                            backgroundColor: '#1f2937', // gray-800
+                            border: '1px solid #374151', // gray-700
+                            padding: isMobile
+                                ? '24px'
+                                : isTablet
+                                  ? '28px'
+                                  : '32px',
+                        }}
                     >
-                        {pendingCount > 0
-                            ? `다음 대기 신청 처리 (총 ${pendingCount}건)`
-                            : '대기 신청 없음'}
-                    </Button>
-                    {/* 판매자 빠른 검색 버튼 */}
-                    <Button
-                        onClick={handleQuickSearch}
-                        className="bg-[#243347] hover:bg-[#3d4a5c] text-white px-4 py-2 rounded-lg shadow-md"
-                    >
-                        판매자 빠른 검색
-                    </Button>
-                </div>
-            </div>
+                        <div className="text-6xl mb-4">👑</div>
+                        <h2
+                            className={`font-bold text-white mb-3 ${isMobile ? 'text-lg' : 'text-xl'}`}
+                        >
+                            관리자님 환영합니다!
+                        </h2>
+                        <p
+                            className={`text-gray-300 leading-relaxed ${isMobile ? 'text-sm' : 'text-base'}`}
+                        >
+                            총 <strong>{pendingCount}건</strong>의 대기 중인
+                            판매자 신청이 있습니다.
+                            <br />
+                            현재 <strong>{currentSellersCount}명</strong>의
+                            판매자가 활동 중입니다.
+                        </p>
+                    </div>
 
-            {/* Recent Activities 테이블 섹션 */}
-            <div className="pt-5 pr-4 pb-3 pl-4 flex flex-col gap-0 items-start justify-start self-stretch shrink-0 relative">
-                <div className="text-[#ffffff] text-left font-['Inter-Bold',_sans-serif] text-[22px] leading-7 font-bold relative self-stretch">
-                    Recent Activities{' '}
-                </div>
-            </div>
-            <div className="pt-3 pr-4 pb-3 pl-4 flex flex-col gap-0 items-start justify-start self-stretch shrink-0 relative">
-                <div className="bg-[#121a21] rounded-lg border-solid border-[#334a66] border flex flex-row gap-0 items-start justify-start self-stretch shrink-0 relative overflow-hidden">
-                    <div className="flex flex-col gap-0 items-start justify-start flex-1 relative">
-                        <div className="flex flex-col gap-0 items-start justify-start self-stretch shrink-0 relative">
-                            <div className="bg-[#1a2633] flex flex-row gap-0 items-start justify-start self-stretch flex-1 relative">
-                                <div className="pt-3 pr-4 pb-3 pl-4 flex flex-col gap-0 items-start justify-start self-stretch shrink-0 w-[286px] relative">
-                                    <div className="text-[#ffffff] text-left font-['Inter-Medium',_sans-serif] text-sm leading-[21px] font-medium relative self-stretch">
-                                        User{' '}
+                    {/* 빠른 액션 카드들 */}
+                    <div>
+                        <h3
+                            className={`font-bold text-white mb-4 ${isMobile ? 'text-lg' : 'text-xl'}`}
+                        >
+                            빠른 액션
+                        </h3>
+                        <div
+                            className={`grid gap-4 ${
+                                isMobile
+                                    ? 'grid-cols-1'
+                                    : isTablet
+                                      ? 'grid-cols-2'
+                                      : 'grid-cols-3'
+                            }`}
+                        >
+                            {adminQuickActions.map((action, index) => (
+                                <button
+                                    key={index}
+                                    onClick={() => {
+                                        if (action.path) {
+                                            navigate(action.path);
+                                        } else if (action.action) {
+                                            action.action();
+                                        }
+                                    }}
+                                    className="text-left p-6 rounded-xl shadow-md transition-all hover:scale-105"
+                                    style={{
+                                        backgroundColor: '#1f2937', // gray-800
+                                        border: '1px solid #374151', // gray-700
+                                        minHeight: isMobile ? '120px' : '140px',
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        if (!isMobile) {
+                                            e.target.style.borderColor =
+                                                action.color;
+                                        }
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        if (!isMobile) {
+                                            e.target.style.borderColor =
+                                                '#374151';
+                                        }
+                                    }}
+                                >
+                                    <div className="flex items-start gap-4">
+                                        <div
+                                            className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
+                                            style={{
+                                                backgroundColor: action.color,
+                                            }}
+                                        >
+                                            <span className="text-xl">
+                                                {action.icon}
+                                            </span>
+                                        </div>
+                                        <div className="flex-1">
+                                            <h4
+                                                className={`font-semibold text-white mb-1 ${isMobile ? 'text-base' : 'text-lg'}`}
+                                            >
+                                                {action.title}
+                                            </h4>
+                                            <p
+                                                className={`text-gray-300 ${isMobile ? 'text-sm' : 'text-base'}`}
+                                            >
+                                                {action.description}
+                                            </p>
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="pt-3 pr-4 pb-3 pl-4 flex flex-col gap-0 items-start justify-start self-stretch shrink-0 w-[294px] relative">
-                                    <div className="text-[#ffffff] text-left font-['Inter-Medium',_sans-serif] text-sm leading-[21px] font-medium relative self-stretch">
-                                        Action{' '}
-                                    </div>
-                                </div>
-                                <div className="pt-3 pr-4 pb-3 pl-4 flex flex-col gap-0 items-start justify-start self-stretch shrink-0 w-[294px] relative">
-                                    <div className="text-[#ffffff] text-left font-['Inter-Bold',_sans-serif] text-sm leading-[21px] font-bold relative self-stretch">
-                                        Timestamp{' '}
-                                    </div>
-                                </div>
+                                </button>
+                            ))}
+                        </div>
+                        {/* 빠른 액션 내 기존 버튼 배치 유지 (판매자 권한 신청 처리, 판매자 빠른 검색) */}
+                        <div className="flex flex-col sm:flex-row gap-3 mt-4">
+                            <Button
+                                onClick={handleProcessNextPending}
+                                className={`flex-1 ${
+                                    pendingCount === 0
+                                        ? 'bg-gray-600 text-gray-300 cursor-not-allowed'
+                                        : 'bg-blue-600 hover:bg-blue-700 text-white'
+                                }`}
+                                disabled={pendingCount === 0}
+                            >
+                                {pendingCount > 0
+                                    ? `다음 대기 신청 처리 (총 ${pendingCount}건)`
+                                    : '대기 신청 없음'}
+                            </Button>
+                            <Button
+                                onClick={handleQuickSearch}
+                                className="flex-1 bg-blue-600 hover:bg-gray-700 text-white"
+                            >
+                                판매자 빠른 검색
+                            </Button>
+                        </div>
+                    </div>
+
+                    {/* Recent Activities 테이블 섹션 */}
+                    <div
+                        className="rounded-xl shadow-md"
+                        style={{
+                            backgroundColor: '#1f2937', // gray-800
+                            border: '1px solid #374151', // gray-700
+                            padding: isMobile ? '20px' : '24px',
+                        }}
+                    >
+                        <h3
+                            className={`font-bold text-white mb-4 ${isMobile ? 'text-lg' : 'text-xl'}`}
+                        >
+                            🕒 최근 활동 내역
+                        </h3>
+                        {recentActivities.length === 0 ? (
+                            <p className="text-gray-400 text-center">
+                                최근 활동 내역이 없습니다.
+                            </p>
+                        ) : (
+                            <div className="overflow-x-auto">
+                                <table className="min-w-full divide-y divide-gray-700">
+                                    <thead className="bg-[#243447]">
+                                        <tr>
+                                            <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                유저
+                                            </th>
+                                            <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                액션
+                                            </th>
+                                            <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                일시
+                                            </th>
+                                            <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                상세
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="bg-[#1a232f] divide-y divide-gray-700">
+                                        {recentActivities.map((activity) => (
+                                            <tr key={activity.id}>
+                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-white">
+                                                    {activity.username} (
+                                                    {activity.userNickname})
+                                                </td>
+                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">
+                                                    {getHistoryTypeLabel(
+                                                        activity.type,
+                                                    )}
+                                                    {activity.reason &&
+                                                        ` (${activity.reason})`}
+                                                </td>
+                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">
+                                                    {formatDate(
+                                                        activity.createdAt,
+                                                    )}
+                                                </td>
+                                                <td className="px-4 py-3 whitespace-nowrap text-center text-sm">
+                                                    <Button
+                                                        onClick={() =>
+                                                            navigate(
+                                                                `/admin/history?userId=${activity.userId}`,
+                                                            )
+                                                        }
+                                                        className="bg-purple-500 hover:bg-purple-700 text-white px-3 py-1 text-xs"
+                                                    >
+                                                        이력 보기
+                                                    </Button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
                             </div>
-                        </div>
-                        {/* 실제 데이터 연동 */}
-                        <div className="flex flex-col gap-0 items-start justify-start self-stretch shrink-0 relative">
-                            {recentActivities.length > 0 ? (
-                                recentActivities.map((activity) => (
-                                    <div
-                                        key={activity.id}
-                                        className="border-solid border-[#e5e8eb] border-t flex flex-row gap-0 items-start justify-start self-stretch shrink-0 h-[72px] relative"
-                                    >
-                                        <div className="pt-2 pr-4 pb-2 pl-4 flex flex-col gap-0 items-center justify-center shrink-0 w-[286px] h-[72px] relative">
-                                            <div className="text-[#ffffff] text-left font-['Inter-Regular',_sans-serif] text-sm leading-[21px] font-normal relative self-stretch">
-                                                {activity.username} (
-                                                {activity.userNickname}){' '}
-                                            </div>
-                                        </div>
-                                        <div className="pt-2 pr-4 pb-2 pl-4 flex flex-col gap-0 items-center justify-center shrink-0 w-[294px] h-[72px] relative">
-                                            <div className="text-[#94abc7] text-left font-['Inter-Regular',_sans-serif] text-sm leading-[21px] font-normal relative self-stretch">
-                                                {getHistoryTypeLabel(
-                                                    activity.type,
-                                                )}{' '}
-                                            </div>
-                                        </div>
-                                        <div className="pt-2 pr-4 pb-2 pl-4 flex flex-col gap-0 items-center justify-center shrink-0 w-[294px] h-[72px] relative">
-                                            <div className="text-[#94abc7] text-left font-['Inter-Regular',_sans-serif] text-sm leading-[21px] font-normal relative self-stretch">
-                                                {formatDate(
-                                                    activity.createdAt,
-                                                )}{' '}
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))
-                            ) : (
-                                <div className="p-4 text-center text-gray-400 w-full">
-                                    최근 활동 내역이 없습니다.
-                                </div>
-                            )}
-                        </div>
+                        )}
                     </div>
                 </div>
+
+                {/* 모바일에서 하단 여백 */}
+                {isMobile && <div className="h-16" aria-hidden="true"></div>}
             </div>
 
             {/* --- 다음 대기 신청 처리 모달 --- */}
@@ -415,11 +737,10 @@ const AdminDashboard = () => {
                 <Modal
                     isOpen={showProcessPendingModal}
                     onClose={() => setShowProcessPendingModal(false)}
-                    modalClassName="bg-[#1a232f]" // 모달 배경색
+                    modalClassName="bg-[#1a232f]"
                     title="다음 대기 신청 처리"
                 >
                     <div className="text-gray-300">
-                        {/* 1. 유저 이름 표시 문제 및 8. 글씨 크기 확대 */}
                         <p className="text-xl font-semibold text-white mb-2 text-center">
                             <strong className="text-white">
                                 &apos;
@@ -432,7 +753,6 @@ const AdminDashboard = () => {
                             님의 다음 신청을 처리하시겠습니까?
                         </p>
 
-                        {/* 2. 라벨 (재신청 유저, 주의!) - 중앙 정렬, 독립적 위치 */}
                         <div className="flex justify-center items-center gap-2 mb-4">
                             {pendingAppToProcess.isReapplicant ? (
                                 <span className="bg-blue-800 bg-opacity-70 text-white px-2 py-1 rounded-full text-xs font-semibold">
@@ -450,7 +770,6 @@ const AdminDashboard = () => {
                             )}
                         </div>
 
-                        {/* 10. 신청 정보 항목 테두리 추가 및 3. 담당자 정보 추가, 4. 포맷팅 적용 */}
                         <div className="mb-4 text-gray-200 space-y-1 p-4 border border-gray-600 rounded-lg">
                             <p>
                                 <strong>업체명:</strong>{' '}
@@ -493,8 +812,6 @@ const AdminDashboard = () => {
                             </p>
                         </div>
 
-                        {/* 4. 최근 이력 요약 (표 형태로 개선 및 항목명 변경) */}
-                        {/* 2. 최근 이력 요약 테이블 헤더 가운데 정렬 / 5. 상태(사유) 항목 내용 왼쪽 정렬 */}
                         {pendingAppToProcess.userHistorySummary &&
                             pendingAppToProcess.userHistorySummary.length >
                                 0 && (
@@ -544,7 +861,7 @@ const AdminDashboard = () => {
                                                 `/admin/history?userId=${pendingAppToProcess.userId}`,
                                             );
                                         }}
-                                        className="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1 text-xs mt-2" // 버튼 색상 변경
+                                        className="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1 text-xs mt-2"
                                     >
                                         이력 전체 보기 (총{' '}
                                         {

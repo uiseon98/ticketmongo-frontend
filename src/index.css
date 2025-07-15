@@ -417,3 +417,29 @@ textarea::placeholder {
         scroll-behavior: auto;
     }
 }
+
+@keyframes shimmer-text {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.animate-shimmer-text {
+    background: linear-gradient(
+        90deg,
+        #ffffff 0%,
+        /* 흰색 */ #3b82f6 25%,
+        /* 파란색 (Tailwind blue-500) */ #8b5cf6 50%,
+        /* 보라색 (Tailwind purple-600) */ #ffffff 75%,
+        /* 흰색 */ #3b82f6 100% /* 파란색 */
+    );
+    background-size: 200% 100%; /* 배경 크기를 텍스트보다 크게 */
+    -webkit-background-clip: text; /* 웹킷 브라우저용 텍스트 클리핑 */
+    background-clip: text; /* 텍스트 모양대로 배경 클리핑 */
+    -webkit-text-fill-color: transparent; /* 텍스트 색상을 투명하게 */
+    color: transparent; /* fallback for non-webkit browsers */
+    animation: shimmer-text 3s linear infinite; /* 애니메이션 적용 */
+}
