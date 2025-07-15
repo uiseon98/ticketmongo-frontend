@@ -59,6 +59,18 @@ const AISummaryRegenerationSection = ({
 
     const COOLDOWN_SECONDS = 30;
 
+    useEffect(() => {
+        let timer;
+        if (cooldownRemaining > 0) {
+            timer = setInterval(() => {
+                setCooldownRemaining((prev) => (prev > 0 ? prev - 1 : 0));
+            }, 1000);
+        }
+        return () => {
+            if (timer) clearInterval(timer);
+        };
+    }, [cooldownRemaining]);
+
     // 기존 로직들... (isPastConcert, getConcertStatusMessage 등)
     const isPastConcert = useMemo(() => {
         if (

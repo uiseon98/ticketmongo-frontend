@@ -135,6 +135,7 @@ function ConcertDetailPage() {
         totalPages: expectationsTotalPages,
         totalElements: expectationsTotal,
         goToPage: goToExpectationsPage,
+        changePageSize: changeExpectationPageSize,
         createExpectation,
         updateExpectation,
         deleteExpectation,
@@ -246,26 +247,6 @@ function ConcertDetailPage() {
                         boxSizing: 'border-box',
                     }}
                 >
-                    {/* 스켈레톤 제목 */}
-                    <div
-                        className={
-                            isMobile ? 'mb-4' : isTablet ? 'mb-5' : 'mb-6'
-                        }
-                        style={{
-                            height: isMobile
-                                ? '28px'
-                                : isTablet
-                                  ? '32px'
-                                  : '48px',
-                            backgroundColor: '#1E293B',
-                            borderRadius: '8px',
-                            maxWidth: '60%',
-                            margin: '0 auto',
-                            animation:
-                                'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        }}
-                    />
-
                     {/* 로딩 카드 */}
                     <div
                         className="rounded-xl shadow-md"
@@ -511,6 +492,7 @@ function ConcertDetailPage() {
                                     totalElements={expectationsTotal}
                                     onExpectationClick={handleExpectationClick}
                                     onPageChange={goToExpectationsPage}
+                                    onPageSizeChange={changeExpectationPageSize}
                                     showPagination={true}
                                     compact={isMobile} // 🎯 모바일에서 컴팩트 모드
                                     expandedItems={expandedExpectations}
@@ -622,6 +604,7 @@ function ConcertDetailPage() {
                                 concert.status === 'SOLD_OUT' ||
                                 concert.status === 'CANCELLED' ||
                                 concert.status === 'COMPLETED' ||
+                                concert.status === 'SCHEDULED' ||
                                 isEntering
                             }
                         >
