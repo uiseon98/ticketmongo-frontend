@@ -1,238 +1,115 @@
 // src/features/concert/components/ConcertList.jsx
 
-// React 라이브러리에서 필요한 기능들을 import
-import React from 'react';
-
-// 우리가 만든 ConcertCard 컴포넌트 import
+import React, { useCallback, useState, useEffect } from 'react';
 import ConcertCard from './ConcertCard.jsx';
 
-/**
- * ConcertList 컴포넌트
- *
- * 🎯 역할:
- * - 여러 개의 ConcertCard 컴포넌트를 담는 컨테이너
- * - 콘서트 목록을 격자(그리드) 형태로 배치
- * - 로딩, 에러, 빈 상태 등 다양한 상황에 대한 UI 제공
- * - 페이지네이션 UI 제공 (페이지 번호, 이전/다음 버튼)
- *
- * 📋 제공하는 기능:
- * - 콘서트 카드들의 반응형 격자 레이아웃
- * - 로딩 중 스켈레톤 UI 또는 스피너 표시
- * - 검색 결과 없음 메시지
- * - 에러 발생 시 에러 메시지와 재시도 버튼
- * - 페이지 이동 버튼들 (이전, 다음, 페이지 번호)
- *
- * 🔄 사용 방법:
- * <ConcertList
- *   concerts={concerts}
- *   loading={loading}
- *   error={error}
- *   onConcertClick={handleConcertClick}
- *   onPageChange={handlePageChange}
- *   currentPage={0}
- *   totalPages={5}
- * />
- *
- * @param {Object} props - 컴포넌트에 전달되는 속성들
- * @param {Array} props.concerts - 표시할 콘서트 목록 배열 (필수)
- * @param {boolean} props.loading - 로딩 중인지 여부 (선택사항, 기본값: false)
- * @param {string|Error} props.error - 에러 메시지 또는 에러 객체 (선택사항)
- * @param {Function} props.onConcertClick - 콘서트 카드 클릭 시 실행될 함수 (선택사항)
- * @param {Function} props.onPageChange - 페이지 변경 시 실행될 함수 (선택사항)
- * @param {Function} props.onRetry - 에러 상황에서 재시도 버튼 클릭 시 실행될 함수 (선택사항)
- * @param {number} props.currentPage - 현재 페이지 번호 (선택사항, 기본값: 0)
- * @param {number} props.totalPages - 전체 페이지 수 (선택사항, 기본값: 0)
- * @param {boolean} props.showAiSummary - AI 요약 표시 여부 (선택사항, 기본값: false)
- * @param {boolean} props.showPagination - 페이지네이션 표시 여부 (선택사항, 기본값: true)
- * @param {string} props.emptyMessage - 빈 목록일 때 표시할 메시지 (선택사항)
- * @param {string} props.className - 추가 CSS 클래스 (선택사항)
- * @returns {JSX.Element} 렌더링될 JSX 요소
- */
+// 반응형 Hook
+const useResponsive = () => {
+    const [isMobile, setIsMobile] = useState(false);
+    const [screenWidth, setScreenWidth] = useState(
+        typeof window !== 'undefined' ? window.innerWidth : 1200,
+    );
+
+    useEffect(() => {
+        const handleResize = () => {
+            const width = window.innerWidth;
+            setScreenWidth(width);
+            setIsMobile(width <= 768);
+        };
+
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    return {
+        isMobile,
+        isTablet: screenWidth <= 1024 && screenWidth > 768,
+        isDesktop: screenWidth > 1024,
+        screenWidth,
+    };
+};
+
 const ConcertList = ({
+    // 데이터 props
     concerts = [],
     loading = false,
     error = null,
-    onConcertClick,
-    onPageChange,
-    onRetry,
+
+    // 페이지네이션 props
     currentPage = 0,
     totalPages = 0,
-    showAiSummary = false,
+    totalElements = 0,
+    pageSize = 12,
+
+    // 정렬 props
+    sortBy = 'concertDate',
+    sortDir = 'asc',
+
+    // 액션 props
+    onConcertClick,
+    onPageChange,
+    onSortChange,
+    onRetry,
+
+    // UI 제어 props
+    showSortOptions = true,
     showPagination = true,
-    emptyMessage = '콘서트가 없습니다.',
+    emptyMessage = '등록된 콘서트가 없습니다.',
+
+    // 스타일 props
+    responsive = true,
     className = '',
 }) => {
-    // ===== 스타일 정의 =====
+    const { isMobile, isTablet } = useResponsive();
+    const [showMobileSortMenu, setShowMobileSortMenu] = useState(false);
 
-    /**
-     * 컨테이너의 기본 스타일
-     */
-    const containerStyles = {
-        width: '100%',
-        padding: '16px',
-    };
+    // 이벤트 핸들러들
+    const handleConcertClick = useCallback(
+        (concert) => {
+            if (onConcertClick && typeof onConcertClick === 'function') {
+                onConcertClick(concert);
+            }
+        },
+        [onConcertClick],
+    );
 
-    /**
-     * 콘서트 목록 격자 레이아웃 스타일
-     * CSS Grid를 사용하여 반응형 레이아웃 구현
-     */
-    const gridStyles = {
-        display: 'grid',
-        // 반응형 그리드: 최소 280px, 최대 1fr (가능한 공간 차지)
-        gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-        gap: '16px',
-        marginBottom: '24px',
-    };
+    const handlePageChange = useCallback(
+        (newPage) => {
+            if (onPageChange && typeof onPageChange === 'function') {
+                onPageChange(newPage);
+            }
+        },
+        [onPageChange],
+    );
 
-    /**
-     * 로딩 스피너 스타일
-     */
-    const loadingStyles = {
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: '200px',
-        fontSize: '16px',
-        color: '#6b7280',
-    };
+    const handleSortChange = useCallback(
+        (newSortBy, newSortDir) => {
+            if (onSortChange && typeof onSortChange === 'function') {
+                onSortChange(newSortBy, newSortDir);
+            }
+            setShowMobileSortMenu(false);
+        },
+        [onSortChange],
+    );
 
-    /**
-     * 에러 메시지 스타일
-     */
-    const errorStyles = {
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '200px',
-        padding: '24px',
-        backgroundColor: '#fef2f2',
-        border: '1px solid #fecaca',
-        borderRadius: '8px',
-        margin: '16px 0',
-    };
-
-    /**
-     * 빈 상태 메시지 스타일
-     */
-    const emptyStyles = {
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '200px',
-        padding: '24px',
-        backgroundColor: '#f9fafb',
-        border: '2px dashed #d1d5db',
-        borderRadius: '8px',
-        margin: '16px 0',
-    };
-
-    /**
-     * 페이지네이션 컨테이너 스타일
-     */
-    const paginationStyles = {
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: '8px',
-        marginTop: '24px',
-        padding: '16px',
-    };
-
-    /**
-     * 페이지네이션 버튼 기본 스타일
-     */
-    const buttonBaseStyles = {
-        padding: '8px 12px',
-        border: '1px solid #d1d5db',
-        borderRadius: '4px',
-        backgroundColor: '#ffffff',
-        cursor: 'pointer',
-        fontSize: '14px',
-        transition: 'all 0.2s ease',
-    };
-
-    /**
-     * 활성 페이지 버튼 스타일
-     */
-    const activeButtonStyles = {
-        ...buttonBaseStyles,
-        backgroundColor: '#3b82f6',
-        color: '#ffffff',
-        borderColor: '#3b82f6',
-    };
-
-    /**
-     * 비활성 버튼 스타일
-     */
-    const disabledButtonStyles = {
-        ...buttonBaseStyles,
-        backgroundColor: '#f3f4f6',
-        color: '#9ca3af',
-        cursor: 'not-allowed',
-    };
-
-    // ===== 이벤트 핸들러 =====
-
-    /**
-     * 페이지 변경 핸들러
-     *
-     * @param {number} newPage - 이동할 페이지 번호
-     */
-    const handlePageChange = (newPage) => {
-        // 유효한 페이지 범위인지 확인
-        if (newPage < 0 || newPage >= totalPages) {
-            return;
-        }
-
-        // 현재 페이지와 같으면 아무 작업 안 함
-        if (newPage === currentPage) {
-            return;
-        }
-
-        // 부모 컴포넌트에서 전달받은 페이지 변경 함수 실행
-        if (onPageChange && typeof onPageChange === 'function') {
-            onPageChange(newPage);
-        }
-    };
-
-    /**
-     * 재시도 버튼 클릭 핸들러
-     */
-    const handleRetry = () => {
-        if (onRetry && typeof onRetry === 'function') {
-            onRetry();
-        }
-    };
-
-    // ===== 헬퍼 함수 =====
-
-    /**
-     * 표시할 페이지 번호 배열을 생성하는 함수
-     * 너무 많은 페이지가 있을 때 일부만 표시 (예: 1 2 3 ... 8 9 10)
-     *
-     * @returns {Array} 표시할 페이지 번호 배열
-     */
-    const getVisiblePageNumbers = () => {
+    // 페이지 번호 배열 생성
+    const getVisiblePageNumbers = useCallback(() => {
         const visiblePages = [];
-        const maxVisiblePages = 5; // 최대 5개 페이지 번호만 표시
+        const maxVisible = isMobile ? 3 : 5;
 
-        if (totalPages <= maxVisiblePages) {
-            // 전체 페이지가 5개 이하면 모두 표시
+        if (totalPages <= maxVisible) {
             for (let i = 0; i < totalPages; i++) {
                 visiblePages.push(i);
             }
         } else {
-            // 현재 페이지를 중심으로 앞뒤 2개씩 표시
-            const start = Math.max(0, currentPage - 2);
-            const end = Math.min(totalPages - 1, currentPage + 2);
+            const start = Math.max(0, currentPage - Math.floor(maxVisible / 2));
+            const end = Math.min(totalPages - 1, start + maxVisible - 1);
 
             for (let i = start; i <= end; i++) {
                 visiblePages.push(i);
             }
 
-            // 첫 페이지가 포함되지 않았으면 추가
             if (start > 0) {
                 visiblePages.unshift(0);
                 if (start > 1) {
@@ -240,7 +117,6 @@ const ConcertList = ({
                 }
             }
 
-            // 마지막 페이지가 포함되지 않았으면 추가
             if (end < totalPages - 1) {
                 if (end < totalPages - 2) {
                     visiblePages.push('...');
@@ -250,289 +126,329 @@ const ConcertList = ({
         }
 
         return visiblePages;
-    };
+    }, [currentPage, totalPages, isMobile]);
 
-    // ===== 로딩 스켈레톤 컴포넌트 =====
+    // 정렬 옵션 정의
+    const sortOptions = [
+        { value: 'concertDate', label: '공연일순', dir: 'asc' },
+        { value: 'title', label: '제목순', dir: 'asc' },
+        { value: 'artist', label: '아티스트순', dir: 'asc' },
+    ];
 
-    /**
-     * 로딩 중일 때 표시할 스켈레톤 카드들
-     * 실제 카드와 비슷한 크기의 회색 박스들을 보여줌
-     */
-    const LoadingSkeleton = () => {
-        const skeletonCards = Array.from({ length: 6 }, (_, index) => (
-            <div
-                key={`skeleton-${index}`}
-                style={{
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '8px',
-                    padding: '16px',
-                    backgroundColor: '#f9fafb',
-                }}
-            >
-                {/* 포스터 이미지 영역 */}
-                <div
-                    style={{
-                        width: '100%',
-                        height: '200px',
-                        backgroundColor: '#e5e7eb',
-                        borderRadius: '4px',
-                        marginBottom: '12px',
-                    }}
-                />
-
-                {/* 제목 영역 */}
-                <div
-                    style={{
-                        width: '80%',
-                        height: '20px',
-                        backgroundColor: '#e5e7eb',
-                        borderRadius: '4px',
-                        marginBottom: '8px',
-                    }}
-                />
-
-                {/* 아티스트 영역 */}
-                <div
-                    style={{
-                        width: '60%',
-                        height: '16px',
-                        backgroundColor: '#e5e7eb',
-                        borderRadius: '4px',
-                        marginBottom: '8px',
-                    }}
-                />
-
-                {/* 날짜/장소 영역 */}
-                <div
-                    style={{
-                        width: '90%',
-                        height: '14px',
-                        backgroundColor: '#e5e7eb',
-                        borderRadius: '4px',
-                        marginBottom: '6px',
-                    }}
-                />
-
-                <div
-                    style={{
-                        width: '70%',
-                        height: '14px',
-                        backgroundColor: '#e5e7eb',
-                        borderRadius: '4px',
-                    }}
-                />
-            </div>
-        ));
-
-        return <div style={gridStyles}>{skeletonCards}</div>;
-    };
-
-    // ===== 조건부 렌더링 =====
-
-    /**
-     * 로딩 중일 때
-     */
+    // 로딩 상태
     if (loading) {
         return (
             <div
-                className={`concert-list ${className}`}
-                style={containerStyles}
+                className={`bg-gray-800 rounded-lg border border-gray-700 ${className}`}
             >
-                <LoadingSkeleton />
-                <div style={loadingStyles}>
-                    <span>🎵 콘서트 정보를 불러오는 중...</span>
+                <div className="p-6">
+                    {/* 로딩 스켈레톤 */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        {Array.from({ length: 8 }, (_, index) => (
+                            <div
+                                key={`skeleton-${index}`}
+                                className="bg-gray-800 rounded-lg p-4 animate-pulse border border-gray-700"
+                            >
+                                {/* 포스터 스켈레톤 */}
+                                <div
+                                    className={`${isMobile ? 'h-48' : 'h-64'} bg-gray-700 rounded mb-4`}
+                                ></div>
+
+                                {/* 제목 스켈레톤 */}
+                                <div className="h-5 bg-gray-700 rounded mb-2"></div>
+                                <div className="h-4 bg-gray-700 rounded w-3/4 mb-3"></div>
+
+                                {/* 정보 스켈레톤 */}
+                                <div className="space-y-2">
+                                    <div className="h-3 bg-gray-700 rounded w-full"></div>
+                                    <div className="h-3 bg-gray-700 rounded w-2/3"></div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="text-center mt-8">
+                        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                        <p className="mt-2 text-gray-300">
+                            콘서트 목록을 불러오는 중...
+                        </p>
+                    </div>
                 </div>
             </div>
         );
     }
 
-    /**
-     * 에러가 발생했을 때
-     */
+    // 에러 상태
     if (error) {
         return (
             <div
-                className={`concert-list ${className}`}
-                style={containerStyles}
+                className={`bg-gray-800 rounded-lg border border-gray-700 ${className}`}
             >
-                <div style={errorStyles}>
-                    <div style={{ fontSize: '48px', marginBottom: '16px' }}>
-                        😵
+                <div className="p-8 text-center">
+                    <div className="max-w-md mx-auto">
+                        <div className="text-5xl mb-4">😵</div>
+                        <h3 className="text-xl font-bold text-red-400 mb-2">
+                            콘서트 목록을 불러올 수 없습니다
+                        </h3>
+                        <p className="text-gray-300 mb-6">
+                            {typeof error === 'string'
+                                ? error
+                                : '알 수 없는 오류가 발생했습니다.'}
+                        </p>
+
+                        {onRetry && (
+                            <button
+                                onClick={onRetry}
+                                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium"
+                            >
+                                🔄 다시 시도
+                            </button>
+                        )}
                     </div>
-                    <h3 style={{ margin: '0 0 8px 0', color: '#dc2626' }}>
-                        오류가 발생했습니다
-                    </h3>
-                    <p
-                        style={{
-                            margin: '0 0 16px 0',
-                            color: '#6b7280',
-                            textAlign: 'center',
-                        }}
-                    >
-                        {typeof error === 'string'
-                            ? error
-                            : '콘서트 정보를 불러올 수 없습니다.'}
-                    </p>
-                    {onRetry && (
-                        <button
-                            onClick={handleRetry}
-                            style={{
-                                ...buttonBaseStyles,
-                                backgroundColor: '#dc2626',
-                                color: '#ffffff',
-                                borderColor: '#dc2626',
-                            }}
-                        >
-                            🔄 다시 시도
-                        </button>
-                    )}
                 </div>
             </div>
         );
     }
 
-    /**
-     * 콘서트 목록이 비어있을 때
-     */
+    // 빈 상태
     if (!concerts || concerts.length === 0) {
         return (
             <div
-                className={`concert-list ${className}`}
-                style={containerStyles}
+                className={`bg-gray-800 rounded-lg border border-gray-700 ${className}`}
             >
-                <div style={emptyStyles}>
-                    <div style={{ fontSize: '48px', marginBottom: '16px' }}>
-                        🎭
+                <div className="p-8 text-center">
+                    <div className="max-w-md mx-auto">
+                        <div className="text-5xl mb-4">🎭</div>
+                        <h3 className="text-xl font-bold text-gray-300 mb-2">
+                            {emptyMessage}
+                        </h3>
+                        <p className="text-gray-400">
+                            새로운 콘서트가 등록되면 여기에 표시됩니다.
+                        </p>
                     </div>
-                    <h3 style={{ margin: '0 0 8px 0', color: '#374151' }}>
-                        콘서트가 없습니다
-                    </h3>
-                    <p
-                        style={{
-                            margin: '0',
-                            color: '#6b7280',
-                            textAlign: 'center',
-                        }}
-                    >
-                        {emptyMessage}
-                    </p>
                 </div>
             </div>
         );
     }
 
-    // ===== 메인 렌더링 (정상 상태) =====
-
     return (
-        <div className={`concert-list ${className}`} style={containerStyles}>
-            {/* 콘서트 카드들의 격자 레이아웃 */}
-            <div style={gridStyles}>
-                {concerts.map((concert) => (
-                    <ConcertCard
-                        key={concert.concertId}
-                        concert={concert}
-                        onClick={onConcertClick}
-                        showAiSummary={showAiSummary}
-                    />
-                ))}
-            </div>
-
-            {/* 페이지네이션 (showPagination이 true이고 페이지가 2개 이상일 때만 표시) */}
-            {showPagination && totalPages > 1 && (
-                <div style={paginationStyles}>
-                    {/* 이전 페이지 버튼 */}
-                    <button
-                        onClick={() => handlePageChange(currentPage - 1)}
-                        disabled={currentPage === 0}
-                        style={
-                            currentPage === 0
-                                ? disabledButtonStyles
-                                : buttonBaseStyles
-                        }
-                        aria-label="이전 페이지"
-                    >
-                        ← 이전
-                    </button>
-
-                    {/* 페이지 번호 버튼들 */}
-                    {getVisiblePageNumbers().map((pageNum, index) => {
-                        // "..." 표시인 경우
-                        if (pageNum === '...') {
-                            return (
-                                <span
-                                    key={`ellipsis-${index}`}
-                                    style={{ padding: '8px 4px' }}
-                                >
-                                    ...
-                                </span>
-                            );
-                        }
-
-                        // 실제 페이지 번호인 경우
-                        return (
-                            <button
-                                key={pageNum}
-                                onClick={() => handlePageChange(pageNum)}
-                                style={
-                                    pageNum === currentPage
-                                        ? activeButtonStyles
-                                        : buttonBaseStyles
-                                }
-                                aria-label={`${pageNum + 1}페이지`}
-                                aria-current={
-                                    pageNum === currentPage ? 'page' : undefined
-                                }
+        <div
+            className={`bg-gray-800 rounded-lg border border-gray-700 ${className}`}
+        >
+            {/* 헤더 섹션 - 제목과 정렬 옵션 */}
+            {showSortOptions && (
+                <div className="p-6 border-b border-gray-700">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                        {/* 총 개수 표시 */}
+                        <div className="text-white">
+                            <h2
+                                className={`${isMobile ? 'text-lg' : 'text-xl'} font-bold`}
                             >
-                                {pageNum + 1}
-                            </button>
-                        );
-                    })}
+                                콘서트 목록
+                                <span className="ml-2 text-gray-300">
+                                    ({totalElements.toLocaleString()}개)
+                                </span>
+                            </h2>
+                        </div>
 
-                    {/* 다음 페이지 버튼 */}
-                    <button
-                        onClick={() => handlePageChange(currentPage + 1)}
-                        disabled={currentPage >= totalPages - 1}
-                        style={
-                            currentPage >= totalPages - 1
-                                ? disabledButtonStyles
-                                : buttonBaseStyles
-                        }
-                        aria-label="다음 페이지"
-                    >
-                        다음 →
-                    </button>
+                        {/* 정렬 옵션 */}
+                        <div className="flex items-center gap-2">
+                            {/* 데스크톱용 정렬 버튼들 */}
+                            <div className="hidden sm:flex items-center gap-2">
+                                <span className="text-sm text-gray-300">
+                                    정렬:
+                                </span>
+                                {sortOptions.map((option) => (
+                                    <button
+                                        key={`${option.value}-${option.dir}`}
+                                        onClick={() =>
+                                            handleSortChange(
+                                                option.value,
+                                                option.dir,
+                                            )
+                                        }
+                                        className={`px-3 py-1 text-sm rounded-full transition-colors ${
+                                            sortBy === option.value &&
+                                            sortDir === option.dir
+                                                ? 'bg-blue-600 text-white'
+                                                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                                        }`}
+                                    >
+                                        {option.label}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* 모바일용 정렬 드롭다운 */}
+                            <div className="sm:hidden relative">
+                                <button
+                                    onClick={() =>
+                                        setShowMobileSortMenu(
+                                            !showMobileSortMenu,
+                                        )
+                                    }
+                                    className="flex items-center gap-2 px-4 py-2 bg-gray-700 text-white rounded-lg text-sm"
+                                >
+                                    정렬
+                                    <svg
+                                        className={`w-4 h-4 transition-transform ${showMobileSortMenu ? 'rotate-180' : ''}`}
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M19 9l-7 7-7-7"
+                                        />
+                                    </svg>
+                                </button>
+
+                                {showMobileSortMenu && (
+                                    <>
+                                        <div
+                                            className="fixed inset-0 z-40"
+                                            onClick={() =>
+                                                setShowMobileSortMenu(false)
+                                            }
+                                        />
+                                        <div className="absolute top-full mt-2 z-50 w-48 right-0 bg-gray-800 rounded-lg shadow-xl border border-gray-600 overflow-hidden">
+                                            {sortOptions.map((option) => (
+                                                <button
+                                                    key={`${option.value}-${option.dir}`}
+                                                    onClick={() =>
+                                                        handleSortChange(
+                                                            option.value,
+                                                            option.dir,
+                                                        )
+                                                    }
+                                                    className={`w-full text-left px-4 py-3 text-sm transition-colors border-b border-gray-700 last:border-b-0 ${
+                                                        sortBy ===
+                                                            option.value &&
+                                                        sortDir === option.dir
+                                                            ? 'bg-blue-600 text-white'
+                                                            : 'text-gray-300 hover:bg-gray-700'
+                                                    }`}
+                                                >
+                                                    <div className="flex items-center justify-between">
+                                                        <span>
+                                                            {option.label}
+                                                        </span>
+                                                        {sortBy ===
+                                                            option.value &&
+                                                            sortDir ===
+                                                                option.dir && (
+                                                                <span>✓</span>
+                                                            )}
+                                                    </div>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             )}
 
-            {/* 페이지 정보 표시 (현재 페이지 / 전체 페이지) */}
-            {showPagination && totalPages > 0 && (
-                <div
-                    style={{
-                        textAlign: 'center',
-                        marginTop: '8px',
-                        fontSize: '14px',
-                        color: '#6b7280',
-                    }}
-                >
-                    {currentPage + 1} / {totalPages} 페이지
+            {/* 콘서트 그리드 */}
+            <div className="p-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {concerts.map((concert) => (
+                        <ConcertCard
+                            key={concert.concertId}
+                            concert={concert}
+                            onClick={handleConcertClick}
+                            className="w-full"
+                        />
+                    ))}
+                </div>
+            </div>
+
+            {/* 페이지네이션 */}
+            {showPagination && totalPages > 1 && (
+                <div className="p-6 border-t border-gray-700">
+                    <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        {/* 페이지 정보 */}
+                        <div className="text-sm text-gray-300 text-center sm:text-left">
+                            {totalElements}개 중 {currentPage * pageSize + 1}-
+                            {Math.min(
+                                (currentPage + 1) * pageSize,
+                                totalElements,
+                            )}
+                            개 표시
+                        </div>
+
+                        {/* 페이지 버튼들 */}
+                        <div className="flex items-center gap-2">
+                            {/* 이전 버튼 */}
+                            <button
+                                onClick={() =>
+                                    handlePageChange(currentPage - 1)
+                                }
+                                disabled={currentPage === 0}
+                                className="px-3 py-2 text-sm bg-gray-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-600 transition-colors"
+                            >
+                                이전
+                            </button>
+
+                            {/* 페이지 번호들 (데스크톱) */}
+                            <div className="hidden sm:flex items-center gap-1">
+                                {getVisiblePageNumbers().map(
+                                    (pageNum, index) => {
+                                        if (pageNum === '...') {
+                                            return (
+                                                <span
+                                                    key={`ellipsis-${index}`}
+                                                    className="px-2 text-gray-400"
+                                                >
+                                                    ...
+                                                </span>
+                                            );
+                                        }
+
+                                        return (
+                                            <button
+                                                key={pageNum}
+                                                onClick={() =>
+                                                    handlePageChange(pageNum)
+                                                }
+                                                className={`px-3 py-2 text-sm rounded-lg transition-colors ${
+                                                    pageNum === currentPage
+                                                        ? 'bg-blue-600 text-white'
+                                                        : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                                                }`}
+                                            >
+                                                {pageNum + 1}
+                                            </button>
+                                        );
+                                    },
+                                )}
+                            </div>
+
+                            {/* 모바일용 페이지 표시 */}
+                            <div className="sm:hidden px-3 py-2 text-sm text-gray-300">
+                                {currentPage + 1} / {totalPages}
+                            </div>
+
+                            {/* 다음 버튼 */}
+                            <button
+                                onClick={() =>
+                                    handlePageChange(currentPage + 1)
+                                }
+                                disabled={currentPage >= totalPages - 1}
+                                className="px-3 py-2 text-sm bg-gray-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-600 transition-colors"
+                            >
+                                다음
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>
     );
 };
 
-// ===== 기본 props 값 =====
-ConcertList.defaultProps = {
-    concerts: [],
-    loading: false,
-    error: null,
-    currentPage: 0,
-    totalPages: 0,
-    showAiSummary: false,
-    showPagination: true,
-    emptyMessage: '콘서트가 없습니다.',
-    className: '',
-};
-
-// 컴포넌트를 다른 파일에서 import할 수 있도록 export
 export default ConcertList;

@@ -1,4 +1,4 @@
-// src/features/concert/components/ExpectationForm.jsx
+// src/features/concert/components/ExpectationForm.jsx (Responsive Version)
 
 // ===== IMPORT 섹션 =====
 import React, { useState, useCallback, useEffect } from 'react';
@@ -14,7 +14,7 @@ import {
 } from '../types/expectation.js';
 
 /**
- * ===== ExpectationForm 컴포넌트 =====
+ * ===== Responsive ExpectationForm 컴포넌트 =====
  *
  * 🎯 주요 역할:
  * 1. **기대평 작성**: 새로운 콘서트 관람 전 기대평 작성 폼
@@ -22,6 +22,7 @@ import {
  * 3. **유효성 검증**: 실시간 입력 검증 및 에러 표시
  * 4. **기대점수 입력**: 인터랙티브한 기대점수 선택 UI (1-5점)
  * 5. **글자 수 카운터**: 기대평 내용 글자 수 실시간 표시
+ * 6. **완전 반응형**: 모바일, 태블릿, 데스크톱 최적화
  *
  * 🔄 Hook 연동:
  * - useExpectations.createExpectation (새 기대평 작성)
@@ -29,23 +30,15 @@ import {
  * - useExpectations.actionLoading (작업 중 상태)
  *
  * 💡 리뷰 폼과의 차이점:
- * - 기대평: 관람 **전** 작성, 기대점수(1-5), 간단한 코멘트 위주
- * - 리뷰: 관람 **후** 작성, 평점(1-5), 제목 + 상세 내용
+ * - 기대평: 관람 **전** 작성, 기대점수(1-5), 간단한 코멘트 위주, 노란색 테마
+ * - 리뷰: 관람 **후** 작성, 평점(1-5), 제목 + 상세 내용, 파란색 테마
  *
- * 💡 사용 방법:
- * // 새 기대평 작성
- * <ExpectationForm
- *   mode="create"
- *   onSubmit={createExpectation}
- *   loading={actionLoading}
- * />
- *
- * // 기존 기대평 수정
- * <ExpectationForm
- *   mode="edit"
- *   initialData={existingExpectation}
- *   onSubmit={updateExpectation}
- * />
+ * 📱 반응형 특징:
+ * - 모바일 우선 설계
+ * - 터치 친화적 기대점수 인터페이스
+ * - 적응형 레이아웃
+ * - 스크린 크기별 최적화
+ * - 키보드 호환성
  */
 const ExpectationForm = ({
     // ===== 모드 props =====
@@ -73,6 +66,18 @@ const ExpectationForm = ({
     compact = false, // 컴팩트 모드
 }) => {
     // ===== 상태 관리 =====
+    const [isMobile, setIsMobile] = useState(false);
+
+    // 화면 크기 감지
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth < 768);
+        };
+
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     /**
      * 폼 데이터 상태 (ExpectationFormData 형식)
@@ -248,18 +253,25 @@ const ExpectationForm = ({
     );
 
     /**
-     * 기대점수 호버 핸들러
+     * 기대점수 호버 핸들러 (데스크톱용)
      */
-    const handleRatingHover = useCallback((rating) => {
-        setHoveredRating(rating);
-    }, []);
+    const handleRatingHover = useCallback(
+        (rating) => {
+            if (!isMobile) {
+                setHoveredRating(rating);
+            }
+        },
+        [isMobile],
+    );
 
     /**
-     * 기대점수 호버 해제 핸들러
+     * 기대점수 호버 해제 핸들러 (데스크톱용)
      */
     const handleRatingLeave = useCallback(() => {
-        setHoveredRating(0);
-    }, []);
+        if (!isMobile) {
+            setHoveredRating(0);
+        }
+    }, [isMobile]);
 
     /**
      * 폼 제출 핸들러
@@ -296,7 +308,15 @@ const ExpectationForm = ({
                 console.error('기대평 제출 실패:', error);
             }
         },
-        [formData, disabled, loading, validateForm, onSubmit],
+        [
+            formData,
+            disabled,
+            loading,
+            validateForm,
+            onSubmit,
+            mode,
+            initialData,
+        ],
     );
 
     /**
@@ -357,15 +377,17 @@ const ExpectationForm = ({
         if (percentage >= 1) return '#dc2626'; // 빨간색 (초과)
         if (percentage >= 0.9) return '#f59e0b'; // 주황색 (90% 이상)
         if (percentage >= 0.7) return '#10b981'; // 초록색 (70% 이상)
-        return '#6b7280'; // 회색 (일반)
+        return '#9ca3af'; // 회색 (일반)
     }, []);
 
     /**
-     * 기대점수 표시용 별 렌더링
+     * 기대점수 표시용 별 렌더링 (반응형)
      */
     const renderExpectationStars = useCallback(() => {
         const stars = [];
         const displayRating = hoveredRating || formData.expectationRating;
+        const starSize = isMobile ? '28px' : compact ? '24px' : '32px';
+        const starPadding = isMobile ? '8px' : '4px';
 
         for (let i = 1; i <= 5; i++) {
             stars.push(
@@ -378,11 +400,16 @@ const ExpectationForm = ({
                     style={{
                         background: 'none',
                         border: 'none',
-                        fontSize: compact ? '24px' : '32px',
-                        color: i <= displayRating ? '#fbbf24' : '#e5e7eb',
+                        fontSize: starSize,
+                        color: i <= displayRating ? '#f59e0b' : '#4b5563', // 노란색 테마
                         cursor: disabled ? 'not-allowed' : 'pointer',
                         transition: 'color 0.2s ease',
-                        padding: '4px',
+                        padding: starPadding,
+                        minHeight: isMobile ? '44px' : 'auto', // 터치 친화적
+                        minWidth: isMobile ? '44px' : 'auto',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
                     }}
                     disabled={disabled}
                     aria-label={`${i}점`}
@@ -398,70 +425,78 @@ const ExpectationForm = ({
         formData.expectationRating,
         compact,
         disabled,
+        isMobile,
         handleRatingClick,
         handleRatingHover,
         handleRatingLeave,
     ]);
 
-    // ===== 스타일 정의 =====
+    // ===== 반응형 스타일 정의 =====
 
     /**
-     * 컨테이너 스타일
+     * 컨테이너 스타일 (반응형)
      */
     const containerStyles = {
-        backgroundColor: '#ffffff',
+        backgroundColor: '#1E293B',
         borderRadius: '8px',
-        border: '1px solid #e5e7eb',
-        padding: compact ? '16px' : '24px',
-        maxWidth: '500px', // 기대평 폼은 리뷰보다 작게
+        border: '1px solid #4b5563',
+        padding: isMobile ? '16px' : compact ? '16px' : '24px',
+        maxWidth: isMobile ? '100%' : '500px', // 기대평 폼은 리뷰보다 작게
         margin: '0 auto',
+        color: '#FFFFFF',
+        width: '100%',
+        boxSizing: 'border-box',
     };
 
     /**
-     * 제목 스타일
+     * 제목 스타일 (반응형)
      */
     const titleStyles = {
-        fontSize: compact ? '18px' : '20px',
+        fontSize: isMobile ? '18px' : compact ? '18px' : '20px',
         fontWeight: 'bold',
-        color: '#1f2937',
-        marginBottom: compact ? '16px' : '20px',
+        color: '#FFFFFF',
+        marginBottom: isMobile ? '16px' : compact ? '16px' : '20px',
         textAlign: 'center',
         display: 'flex',
+        flexDirection: isMobile ? 'column' : 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: '8px',
+        gap: isMobile ? '4px' : '8px',
+        lineHeight: '1.4',
     };
 
     /**
-     * 폼 그룹 스타일
+     * 폼 그룹 스타일 (반응형)
      */
     const formGroupStyles = {
-        marginBottom: compact ? '16px' : '20px',
+        marginBottom: isMobile ? '20px' : compact ? '16px' : '20px',
     };
 
     /**
-     * 라벨 스타일
+     * 라벨 스타일 (반응형)
      */
     const labelStyles = {
         display: 'block',
-        fontSize: compact ? '14px' : '16px',
+        fontSize: isMobile ? '16px' : compact ? '14px' : '16px',
         fontWeight: '600',
-        color: '#374151',
-        marginBottom: '6px',
+        color: '#D1D5DB',
+        marginBottom: '8px',
     };
 
     /**
-     * 입력 필드 기본 스타일
+     * 입력 필드 기본 스타일 (반응형)
      */
     const inputBaseStyles = {
         width: '100%',
-        padding: compact ? '8px 12px' : '12px 16px',
-        border: '2px solid #d1d5db',
+        padding: isMobile ? '12px 16px' : compact ? '8px 12px' : '12px 16px',
+        border: '2px solid #4B5563',
         borderRadius: '6px',
-        fontSize: compact ? '14px' : '16px',
-        backgroundColor: disabled ? '#f3f4f6' : '#ffffff',
-        color: disabled ? '#9ca3af' : '#1f2937',
+        fontSize: isMobile ? '16px' : compact ? '14px' : '16px', // iOS 줌 방지
+        backgroundColor: disabled ? '#374151' : '#374151',
+        color: disabled ? '#9CA3AF' : '#FFFFFF',
         transition: 'border-color 0.2s ease',
+        minHeight: isMobile ? '44px' : 'auto', // 터치 친화적
+        boxSizing: 'border-box',
     };
 
     /**
@@ -471,91 +506,113 @@ const ExpectationForm = ({
         const hasError = touched[fieldName] && errors[fieldName];
         return {
             ...inputBaseStyles,
-            borderColor: hasError ? '#ef4444' : '#d1d5db',
+            borderColor: hasError ? '#ef4444' : '#4b5563',
         };
     };
 
     /**
-     * 텍스트영역 스타일
+     * 텍스트영역 스타일 (반응형)
      */
     const textareaStyles = {
         ...getInputStyles('comment'),
-        minHeight: compact ? '60px' : '80px', // 기대평은 리뷰보다 작게
+        minHeight: isMobile ? '100px' : compact ? '60px' : '80px', // 기대평은 리뷰보다 작게
         resize: 'vertical',
+        fontFamily: 'inherit',
     };
 
     /**
-     * 에러 메시지 스타일
+     * 에러 메시지 스타일 (반응형)
      */
     const errorStyles = {
-        fontSize: '12px',
+        fontSize: isMobile ? '14px' : '12px',
         color: '#ef4444',
-        marginTop: '4px',
+        marginTop: '6px',
+        lineHeight: '1.4',
     };
 
     /**
-     * 글자 수 카운터 스타일
+     * 글자 수 카운터 스타일 (반응형)
      */
     const getCounterStyles = (fieldName, maxLength) => ({
-        fontSize: '12px',
+        fontSize: isMobile ? '14px' : '12px',
         color: getCharacterCountColor(formData[fieldName], maxLength),
         textAlign: 'right',
-        marginTop: '4px',
+        marginTop: '6px',
     });
 
     /**
-     * 기대점수 섹션 스타일
+     * 기대점수 섹션 스타일 (반응형)
      */
     const ratingContainerStyles = {
         textAlign: 'center',
-        padding: compact ? '12px' : '16px',
-        backgroundColor: '#fef9e7', // 기대평 전용 노란색 배경
+        padding: isMobile ? '16px' : compact ? '12px' : '16px',
+        backgroundColor: '#fef3c7', // 노란색 계열 배경
         borderRadius: '6px',
-        border: '1px solid #fde68a',
+        border: '1px solid #F59E0B',
     };
 
     /**
-     * 기대점수 라벨 스타일
+     * 기대점수 라벨 스타일 (반응형)
      */
     const ratingLabelStyles = {
-        fontSize: compact ? '14px' : '16px',
-        color: '#a16207', // 기대평 전용 색상
+        fontSize: isMobile ? '16px' : compact ? '14px' : '16px',
+        color: '#92400e', // 노란색 계열 텍스트
         marginTop: '8px',
         fontWeight: '600',
+        lineHeight: '1.4',
     };
 
     /**
-     * 버튼 기본 스타일
+     * 버튼 기본 스타일 (반응형)
      */
     const buttonBaseStyles = {
-        padding: compact ? '8px 16px' : '12px 24px',
+        padding: isMobile ? '12px 20px' : compact ? '8px 16px' : '12px 24px',
         borderRadius: '6px',
-        fontSize: compact ? '14px' : '16px',
+        fontSize: isMobile ? '16px' : compact ? '14px' : '16px',
         fontWeight: '600',
         border: 'none',
         cursor: disabled || loading ? 'not-allowed' : 'pointer',
         transition: 'all 0.2s ease',
         opacity: disabled ? 0.6 : 1,
+        minHeight: isMobile ? '48px' : 'auto', // 터치 친화적
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '4px',
     };
 
     /**
-     * 제출 버튼 스타일 (기대평 전용 색상)
+     * 제출 버튼 스타일 (반응형, 노란색 테마)
      */
     const submitButtonStyles = {
         ...buttonBaseStyles,
         backgroundColor: loading ? '#9ca3af' : '#f59e0b', // 노란색 테마
         color: '#ffffff',
-        marginRight: '12px',
+        flex: isMobile ? 1 : 'none',
+        marginRight: isMobile ? '8px' : '12px',
     };
 
     /**
-     * 취소 버튼 스타일
+     * 취소 버튼 스타일 (반응형)
      */
     const cancelButtonStyles = {
         ...buttonBaseStyles,
         backgroundColor: 'transparent',
-        color: '#6b7280',
-        border: '1px solid #d1d5db',
+        color: '#9ca3af',
+        border: '1px solid #6b7280',
+        flex: isMobile ? 1 : 'none',
+    };
+
+    /**
+     * 버튼 컨테이너 스타일 (반응형)
+     */
+    const buttonContainerStyles = {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: isMobile ? '24px' : compact ? '20px' : '24px',
+        gap: isMobile ? '0' : '0',
     };
 
     // ===== JSX 렌더링 =====
@@ -565,12 +622,18 @@ const ExpectationForm = ({
             className={`expectation-form ${className}`}
             style={containerStyles}
         >
-            {/* 폼 제목 */}
+            {/* 폼 제목 - 반응형 */}
             <h2 style={titleStyles}>
-                {mode === 'edit' ? <>✨ 기대평 수정</> : <>✍️ 기대평 작성</>}
+                <span>
+                    {mode === 'edit' ? (
+                        <>✨ 기대평 수정</>
+                    ) : (
+                        <>✍️ 기대평 작성</>
+                    )}
+                </span>
                 <span
                     style={{
-                        fontSize: '11px',
+                        fontSize: isMobile ? '12px' : '11px',
                         backgroundColor: '#fef3c7',
                         color: '#92400e',
                         padding: '2px 6px',
@@ -583,19 +646,33 @@ const ExpectationForm = ({
             </h2>
 
             <form onSubmit={handleSubmit}>
-                {/* 기대점수 입력 */}
+                {/* 기대점수 입력 - 반응형 */}
                 <div style={formGroupStyles}>
                     <label style={labelStyles}>기대점수 *</label>
                     <div style={ratingContainerStyles}>
-                        <div style={{ marginBottom: '8px' }}>
+                        <div
+                            style={{
+                                marginBottom: '12px',
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                flexWrap: 'nowrap',
+                                gap: isMobile ? '4px' : '0',
+                            }}
+                        >
                             {renderExpectationStars()}
                         </div>
                         <div style={ratingLabelStyles}>
-                            {
-                                ExpectationRatingEmojis[
-                                    hoveredRating || formData.expectationRating
-                                ]
-                            }{' '}
+                            <span
+                                style={{ fontSize: isMobile ? '20px' : '18px' }}
+                            >
+                                {
+                                    ExpectationRatingEmojis[
+                                        hoveredRating ||
+                                            formData.expectationRating
+                                    ]
+                                }
+                            </span>{' '}
                             {
                                 ExpectationRatingLabels[
                                     hoveredRating || formData.expectationRating
@@ -611,7 +688,7 @@ const ExpectationForm = ({
                     )}
                 </div>
 
-                {/* 기대평 내용 입력 */}
+                {/* 기대평 내용 입력 - 반응형 */}
                 <div style={formGroupStyles}>
                     <label htmlFor="expectation-comment" style={labelStyles}>
                         기대평 내용 *
@@ -641,7 +718,7 @@ const ExpectationForm = ({
                     </div>
                 </div>
 
-                {/* 닉네임 입력 (수정 가능) */}
+                {/* 닉네임 입력 - 반응형 */}
                 <div style={formGroupStyles}>
                     <label htmlFor="expectation-nickname" style={labelStyles}>
                         닉네임 *
@@ -672,23 +749,26 @@ const ExpectationForm = ({
                     </div>
                 </div>
 
-                {/* 버튼 영역 */}
-                <div
-                    style={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        marginTop: compact ? '20px' : '24px',
-                    }}
-                >
+                {/* 버튼 영역 - 반응형 */}
+                <div style={buttonContainerStyles}>
                     <button
                         type="submit"
-                        onClick={handleSubmit}
                         disabled={disabled || loading}
                         style={submitButtonStyles}
                     >
                         {loading ? (
                             <>
-                                ⏳{' '}
+                                <span
+                                    style={{
+                                        width: '16px',
+                                        height: '16px',
+                                        border: '2px solid #ffffff',
+                                        borderTop: '2px solid transparent',
+                                        borderRadius: '50%',
+                                        animation: 'spin 1s linear infinite',
+                                        marginRight: '6px',
+                                    }}
+                                ></span>
                                 {mode === 'edit' ? '수정 중...' : '작성 중...'}
                             </>
                         ) : (
@@ -713,22 +793,32 @@ const ExpectationForm = ({
                 </div>
             </form>
 
-            {/* 안내 메시지 */}
+            {/* 안내 메시지 - 반응형 */}
             {!compact && (
                 <div
                     style={{
-                        marginTop: '16px',
-                        padding: '12px',
-                        backgroundColor: '#fef9e7',
+                        marginTop: '20px',
+                        padding: isMobile ? '16px' : '12px',
+                        backgroundColor: '#374151',
                         borderRadius: '6px',
-                        fontSize: '12px',
-                        color: '#a16207',
+                        fontSize: isMobile ? '14px' : '12px',
+                        color: '#D1D5DB',
+                        lineHeight: '1.5',
+                        textAlign: isMobile ? 'center' : 'left',
                     }}
                 >
                     💡 기대평은 공연 관람 전에 작성하는 기대감 표현입니다. 관람
                     후에는 별도의 리뷰를 작성하실 수 있어요!
                 </div>
             )}
+
+            {/* CSS 애니메이션 */}
+            <style>{`
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+            `}</style>
         </div>
     );
 };

@@ -1,54 +1,65 @@
 // src/features/concert/components/ConcertDetail.jsx
 
 // ===== IMPORT 섹션 =====
-import React, { useEffect } from 'react';
-// useEffect: 컴포넌트 마운트 시 콘서트 정보 로드
+import React, { useEffect, useState, useRef } from 'react';
+import { Calendar, MapPin, Users, Clock, Ticket, Info } from 'lucide-react';
 
 // 콘서트 관련 타입과 상수들을 import
 import { ConcertStatusLabels, ConcertStatusColors } from '../types/concert.js';
 
 /**
- * ===== ConcertDetail 컴포넌트 =====
+ * ===== ConcertDetail 컴포넌트 (반응형 개선 버전) =====
  *
- * 🎯 주요 역할:
- * 1. **콘서트 상세 정보 표시**: 제목, 아티스트, 날짜, 장소 등 모든 정보
- * 2. **상태별 시각화**: 예매 중, 매진 등 상태에 따른 다른 UI
- * 3. **포스터 이미지 표시**: 이미지 로딩 에러 처리 포함
- * 4. **예매 정보 표시**: 예매 기간, 제한사항 등
- * 5. **로딩/에러 상태 처리**: 사용자 친화적 피드백
- *
- * 🔄 Hook 연동:
- * - useConcertDetail hook과 완전 연동
- * - 자동 데이터 로딩 및 상태 관리
- * - 에러 상황 자동 처리
- *
- * 💡 사용 방법:
- * <ConcertDetail concertId={123} onBookingClick={handleBooking} />
+ * 🎯 주요 개선사항:
+ * 1. 모바일에서 포스터와 정보 세로 배치
+ * 2. 예매 버튼 모바일에서 하단 고정 (sticky)
+ * 3. 정보 테이블을 모바일에서 카드 형태로 변경
+ * 4. 터치 친화적 UI 요소들
+ * 5. 반응형 타이포그래피 및 간격
+ * 6. 모바일에서 접기/펼치기 가능한 섹션들
  */
 const ConcertDetail = ({
     // ===== 필수 props =====
-    concert, // 콘서트 상세 정보 객체 (useConcertDetail.concert)
-    loading = false, // 로딩 상태 (useConcertDetail.loading)
-    error = null, // 에러 상태 (useConcertDetail.error)
+    concert, // 콘서트 상세 정보 객체
+    loading = false, // 로딩 상태
+    error = null, // 에러 상태
 
     // ===== 액션 props =====
-    onBookingClick, // 예매하기 버튼 클릭 핸들러 (선택사항)
+    onBookingClick, // 예매하기 버튼 클릭 핸들러
     isBooking = false,
-    onRefresh, // 새로고침 버튼 클릭 핸들러 (선택사항)
+    onRefresh, // 새로고침 버튼 클릭 핸들러
 
     // ===== UI 제어 props =====
     showBookingButton = true, // 예매 버튼 표시 여부
-    showRefreshButton = false, // 새로고침 버튼 표시 여부 (에러 시 자동 표시)
+    showRefreshButton = false, // 새로고침 버튼 표시 여부
 
     // ===== 스타일 props =====
     className = '', // 추가 CSS 클래스
-    compact = false, // 컴팩트 모드 (간소화된 정보만)
+    compact = false, // 컴팩트 모드
 }) => {
+    // ===== 반응형 상태 관리 =====
+    const [isMobile, setIsMobile] = useState(false);
+    const [imageLoaded, setImageLoaded] = useState(false);
+    const [imageError, setImageError] = useState(false);
+
+    const bookingButtonRef = useRef(null);
+
+    // ===== 화면 크기 감지 =====
+    useEffect(() => {
+        const handleResize = () => {
+            const width = window.innerWidth;
+            setIsMobile(width <= 768);
+        };
+
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     // ===== 데이터 가공 함수들 =====
 
     /**
      * 날짜와 시간을 사용자 친화적 형태로 변환
-     * 예: "2025-08-15" + "19:00:00" → "2025년 8월 15일 (토) 오후 7:00"
      */
     const formatConcertDateTime = () => {
         if (!concert?.concertDate || !concert?.startTime) {
@@ -56,7 +67,6 @@ const ConcertDetail = ({
         }
 
         try {
-            // Date 객체 생성
             const dateTimeString = `${concert.concertDate}T${concert.startTime}`;
             const dateTime = new Date(dateTimeString);
 
@@ -64,31 +74,53 @@ const ConcertDetail = ({
                 return '날짜 형식 오류';
             }
 
-            // 날짜 포맷팅 (한국어)
-            const dateOptions = {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                weekday: 'short',
-            };
+            // 🎯 모바일에서는 더 간결한 포맷
+            if (isMobile) {
+                const dateOptions = {
+                    month: 'short',
+                    day: 'numeric',
+                    weekday: 'short',
+                };
+                const timeOptions = {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true,
+                };
 
-            // 시간 포맷팅 (12시간제)
-            const timeOptions = {
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true,
-            };
+                const formattedDate = dateTime.toLocaleDateString(
+                    'ko-KR',
+                    dateOptions,
+                );
+                const formattedTime = dateTime.toLocaleTimeString(
+                    'ko-KR',
+                    timeOptions,
+                );
 
-            const formattedDate = dateTime.toLocaleDateString(
-                'ko-KR',
-                dateOptions,
-            );
-            const formattedTime = dateTime.toLocaleTimeString(
-                'ko-KR',
-                timeOptions,
-            );
+                return `${formattedDate} ${formattedTime}`;
+            } else {
+                const dateOptions = {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    weekday: 'short',
+                };
+                const timeOptions = {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true,
+                };
 
-            return `${formattedDate} ${formattedTime}`;
+                const formattedDate = dateTime.toLocaleDateString(
+                    'ko-KR',
+                    dateOptions,
+                );
+                const formattedTime = dateTime.toLocaleTimeString(
+                    'ko-KR',
+                    timeOptions,
+                );
+
+                return `${formattedDate} ${formattedTime}`;
+            }
         } catch (error) {
             console.warn('날짜 형식 변환 실패:', error);
             return `${concert.concertDate} ${concert.startTime}`;
@@ -128,13 +160,13 @@ const ConcertDetail = ({
             const endDate = new Date(concert.bookingEndDate);
 
             const startFormatted = startDate.toLocaleDateString('ko-KR', {
-                year: 'numeric',
+                year: isMobile ? '2-digit' : 'numeric',
                 month: 'short',
                 day: 'numeric',
             });
 
             const endFormatted = endDate.toLocaleDateString('ko-KR', {
-                year: 'numeric',
+                year: isMobile ? '2-digit' : 'numeric',
                 month: 'short',
                 day: 'numeric',
             });
@@ -146,16 +178,24 @@ const ConcertDetail = ({
     };
 
     /**
-     * 포스터 이미지 에러 처리
+     * 포스터 이미지 에러 처리 (개선)
      */
     const handleImageError = (event) => {
-        // 기본 이미지로 대체
-        event.target.src = '/images/basic-poster-image.png';
+        // 이미 기본 이미지인 경우 무한 루프 방지
+        if (event.target.src.includes('/images/basic-poster-image.png')) {
+            setImageError(true);
+            setImageLoaded(true); // 기본 이미지라도 로딩 완료로 처리
+            return;
+        }
 
-        // 기본 이미지도 없으면 숨김
-        event.target.onerror = () => {
-            event.target.style.display = 'none';
-        };
+        // 에러 발생 시 기본 이미지로 변경
+        event.target.src = '/images/basic-poster-image.png';
+        setImageError(true);
+    };
+
+    const handleImageLoad = () => {
+        setImageLoaded(true);
+        // 에러 상태는 초기화하지 않음 (기본 이미지 사용 여부 추적용)
     };
 
     /**
@@ -230,102 +270,19 @@ const ConcertDetail = ({
         }
     };
 
-    // ===== 스타일 정의 =====
-
-    /**
-     * 컨테이너 스타일
-     */
-    const containerStyles = {
-        maxWidth: compact ? '600px' : '800px',
-        margin: '0 auto',
-        padding: compact ? '16px' : '24px',
-        backgroundColor: '#ffffff',
-        borderRadius: '12px',
-        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-        border: '1px solid #e5e7eb',
-    };
-
-    /**
-     * 포스터 이미지 스타일
-     */
-    const posterStyles = {
-        width: '100%',
-        maxWidth: compact ? '200px' : '300px',
-        height: compact ? '280px' : '400px',
-        objectFit: 'cover',
-        borderRadius: '8px',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
-    };
-
-    /**
-     * 제목 스타일
-     */
-    const titleStyles = {
-        fontSize: compact ? '20px' : '28px',
-        fontWeight: 'bold',
-        color: '#1f2937',
-        marginBottom: '8px',
-        lineHeight: '1.2',
-    };
-
-    /**
-     * 아티스트 스타일
-     */
-    const artistStyles = {
-        fontSize: compact ? '16px' : '20px',
-        color: '#6b7280',
-        marginBottom: '16px',
-        fontWeight: '500',
-    };
-
-    /**
-     * 정보 섹션 스타일
-     */
-    const infoSectionStyles = {
-        marginBottom: compact ? '16px' : '20px',
-    };
-
-    /**
-     * 정보 항목 스타일
-     */
-    const infoItemStyles = {
-        display: 'flex',
-        marginBottom: '8px',
-        fontSize: compact ? '14px' : '16px',
-    };
-
-    /**
-     * 라벨 스타일
-     */
-    const labelStyles = {
-        minWidth: compact ? '80px' : '100px',
-        fontWeight: '600',
-        color: '#374151',
-        marginRight: '12px',
-    };
-
-    /**
-     * 값 스타일
-     */
-    const valueStyles = {
-        color: '#1f2937',
-        flex: 1,
-    };
-
     /**
      * 상태 배지 스타일
      */
     const getStatusBadgeStyles = (status) => {
         const baseStyles = {
             display: 'inline-block',
-            padding: '6px 12px',
-            borderRadius: '6px',
-            fontSize: '14px',
+            padding: isMobile ? '8px 12px' : '6px 12px',
+            borderRadius: '8px',
+            fontSize: isMobile ? '12px' : '14px',
             fontWeight: 'bold',
-            marginBottom: '16px',
+            marginBottom: isMobile ? '12px' : '16px',
         };
 
-        // ConcertStatusColors에서 색상 정보 가져와서 CSS 스타일로 변환
         switch (status) {
             case 'SCHEDULED':
                 return {
@@ -366,128 +323,58 @@ const ConcertDetail = ({
         }
     };
 
-    /**
-     * 버튼 기본 스타일
-     */
-    const buttonBaseStyles = {
-        padding: '12px 24px',
-        borderRadius: '8px',
-        fontSize: '16px',
-        fontWeight: '600',
-        border: 'none',
-        cursor: 'pointer',
-        transition: 'all 0.2s ease',
-        marginRight: '12px',
-    };
-
     // ===== 조건부 렌더링 =====
 
     /**
-     * 로딩 상태일 때
+     * 로딩 상태 (반응형 개선)
      */
     if (loading) {
         return (
-            <div
-                className={`concert-detail ${className}`}
-                style={containerStyles}
-            >
-                <div
-                    style={{
-                        display: 'flex',
-                        flexDirection: compact ? 'column' : 'row',
-                        gap: '24px',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        minHeight: '300px',
-                    }}
-                >
-                    <div
-                        style={{
-                            width: '40px',
-                            height: '40px',
-                            border: '4px solid #f3f4f6',
-                            borderTop: '4px solid #3b82f6',
-                            borderRadius: '50%',
-                            animation: 'spin 1s linear infinite',
-                        }}
-                    />
-                    <div
-                        style={{
-                            fontSize: '18px',
-                            color: '#6b7280',
-                        }}
-                    >
-                        콘서트 정보를 불러오는 중...
+            <div className={`concert-detail ${className}`}>
+                <div className="w-full max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 bg-gray-800 text-white rounded-lg">
+                    <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-center justify-center min-h-[400px]">
+                        <div className="w-12 h-12 border-4 border-gray-600 border-t-blue-500 rounded-full animate-spin"></div>
+                        <div className="text-center lg:text-left">
+                            <div className="text-lg sm:text-xl text-gray-300">
+                                콘서트 정보를 불러오는 중...
+                            </div>
+                            <div className="text-sm text-gray-400 mt-2">
+                                잠시만 기다려주세요
+                            </div>
+                        </div>
                     </div>
                 </div>
-
-                {/* CSS 애니메이션 */}
-                <style jsx>{`
-                    @keyframes spin {
-                        from {
-                            transform: rotate(0deg);
-                        }
-                        to {
-                            transform: rotate(360deg);
-                        }
-                    }
-                `}</style>
             </div>
         );
     }
 
     /**
-     * 에러 상태일 때
+     * 에러 상태 (반응형 개선)
      */
     if (error) {
         return (
-            <div
-                className={`concert-detail ${className}`}
-                style={containerStyles}
-            >
-                <div
-                    style={{
-                        textAlign: 'center',
-                        padding: '40px 20px',
-                    }}
-                >
-                    <div style={{ fontSize: '48px', marginBottom: '16px' }}>
-                        😵
-                    </div>
-                    <h3
-                        style={{
-                            color: '#dc2626',
-                            marginBottom: '8px',
-                            fontSize: '20px',
-                        }}
-                    >
-                        콘서트 정보를 불러올 수 없습니다
-                    </h3>
-                    <p
-                        style={{
-                            color: '#6b7280',
-                            marginBottom: '20px',
-                            fontSize: '16px',
-                        }}
-                    >
-                        {typeof error === 'string'
-                            ? error
-                            : '알 수 없는 오류가 발생했습니다.'}
-                    </p>
+            <div className={`concert-detail ${className}`}>
+                <div className="w-full max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 bg-gray-800 text-white rounded-lg">
+                    <div className="text-center py-12">
+                        <div className="text-5xl sm:text-6xl mb-4">😵</div>
+                        <h3 className="text-xl sm:text-2xl font-bold text-red-400 mb-3">
+                            콘서트 정보를 불러올 수 없습니다
+                        </h3>
+                        <p className="text-sm sm:text-base text-gray-300 mb-6 max-w-md mx-auto">
+                            {typeof error === 'string'
+                                ? error
+                                : '알 수 없는 오류가 발생했습니다.'}
+                        </p>
 
-                    {/* 새로고침 버튼 */}
-                    {(showRefreshButton || onRefresh) && (
-                        <button
-                            onClick={handleRefreshClick}
-                            style={{
-                                ...buttonBaseStyles,
-                                backgroundColor: '#3b82f6',
-                                color: '#ffffff',
-                            }}
-                        >
-                            🔄 다시 시도
-                        </button>
-                    )}
+                        {(showRefreshButton || onRefresh) && (
+                            <button
+                                onClick={handleRefreshClick}
+                                className="w-full sm:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium"
+                            >
+                                🔄 다시 시도
+                            </button>
+                        )}
+                    </div>
                 </div>
             </div>
         );
@@ -498,27 +385,14 @@ const ConcertDetail = ({
      */
     if (!concert) {
         return (
-            <div
-                className={`concert-detail ${className}`}
-                style={containerStyles}
-            >
-                <div
-                    style={{
-                        textAlign: 'center',
-                        padding: '40px 20px',
-                    }}
-                >
-                    <div style={{ fontSize: '48px', marginBottom: '16px' }}>
-                        🎭
+            <div className={`concert-detail ${className}`}>
+                <div className="w-full max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 bg-gray-800 text-white rounded-lg">
+                    <div className="text-center py-12">
+                        <div className="text-5xl sm:text-6xl mb-4">🎭</div>
+                        <h3 className="text-xl sm:text-2xl font-bold text-gray-300">
+                            콘서트 정보가 없습니다
+                        </h3>
                     </div>
-                    <h3
-                        style={{
-                            color: '#6b7280',
-                            fontSize: '20px',
-                        }}
-                    >
-                        콘서트 정보가 없습니다
-                    </h3>
                 </div>
             </div>
         );
@@ -530,179 +404,231 @@ const ConcertDetail = ({
     // ===== 메인 렌더링 (정상 상태) =====
 
     return (
-        <div className={`concert-detail ${className}`} style={containerStyles}>
-            {/* 상단: 포스터 + 기본 정보 */}
-            <div
-                style={{
-                    display: 'flex',
-                    flexDirection: compact ? 'column' : 'row',
-                    gap: compact ? '16px' : '24px',
-                    marginBottom: compact ? '20px' : '32px',
-                }}
-            >
-                {/* 포스터 이미지 */}
-                <div style={{ flex: 'none' }}>
-                    <img
-                        src={
-                            concert.posterImageUrl ||
-                            '/images/basic-poster-image.png'
-                        }
-                        alt={`${concert.title} 포스터`}
-                        style={posterStyles}
-                        onError={handleImageError}
-                        loading="lazy"
-                    />
-                </div>
+        <div className={`concert-detail ${className}`}>
+            {/* 🎯 반응형 컨테이너 */}
+            <div className="w-full max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 bg-gray-800 text-white rounded-lg relative">
+                {/* 🎯 상단: 포스터 + 기본 정보 (반응형 레이아웃) */}
+                <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 mb-6 lg:mb-8">
+                    {/* 🎯 포스터 이미지 섹션 (반응형) */}
+                    <div className="flex-shrink-0 mx-auto lg:mx-0">
+                        <div className="relative w-64 h-80 sm:w-72 sm:h-96 lg:w-80 lg:h-[480px] bg-gray-700 rounded-lg overflow-hidden shadow-lg">
+                            <img
+                                src={
+                                    concert.posterImageUrl ||
+                                    '/images/basic-poster-image.png'
+                                }
+                                alt={`${concert.title} 포스터`}
+                                className="w-full h-full object-cover transition-opacity duration-300"
+                                style={{ opacity: imageLoaded ? 1 : 0 }}
+                                onError={handleImageError}
+                                onLoad={handleImageLoad}
+                                loading="lazy"
+                            />
 
-                {/* 기본 정보 */}
-                <div style={{ flex: 1 }}>
-                    {/* 상태 배지 */}
-                    <div style={getStatusBadgeStyles(concert.status)}>
-                        {ConcertStatusLabels[concert.status] || concert.status}
+                            {/* 로딩 중일 때만 스피너 표시 */}
+                            {!imageLoaded && !imageError && (
+                                <div className="absolute inset-0 flex items-center justify-center bg-gray-700">
+                                    <div className="w-8 h-8 border-4 border-gray-500 border-t-blue-500 rounded-full animate-spin"></div>
+                                </div>
+                            )}
+                        </div>
                     </div>
 
-                    {/* 제목 */}
-                    <h1 style={titleStyles}>{concert.title}</h1>
-
-                    {/* 아티스트 */}
-                    <div style={artistStyles}>🎤 {concert.artist}</div>
-
-                    {/* 설명 (있는 경우에만) */}
-                    {concert.description && !compact && (
-                        <div
-                            style={{
-                                marginBottom: '20px',
-                                padding: '12px',
-                                backgroundColor: '#f8fafc',
-                                borderRadius: '6px',
-                                fontSize: '14px',
-                                color: '#374151',
-                                lineHeight: '1.5',
-                            }}
-                        >
-                            {concert.description}
-                        </div>
-                    )}
-
-                    {/* 예매 버튼 */}
-                    {bookingInfo.show && (
-                        <button
-                            onClick={handleBookingClick}
-                            disabled={bookingInfo.disabled || isBooking}
-                            style={{
-                                ...buttonBaseStyles,
-                                ...bookingInfo.style,
-                                opacity: bookingInfo.disabled ? 0.7 : 1,
-                                cursor: bookingInfo.disabled
-                                    ? 'not-allowed'
-                                    : 'pointer',
-                            }}
-                        >
-                            {isBooking ? '처리 중...' : bookingInfo.text}
-                        </button>
-                    )}
-                </div>
-            </div>
-
-            {/* 상세 정보 섹션들 */}
-            {!compact && (
-                <>
-                    {/* 공연 정보 */}
-                    <div style={infoSectionStyles}>
-                        <h3
-                            style={{
-                                fontSize: '18px',
-                                fontWeight: 'bold',
-                                color: '#1f2937',
-                                marginBottom: '12px',
-                                borderBottom: '2px solid #e5e7eb',
-                                paddingBottom: '8px',
-                            }}
-                        >
-                            📅 공연 정보
-                        </h3>
-
-                        <div style={infoItemStyles}>
-                            <span style={labelStyles}>날짜</span>
-                            <span style={valueStyles}>
-                                {formatConcertDateTime()}
-                            </span>
+                    {/* 🎯 기본 정보 섹션 (반응형) */}
+                    <div className="flex-1 text-center lg:text-left">
+                        {/* 상태 배지 */}
+                        <div style={getStatusBadgeStyles(concert.status)}>
+                            {ConcertStatusLabels[concert.status] ||
+                                concert.status}
                         </div>
 
-                        <div style={infoItemStyles}>
-                            <span style={labelStyles}>종료 시간</span>
-                            <span style={valueStyles}>{formatEndTime()}</span>
+                        {/* 제목 */}
+                        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-3 lg:mb-4 leading-tight">
+                            {concert.title}
+                        </h1>
+
+                        {/* 아티스트 */}
+                        <div className="text-lg sm:text-xl lg:text-2xl text-gray-300 mb-4 lg:mb-6 flex items-center justify-center lg:justify-start gap-2">
+                            🎤 {concert.artist}
                         </div>
 
-                        <div style={infoItemStyles}>
-                            <span style={labelStyles}>장소</span>
-                            <span style={valueStyles}>
-                                📍 {concert.venueName}
+                        {/* 🎯 핵심 정보 카드 (모바일 최적화) */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-6">
+                            {/* 날짜 정보 */}
+                            <div className="bg-gray-700 rounded-lg p-3 sm:p-4 border border-gray-600">
+                                <div className="flex items-center gap-2 text-blue-400 mb-1">
+                                    <Calendar size={16} />
+                                    <span className="text-xs sm:text-sm font-medium">
+                                        공연일시
+                                    </span>
+                                </div>
+                                <div className="text-sm sm:text-base text-white font-medium">
+                                    {formatConcertDateTime()}
+                                </div>
+                                {formatEndTime() && (
+                                    <div className="text-xs text-gray-400 mt-1">
+                                        종료: {formatEndTime()}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* 장소 정보 */}
+                            <div className="bg-gray-700 rounded-lg p-3 sm:p-4 border border-gray-600">
+                                <div className="flex items-center gap-2 text-green-400 mb-1">
+                                    <MapPin size={16} />
+                                    <span className="text-xs sm:text-sm font-medium">
+                                        공연장
+                                    </span>
+                                </div>
+                                <div className="text-sm sm:text-base text-white font-medium truncate">
+                                    {concert.venueName}
+                                </div>
                                 {concert.venueAddress && (
-                                    <div
-                                        style={{
-                                            fontSize: '14px',
-                                            color: '#6b7280',
-                                            marginTop: '4px',
-                                        }}
-                                    >
+                                    <div className="text-xs text-gray-400 mt-1 truncate">
                                         {concert.venueAddress}
                                     </div>
                                 )}
-                            </span>
+                            </div>
                         </div>
 
-                        <div style={infoItemStyles}>
-                            <span style={labelStyles}>총 좌석</span>
-                            <span style={valueStyles}>
-                                🎫{' '}
-                                {concert.totalSeats?.toLocaleString() ||
-                                    '정보 없음'}
-                                석
-                            </span>
+                        {/* 설명 (있는 경우에만) */}
+                        {concert.description && !compact && (
+                            <div className="bg-gray-700 rounded-lg p-4 mb-6 border border-gray-600">
+                                <div className="text-sm sm:text-base text-gray-300 leading-relaxed">
+                                    {concert.description}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* 🎯 예매 버튼 (데스크톱용 - 인라인) */}
+                        {bookingInfo.show && !isMobile && (
+                            <button
+                                onClick={handleBookingClick}
+                                disabled={bookingInfo.disabled || isBooking}
+                                className="w-full sm:w-auto px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed hover:scale-105"
+                                style={{
+                                    ...bookingInfo.style,
+                                    minWidth: '200px',
+                                }}
+                            >
+                                {isBooking ? '처리 중...' : bookingInfo.text}
+                            </button>
+                        )}
+                    </div>
+                </div>
+
+                {/* 🎯 상세 정보 섹션들 (항상 펼쳐진 상태) */}
+                {!compact && (
+                    <div className="space-y-4 sm:space-y-6">
+                        {/* 공연 정보 섹션 */}
+                        <div className="bg-gray-700 rounded-lg border border-gray-600 p-4">
+                            <div className="flex items-center gap-3 mb-4">
+                                <Calendar className="text-blue-400" size={20} />
+                                <h3 className="text-lg sm:text-xl font-bold text-white">
+                                    공연 정보
+                                </h3>
+                            </div>
+
+                            <div className="space-y-3">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <div className="text-sm text-gray-400 mb-1">
+                                            총 좌석 수
+                                        </div>
+                                        <div className="flex items-center gap-2 text-white">
+                                            <Users
+                                                size={16}
+                                                className="text-purple-400"
+                                            />
+                                            <span>
+                                                {concert.totalSeats?.toLocaleString() ||
+                                                    '정보 없음'}
+                                                석
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div className="text-sm text-gray-400 mb-1">
+                                            공연 시간
+                                        </div>
+                                        <div className="flex items-center gap-2 text-white">
+                                            <Clock
+                                                size={16}
+                                                className="text-orange-400"
+                                            />
+                                            <span>
+                                                {concert.startTime} -{' '}
+                                                {concert.endTime}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 예매 정보 섹션 */}
+                        <div className="bg-gray-700 rounded-lg border border-gray-600 p-4">
+                            <div className="flex items-center gap-3 mb-4">
+                                <Ticket className="text-green-400" size={20} />
+                                <h3 className="text-lg sm:text-xl font-bold text-white">
+                                    예매 정보
+                                </h3>
+                            </div>
+
+                            <div className="space-y-3">
+                                <div>
+                                    <div className="text-sm text-gray-400 mb-1">
+                                        예매 기간
+                                    </div>
+                                    <div className="text-white">
+                                        {formatBookingPeriod()}
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <div className="text-sm text-gray-400 mb-1">
+                                            연령 제한
+                                        </div>
+                                        <div className="text-white">
+                                            {concert.minAge
+                                                ? `${concert.minAge}세 이상`
+                                                : '전 연령 관람가'}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div className="text-sm text-gray-400 mb-1">
+                                            최대 구매
+                                        </div>
+                                        <div className="text-white">
+                                            1인당{' '}
+                                            {concert.maxTicketsPerUser || 4}
+                                            매까지
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
+                )}
 
-                    {/* 예매 정보 */}
-                    <div style={infoSectionStyles}>
-                        <h3
-                            style={{
-                                fontSize: '18px',
-                                fontWeight: 'bold',
-                                color: '#1f2937',
-                                marginBottom: '12px',
-                                borderBottom: '2px solid #e5e7eb',
-                                paddingBottom: '8px',
-                            }}
+                {/* 🎯 모바일 하단 고정 예매 버튼 */}
+                {bookingInfo.show && isMobile && (
+                    <div className="fixed bottom-0 left-0 right-0 p-4 bg-gray-900 border-t border-gray-700 z-50">
+                        <button
+                            ref={bookingButtonRef}
+                            onClick={handleBookingClick}
+                            disabled={bookingInfo.disabled || isBooking}
+                            className="w-full py-4 rounded-lg text-lg font-semibold transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed active:scale-95"
+                            style={bookingInfo.style}
                         >
-                            🎟️ 예매 정보
-                        </h3>
-
-                        <div style={infoItemStyles}>
-                            <span style={labelStyles}>예매 기간</span>
-                            <span style={valueStyles}>
-                                {formatBookingPeriod()}
-                            </span>
-                        </div>
-
-                        <div style={infoItemStyles}>
-                            <span style={labelStyles}>연령 제한</span>
-                            <span style={valueStyles}>
-                                {concert.minAge
-                                    ? `${concert.minAge}세 이상`
-                                    : '전 연령 관람가'}
-                            </span>
-                        </div>
-
-                        <div style={infoItemStyles}>
-                            <span style={labelStyles}>최대 구매</span>
-                            <span style={valueStyles}>
-                                1인당 {concert.maxTicketsPerUser || 4}매까지
-                            </span>
-                        </div>
+                            {isBooking ? '처리 중...' : bookingInfo.text}
+                        </button>
                     </div>
-                </>
-            )}
+                )}
+
+                {/* 🎯 모바일에서 하단 여백 (고정 버튼 공간 확보) */}
+                {bookingInfo.show && isMobile && <div className="h-20"></div>}
+            </div>
         </div>
     );
 };

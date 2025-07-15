@@ -1,30 +1,200 @@
 <!doctype html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- SEO 메타태그 -->
+    <meta name="description" content="티켓몬 - 최고의 콘서트 예매 서비스. 다양한 아티스트의 공연을 안전하고 편리하게 예매하세요." />
+    <meta name="keywords" content="콘서트, 티켓, 예매, 공연, 음악, 아티스트, 티켓몬" />
+    <meta name="author" content="티켓몬" />
+
+    <!-- Open Graph (소셜 미디어 공유) -->
+    <meta property="og:title" content="티켓몬 - 콘서트 예매 서비스" />
+    <meta property="og:description" content="최고의 콘서트 예매 경험을 제공하는 티켓몬" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://ticketmon.com" />
+    <meta property="og:image" content="/images/og-image.png" />
+    <meta property="og:site_name" content="티켓몬" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="티켓몬 - 콘서트 예매 서비스" />
+    <meta name="twitter:description" content="최고의 콘서트 예매 경험을 제공하는 티켓몬" />
+    <meta name="twitter:image" content="/images/twitter-card.png" />
+
+    <!-- 테마 색상 (브라우저 UI 테마) -->
+    <meta name="theme-color" content="#111827" />
+    <meta name="msapplication-TileColor" content="#111827" />
+
+    <!-- iOS Safari 상태바 스타일 -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="티켓몬" />
+
+    <!-- ① OneSignal SDK 로드 -->
+    <script
+            src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js"
+            defer
+    ></script>
+
+    <!-- 파비콘 설정 (모든 플랫폼 지원) -->
+    <link
             rel="icon"
             type="image/png"
             href="/images/favicon/favicon-96x96.png"
             sizes="96x96"
-        />
-        <link
+    />
+    <link
             rel="icon"
             type="image/svg+xml"
             href="/images/favicon/favicon.svg"
-        />
-        <link rel="shortcut icon" href="/images/favicon/favicon.ico" />
-        <link
+    />
+    <link rel="shortcut icon" href="/images/favicon/favicon.ico" />
+    <link
             rel="apple-touch-icon"
             sizes="180x180"
             href="/images/favicon/apple-touch-icon.png"
-        />
-        <link rel="manifest" href="/images/favicon/site.webmanifest" />
-        <title>티켓몬 GO</title>
-    </head>
-    <body>
-        <div id="root"></div>
-        <script type="module" src="/src/main.jsx"></script>
-    </body>
+    />
+    <link rel="manifest" href="/images/favicon/site.webmanifest" />
+
+    <!-- Pretendard 폰트 로드 (한국어 최적화) -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+    <link
+            rel="stylesheet"
+            as="style"
+            crossorigin
+            href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css"
+    />
+
+    <!-- 성능 최적화: DNS prefetch -->
+    <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
+
+    <!-- 프리로드 중요 리소스 -->
+    <link rel="preload" href="/images/basic-poster-image.png" as="image" />
+
+    <title>티켓몬 - 콘서트 예매의 새로운 경험</title>
+
+    <!-- CSS 변수 초기화 (다크 테마 강제) -->
+    <style>
+        /* 초기 로딩 화면 스타일 */
+        #root {
+            background-color: #111827;
+            color: #ffffff;
+            min-height: 100vh;
+            width: 100%;
+            min-width: 100vw;
+        }
+
+        /* 로딩 스피너 */
+        .initial-loading {
+            text-align: center;
+            padding: 2rem;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .initial-loading-spinner {
+            width: 3rem;
+            height: 3rem;
+            border: 3px solid #374151;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .initial-loading-text {
+            color: #9ca3af;
+            font-size: 0.875rem;
+            font-weight: 500;
+            font-family: 'Pretendard Variable', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+        }
+
+        /* iOS 100vh 이슈 해결 */
+        @supports (-webkit-touch-callout: none) {
+            #root {
+                min-height: -webkit-fill-available;
+            }
+        }
+
+        /* 폰트 로딩 최적화 */
+        body {
+            font-family: 'Pretendard Variable', -apple-system, BlinkMacSystemFont,
+                       'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial',
+                       'Noto Sans KR', 'Malgun Gothic', sans-serif;
+            font-display: swap;
+        }
+
+        /* 스크롤바 다크 테마 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
+        }
+    </style>
+</head>
+<body>
+<!-- 메인 앱 컨테이너 -->
+<div id="root">
+    <!-- JavaScript 로딩 전 표시될 초기 화면 -->
+    <div class="initial-loading">
+        <div class="initial-loading-spinner"></div>
+        <div class="initial-loading-text">
+            🎭 티켓몬을 불러오는 중...
+        </div>
+    </div>
+</div>
+
+<!-- 메인 JavaScript 파일 로드 -->
+<script type="module" src="/src/main.jsx"></script>
+
+<!-- 서비스 워커 등록 (PWA 지원) -->
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .then((registration) => {
+                    console.log('SW registered: ', registration);
+                })
+                .catch((registrationError) => {
+                    console.log('SW registration failed: ', registrationError);
+                });
+        });
+    }
+</script>
+
+<!-- 에러 핸들링 -->
+<script>
+    window.addEventListener('error', (event) => {
+        console.error('Global error:', event.error);
+        // 에러 리포팅 서비스로 전송 (예: Sentry)
+    });
+
+    window.addEventListener('unhandledrejection', (event) => {
+        console.error('Unhandled promise rejection:', event.reason);
+        // 에러 리포팅 서비스로 전송
+    });
+</script>
+</body>
 </html>
