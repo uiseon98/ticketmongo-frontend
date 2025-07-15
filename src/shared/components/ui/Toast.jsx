@@ -2,13 +2,13 @@
 
 import React, { useEffect, useState } from 'react';
 
-const Toast = ({ 
+const Toast = ({
     id,
-    message, 
-    type = 'info', 
-    duration = 3000, 
+    message,
+    type = 'info',
+    duration = 3000,
     onClose,
-    position = 'top-right'
+    position = 'top-right',
 }) => {
     const [isVisible, setIsVisible] = useState(false);
     const [isLeaving, setIsLeaving] = useState(false);
@@ -16,7 +16,7 @@ const Toast = ({
     useEffect(() => {
         // 마운트 시 애니메이션 시작
         const timer = setTimeout(() => setIsVisible(true), 10);
-        
+
         // 자동 사라짐 타이머
         const autoCloseTimer = setTimeout(() => {
             handleClose();
@@ -42,21 +42,21 @@ const Toast = ({
                     bg: 'bg-red-500',
                     border: 'border-red-600',
                     text: 'text-white',
-                    icon: '⚠️'
+                    icon: '⚠️',
                 };
             case 'success':
                 return {
                     bg: 'bg-green-500',
                     border: 'border-green-600',
                     text: 'text-white',
-                    icon: '✅'
+                    icon: '✅',
                 };
             case 'warning':
                 return {
                     bg: 'bg-yellow-500',
                     border: 'border-yellow-600',
                     text: 'text-white',
-                    icon: '⚠️'
+                    icon: '⚠️',
                 };
             case 'info':
             default:
@@ -64,7 +64,7 @@ const Toast = ({
                     bg: 'bg-blue-500',
                     border: 'border-blue-600',
                     text: 'text-white',
-                    icon: 'ℹ️'
+                    icon: 'ℹ️',
                 };
         }
     };
@@ -97,9 +97,10 @@ const Toast = ({
                 fixed z-50 max-w-md w-full mx-auto px-4
                 ${positionClasses}
                 transition-all duration-300 ease-in-out
-                ${isVisible && !isLeaving 
-                    ? 'opacity-100 translate-y-0 scale-100' 
-                    : 'opacity-0 -translate-y-2 scale-95'
+                ${
+                    isVisible && !isLeaving
+                        ? 'opacity-100 translate-y-0 scale-100'
+                        : 'opacity-0 -translate-y-2 scale-95'
                 }
             `}
         >
@@ -112,7 +113,9 @@ const Toast = ({
             >
                 <span className="text-base">{styles.icon}</span>
                 <div className="flex-1">
-                    <p className="font-medium text-sm leading-relaxed">{message}</p>
+                    <p className="font-medium text-sm leading-relaxed">
+                        {message}
+                    </p>
                 </div>
                 <button
                     onClick={handleClose}

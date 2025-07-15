@@ -94,7 +94,11 @@ const SellerLayout = () => {
             </aside>
 
             {/* 메인 콘텐츠 영역을 MainLayout, PublicLayout과 동일한 구조로 변경 */}
-            <main className="flex-1 bg-gray-900 relative" id="main-content" role="main">
+            <main
+                className="flex-1 bg-gray-900 relative"
+                id="main-content"
+                role="main"
+            >
                 {/* 햄버거 메뉴 버튼 */}
                 <div className="flex items-center justify-between p-6 bg-gray-900 border-b border-gray-700">
                     <div className="flex items-center gap-4">

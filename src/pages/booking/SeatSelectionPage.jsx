@@ -75,17 +75,24 @@ export default function SeatSelectionPage() {
     useEffect(() => {
         if (reservationError) {
             let friendlyMessage = '좌석 선택 중 문제가 발생했습니다.';
-            
+
             if (reservationError.includes('유저')) {
-                showError('다른 유저가 선점 중인 좌석입니다. 다른 좌석을 선택해 주세요.');
+                showError(
+                    '다른 유저가 선점 중인 좌석입니다. 다른 좌석을 선택해 주세요.',
+                );
             } else if (reservationError.includes('최대 2개')) {
                 showWarning('좌석은 최대 2개까지 선점할 수 있습니다.');
             } else if (reservationError.includes('만료')) {
                 showError('선점 시간이 만료되었습니다. 다시 선택해주세요.');
-            } else if (reservationError.includes('네트워크') || reservationError.includes('연결')) {
+            } else if (
+                reservationError.includes('네트워크') ||
+                reservationError.includes('연결')
+            ) {
                 showError('네트워크 연결을 확인하고 다시 시도해주세요.');
             } else if (reservationError.includes('서버')) {
-                showError('서버에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요.');
+                showError(
+                    '서버에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요.',
+                );
             } else {
                 showError(friendlyMessage);
             }

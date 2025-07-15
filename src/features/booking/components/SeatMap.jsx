@@ -92,7 +92,11 @@ export default function SeatMap({
                                                                 ${getSeatStatusClass(seat.status, selectedSeatIds.has(seat.seatId))}
                                                                 ${blinkingSeat === seat.seatId ? 'animate-pulse' : ''}
                                                             `}
-                                                            onClick={() => handleSeatClick(seat)}
+                                                            onClick={() =>
+                                                                handleSeatClick(
+                                                                    seat,
+                                                                )
+                                                            }
                                                         >
                                                             {seat.num}
                                                         </div>

@@ -308,10 +308,14 @@ export const useSeatReservation = (concertId, options = {}) => {
                     await releaseSeat(concertId, seat.seatId);
                 } else {
                     if (selectedSeats.length >= MAX_SEATS_SELECTABLE) {
-                        throw new Error('좌석은 최대 2개까지 선점할 수 있습니다.');
+                        throw new Error(
+                            '좌석은 최대 2개까지 선점할 수 있습니다.',
+                        );
                     }
                     if (seat.status !== 'AVAILABLE')
-                        throw new Error('다른 유저가 선점 중인 좌석입니다. 다른 좌석을 선택해 주세요.');
+                        throw new Error(
+                            '다른 유저가 선점 중인 좌석입니다. 다른 좌석을 선택해 주세요.',
+                        );
                     await reserveSeat(concertId, seat.seatId);
                 }
                 await refreshSeatStatuses(); // 상태 동기화
