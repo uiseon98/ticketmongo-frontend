@@ -40,7 +40,8 @@ const useResponsive = () => {
 
 const AdminDashboard = () => {
     const navigate = useNavigate();
-    const { isMobile, isTablet } = useResponsive(); // 반응형 훅 사용
+    // useResponsive 훅에서 isDesktop을 구조 분해하여 가져오도록 수정
+    const { isMobile, isTablet, isDesktop } = useResponsive(); // 반응형 훅 사용
 
     // --- 대시보드 요약 데이터 상태 ---
     const [pendingCount, setPendingCount] = useState(0);
@@ -89,7 +90,7 @@ const AdminDashboard = () => {
                 console.error('관리자 대시보드 데이터 로드 실패:', err);
                 setError(
                     err.response?.data?.message ||
-                        '대시보드 데이터를 불러오는데 실패했습니다.',
+                    '대시보드 데이터를 불러오는데 실패했습니다.',
                 );
             } finally {
                 setLoading(false);
@@ -116,8 +117,7 @@ const AdminDashboard = () => {
     // --- 유틸리티 함수: 이력 타입 한글명 매핑 ---
     const getHistoryTypeLabel = useCallback((type) => {
         const STATUS_LABELS = {
-            REQUEST: '신청',
-            SUBMITTED: '신청',
+            REQUEST: '승인 대기 중',
             APPROVED: '승인',
             REJECTED: '반려',
             WITHDRAWN: '철회',
@@ -179,7 +179,7 @@ const AdminDashboard = () => {
         } finally {
             setProcessModalLoading(false);
         }
-    }, []);
+    }, [navigate]);
 
     // Quick Actions: 다음 대기 신청 승인/반려 모달 내 처리 함수
     const confirmProcessPending = useCallback(
@@ -262,7 +262,7 @@ const AdminDashboard = () => {
         }
     }, [searchKeyword]);
 
-    // SellerHomePage의 quickActions 데이터 구조를 참고하여 AdminDashboard용 정의
+    // quickActions
     const adminQuickActions = [
         {
             title: '판매자 신청 처리',
@@ -270,6 +270,7 @@ const AdminDashboard = () => {
             icon: '📄', // 아이콘은 이모지로 대체
             path: '/admin/seller-approvals',
             color: '#10b981', // green-600
+            isComingSoon: false,
         },
         {
             title: '판매자 목록 관리',
@@ -277,21 +278,27 @@ const AdminDashboard = () => {
             icon: '👥',
             path: '/admin/sellers',
             color: '#3b82f6', // blue-600
+            isComingSoon: false,
         },
         {
             title: '이력 조회',
             description: '모든 판매자 신청/처리 이력을 확인합니다',
             icon: '📜',
             path: '/admin/history',
-            color: '#8b5cf6', // purple-600
+            color: '#8b5cf7', // purple-600
+            isComingSoon: false,
         },
-        // {
-        //     title: '시스템 설정',
-        //     description: '시스템 관련 설정을 관리합니다',
-        //     icon: '⚙️',
-        //     path: '/admin/settings',
-        //     color: '#f59e0b', // amber-600
-        // },
+        // --- 세 개의 커밍순 카드를 하나로 대체 ---
+        {
+            title: 'Coming Soon..', // 큰 제목
+            description: '더 많은 관리 기능이 곧 추가될 예정입니다.', // 간결한 설명
+            icon: '🚀', // 대표 이모지 (로켓)
+            path: '#', // 클릭 시 이동할 경로가 없으므로 #
+            color: '#94a3b8', // gray-400 (차분한 회색 계열)
+            isComingSoon: true, // 커밍순 카드임을 나타냄
+            // 이 카드는 3열을 모두 차지해야 하므로 별도의 span 속성을 추가
+            colSpan: 3, // 데스크톱에서 3열을 차지하도록
+        },
     ];
 
     // --- 로딩 및 에러 처리 UI ---
@@ -312,8 +319,8 @@ const AdminDashboard = () => {
                         isMobile
                             ? 'p-4 overflow-x-hidden'
                             : isTablet
-                              ? 'max-w-4xl mx-auto p-4 overflow-x-hidden'
-                              : 'max-w-6xl mx-auto p-6 overflow-x-hidden'
+                                ? 'max-w-4xl mx-auto p-4 overflow-x-hidden'
+                                : 'max-w-6xl mx-auto p-6 overflow-x-hidden'
                     }
                     style={{
                         backgroundColor: '#111827',
@@ -322,17 +329,17 @@ const AdminDashboard = () => {
                         boxSizing: 'border-box',
                     }}
                 >
-                    {/* 페이지 제목(`animate-shimmer-text` 클래스 추가) */}
+                    {/* 페이지 제목 - `animate-shimmer-text` 클래스 추가 */}
                     <h1
                         className={
                             isMobile
                                 ? 'text-xl font-bold mb-4 text-center break-words animate-shimmer-text'
                                 : isTablet
-                                  ? 'text-2xl font-bold mb-5 text-center break-words animate-shimmer-text'
-                                  : 'text-4xl font-bold mb-6 text-center break-words animate-shimmer-text'
+                                    ? 'text-2xl font-bold mb-5 text-center break-words animate-shimmer-text'
+                                    : 'text-4xl font-bold mb-6 text-center break-words animate-shimmer-text'
                         }
                         style={{
-                            color: '#FFFFFF',
+                            color: '#FFFFFF', // 이 색상은 text-transparent로 오버라이드될 것임
                             padding: isMobile ? '0 8px' : '0',
                             wordBreak: 'keep-all',
                             overflowWrap: 'break-word',
@@ -361,13 +368,15 @@ const AdminDashboard = () => {
                             padding: isMobile
                                 ? '40px 20px'
                                 : isTablet
-                                  ? '50px 30px'
-                                  : '60px 40px',
+                                    ? '50px 30px'
+                                    : '60px 40px',
                             textAlign: 'center',
                             maxWidth: isMobile ? '100%' : '600px',
                             margin: '0 auto',
                         }}
                     >
+                        {/*/!* LoadingSpinner 컴포넌트 사용 *!/*/}
+                        {/*<LoadingSpinner message="대시보드 데이터를 불러오는 중..." />*/}
                         <div
                             style={{
                                 width: isMobile ? '32px' : '40px',
@@ -410,8 +419,8 @@ const AdminDashboard = () => {
                         isMobile
                             ? 'p-4 overflow-x-hidden'
                             : isTablet
-                              ? 'max-w-4xl mx-auto p-4 overflow-x-hidden'
-                              : 'max-w-6xl mx-auto p-6 overflow-x-hidden'
+                                ? 'max-w-4xl mx-auto p-4 overflow-x-hidden'
+                                : 'max-w-6xl mx-auto p-6 overflow-x-hidden'
                     }
                     style={{
                         backgroundColor: '#111827',
@@ -481,8 +490,8 @@ const AdminDashboard = () => {
                     isMobile
                         ? 'p-4 overflow-x-hidden'
                         : isTablet
-                          ? 'max-w-4xl mx-auto p-4 overflow-x-hidden'
-                          : 'max-w-6xl mx-auto p-6 overflow-x-hidden'
+                            ? 'max-w-4xl mx-auto p-4 overflow-x-hidden'
+                            : 'max-w-6xl mx-auto p-6 overflow-x-hidden'
                 }
                 style={{
                     backgroundColor: '#111827',
@@ -497,8 +506,8 @@ const AdminDashboard = () => {
                         isMobile
                             ? 'text-xl font-bold mb-4 text-center break-words'
                             : isTablet
-                              ? 'text-2xl font-bold mb-5 text-center break-words'
-                              : 'text-4xl font-bold mb-6 text-center break-words'
+                                ? 'text-2xl font-bold mb-5 text-center break-words'
+                                : 'text-4xl font-bold mb-6 text-center break-words'
                     }
                     style={{
                         color: '#FFFFFF',
@@ -510,7 +519,7 @@ const AdminDashboard = () => {
                     관리자 대시보드
                 </h1>
 
-                {/* 부제목 */}
+                {/* 부제목 - `마우스 hover 시 툴팁 추가` */}
                 <p
                     className={`text-center mb-${isMobile ? '6' : isTablet ? '8' : '10'} text-gray-400`}
                     style={{
@@ -518,8 +527,18 @@ const AdminDashboard = () => {
                         padding: isMobile ? '0 16px' : '0',
                     }}
                 >
-                    시스템 관리 및 판매자 관리를 수행하세요
+                    <span className="relative inline-block group">
+                        시스템 관리
+                        {/* 툴팁 위치를 아래로, 충분히 내리고 화살표 위치 조정 */}
+                        <span className="absolute left-1/2 -translate-x-1/2 top-[calc(100%+8px)] px-3 py-1 bg-blue-200 text-blue-900 text-xs rounded-md whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10">
+                            추후 기능 확장 예정입니다.
+                            {/* 툴팁 화살표 위치도 변경: -top-2, border-b-4, border-b-gray-700 */}
+                            <span className="absolute left-1/2 -translate-x-1/2 -top-2 w-0 h-0 border-x-4 border-x-transparent border-b-4 border-b-gray-300"></span>
+                        </span>
+                    </span>
+                    {' 및 판매자 관리를 수행하세요'}
                 </p>
+
 
                 {/* 콘텐츠 영역 */}
                 <div
@@ -534,8 +553,8 @@ const AdminDashboard = () => {
                             padding: isMobile
                                 ? '24px'
                                 : isTablet
-                                  ? '28px'
-                                  : '32px',
+                                    ? '28px'
+                                    : '32px',
                         }}
                     >
                         <div className="text-6xl mb-4">👑</div>
@@ -567,63 +586,99 @@ const AdminDashboard = () => {
                                 isMobile
                                     ? 'grid-cols-1'
                                     : isTablet
-                                      ? 'grid-cols-2'
-                                      : 'grid-cols-3'
+                                        ? 'grid-cols-2'
+                                        : 'grid-cols-3'
                             }`}
                         >
+                            {/* adminQuickActions 배열을 map하여 카드 렌더링 */}
                             {adminQuickActions.map((action, index) => (
                                 <button
                                     key={index}
                                     onClick={() => {
-                                        if (action.path) {
-                                            navigate(action.path);
-                                        } else if (action.action) {
+                                        if (action.action) {
                                             action.action();
+                                        } else if (
+                                            action.path &&
+                                            action.path !== '#'
+                                        ) {
+                                            navigate(action.path);
                                         }
                                     }}
-                                    className="text-left p-6 rounded-xl shadow-md transition-all hover:scale-105"
+                                    // isComingSoon 값과 colSpan에 따라 클래스 및 스타일 조건부 적용
+                                    className={`
+                                        text-left rounded-xl shadow-md transition-all 
+                                        ${action.isComingSoon ? 'cursor-default' : 'hover:scale-105'}
+                                        ${action.colSpan === 3 && isDesktop ? 'col-span-3' : ''} /* 데스크톱 3열 차지 */
+                                        ${action.colSpan === 3 && isTablet ? 'col-span-2' : ''} /* 태블릿 2열 차지 (남은 1칸은 빈 칸) */
+                                        ${action.colSpan === 3 && isMobile ? 'col-span-1' : ''} /* 모바일 1열 차지 */
+                                    `}
                                     style={{
-                                        backgroundColor: '#1f2937', // gray-800
-                                        border: '1px solid #374151', // gray-700
-                                        minHeight: isMobile ? '120px' : '140px',
+                                        // 배경색 변경: isComingSoon이면 #243447, 아니면 #1f2937
+                                        backgroundColor: action.isComingSoon ? '#243447' : '#1f2937',
+                                        border: '1px solid #374151', // 기본 테두리색 (gray-700)
+                                        minHeight: action.isComingSoon ? '100px' : (isMobile ? '120px' : '140px'),
+                                        // isComingSoon이면 그림자/변형 제거 (hover 효과와 맞춤)
+                                        boxShadow: action.isComingSoon ? 'none' : '0 4px 6px rgba(0, 0, 0, 0.1)',
+                                        transform: action.isComingSoon ? 'none' : 'translateY(0)',
+                                        // 중앙 정렬을 위한 flexbox (colSpan이 3일 때)
+                                        display: action.colSpan === 3 ? 'flex' : 'block',
+                                        flexDirection: action.colSpan === 3 ? 'column' : 'row',
+                                        alignItems: action.colSpan === 3 ? 'center' : 'flex-start',
+                                        justifyContent: action.colSpan === 3 ? 'center' : 'flex-start',
                                     }}
                                     onMouseEnter={(e) => {
-                                        if (!isMobile) {
-                                            e.target.style.borderColor =
-                                                action.color;
+                                        if (!action.isComingSoon && !isMobile) {
+                                            e.currentTarget.style.borderColor = action.color;
                                         }
                                     }}
                                     onMouseLeave={(e) => {
-                                        if (!isMobile) {
-                                            e.target.style.borderColor =
-                                                '#374151';
+                                        if (!action.isComingSoon && !isMobile) {
+                                            e.currentTarget.style.borderColor = '#374151';
                                         }
                                     }}
+                                    disabled={action.isComingSoon} // 커밍순 카드는 클릭 불가하도록 비활성화
                                 >
-                                    <div className="flex items-start gap-4">
-                                        <div
-                                            className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
-                                            style={{
-                                                backgroundColor: action.color,
-                                            }}
-                                        >
-                                            <span className="text-xl">
+                                    {action.isComingSoon ? (
+                                        <>
+                                            {/* 큰 아이콘과 텍스트 중앙 배치 */}
+                                            <span className="text-5xl mb-2" style={{ color: action.color }}>
                                                 {action.icon}
                                             </span>
-                                        </div>
-                                        <div className="flex-1">
-                                            <h4
-                                                className={`font-semibold text-white mb-1 ${isMobile ? 'text-base' : 'text-lg'}`}
-                                            >
+                                            <h4 className="font-bold text-white mb-1 text-2xl text-center" style={{ opacity: 0.8 }}>
                                                 {action.title}
                                             </h4>
-                                            <p
-                                                className={`text-gray-300 ${isMobile ? 'text-sm' : 'text-base'}`}
-                                            >
+                                            <p className="text-gray-300 text-base text-center" style={{ opacity: 0.8 }}>
                                                 {action.description}
                                             </p>
+                                        </>
+                                    ) : (
+                                        <div className="flex items-start gap-4 p-6 w-full h-full">
+                                            {/* 아이콘 컨테이너 */}
+                                            <div
+                                                className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
+                                                style={{
+                                                    backgroundColor: action.color,
+                                                }}
+                                            >
+                                                <span className="text-xl">
+                                                    {action.icon}
+                                                </span>
+                                            </div>
+                                            {/* 텍스트 컨테이너 */}
+                                            <div className="flex-1 text-left">
+                                                <h4
+                                                    className={`font-semibold text-white mb-1 ${isMobile ? 'text-base' : 'text-lg'}`}
+                                                >
+                                                    {action.title}
+                                                </h4>
+                                                <p
+                                                    className={`text-gray-300 ${isMobile ? 'text-sm' : 'text-base'}`}
+                                                >
+                                                    {action.description}
+                                                </p>
+                                            </div>
                                         </div>
-                                    </div>
+                                    )}
                                 </button>
                             ))}
                         </div>
@@ -673,54 +728,54 @@ const AdminDashboard = () => {
                             <div className="overflow-x-auto">
                                 <table className="min-w-full divide-y divide-gray-700">
                                     <thead className="bg-[#243447]">
-                                        <tr>
-                                            <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                                유저
-                                            </th>
-                                            <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                                액션
-                                            </th>
-                                            <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                                일시
-                                            </th>
-                                            <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                                상세
-                                            </th>
-                                        </tr>
+                                    <tr>
+                                        <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                            유저
+                                        </th>
+                                        <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                            액션
+                                        </th>
+                                        <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                            일시
+                                        </th>
+                                        <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                            상세
+                                        </th>
+                                    </tr>
                                     </thead>
                                     <tbody className="bg-[#1a232f] divide-y divide-gray-700">
-                                        {recentActivities.map((activity) => (
-                                            <tr key={activity.id}>
-                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-white">
-                                                    {activity.username} (
-                                                    {activity.userNickname})
-                                                </td>
-                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">
-                                                    {getHistoryTypeLabel(
-                                                        activity.type,
-                                                    )}
-                                                    {activity.reason &&
-                                                        ` (${activity.reason})`}
-                                                </td>
-                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">
-                                                    {formatDate(
-                                                        activity.createdAt,
-                                                    )}
-                                                </td>
-                                                <td className="px-4 py-3 whitespace-nowrap text-center text-sm">
-                                                    <Button
-                                                        onClick={() =>
-                                                            navigate(
-                                                                `/admin/history?userId=${activity.userId}`,
-                                                            )
-                                                        }
-                                                        className="bg-purple-500 hover:bg-purple-700 text-white px-3 py-1 text-xs"
-                                                    >
-                                                        이력 보기
-                                                    </Button>
-                                                </td>
-                                            </tr>
-                                        ))}
+                                    {recentActivities.map((activity) => (
+                                        <tr key={activity.id}>
+                                            <td className="px-4 py-3 whitespace-nowrap text-sm text-white">
+                                                {activity.username} (
+                                                {activity.userNickname})
+                                            </td>
+                                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">
+                                                {getHistoryTypeLabel(
+                                                    activity.type,
+                                                )}
+                                                {activity.reason &&
+                                                    ` (${activity.reason})`}
+                                            </td>
+                                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">
+                                                {formatDate(
+                                                    activity.createdAt,
+                                                )}
+                                            </td>
+                                            <td className="px-4 py-3 whitespace-nowrap text-center text-sm">
+                                                <Button
+                                                    onClick={() =>
+                                                        navigate(
+                                                            `/admin/history?userId=${activity.userId}`,
+                                                        )
+                                                    }
+                                                    className="bg-purple-500 hover:bg-purple-700 text-white px-3 py-1 text-xs"
+                                                >
+                                                    이력 보기
+                                                </Button>
+                                            </td>
+                                        </tr>
+                                    ))}
                                     </tbody>
                                 </table>
                             </div>
@@ -814,7 +869,7 @@ const AdminDashboard = () => {
 
                         {pendingAppToProcess.userHistorySummary &&
                             pendingAppToProcess.userHistorySummary.length >
-                                0 && (
+                            0 && (
                                 <div className="mb-4 border border-gray-600 rounded p-2">
                                     <p className="text-sm font-semibold mb-2 text-white">
                                         최근 이력 요약:
@@ -822,35 +877,35 @@ const AdminDashboard = () => {
                                     <div className="overflow-x-auto">
                                         <table className="min-w-full text-xs divide-y divide-gray-700">
                                             <thead>
-                                                <tr className="bg-[#243447]">
-                                                    <th className="px-2 py-1 text-center text-gray-300">
-                                                        상태(사유)
-                                                    </th>
-                                                    <th className="px-2 py-1 text-center text-gray-300">
-                                                        이력 발생 일시
-                                                    </th>
-                                                </tr>
+                                            <tr className="bg-[#243447]">
+                                                <th className="px-2 py-1 text-center text-gray-300">
+                                                    상태(사유)
+                                                </th>
+                                                <th className="px-2 py-1 text-center text-gray-300">
+                                                    이력 발생 일시
+                                                </th>
+                                            </tr>
                                             </thead>
                                             <tbody className="divide-y divide-gray-700">
-                                                {/* 최근 5개만 표시하도록 slice 적용 */}
-                                                {pendingAppToProcess.userHistorySummary
-                                                    .slice(0, 5)
-                                                    .map((history) => (
-                                                        <tr key={history.id}>
-                                                            <td className="px-2 py-1 text-gray-300 text-left">
-                                                                {getHistoryTypeLabel(
-                                                                    history.type,
-                                                                )}
-                                                                {history.reason &&
-                                                                    ` (${history.reason})`}
-                                                            </td>
-                                                            <td className="px-2 py-1 text-gray-300 text-center">
-                                                                {formatDate(
-                                                                    history.createdAt,
-                                                                )}
-                                                            </td>
-                                                        </tr>
-                                                    ))}
+                                            {/* 최근 5개만 표시하도록 slice 적용 */}
+                                            {pendingAppToProcess.userHistorySummary
+                                                .slice(0, 5)
+                                                .map((history) => (
+                                                    <tr key={history.id}>
+                                                        <td className="px-2 py-1 text-gray-300 text-left">
+                                                            {getHistoryTypeLabel(
+                                                                history.type,
+                                                            )}
+                                                            {history.reason &&
+                                                                ` (${history.reason})`}
+                                                        </td>
+                                                        <td className="px-2 py-1 text-gray-300 text-center">
+                                                            {formatDate(
+                                                                history.createdAt,
+                                                            )}
+                                                        </td>
+                                                    </tr>
+                                                ))}
                                             </tbody>
                                         </table>
                                     </div>
@@ -965,66 +1020,66 @@ const AdminDashboard = () => {
                                 </h4>
                                 <table className="min-w-full divide-y divide-gray-700">
                                     <thead className="bg-[#243447]">
-                                        <tr>
-                                            <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                                유저 ID
-                                            </th>
-                                            <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                                아이디
-                                            </th>
-                                            <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                                닉네임
-                                            </th>
-                                            <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                                타입
-                                            </th>
-                                            <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                                일시
-                                            </th>
-                                            <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                                액션
-                                            </th>
-                                        </tr>
+                                    <tr>
+                                        <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                            유저 ID
+                                        </th>
+                                        <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                            아이디
+                                        </th>
+                                        <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                            닉네임
+                                        </th>
+                                        <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                            타입
+                                        </th>
+                                        <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                            일시
+                                        </th>
+                                        <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                            액션
+                                        </th>
+                                    </tr>
                                     </thead>
                                     <tbody className="bg-[#1a232f] divide-y divide-gray-700">
-                                        {searchResults.map((result) => (
-                                            <tr key={result.id}>
-                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-white">
-                                                    {result.userId}
-                                                </td>
-                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">
-                                                    {result.username}
-                                                </td>
-                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">
-                                                    {result.userNickname}
-                                                </td>
-                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">
-                                                    {getHistoryTypeLabel(
-                                                        result.type,
-                                                    )}
-                                                </td>
-                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">
-                                                    {formatDate(
-                                                        result.createdAt,
-                                                    )}
-                                                </td>
-                                                <td className="px-4 py-3 whitespace-nowrap text-center text-sm font-medium">
-                                                    <Button
-                                                        onClick={() => {
-                                                            setShowSearchModal(
-                                                                false,
-                                                            );
-                                                            navigate(
-                                                                `/admin/history?userId=${result.userId}`,
-                                                            );
-                                                        }}
-                                                        className="bg-purple-500 hover:bg-purple-700 text-white px-3 py-1 text-xs"
-                                                    >
-                                                        이력 보기
-                                                    </Button>
-                                                </td>
-                                            </tr>
-                                        ))}
+                                    {searchResults.map((result) => (
+                                        <tr key={result.id}>
+                                            <td className="px-4 py-3 whitespace-nowrap text-sm text-white">
+                                                {result.userId}
+                                            </td>
+                                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">
+                                                {result.username}
+                                            </td>
+                                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">
+                                                {result.userNickname}
+                                            </td>
+                                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">
+                                                {getHistoryTypeLabel(
+                                                    result.type,
+                                                )}
+                                            </td>
+                                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">
+                                                {formatDate(
+                                                    result.createdAt,
+                                                )}
+                                            </td>
+                                            <td className="px-4 py-3 whitespace-nowrap text-center text-sm font-medium">
+                                                <Button
+                                                    onClick={() => {
+                                                        setShowSearchModal(
+                                                            false,
+                                                        );
+                                                        navigate(
+                                                            `/admin/history?userId=${result.userId}`,
+                                                        );
+                                                    }}
+                                                    className="bg-purple-500 hover:bg-purple-700 text-white px-3 py-1 text-xs"
+                                                >
+                                                    이력 보기
+                                                </Button>
+                                            </td>
+                                        </tr>
+                                    ))}
                                     </tbody>
                                 </table>
                             </div>
