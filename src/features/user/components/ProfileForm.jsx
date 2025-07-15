@@ -38,7 +38,7 @@ export function EditProfileForm({
                     <button
                         type="button"
                         onClick={onToggle}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300"
+                        className="absolute right-0 bottom-0 text-gray-300 hover:text-gray-300"
                     >
                         {showValue ? (
                             <EyeOff className="w-5 h-5" />

@@ -458,7 +458,7 @@ export default function Register() {
                                     이미 계정이 있으신가요?{' '}
                                     <button
                                         onClick={() => navigate('/login')}
-                                        className="text-blue-400 hover:text-blue-300 font-medium transition-colors"
+                                        className="mx-2 text-white hover:text-blue-300 font-medium transition-colors"
                                     >
                                         로그인
                                     </button>

@@ -4,11 +4,11 @@ import apiClient from '../../../shared/utils/apiClient';
 
 /**
  * 좌석 관련 API 서비스
- * 백엔드 API 컨트롤러 분석 결과를 바탕으로 구현
+ * 실제 사용되는 핵심 함수들만 포함
  */
 
 // ===========================================
-// 좌석 상태 조회 관련 API (SeatQueryController)
+// 좌석 상태 조회 관련 API
 // ===========================================
 
 /**
@@ -21,34 +21,8 @@ export async function fetchAllSeatStatus(concertId) {
     return response.data;
 }
 
-/**
- * 특정 좌석 상태 조회
- * @param {number} concertId - 콘서트 ID
- * @param {number} seatId - 좌석 ID (ConcertSeat ID)
- * @returns {Promise<Object>} 좌석 상태 정보
- */
-export async function fetchSeatStatus(concertId, seatId) {
-    const response = await apiClient.get(
-        `/seats/concerts/${concertId}/seats/${seatId}/status`,
-    );
-    return response.data;
-}
-
-/**
- * 사용자 선점 좌석 조회
- * @param {number} concertId - 콘서트 ID
- * @param {number} userId - 사용자 ID
- * @returns {Promise<Array>} 사용자가 선점한 좌석 배열
- */
-export async function fetchUserReservedSeats(concertId, userId) {
-    const response = await apiClient.get(
-        `/seats/concerts/${concertId}/users/${userId}/reserved`,
-    );
-    return response.data;
-}
-
 // ===========================================
-// 좌석 예약 관리 관련 API (SeatReservationController)
+// 좌석 예약 관리 관련 API
 // ===========================================
 
 /**
@@ -78,46 +52,7 @@ export async function releaseSeat(concertId, seatId) {
 }
 
 // ===========================================
-// 좌석 배치도 관련 API (SeatLayoutController)
-// ===========================================
-
-/**
- * 콘서트 전체 좌석 배치도 조회
- * @param {number} concertId - 콘서트 ID
- * @returns {Promise<Object>} 좌석 배치도 정보
- */
-export async function fetchSeatLayout(concertId) {
-    const response = await apiClient.get(`/concerts/${concertId}/seat-layout`);
-    return response.data;
-}
-
-/**
- * 특정 구역의 좌석 배치 조회
- * @param {number} concertId - 콘서트 ID
- * @param {string} sectionName - 구역명 (예: "A", "B", "VIP")
- * @returns {Promise<Object>} 구역별 좌석 배치 정보
- */
-export async function fetchSectionLayout(concertId, sectionName) {
-    const response = await apiClient.get(
-        `/concerts/${concertId}/seat-layout/sections/${sectionName}`,
-    );
-    return response.data;
-}
-
-/**
- * 좌석 배치도 요약 정보 조회 (경량화된 API)
- * @param {number} concertId - 콘서트 ID
- * @returns {Promise<Object>} 좌석 배치도 요약 정보
- */
-export async function fetchSeatLayoutSummary(concertId) {
-    const response = await apiClient.get(
-        `/concerts/${concertId}/seat-layout/summary`,
-    );
-    return response.data;
-}
-
-// ===========================================
-// 좌석 실시간 폴링 관련 API (SeatPollingController)
+// 좌석 실시간 폴링 관련 API
 // ===========================================
 
 // 폴링 시스템 설정
@@ -155,6 +90,7 @@ export async function pollSeatStatus(
         // URL 및 파라미터 구성
         const params = new URLSearchParams({
             ...(lastUpdateTime && { lastUpdateTime: lastUpdateTime }), // lastUpdateTime이 string으로 전달되므로 toString() 불필요
+            replace: 'true', // 기존 세션 교체 모드 활성화
         });
         const url = `${import.meta.env.VITE_APP_API_URL}/seats/concerts/${concertId}/polling?${params}`;
 
@@ -196,7 +132,7 @@ export async function pollSeatStatus(
                         const responseBody = xhr.responseText
                             ? JSON.parse(xhr.responseText)
                             : {};
-                        const responseData = responseBody.data; // 백엔드 SuccessResponse 구조
+                        const responseData = responseBody; // 직접 응답 구조 (SuccessResponse 래퍼 없음)
 
                         // 백엔드 타임아웃 응답 처리 (백엔드에서 status: 'timeout-ok'를 data 필드에 넘겨줌)
                         if (
@@ -308,176 +244,9 @@ export async function pollSeatStatus(
     });
 }
 
-/**
- * 폴링 시스템 상태 조회
- * @param {number} concertId - 콘서트 ID
- * @returns {Promise<Object>} 폴링 시스템 상태
- */
-export async function fetchPollingStatus(concertId) {
-    const response = await apiClient.get(
-        `/seats/concerts/${concertId}/polling/status`,
-    );
-    return response.data;
-}
-
-// ===========================================
-// 관리자 API (SeatAdminController) - 필요 시 유지
-// ===========================================
-
-/**
- * 좌석 캐시 초기화 (관리자 전용)
- * @param {number} concertId - 콘서트 ID
- * @returns {Promise<Object>} 캐시 초기화 결과
- */
-export async function initializeSeatCache(concertId) {
-    const response = await apiClient.post(
-        `/admin/seats/concerts/${concertId}/cache/init`,
-    );
-    return response.data;
-}
-
-/**
- * 좌석 캐시 상태 조회 (관리자 전용)
- * @param {number} concertId - 콘서트 ID
- * @returns {Promise<Object>} 캐시 상태 정보
- */
-export async function fetchSeatCacheStatus(concertId) {
-    const response = await apiClient.get(
-        `/admin/seats/concerts/${concertId}/cache/status`,
-    );
-    return response.data;
-}
-
-/**
- * 좌석 캐시 삭제 (관리자 전용)
- * @param {number} concertId - 콘서트 ID
- * @returns {Promise<Object>} 캐시 삭제 결과
- */
-export async function deleteSeatCache(concertId) {
-    const response = await apiClient.delete(
-        `/admin/seats/concerts/${concertId}/cache`,
-    );
-    return response.data;
-}
-
-/**
- * 만료된 선점 좌석 정리 (관리자 전용)
- * @param {number} concertId - 콘서트 ID
- * @returns {Promise<Object>} 정리 결과
- */
-export async function cleanupExpiredReservations(concertId) {
-    const response = await apiClient.post(
-        `/admin/seats/concerts/${concertId}/cleanup`,
-    );
-    return response.data;
-}
-
-/**
- * 수동 캐시 Warm-up 스케줄러 실행 (관리자 전용)
- * @param {number} concertId - 콘서트 ID
- * @returns {Promise<Object>} 스케줄러 실행 결과
- */
-export async function triggerCacheWarmup(concertId) {
-    const response = await apiClient.post(
-        `/admin/seats/concerts/${concertId}/cache/warmup`,
-    );
-    return response.data;
-}
-
-/**
- * 캐시 처리 이력 조회 (관리자 전용)
- * @param {number} concertId - 콘서트 ID
- * @returns {Promise<Array>} 캐시 처리 이력
- */
-export async function fetchCacheHistory(concertId) {
-    const response = await apiClient.get(
-        `/admin/seats/concerts/${concertId}/cache/history`,
-    );
-    return response.data;
-}
-
-// ===========================================
-// 폴링 관리자 API (SeatPollingAdminController) - 필요 시 유지
-// ===========================================
-
-/**
- * 폴링 시스템 대시보드 정보 조회 (관리자 전용)
- * @returns {Promise<Object>} 폴링 시스템 대시보드 정보
- */
-export async function fetchPollingDashboard() {
-    const response = await apiClient.get('/admin/seats/polling/dashboard');
-    return response.data;
-}
-
-/**
- * 콘서트별 폴링 세션 상세 정보 (관리자 전용)
- * @param {number} concertId - 콘서트 ID
- * @returns {Promise<Object>} 콘서트별 폴링 세션 정보
- */
-export async function fetchConcertPollingDetails(concertId) {
-    const response = await apiClient.get(
-        `/admin/seats/polling/concerts/${concertId}`,
-    );
-    return response.data;
-}
-
-/**
- * 수동 폴링 세션 정리 (관리자 전용)
- * @param {number} concertId - 콘서트 ID
- * @returns {Promise<Object>} 세션 정리 결과
- */
-export async function cleanupPollingSessions(concertId) {
-    const response = await apiClient.post(
-        `/admin/seats/polling/concerts/${concertId}/cleanup`,
-    );
-    return response.data;
-}
-
-/**
- * Redis 구독자 재시작 (관리자 전용)
- * @param {number} concertId - 콘서트 ID
- * @returns {Promise<Object>} 재시작 결과
- */
-export async function restartRedisSubscriber(concertId) {
-    const response = await apiClient.post(
-        `/admin/seats/polling/concerts/${concertId}/restart-subscriber`,
-    );
-    return response.data;
-}
-
-/**
- * 테스트 이벤트 발행 (관리자 전용)
- * @param {number} concertId - 콘서트 ID
- * @returns {Promise<Object>} 테스트 이벤트 발행 결과
- */
-export async function publishTestEvent(concertId) {
-    const response = await apiClient.post(
-        `/admin/seats/polling/concerts/${concertId}/test-event`,
-    );
-    return response.data;
-}
-
 // ===========================================
 // 유틸리티 함수 및 폴링 매니저
 // ===========================================
-
-/**
- * 좌석 ID 유효성 검증
- * @param {number} seatId - 좌석 ID
- * @returns {boolean} 유효성 여부
- */
-export function validateSeatId(seatId) {
-    return typeof seatId === 'number' && seatId > 0;
-}
-
-/**
- * 콘서트 ID 유효성 검증
- * @param {number} concertId - 콘서트 ID
- * @returns {boolean} 유효성 여부
- */
-export function validateConcertId(concertId) {
-    return typeof concertId === 'number' && concertId > 0;
-}
 
 /**
  * 백엔드 Long Polling 지원 여부 확인
@@ -494,29 +263,6 @@ export const getPollingInterval = () => {
 };
 
 /**
- * 클라이언트 네트워크 타임아웃 가져오기
- */
-export const getClientNetworkTimeout = () => {
-    return POLLING_CONFIG.CLIENT_NETWORK_TIMEOUT;
-};
-
-/**
- * 백엔드 Long Polling 활성화 (백엔드 구현 완료 시 호출)
- */
-export const enableBackendPolling = () => {
-    POLLING_CONFIG.BACKEND_POLLING_ENABLED = true;
-    console.log('🔥 백엔드 Long Polling 활성화');
-};
-
-/**
- * 백엔드 Long Polling 비활성화
- */
-export const disableBackendPolling = () => {
-    POLLING_CONFIG.BACKEND_POLLING_ENABLED = false;
-    console.log('🔥 백엔드 Long Polling 비활성화');
-};
-
-/**
  * 재시도 로직이 포함된 안정적인 폴링 시스템 (백엔드 자체 타임아웃 관리)
  * @param {number} concertId - 콘서트 ID
  * @param {Object} options - 폴링 옵션
@@ -528,13 +274,16 @@ export function createStablePollingManager(concertId, options = {}) {
     let isPolling = false;
     let timeoutId = null;
     let abortController = null;
+    let isPollingInProgress = false; // 폴링 진행 중 플래그
 
     const executePolling = async () => {
-        if (!isPolling) {
+        if (!isPolling || isPollingInProgress) {
             return;
         }
 
         try {
+            isPollingInProgress = true; // 폴링 시작 플래그 설정
+
             // 새로운 AbortController 생성
             abortController = new AbortController();
 
@@ -544,11 +293,16 @@ export function createStablePollingManager(concertId, options = {}) {
                 abortController.signal,
             );
 
-            // 모든 응답 타입에 대해 동일하게 처리 (update, timeout, no_data, session_conflict 등)
-            if (response.type === 'update' && response.data && onUpdate) {
-                console.log('🔥 좌석 데이터 업데이트 수신');
-                onUpdate(response.data);
-            } else if (response.type === 'session_conflict') {
+            // 모든 응답에 대해 onUpdate 호출 (안정성 향상)
+            if (onUpdate) {
+                console.log(
+                    '🔥 폴링 응답 수신 - 업데이트 트리거:',
+                    response.type,
+                );
+                onUpdate();
+            }
+
+            if (response.type === 'session_conflict') {
                 console.log(
                     '🔥 409 Conflict - 백엔드에서 중복 세션 거절 (정상 동작, 계속 폴링)',
                 );
@@ -558,11 +312,11 @@ export function createStablePollingManager(concertId, options = {}) {
                 onStatusChange(true);
             }
 
-            // 다음 폴링 스케줄링 (409 포함 모든 경우에 계속 폴링)
+            // 이벤트 수신 후 즉시 재폴링 (300ms 지연으로 안정성 확보)
             if (isPolling) {
                 timeoutId = setTimeout(
                     executePolling,
-                    POLLING_CONFIG.POLLING_INTERVAL,
+                    300, // 300ms 지연으로 백엔드 처리 시간 확보
                 );
             }
         } catch (error) {
@@ -584,6 +338,8 @@ export function createStablePollingManager(concertId, options = {}) {
                     POLLING_CONFIG.POLLING_INTERVAL,
                 );
             }
+        } finally {
+            isPollingInProgress = false; // 폴링 완료 플래그 해제
         }
     };
 

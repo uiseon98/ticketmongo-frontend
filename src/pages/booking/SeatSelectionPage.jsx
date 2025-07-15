@@ -9,7 +9,6 @@ import ConcertInfoHeader from '../../features/booking/components/ConcertInfoHead
 import SeatMap from '../../features/booking/components/SeatMap';
 import SelectionPanel from '../../features/booking/components/SelectionPanel';
 import LoadingSpinner from '../../shared/components/ui/LoadingSpinner';
-import ErrorMessage from '../../shared/components/ui/ErrorMessage';
 
 export default function SeatSelectionPage() {
     const { concertId } = useParams();
@@ -22,6 +21,7 @@ export default function SeatSelectionPage() {
     const {
         seatStatuses,
         selectedSeats,
+        isReserving,
         error: reservationError, // 페이지 에러와 구분하기 위해 이름 변경
         timer,
         isPolling,
@@ -67,6 +67,31 @@ export default function SeatSelectionPage() {
             stopPolling();
         };
     }, [stopPolling]);
+
+    // 4. 좌석 예약 에러 처리
+    useEffect(() => {
+        if (reservationError) {
+            let friendlyMessage = '좌석 선택 중 문제가 발생했습니다.';
+
+            if (reservationError.includes('선택 불가')) {
+                friendlyMessage =
+                    '이미 선택된 좌석입니다. 다른 좌석을 선택해주세요.';
+            } else if (reservationError.includes('만료')) {
+                friendlyMessage =
+                    '선점 시간이 만료되었습니다. 다시 선택해주세요.';
+            } else if (
+                reservationError.includes('네트워크') ||
+                reservationError.includes('연결')
+            ) {
+                friendlyMessage = '네트워크 연결을 확인하고 다시 시도해주세요.';
+            } else if (reservationError.includes('서버')) {
+                friendlyMessage =
+                    '서버에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요.';
+            }
+
+            alert(friendlyMessage);
+        }
+    }, [reservationError]);
 
     const handleCheckout = async () => {
         // 결제 전 좌석 선점 상태 확인
@@ -116,32 +141,25 @@ export default function SeatSelectionPage() {
 
     if (pageLoading)
         return <LoadingSpinner message="콘서트 정보를 불러오는 중..." />;
-    if (pageError) return <ErrorMessage message={pageError} />;
+    if (pageError) {
+        alert(
+            `죄송합니다. ${pageError.includes('불러오') ? '콘서트 정보를 가져오는 중 문제가 발생했습니다.' : '서비스에 일시적인 문제가 발생했습니다.'} 잠시 후 다시 시도해주세요.`,
+        );
+        return <LoadingSpinner message="다시 시도하는 중..." />;
+    }
 
     return (
         <div className="bg-[#111922] min-h-screen text-white p-4 sm:p-6 lg:p-8">
             <div className="max-w-screen-2xl mx-auto">
                 <ConcertInfoHeader concertInfo={concertInfo} />
-                {reservationError && (
-                    <ErrorMessage message={reservationError} />
-                )}
 
-                {/* 수동 새로고침 버튼 */}
-                <div className="mb-4 flex justify-end">
-                    <button
-                        onClick={refreshSeatStatuses}
-                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-                        disabled={pageLoading}
-                    >
-                        {pageLoading ? '새로고침 중...' : '좌석 상태 새로고침'}
-                    </button>
-                </div>
                 <div className="mt-8 flex flex-col lg:flex-row gap-8">
                     <div className="flex-grow lg:w-2/3">
                         <SeatMap
                             seatStatuses={seatStatuses}
                             selectedSeats={selectedSeats}
                             onSeatClick={handleSeatClick}
+                            isReserving={isReserving}
                         />
                     </div>
                     <div className="lg:w-1/3 lg:max-w-sm">

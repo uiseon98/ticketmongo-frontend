@@ -199,7 +199,7 @@ export default function Login() {
                                     onClick={() =>
                                         setShowPassword(!showPassword)
                                     }
-                                    className="absolute right-3 bottom-0 text-gray-400 hover:text-gray-300 transition-colors"
+                                    className="absolute right-0 bottom-0 text-gray-300 hover:text-gray-300 transition-colors"
                                 >
                                     {showPassword ? (
                                         <EyeOff className="w-5 h-5" />
@@ -306,7 +306,7 @@ export default function Login() {
                                 계정이 없으신가요?{' '}
                                 <button
                                     onClick={() => navigate('/register')}
-                                    className="ml-2 text-blue-400 hover:text-blue-300 font-medium transition-colors"
+                                    className="ml-2 text-white hover:text-blue-300 font-medium transition-colors"
                                 >
                                     회원가입
                                 </button>
