@@ -1,23 +1,40 @@
-/*App 컴포넌트 스타일*/
+/* ===== App 컴포넌트 전용 스타일 (콘서트 페이지와 통일) ===== */
 
+/* 루트 컨테이너 스타일 */
 #root {
-    margin: 0 auto;
-    text-align: center;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100vh;
+    background-color: #111827; /* gray-900 - 콘서트 페이지와 동일 */
+    color: #ffffff;
+    overflow-x: hidden; /* 가로 스크롤 방지 */
+    position: relative;
 }
 
+/* ===== 로고 스타일 (브랜드 아이덴티티 통일) ===== */
 .logo {
-    height: 6em;
-    padding: 1.5em;
+    height: 4rem; /* 6em에서 4rem으로 축소 */
+    width: auto;
+    padding: 0.75rem;
     will-change: filter;
-    transition: filter 300ms;
-}
-.logo:hover {
-    filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-    filter: drop-shadow(0 0 2em #61dafbaa);
+    transition: all 0.3s ease;
+    border-radius: 8px;
 }
 
+.logo:hover {
+    filter: drop-shadow(
+        0 0 1.5rem rgba(59, 130, 246, 0.5)
+    ); /* 파란색 글로우 효과 */
+    transform: scale(1.05);
+}
+
+/* React 로고 특별 효과 */
+.logo.react:hover {
+    filter: drop-shadow(0 0 1.5rem rgba(97, 218, 251, 0.5));
+}
+
+/* ===== 로고 회전 애니메이션 (부드럽게 조정) ===== */
 @keyframes logo-spin {
     from {
         transform: rotate(0deg);
@@ -27,16 +44,333 @@
     }
 }
 
+/* 애니메이션 속도 조정 (더 자연스럽게) */
 @media (prefers-reduced-motion: no-preference) {
-    a:nth-of-type(2) .logo {
+    .logo.react {
         animation: logo-spin infinite 20s linear;
+    }
+
+    .logo.react:hover {
+        animation: logo-spin infinite 8s linear;
     }
 }
 
+/* ===== 카드 컴포넌트 스타일 (콘서트 카드와 통일) ===== */
 .card {
-    padding: 2em;
+    background-color: #1f2937; /* gray-800 */
+    border: 1px solid #374151; /* gray-700 */
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
 }
 
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #3b82f6, #60a5fa);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    transform: translateY(-4px);
+    border-color: #4b5563; /* gray-600 */
+}
+
+.card:hover::before {
+    opacity: 1;
+}
+
+/* ===== 네비게이션 링크 스타일 ===== */
+.nav-link {
+    color: #d1d5db; /* gray-300 */
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.nav-link:hover {
+    color: #ffffff;
+    background-color: rgba(59, 130, 246, 0.1);
+}
+
+.nav-link.active {
+    color: #60a5fa; /* blue-400 */
+    background-color: rgba(59, 130, 246, 0.1);
+}
+
+.nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: #60a5fa;
+}
+
+/* ===== 문서/가이드 텍스트 스타일 ===== */
 .read-the-docs {
-    color: #888;
+    color: #9ca3af; /* gray-400 */
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin-top: 1rem;
+    text-align: center;
+}
+
+.read-the-docs a {
+    color: #60a5fa; /* blue-400 */
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    transition: text-decoration-color 0.2s ease;
+}
+
+.read-the-docs a:hover {
+    text-decoration-color: #60a5fa;
+}
+
+/* ===== 버튼 그룹 스타일 ===== */
+.button-group {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 1.5rem 0;
+}
+
+@media (max-width: 640px) {
+    .button-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+/* ===== 로딩 상태 스타일 ===== */
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    gap: 1rem;
+}
+
+.loading-spinner {
+    width: 2rem;
+    height: 2rem;
+    border: 3px solid #374151; /* gray-700 */
+    border-top: 3px solid #3b82f6; /* blue-500 */
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.loading-text {
+    color: #9ca3af; /* gray-400 */
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* ===== 에러/성공 메시지 스타일 ===== */
+.message {
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    margin: 1rem 0;
+    font-weight: 500;
+    border-left: 4px solid;
+}
+
+.message.success {
+    background-color: rgba(16, 185, 129, 0.1); /* emerald-500 with opacity */
+    border-left-color: #10b981; /* emerald-500 */
+    color: #6ee7b7; /* emerald-300 */
+}
+
+.message.error {
+    background-color: rgba(239, 68, 68, 0.1); /* red-500 with opacity */
+    border-left-color: #ef4444; /* red-500 */
+    color: #fca5a5; /* red-300 */
+}
+
+.message.warning {
+    background-color: rgba(245, 158, 11, 0.1); /* amber-500 with opacity */
+    border-left-color: #f59e0b; /* amber-500 */
+    color: #fcd34d; /* amber-300 */
+}
+
+.message.info {
+    background-color: rgba(59, 130, 246, 0.1); /* blue-500 with opacity */
+    border-left-color: #3b82f6; /* blue-500 */
+    color: #93c5fd; /* blue-300 */
+}
+
+/* ===== 폼 요소 스타일 향상 ===== */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #f3f4f6; /* gray-100 */
+    font-weight: 500;
+    font-size: 0.875rem;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background-color: #1f2937; /* gray-800 */
+    border: 1px solid #374151; /* gray-700 */
+    border-radius: 8px;
+    color: #ffffff;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #3b82f6; /* blue-500 */
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-input::placeholder {
+    color: #6b7280; /* gray-500 */
+}
+
+/* ===== 헤더/네비게이션 특별 스타일 ===== */
+.app-header {
+    background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+    border-bottom: 1px solid #374151;
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+.app-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 1.25rem;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.app-brand:hover {
+    color: #60a5fa; /* blue-400 */
+}
+
+.app-brand-icon {
+    font-size: 1.5rem;
+    filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.3));
+}
+
+/* ===== 푸터 스타일 ===== */
+.app-footer {
+    background-color: #111827; /* gray-900 */
+    border-top: 1px solid #374151; /* gray-700 */
+    margin-top: auto;
+}
+
+/* ===== 반응형 디자인 ===== */
+@media (max-width: 768px) {
+    .card {
+        padding: 1.5rem;
+        margin: 0.5rem;
+    }
+
+    .logo {
+        height: 3rem;
+        padding: 0.5rem;
+    }
+
+    .button-group {
+        gap: 0.5rem;
+    }
+
+    .form-input {
+        padding: 1rem;
+        font-size: 1rem; /* 모바일에서 확대 방지 */
+    }
+}
+
+@media (max-width: 480px) {
+    .card {
+        padding: 1rem;
+        margin: 0.25rem;
+    }
+
+    .message {
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+    }
+}
+
+/* ===== 다크 테마 보완 ===== */
+@media (prefers-color-scheme: light) {
+    /* 라이트 모드에서도 다크 테마 강제 유지 */
+    #root {
+        background-color: #111827;
+        color: #ffffff;
+    }
+
+    .card {
+        background-color: #1f2937;
+        border-color: #374151;
+    }
+
+    .form-input {
+        background-color: #1f2937;
+        border-color: #374151;
+        color: #ffffff;
+    }
+}
+
+/* ===== 접근성 향상 ===== */
+@media (prefers-reduced-motion: reduce) {
+    .logo {
+        animation: none !important;
+        transition: none;
+    }
+
+    .card {
+        transition: none;
+    }
+
+    .nav-link {
+        transition: none;
+    }
+}
+
+/* ===== 인쇄 최적화 ===== */
+@media print {
+    .logo {
+        filter: none;
+        height: 2rem;
+    }
+
+    .card {
+        border: 1px solid #000;
+        background: #fff;
+        color: #000;
+        box-shadow: none;
+    }
+
+    .button-group {
+        display: none;
+    }
 }

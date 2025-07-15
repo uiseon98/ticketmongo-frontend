@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
+import Header from './Header';
+import Footer from './Footer';
 import SellerSidebar from '../../../features/seller/components/SellerSidebar';
 
 const SellerLayout = () => {
     const location = useLocation();
 
-    // SellerSidebar에 전달하기 위한 반응형 상태 (MainLayout과 중복될 수 있으나, SellerLayout의 특화된 사이드바 동작을 위해 유지)
+    // 반응형 상태를 안정적으로 관리
     const [isMobile, setIsMobile] = useState(() => {
         if (typeof window !== 'undefined') {
             return window.innerWidth <= 768;
@@ -13,18 +15,26 @@ const SellerLayout = () => {
         return false;
     });
 
-    // 사이드바 열림/닫힘 상태 (SellerLayout 내에서 관리)
+    // 사이드바 상태 - 기본적으로 닫혀있음 (데스크톱도 동일)
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
-    // 디바운스된 리사이즈 핸들러 (isMobile 상태 업데이트)
+    // 디바운스된 리사이즈 핸들러
     const handleResize = useCallback(() => {
         const width = window.innerWidth;
-        setIsMobile(width <= 768);
+        const newIsMobile = width <= 768;
+
+        setIsMobile((prevIsMobile) => {
+            if (prevIsMobile !== newIsMobile) {
+                return newIsMobile;
+            }
+            return prevIsMobile;
+        });
     }, []);
 
-    // 리사이즈 이벤트 리스너 등록 및 해제
+    // 리사이즈 이벤트 등록 (디바운스 적용)
     useEffect(() => {
         let timeoutId;
+
         const debouncedResize = () => {
             clearTimeout(timeoutId);
             timeoutId = setTimeout(handleResize, 100);
@@ -38,7 +48,7 @@ const SellerLayout = () => {
         };
     }, [handleResize]);
 
-    // 페이지 전환 시 사이드바 닫기 (UX 개선)
+    // 페이지 전환 시 사이드바 닫기 (모바일/데스크톱 공통)
     useEffect(() => {
         setSidebarOpen(false);
     }, [location.pathname]);
@@ -51,31 +61,29 @@ const SellerLayout = () => {
     }, [sidebarOpen]);
 
     return (
-        // SellerLayout은 MainLayout의 <main> 태그 안에 렌더링되므로,
-        // min-h-screen, bg-gray-900 같은 최상위 레이아웃 스타일은 MainLayout이 담당합니다.
-        // 여기서는 MainLayout의 남은 공간을 채우면서 내부적으로 사이드바와 콘텐츠를 배치하는 flex 컨테이너 역할을 합니다.
-        <div className="flex flex-1 relative">
-            {/* 오버레이 (모바일에서 사이드바가 열려있을 때만 표시) */}
+        <div className="min-h-screen flex flex-col bg-gray-900">
+            {/* 헤더 */}
+            <Header />
+
+            {/* 오버레이 (사이드바가 열려있을 때만) */}
             {sidebarOpen && (
                 <div
-                    className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
-                    style={{ top: '5rem' }} // MainLayout의 Header 높이만큼 아래로 시작
+                    className="fixed inset-0 bg-black bg-opacity-50 z-40"
+                    style={{ top: '5rem' }}
                     onClick={handleOverlayClick}
                 />
             )}
 
-            {/* 사이드바 영역 */}
+            {/* 사이드바 (햄버거 메뉴로만 열림) */}
             <aside
-                className="fixed left-0 top-0 h-full z-50 bg-gray-900 border-r border-gray-700
-                           transition-transform duration-300 ease-in-out
-                           lg:static lg:h-auto lg:translate-x-0 lg:w-64 lg:flex-shrink-0" // 데스크톱에서는 고정된 사이드바, 모바일에서만 슬라이드
+                className="fixed left-0 top-20 h-[calc(100vh-5rem)] z-50 bg-gray-900 border-r border-gray-700"
                 style={{
                     width: '256px',
                     transform: sidebarOpen
                         ? 'translateX(0)'
                         : 'translateX(-100%)',
-                    top: '5rem', // MainLayout의 Header 높이만큼 아래로
-                    height: 'calc(100vh - 5rem)', // Header 높이만큼 제외한 높이
+                    transition: 'transform 0.3s ease-in-out',
+                    visibility: sidebarOpen ? 'visible' : 'hidden',
                 }}
             >
                 <SellerSidebar
@@ -85,13 +93,10 @@ const SellerLayout = () => {
                 />
             </aside>
 
-            {/* 메인 콘텐츠 영역 (사이드바 공간 확보) */}
-            {/* lg:ml-64를 통해 데스크톱에서 사이드바 너비만큼 왼쪽 여백 확보 */}
-            <div className="flex-1 flex flex-col p-6 lg:ml-64">
-                {/* 햄버거 메뉴 버튼 및 '판매자 페이지' 제목 */}
-                {/* 모바일에서만 보이고 데스크톱에서는 숨김 */}
-                {/* MainLayout의 Header가 위에 있으므로, 그 아래에 위치 */}
-                <div className="flex items-center justify-between pb-6 mb-6 lg:hidden">
+            {/* 메인 콘텐츠 영역 (전체 너비 사용) */}
+            <div className="flex-1 flex flex-col">
+                {/* 햄버거 메뉴 버튼 */}
+                <div className="flex items-center justify-between p-6 bg-gray-900 border-b border-gray-700">
                     <div className="flex items-center gap-4">
                         <button
                             onClick={() => setSidebarOpen((prev) => !prev)}
@@ -116,14 +121,21 @@ const SellerLayout = () => {
                             판매자 페이지
                         </h1>
                     </div>
+
                     {/* 추가 액션 버튼들 (필요시) */}
                     <div className="flex items-center gap-2">
                         {/* 나중에 알림이나 설정 버튼 추가 가능 */}
                     </div>
                 </div>
 
-                <Outlet />
+                {/* 실제 페이지 콘텐츠 */}
+                <main className="flex-1 overflow-auto bg-gray-900 p-6">
+                    <Outlet />
+                </main>
             </div>
+
+            {/* 푸터 */}
+            <Footer />
         </div>
     );
 };

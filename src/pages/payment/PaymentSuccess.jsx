@@ -1,7 +1,7 @@
 // src/pages/payment/PaymentSuccess.jsx
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { fetchBooking } from '../../features/payment/paymentAPI';
+import { userService } from '../../features/user/services/userService.js';
 
 export default function PaymentSuccess() {
     const [params] = useSearchParams();
@@ -14,8 +14,9 @@ export default function PaymentSuccess() {
             setError('예매 번호가 전달되지 않았습니다.');
             return;
         }
-        fetchBooking(bookingNumber)
-            .then((res) => setBooking(res.data.data))
+        userService
+            .getBookingDetail(bookingNumber)
+            .then((data) => setBooking(data))
             .catch(() => setError('예매 정보를 불러오는 데 실패했습니다.'));
     }, [bookingNumber]);
 

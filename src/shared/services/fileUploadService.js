@@ -417,10 +417,7 @@ export const fileUploadService = {
     },
 
     /**
-     * 이미지 URL 유효성 검사 (외부 URL용)
-     *
-     * @param {string} url - 검사할 URL
-     * @returns {{valid: boolean, error?: string}} 검증 결과
+     * 이미지 URL 검증 - 모든 URL 동일하게 처리
      */
     validateImageUrl(url) {
         if (!url || url.trim() === '') {
@@ -438,25 +435,6 @@ export const fileUploadService = {
                 };
             }
 
-            // 이미지 확장자 검사 (선택사항, URL에 확장자가 없을 수도 있음)
-            const pathname = urlObj.pathname.toLowerCase();
-            const validExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
-            const hasValidExtension = validExtensions.some((ext) =>
-                pathname.endsWith(ext),
-            );
-
-            // 확장자가 없거나 의심스러운 경우 경고만 하고 통과
-            if (
-                !hasValidExtension &&
-                pathname !== '' &&
-                !pathname.endsWith('/')
-            ) {
-                console.warn(
-                    '이미지 파일 확장자가 감지되지 않았습니다:',
-                    pathname,
-                );
-            }
-
             return { valid: true };
         } catch (error) {
             return { valid: false, error: '올바른 URL 형식이 아닙니다.' };
@@ -464,12 +442,7 @@ export const fileUploadService = {
     },
 
     /**
-     * 이미지 로드 가능 여부 테스트 (외부 URL용)
-     * CORS 문제나 네트워크 문제 사전 감지
-     *
-     * @param {string} url - 테스트할 이미지 URL
-     * @param {number} timeout - 타임아웃 시간 (밀리초, 기본 5초)
-     * @returns {Promise<{loadable: boolean, error?: string}>}
+     * 이미지 로드 테스트 - 모든 URL에 대해 실제 테스트
      */
     async testImageLoad(url, timeout = 5000) {
         return new Promise((resolve) => {
@@ -494,8 +467,6 @@ export const fileUploadService = {
                 });
             };
 
-            // CORS 문제 방지 (anonymous 모드로 로드 시도)
-            img.crossOrigin = 'anonymous';
             img.src = url;
         });
     },

@@ -2,13 +2,10 @@ import React, { useState, useContext } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { AuthContext } from '../../../context/AuthContext';
 
-// Lucide React 사용 보류
-// import { User, Settings, Plus, List, ChevronDown, ChevronUp, Home } from 'lucide-react';
-
-const SellerSidebar = () => {
-    const { user } = useContext(AuthContext); // AuthContext에서 user 정보 가져오기
-    const [isConcertMenuOpen, setIsConcertMenuOpen] = useState(false); // 콘서트 관리 토글 상태
-    const location = useLocation(); // 현재 라우트 정보 가져오기
+const SellerSidebar = ({ isMobile, sidebarOpen, setSidebarOpen }) => {
+    const { user } = useContext(AuthContext);
+    const [isConcertMenuOpen, setIsConcertMenuOpen] = useState(false);
+    const location = useLocation();
 
     // 판매자 권한 확인
     const isAdmin =
@@ -20,175 +17,247 @@ const SellerSidebar = () => {
         (user.role === 'ROLE_SELLER' ||
             (user.roles && user.roles.includes('ROLE_SELLER')));
 
-    // 판매자가 아닌 일반 유저 (로그인된 상태에서, 관리자 제외) - 이 변수는 현재 코드에서 직접 사용되지 않지만, 필요 시 활용
-    // const isNormalUser = user && !isSeller && !isAdmin;
-
     // '판매자 권한 상태' 탭의 동적 텍스트 결정
     const sellerStatusTabText = location.pathname.startsWith('/seller/apply')
-        ? '판매자 권한 신청' // /seller/apply 페이지에 있을 때
-        : '판매자 권한 상태'; // 그 외 (주로 /seller/status 페이지에 있을 때)
+        ? '판매자 권한 신청'
+        : '판매자 권한 상태';
 
     // 콘서트 관리 메뉴 토글 함수
     const toggleConcertMenu = () => {
         setIsConcertMenuOpen((prev) => !prev);
     };
 
+    // 네비게이션 링크 클릭 시 모바일에서 사이드바 닫기
+    const handleNavClick = () => {
+        if (isMobile && setSidebarOpen) {
+            setSidebarOpen(false);
+        }
+    };
+
     return (
-        // 사이드바 전체 컨테이너
         <div
-            className="flex flex-col shrink-0 min-h-screen bg-[#111922] border-r border-solid border-r-[#243447] py-3 pl-4 pr-3"
-            style={{ width: '200px' }} // 사이드바 너비 조정
+            className="flex flex-col bg-gray-900 border-r border-gray-700 h-full w-full"
+            style={{
+                backgroundColor: '#111827',
+                borderRight: '1px solid #374151',
+            }}
         >
+            {/* 모바일에서 닫기 버튼 */}
+            {isMobile && (
+                <div className="flex justify-between items-center p-4 border-b border-gray-700">
+                    <h2 className="text-lg font-semibold text-white">
+                        판매자 메뉴
+                    </h2>
+                    <button
+                        onClick={() => setSidebarOpen(false)}
+                        className="text-gray-400 hover:text-white transition-colors p-1"
+                        aria-label="사이드바 닫기"
+                    >
+                        <svg
+                            className="w-6 h-6"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M6 18L18 6M6 6l12 12"
+                            />
+                        </svg>
+                    </button>
+                </div>
+            )}
+
             {/* 네비게이션 메뉴 */}
-            <div className="flex flex-col gap-2 py-4">
-                {/* 판매자 페이지 홈 링크 (어떤 사용자든 판매자 페이지 진입 시 기본) */}
+            <div className="flex-1 flex flex-col gap-2 p-4 overflow-y-auto">
+                {/* 판매자 페이지 홈 링크 */}
                 <NavLink
-                    to="/seller" // 판매자 페이지의 기본 경로
-                    end // 현재 경로가 정확히 일치할 때만 활성화 (하위 라우트에서는 비활성)
+                    to="/seller"
+                    end
+                    onClick={handleNavClick}
                     className={({ isActive }) =>
                         `flex items-center gap-3 px-3 py-2 rounded-lg text-white text-sm font-medium transition-colors ${
-                            isActive ? 'bg-[#243447]' : 'hover:bg-[#243447]'
+                            isActive
+                                ? 'bg-gray-700 text-blue-400'
+                                : 'hover:bg-gray-700'
                         }`
                     }
                 >
-                    {/* 홈 아이콘 (public 폴더의 SVG 사용) */}
-                    <img
-                        src="/vector-00.svg"
-                        alt="홈 아이콘"
-                        className="w-6 h-6"
-                    />
-                    {/* 관리자는 SellerLayout에 접근 불가하므로 isSeller 여부만 체크 */}
-                    {isSeller ? '홈 (판매자)' : '홈 (일반 유저)'}
+                    {/* 홈 아이콘 */}
+                    <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                        />
+                    </svg>
+                    {isSeller ? '홈' : '홈 (일반 유저)'}
                 </NavLink>
 
-                {/* '판매자 권한 상태' 탭 (일반 유저와 판매자 유저 모두에게 보임) */}
-                {/* 관리자는 App.jsx에서 리다이렉트되므로 여기서는 !isAdmin 조건만 체크하면 됨 */}
+                {/* '판매자 권한 상태' 탭 */}
                 {user && !isAdmin && (
                     <NavLink
-                        to="/seller/status" // 이 링크는 여전히 /seller/status로 이동
+                        to="/seller/status"
+                        onClick={handleNavClick}
                         className={({ isActive }) =>
                             `flex items-center gap-3 px-3 py-2 rounded-lg text-white text-sm font-medium transition-colors ${
-                                // 현재 경로가 /seller/status이거나 /seller/apply일 때 활성화 (두 페이지 모두 이 탭과 관련됨)
                                 isActive ||
                                 location.pathname.startsWith('/seller/apply')
-                                    ? 'bg-[#243447]'
-                                    : 'hover:bg-[#243447]'
+                                    ? 'bg-gray-700 text-blue-400'
+                                    : 'hover:bg-gray-700'
                             }`
                         }
                     >
-                        <img
-                            src="/vector-03.svg"
-                            alt={sellerStatusTabText}
-                            className="w-6 h-6"
-                        />
-                        {sellerStatusTabText} {/* 동적 텍스트 적용 */}
+                        {/* 유저 아이콘 */}
+                        <svg
+                            className="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                            />
+                        </svg>
+                        {sellerStatusTabText}
                     </NavLink>
                 )}
 
                 {/* 판매자 유저에게만 보이는 탭들 */}
                 {isSeller && (
                     <>
+                        {/* 구분선 */}
+                        <div className="border-t border-gray-700 my-2"></div>
+
                         {/* 콘서트 관리 토글 메뉴 */}
                         <div className="flex flex-col">
                             <button
                                 onClick={toggleConcertMenu}
-                                className="flex items-center justify-between px-3 py-2 rounded-lg text-white text-sm font-medium w-full text-left bg-transparent transition-colors hover:bg-[#243447] focus:bg-[#243447]" // 배경색 투명 설정
+                                className={`flex items-center justify-between px-3 py-2 rounded-lg text-white text-sm font-medium w-full text-left transition-colors hover:bg-gray-700 focus:bg-gray-700 ${
+                                    location.pathname.includes(
+                                        '/seller/concerts',
+                                    ) || isConcertMenuOpen
+                                        ? 'bg-gray-700'
+                                        : ''
+                                }`}
                             >
                                 <span className="flex items-center gap-3">
-                                    {/* vector-04.svg 아이콘 사용 */}
-                                    <img
-                                        src="/vector-04.svg"
-                                        alt="콘서트 관리"
-                                        className="w-6 h-6"
-                                    />
-                                    콘서트 관리
-                                </span>
-                                {/* 토글 화살표 아이콘 (SVG 직접 포함) */}
-                                {isConcertMenuOpen ? (
+                                    {/* 콘서트 아이콘 */}
                                     <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        width="16px"
-                                        height="16px"
-                                        viewBox="0 0 24 24"
+                                        className="w-5 h-5"
                                         fill="none"
                                         stroke="currentColor"
-                                        strokeWidth="2"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        className="lucide lucide-chevron-up"
+                                        viewBox="0 0 24 24"
                                     >
-                                        <path d="m18 15-6-6-6 6" />
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
+                                        />
+                                    </svg>
+                                    콘서트 관리
+                                </span>
+                                {/* 토글 화살표 아이콘 */}
+                                {isConcertMenuOpen ? (
+                                    <svg
+                                        className="w-4 h-4"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="m18 15-6-6-6 6"
+                                        />
                                     </svg>
                                 ) : (
                                     <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        width="16px"
-                                        height="16px"
-                                        viewBox="0 0 24 24"
+                                        className="w-4 h-4"
                                         fill="none"
                                         stroke="currentColor"
-                                        strokeWidth="2"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        className="lucide lucide-chevron-down"
+                                        viewBox="0 0 24 24"
                                     >
-                                        <path d="m6 9 6 6 6-6" />
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="m6 9 6 6 6-6"
+                                        />
                                     </svg>
                                 )}
                             </button>
-                            {isConcertMenuOpen && (
+
+                            {/* 하위 메뉴 */}
+                            {(isConcertMenuOpen ||
+                                location.pathname.includes(
+                                    '/seller/concerts',
+                                )) && (
                                 <div className="flex flex-col pl-6 mt-1 space-y-1">
                                     <NavLink
                                         to="/seller/concerts/register"
+                                        onClick={handleNavClick}
                                         className={({ isActive }) =>
                                             `flex items-center gap-3 px-3 py-2 rounded-lg text-white text-sm font-medium transition-colors ${
                                                 isActive
-                                                    ? 'bg-[#243447]'
-                                                    : 'hover:bg-[#243447]'
+                                                    ? 'bg-gray-700 text-blue-400'
+                                                    : 'hover:bg-gray-700'
                                             }`
                                         }
                                     >
-                                        {/* Plus 아이콘 (SVG 직접 포함) */}
+                                        {/* Plus 아이콘 */}
                                         <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width="16px"
-                                            height="16px"
-                                            viewBox="0 0 24 24"
+                                            className="w-4 h-4"
                                             fill="none"
                                             stroke="currentColor"
-                                            strokeWidth="2"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            className="lucide lucide-plus"
+                                            viewBox="0 0 24 24"
                                         >
-                                            <path d="M12 5v14M5 12h14" />
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M12 5v14M5 12h14"
+                                            />
                                         </svg>
                                         콘서트 등록
                                     </NavLink>
                                     <NavLink
                                         to="/seller/concerts/manage"
+                                        onClick={handleNavClick}
                                         className={({ isActive }) =>
                                             `flex items-center gap-3 px-3 py-2 rounded-lg text-white text-sm font-medium transition-colors ${
                                                 isActive
-                                                    ? 'bg-[#243447]'
-                                                    : 'hover:bg-[#243447]'
+                                                    ? 'bg-gray-700 text-blue-400'
+                                                    : 'hover:bg-gray-700'
                                             }`
                                         }
                                     >
-                                        {/* List 아이콘 (SVG 직접 포함) */}
+                                        {/* List 아이콘 */}
                                         <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width="16px"
-                                            height="16px"
-                                            viewBox="0 0 24 24"
+                                            className="w-4 h-4"
                                             fill="none"
                                             stroke="currentColor"
-                                            strokeWidth="2"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            className="lucide lucide-list"
+                                            viewBox="0 0 24 24"
                                         >
-                                            <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"
+                                            />
                                         </svg>
                                         콘서트 관리
                                     </NavLink>

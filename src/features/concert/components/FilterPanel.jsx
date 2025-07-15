@@ -2,17 +2,42 @@
 
 // ===== IMPORT 섹션 =====
 import React, { useState, useCallback, useEffect } from 'react';
-// useState: 필터 상태 관리
-// useCallback: 함수 최적화 (기본적인 수준만)
-// useEffect: 초기값 설정
+
+// 🎯 반응형 Hook 추가
+const useResponsive = () => {
+    const [isMobile, setIsMobile] = useState(false);
+    const [screenWidth, setScreenWidth] = useState(
+        typeof window !== 'undefined' ? window.innerWidth : 1200,
+    );
+
+    useEffect(() => {
+        const handleResize = () => {
+            const width = window.innerWidth;
+            setScreenWidth(width);
+            setIsMobile(width <= 768);
+        };
+
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    return {
+        isMobile,
+        isTablet: screenWidth <= 1024 && screenWidth > 768,
+        isDesktop: screenWidth > 1024,
+        screenWidth,
+    };
+};
 
 /**
- * ===== FilterPanel 컴포넌트 (개선된 버전) =====
+ * ===== FilterPanel 컴포넌트 (반응형 개선 버전) =====
  *
  * 🎯 주요 개선사항:
- * 1. **스마트 초기화 버튼**: 상황에 따라 "필터 초기화" / "전체 보기"로 변경
- * 2. **필터 적용 상태 추적**: 현재 필터가 적용되어 있는지 감지
- * 3. **향상된 사용자 경험**: 필터링 후에도 전체 목록으로 쉽게 돌아가기
+ * 1. 모바일에서 세로 스택 레이아웃으로 변경
+ * 2. 터치 친화적인 버튼 크기
+ * 3. 날짜 선택기 모바일 최적화
+ * 4. 반응형 폰트 크기 및 간격
  */
 const FilterPanel = ({
     // ===== 필수 props =====
@@ -33,6 +58,8 @@ const FilterPanel = ({
     // ===== 🔥 새로 추가: 상태 추적 props =====
     hasActiveFilters = false, // 현재 필터가 적용되어 있는지 여부 (ConcertListPage에서 전달)
 }) => {
+    const { isMobile, isTablet } = useResponsive(); // 🎯 반응형 Hook 사용
+
     // ===== 상태 관리 섹션 =====
 
     /**
@@ -282,7 +309,7 @@ const FilterPanel = ({
         if (hasActiveFilters) {
             // 필터가 적용된 상태
             return {
-                text: '🏠 전체 보기',
+                text: isMobile ? '🏠 전체' : '🏠 전체 보기', // 🎯 모바일에서 짧게
                 emoji: '🏠',
                 enabled: true,
                 tooltip: '모든 콘서트 보기',
@@ -290,7 +317,7 @@ const FilterPanel = ({
         } else if (hasLocalChanges) {
             // 로컬 변경사항만 있는 상태
             return {
-                text: '🔄 필터 초기화',
+                text: isMobile ? '🔄 초기화' : '🔄 필터 초기화', // 🎯 모바일에서 짧게
                 emoji: '🔄',
                 enabled: true,
                 tooltip: '입력한 필터 조건 지우기',
@@ -298,35 +325,50 @@ const FilterPanel = ({
         } else {
             // 아무 변경사항 없는 상태
             return {
-                text: '⚪ 필터 초기화',
+                text: isMobile ? '⚪ 초기화' : '⚪ 필터 초기화',
                 emoji: '⚪',
                 enabled: false,
                 tooltip: '변경된 필터 조건이 없습니다',
             };
         }
-    }, [hasActiveFilters, hasLocalChanges]);
+    }, [hasActiveFilters, hasLocalChanges, isMobile]);
 
     const resetConfig = resetButtonConfig();
 
-    // ===== 스타일 정의 =====
+    // ===== 🎯 반응형 스타일 정의 =====
 
     /**
      * 컨테이너 스타일
      */
     const containerStyles = {
-        padding: compact ? '12px' : '16px',
-        border: '1px solid #374151', // 어두운 테두리
-        borderRadius: '8px',
-        backgroundColor: '#1E293B', // 다크 배경
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.3)', // 더 진한 그림자
+        // 🎯 반응형 패딩
+        padding: isMobile
+            ? '16px'
+            : isTablet
+              ? '18px'
+              : compact
+                ? '12px'
+                : '16px',
+        border: '1px solid #374151',
+        borderRadius: isMobile ? '12px' : '8px',
+        backgroundColor: '#1E293B',
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
         opacity: disabled ? 0.6 : 1,
+        // 🎯 박스 사이징
+        boxSizing: 'border-box',
     };
 
     /**
      * 섹션 스타일
      */
     const sectionStyles = {
-        marginBottom: compact ? '12px' : '16px',
+        marginBottom: isMobile
+            ? '16px'
+            : isTablet
+              ? '18px'
+              : compact
+                ? '12px'
+                : '16px',
     };
 
     /**
@@ -334,10 +376,17 @@ const FilterPanel = ({
      */
     const labelStyles = {
         display: 'block',
-        fontSize: compact ? '13px' : '14px',
+        // 🎯 반응형 폰트 크기
+        fontSize: isMobile
+            ? '14px'
+            : isTablet
+              ? '15px'
+              : compact
+                ? '13px'
+                : '14px',
         fontWeight: '600',
-        color: '#FFFFFF', // 흰색 라벨
-        marginBottom: '6px',
+        color: '#FFFFFF',
+        marginBottom: isMobile ? '8px' : '6px',
     };
 
     /**
@@ -345,12 +394,24 @@ const FilterPanel = ({
      */
     const inputStyles = {
         width: '100%',
-        padding: compact ? '6px 8px' : '8px 12px',
-        border: '1px solid #374151', // 어두운 테두리
-        borderRadius: '4px',
-        fontSize: compact ? '13px' : '14px',
-        backgroundColor: disabled ? '#374151' : '#1E293B', // 다크 배경
-        color: disabled ? '#9ca3af' : '#FFFFFF', // 흰색 텍스트
+        // 🎯 반응형 패딩 (모바일에서 터치 친화적)
+        padding: isMobile
+            ? '14px 16px'
+            : isTablet
+              ? '12px 14px'
+              : compact
+                ? '6px 8px'
+                : '8px 12px',
+        border: '1px solid #374151',
+        borderRadius: isMobile ? '8px' : '4px',
+        // 🎯 iOS zoom 방지를 위해 16px 유지
+        fontSize: '16px',
+        backgroundColor: disabled ? '#374151' : '#1E293B',
+        color: disabled ? '#9CA3AF' : '#FFFFFF',
+        // 🎯 모바일에서 최소 높이 확보
+        minHeight: isMobile ? '48px' : 'auto',
+        // 🎯 박스 사이징
+        boxSizing: 'border-box',
     };
 
     /**
@@ -359,10 +420,11 @@ const FilterPanel = ({
      */
     const getErrorStyles = useCallback(() => {
         const baseStyles = {
-            fontSize: '12px',
+            // 🎯 반응형 폰트 크기
+            fontSize: isMobile ? '13px' : '12px',
             marginTop: '8px',
-            padding: '8px',
-            borderRadius: '4px',
+            padding: isMobile ? '12px' : '8px',
+            borderRadius: isMobile ? '8px' : '4px',
             border: '1px solid',
             display: 'flex',
             alignItems: 'flex-start',
@@ -376,33 +438,52 @@ const FilterPanel = ({
             // 경고 스타일 (노란색)
             return {
                 ...baseStyles,
-                color: '#FBB93B', // 더 어두운 노란색 텍스트
-                backgroundColor: '#1E293B', // 다크 배경
-                borderColor: '#374151', // 어두운 테두리
+                color: '#FBB93B',
+                backgroundColor: '#1E293B',
+                borderColor: '#374151',
             };
         } else {
             // 에러 스타일 (빨간색)
             return {
                 ...baseStyles,
-                color: '#F87171', // 더 어두운 빨간색
-                backgroundColor: '#1E293B', // 다크 배경
-                borderColor: '#374151', // 어두운 테두리
+                color: '#F87171',
+                backgroundColor: '#1E293B',
+                borderColor: '#374151',
             };
         }
-    }, [error]);
+    }, [error, isMobile]);
 
     /**
      * 버튼 기본 스타일
      */
     const buttonBaseStyles = {
-        padding: compact ? '6px 12px' : '8px 16px',
-        borderRadius: '4px',
-        fontSize: compact ? '13px' : '14px',
+        // 🎯 반응형 패딩과 크기
+        padding: isMobile
+            ? '12px 16px'
+            : isTablet
+              ? '10px 14px'
+              : compact
+                ? '6px 12px'
+                : '8px 16px',
+        borderRadius: isMobile ? '8px' : '4px',
+        // 🎯 반응형 폰트 크기
+        fontSize: isMobile
+            ? '14px'
+            : isTablet
+              ? '14px'
+              : compact
+                ? '13px'
+                : '14px',
         fontWeight: '500',
         cursor: disabled || loading ? 'not-allowed' : 'pointer',
         transition: 'all 0.2s ease',
         border: 'none',
         opacity: disabled || loading ? 0.6 : 1,
+        // 🎯 모바일에서 최소 터치 영역
+        minHeight: isMobile ? '44px' : 'auto',
+        minWidth: isMobile ? '80px' : 'auto',
+        // 🎯 박스 사이징
+        boxSizing: 'border-box',
     };
 
     /**
@@ -412,7 +493,7 @@ const FilterPanel = ({
         ...buttonBaseStyles,
         backgroundColor: '#3b82f6',
         color: '#ffffff',
-        marginRight: '8px',
+        marginRight: isMobile ? '12px' : '8px',
     };
 
     /**
@@ -440,26 +521,43 @@ const FilterPanel = ({
                 <h3
                     style={{
                         ...labelStyles,
-                        fontSize: compact ? '14px' : '16px',
-                        marginBottom: compact ? '8px' : '12px',
+                        // 🎯 반응형 제목 크기
+                        fontSize: isMobile
+                            ? '16px'
+                            : isTablet
+                              ? '17px'
+                              : compact
+                                ? '14px'
+                                : '16px',
+                        marginBottom: isMobile
+                            ? '12px'
+                            : isTablet
+                              ? '14px'
+                              : compact
+                                ? '8px'
+                                : '12px',
                         color: '#ffffff',
                     }}
                 >
                     📅 공연 날짜
                 </h3>
 
+                {/* 🎯 반응형 레이아웃 */}
                 <div
                     style={{
-                        display: 'grid',
-                        gridTemplateColumns: '1fr auto 1fr',
-                        gap: '8px',
-                        alignItems: 'end',
+                        display: isMobile ? 'flex' : 'grid', // 모바일에서는 flex 사용
+                        flexDirection: isMobile ? 'column' : undefined,
+                        gridTemplateColumns: isMobile
+                            ? undefined
+                            : '1fr auto 1fr',
+                        gap: isMobile ? '12px' : '8px',
+                        alignItems: isMobile ? 'stretch' : 'end',
                     }}
                 >
                     {/* 시작일 */}
                     <div>
                         <label htmlFor="startDate" style={labelStyles}>
-                            시작일
+                            {isMobile ? '시작일' : '시작일'}
                         </label>
                         <input
                             id="startDate"
@@ -471,21 +569,28 @@ const FilterPanel = ({
                         />
                     </div>
 
-                    {/* 구분선 */}
-                    <div
-                        style={{
-                            color: '#6b7280',
-                            fontSize: compact ? '14px' : '16px',
-                            paddingBottom: '8px',
-                        }}
-                    >
-                        ~
-                    </div>
+                    {/* 구분선 - 모바일에서는 숨김 */}
+                    {!isMobile && (
+                        <div
+                            style={{
+                                color: '#6b7280',
+                                fontSize: isTablet
+                                    ? '16px'
+                                    : compact
+                                      ? '14px'
+                                      : '16px',
+                                paddingBottom: '8px',
+                                textAlign: 'center',
+                            }}
+                        >
+                            ~
+                        </div>
+                    )}
 
                     {/* 종료일 */}
                     <div>
                         <label htmlFor="endDate" style={labelStyles}>
-                            종료일
+                            {isMobile ? '종료일' : '종료일'}
                         </label>
                         <input
                             id="endDate"
@@ -515,9 +620,17 @@ const FilterPanel = ({
             <div
                 style={{
                     display: 'flex',
-                    justifyContent: 'flex-end',
-                    gap: '8px',
-                    marginTop: compact ? '12px' : '16px',
+                    // 🎯 모바일에서 버튼 배치 조정
+                    flexDirection: isMobile ? 'column' : 'row',
+                    justifyContent: isMobile ? 'stretch' : 'flex-end',
+                    gap: isMobile ? '12px' : '8px',
+                    marginTop: isMobile
+                        ? '16px'
+                        : isTablet
+                          ? '18px'
+                          : compact
+                            ? '12px'
+                            : '16px',
                 }}
             >
                 {/* 🔥 개선된 초기화/전체보기 버튼 */}
@@ -543,6 +656,8 @@ const FilterPanel = ({
                             disabled || loading || isCurrentFilterEmpty()
                                 ? 0.4
                                 : 1,
+                        // 🎯 모바일에서는 margin 제거
+                        marginRight: isMobile ? '0' : '8px',
                     }}
                     aria-label="필터 적용"
                     title={
@@ -559,13 +674,15 @@ const FilterPanel = ({
             {!compact && (
                 <div
                     style={{
-                        marginTop: '12px',
-                        padding: '8px',
-                        backgroundColor: '#1E293B', // 다크 배경으로 변경
-                        borderRadius: '4px',
-                        fontSize: '12px',
-                        color: '#9CA3AF', // 어두운 회색 텍스트
-                        border: '1px solid #374151', // 어두운 테두리 추가
+                        marginTop: isMobile ? '16px' : '12px',
+                        padding: isMobile ? '12px' : '8px',
+                        backgroundColor: '#1E293B',
+                        borderRadius: isMobile ? '8px' : '4px',
+                        // 🎯 반응형 폰트 크기
+                        fontSize: isMobile ? '13px' : '12px',
+                        color: '#9CA3AF',
+                        border: '1px solid #374151',
+                        lineHeight: '1.4',
                     }}
                 >
                     {hasActiveFilters ? (
@@ -574,14 +691,16 @@ const FilterPanel = ({
                             <strong style={{ color: '#3B82F6' }}>
                                 필터 적용됨:
                             </strong>{' '}
-                            조건에 맞는 콘서트만 표시 중입니다. "전체 보기"를
-                            클릭하여 모든 콘서트를 확인하세요.
+                            {isMobile
+                                ? '조건에 맞는 콘서트만 표시 중입니다.'
+                                : '조건에 맞는 콘서트만 표시 중입니다. "전체 보기"를 클릭하여 모든 콘서트를 확인하세요.'}
                         </>
                     ) : (
                         <>
                             💡 <strong>팁:</strong> 날짜를 설정한 후 "필터 적용"
-                            버튼을 눌러주세요. 과거 날짜를 선택하면 이미 종료된
-                            콘서트를 검색할 수 있습니다.
+                            버튼을 눌러주세요.
+                            {!isMobile &&
+                                ' 과거 날짜를 선택하면 이미 종료된 콘서트를 검색할 수 있습니다.'}
                         </>
                     )}
                 </div>

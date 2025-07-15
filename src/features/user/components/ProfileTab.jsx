@@ -6,6 +6,7 @@ import { profileInputType } from '../types/profileInputType';
 import { ProfileUploaderSection } from './BookingDetail/ProfileUploaderSection';
 import { NotificationSection } from '../components/BookingDetail/NotificationSection';
 import { NOTIFICATION_TYPE } from '../services/bookingDetailService';
+import SubscriptionToggle from './SubscriptionToggle';
 
 export function ProfileTab({ userInfo, onUpdateUserInfo, isLoading }) {
     const [isEditing, setIsEditing] = useState(false);
@@ -220,6 +221,11 @@ export function ProfileTab({ userInfo, onUpdateUserInfo, isLoading }) {
                     </button>
                 </div>
             )}
+            {/* 알림 */}
+            <div className="px-4">
+                <h3 className="text-lg font-medium mb-2"></h3>
+                <SubscriptionToggle />
+            </div>
         </div>
     );
 }
