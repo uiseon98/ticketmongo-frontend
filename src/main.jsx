@@ -5,6 +5,8 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './App.jsx';
 import './index.css'; // 통일된 전역 CSS
 import { AuthProvider } from './context/AuthContext';
+import { ToastProvider } from './shared/hooks/useToast.jsx';
+import ToastContainer from './shared/components/ui/ToastContainer';
 
 // 에러 바운더리 컴포넌트 (콘서트 페이지와 통일된 스타일)
 class ErrorBoundary extends React.Component {
@@ -196,11 +198,14 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                 }}
             >
                 <AuthProvider>
-                    {/*
-                        App 컴포넌트에서 모든 라우트를 정의하며,
-                        콘서트 페이지와 통일된 디자인 시스템을 적용합니다.
-                    */}
-                    <App />
+                    <ToastProvider>
+                        {/*
+                            App 컴포넌트에서 모든 라우트를 정의하며,
+                            콘서트 페이지와 통일된 디자인 시스템을 적용합니다.
+                        */}
+                        <App />
+                        <ToastContainer />
+                    </ToastProvider>
                 </AuthProvider>
             </BrowserRouter>
         </ErrorBoundary>
