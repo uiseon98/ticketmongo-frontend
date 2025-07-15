@@ -307,12 +307,11 @@ export const useSeatReservation = (concertId, options = {}) => {
                 if (isSelected) {
                     await releaseSeat(concertId, seat.seatId);
                 } else {
-                    if (seat.status !== 'AVAILABLE')
-                        throw new Error('이미 선택된 좌석입니다');
                     if (selectedSeats.length >= MAX_SEATS_SELECTABLE) {
-                        alert('좌석은 최대 2개까지 선점할 수 있습니다.');
-                        return;
+                        throw new Error('좌석은 최대 2개까지 선점할 수 있습니다.');
                     }
+                    if (seat.status !== 'AVAILABLE')
+                        throw new Error('다른 유저가 선점 중인 좌석입니다. 다른 좌석을 선택해 주세요.');
                     await reserveSeat(concertId, seat.seatId);
                 }
                 await refreshSeatStatuses(); // 상태 동기화
@@ -356,6 +355,10 @@ export const useSeatReservation = (concertId, options = {}) => {
         refreshSeatStatuses,
         triggerImmediatePolling,
     ]);
+
+    const clearError = useCallback(() => {
+        setError(null);
+    }, []);
 
     const handleRemoveSeat = useCallback(
         (seatId) => {
@@ -414,5 +417,6 @@ export const useSeatReservation = (concertId, options = {}) => {
         handleRemoveSeat,
         handleClearSelection,
         handleRestoreComplete, // 좌석 복구 후 상태 초기화 함수
+        clearError, // 에러 상태 초기화 함수
     };
 };

@@ -9,6 +9,7 @@ import ConcertInfoHeader from '../../features/booking/components/ConcertInfoHead
 import SeatMap from '../../features/booking/components/SeatMap';
 import SelectionPanel from '../../features/booking/components/SelectionPanel';
 import LoadingSpinner from '../../shared/components/ui/LoadingSpinner';
+import { useToast } from '../../shared/hooks/useToast.jsx';
 
 export default function SeatSelectionPage() {
     const { concertId } = useParams();
@@ -16,6 +17,7 @@ export default function SeatSelectionPage() {
     const [pageLoading, setPageLoading] = useState(true);
     const [pageError, setPageError] = useState(null);
     const { proceedToPayment, isProcessing, paymentError } = usePayment();
+    const { showError, showInfo, showWarning } = useToast();
 
     // 1. 훅을 호출하여 좌석 관련 모든 상태와 함수를 가져옵니다.
     const {
@@ -31,6 +33,7 @@ export default function SeatSelectionPage() {
         handleSeatClick,
         handleRemoveSeat,
         handleClearSelection,
+        clearError,
     } = useSeatReservation(concertId, { enablePolling: true }); // 폴링 활성화 (JWT 토큰 실제 만료 시간 확인을 위해)
 
     // 2. 페이지 최초 로드 시, 콘서트 정보와 좌석 정보를 모두 로드합니다.
@@ -72,26 +75,24 @@ export default function SeatSelectionPage() {
     useEffect(() => {
         if (reservationError) {
             let friendlyMessage = '좌석 선택 중 문제가 발생했습니다.';
-
-            if (reservationError.includes('선택 불가')) {
-                friendlyMessage =
-                    '이미 선택된 좌석입니다. 다른 좌석을 선택해주세요.';
+            
+            if (reservationError.includes('유저')) {
+                showError('다른 유저가 선점 중인 좌석입니다. 다른 좌석을 선택해 주세요.');
+            } else if (reservationError.includes('최대 2개')) {
+                showWarning('좌석은 최대 2개까지 선점할 수 있습니다.');
             } else if (reservationError.includes('만료')) {
-                friendlyMessage =
-                    '선점 시간이 만료되었습니다. 다시 선택해주세요.';
-            } else if (
-                reservationError.includes('네트워크') ||
-                reservationError.includes('연결')
-            ) {
-                friendlyMessage = '네트워크 연결을 확인하고 다시 시도해주세요.';
+                showError('선점 시간이 만료되었습니다. 다시 선택해주세요.');
+            } else if (reservationError.includes('네트워크') || reservationError.includes('연결')) {
+                showError('네트워크 연결을 확인하고 다시 시도해주세요.');
             } else if (reservationError.includes('서버')) {
-                friendlyMessage =
-                    '서버에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요.';
+                showError('서버에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요.');
+            } else {
+                showError(friendlyMessage);
             }
-
-            alert(friendlyMessage);
+            // 에러 메시지를 표시한 후 에러 상태 초기화
+            clearError();
         }
-    }, [reservationError]);
+    }, [reservationError, showError, showWarning, clearError]);
 
     const handleCheckout = async () => {
         // 결제 전 좌석 선점 상태 확인
@@ -115,27 +116,11 @@ export default function SeatSelectionPage() {
             // 결제 훅에서 에러가 발생하면, 여기서 좌석 복구 로직을 실행
             console.error('결제 실패:', error);
             if (error.message.includes('사용자가 결제를 취소했습니다.')) {
-                alert('결제가 취소되었습니다.');
+                showInfo('결제가 취소되었습니다.');
             } else {
-                alert(`결제에 실패했습니다: ${error.message}`);
+                showError(`결제에 실패했습니다: ${error.message}`);
             }
-
-            // 현재 선택된 좌석이 있는 경우 좌석 해제 API 호출
-            if (selectedSeats.length > 0) {
-                try {
-                    // 좌석 해제 API 호출
-                    await handleClearSelection();
-                    console.log('좌석 해제 API 호출 성공');
-                } catch (error) {
-                    console.error('좌석 해제 실패:', error);
-                    // 좌석 해제 실패 시에도 상태 새로고침
-                    await refreshSeatStatuses();
-                }
-            } else {
-                // 선택된 좌석이 없는 경우 단순히 상태만 새로고침
-                console.log('선택된 좌석이 없어 상태만 새로고침합니다.');
-                await refreshSeatStatuses();
-            }
+            await refreshSeatStatuses();
         }
     };
 
