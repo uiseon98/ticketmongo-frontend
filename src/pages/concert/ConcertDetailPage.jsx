@@ -135,6 +135,7 @@ function ConcertDetailPage() {
         totalPages: expectationsTotalPages,
         totalElements: expectationsTotal,
         goToPage: goToExpectationsPage,
+        changePageSize: changeExpectationPageSize,
         createExpectation,
         updateExpectation,
         deleteExpectation,
@@ -491,6 +492,7 @@ function ConcertDetailPage() {
                                     totalElements={expectationsTotal}
                                     onExpectationClick={handleExpectationClick}
                                     onPageChange={goToExpectationsPage}
+                                    onPageSizeChange={changeExpectationPageSize}
                                     showPagination={true}
                                     compact={isMobile} // 🎯 모바일에서 컴팩트 모드
                                     expandedItems={expandedExpectations}
