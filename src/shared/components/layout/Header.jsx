@@ -53,14 +53,8 @@ export default function Header() {
         { to: '/concerts', label: '콘서트' },
     ];
 
-    // 사용자가 로그인되어 있을 때 왼쪽 네비게이션에 추가될 링크
+    // 사용자가 로그인되어 있을 때 왼쪽 네비게이션에 추가될 링크(마이페이지)
     if (!loading && user) {
-        if (isAdmin) {
-            mainNavigationLinks.push({
-                to: '/admin',
-                label: 'Admin Dashboard',
-            });
-        }
         mainNavigationLinks.push({
             to: '/mypage/profile',
             label: '마이페이지',
@@ -118,6 +112,18 @@ export default function Header() {
                             </div>
                         ) : user ? (
                             <div className="hidden md:flex items-center space-x-4">
+                                {isAdmin && (
+                                    <NavLink
+                                        to="/admin"
+                                        className={({ isActive }) =>
+                                            `text-gray-300 hover:text-white transition-colors font-medium ${
+                                                isActive ? 'text-blue-400' : ''
+                                            }`
+                                        }
+                                    >
+                                        관리자 대시보드
+                                    </NavLink>
+                                )}
                                 {/* 관리자가 아닐 때만 판매자 페이지 링크 표시 */}
                                 {!isAdmin && (
                                     <NavLink
@@ -210,6 +216,22 @@ export default function Header() {
                                 </div>
                             ) : user ? (
                                 <>
+                                    {/* 관리자일 경우에만 관리자 대시보드 링크 표시 (모바일) */}
+                                    {isAdmin && (
+                                        <NavLink
+                                            to="/admin"
+                                            onClick={() => setMenuOpen(false)}
+                                            className={({ isActive }) =>
+                                                `block text-gray-300 hover:text-white transition-colors font-medium py-2 px-3 rounded-lg ${
+                                                    isActive
+                                                        ? 'bg-gray-700 text-blue-400'
+                                                        : 'hover:bg-gray-700'
+                                                }`
+                                            }
+                                        >
+                                            판매자 대시보드
+                                        </NavLink>
+                                    )}
                                     {/* 관리자가 아닐 때만 판매자 페이지 링크 표시 (모바일) */}
                                     {!isAdmin && (
                                         <NavLink
