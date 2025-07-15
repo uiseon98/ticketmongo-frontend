@@ -49,8 +49,8 @@ export default function PaymentSuccess() {
     } = booking || {};
 
     // DTO 필드명에 맞춰 데이터 가공
-    const concertDateTime = concertDate + ' ' + startTime +
-                           (endTime ? '~' + endTime : '');
+    const concertDateTime =
+        concertDate + ' ' + startTime + (endTime ? '~' + endTime : '');
     const seatLabels = seatList || [];
 
     return (
@@ -67,9 +67,7 @@ export default function PaymentSuccess() {
                 <hr className="border-t border-t-gray-600 mb-6" />
 
                 {/* 주문 요약 */}
-                <h3 className="text-white text-lg font-bold pb-2">
-                    주문 요약
-                </h3>
+                <h3 className="text-white text-lg font-bold pb-2">주문 요약</h3>
                 <hr className="border-t border-t-gray-600 mb-6" />
 
                 <div className="bg-gray-800 border border-gray-600 rounded-lg p-6 shadow-lg mb-8">
