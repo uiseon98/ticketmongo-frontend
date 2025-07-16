@@ -58,3 +58,22 @@ export async function restoreSeats(concertId) {
         throw error; // 호출자에게 에러를 전달
     }
 }
+
+/**
+ * 액세스 키 연장 API
+ * @param {number} concertId - 콘서트 ID
+ * @returns {Promise<any>}
+ */
+export async function extendAccessKey(concertId) {
+    // API 클라이언트의 요청 인터셉터가 자동으로 헤더에 키를 추가해줍니다.
+    return await apiClient.patch(`/access-keys/extend?concertId=${concertId}`);
+}
+
+/**
+ * 액세스 키 즉시 폐기(삭제) API
+ * @param {number} concertId - 콘서트 ID
+ * @returns {Promise<any>}
+ */
+export async function invalidateAccessKey(concertId) {
+    return await apiClient.delete(`/access-keys?concertId=${concertId}`);
+}
