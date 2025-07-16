@@ -13,11 +13,10 @@ export const BOOKING_STATUS = {
 export const PAYMENT_STATUS = {
     PENDING: '결제 승인 대기',
     DONE: '결제 완료',
-    CANCELED: '결제 취소',
+    CANCELED: '환불 완료',
     PARTIAL_CANCELED: '부분 취소',
     FAILED: '결제 실패',
     EXPIRED: '결제 시간 만료',
-    REFUND: '환불 완료',
 };
 
 export const PAYMENT_METHOD = {
