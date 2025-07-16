@@ -348,7 +348,7 @@ const SellerHomePage = () => {
                             </div>
                             <div className="mt-6">
                                 <button
-                                    onClick={() => navigate('/seller/apply')}
+                                    onClick={() => navigate('/seller/status')}
                                     className={`bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all ${
                                         isMobile
                                             ? 'w-full py-3 px-6'
