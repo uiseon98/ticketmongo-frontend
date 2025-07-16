@@ -90,7 +90,7 @@ const AdminDashboard = () => {
                 console.error('관리자 대시보드 데이터 로드 실패:', err);
                 setError(
                     err.response?.data?.message ||
-                    '대시보드 데이터를 불러오는데 실패했습니다.',
+                        '대시보드 데이터를 불러오는데 실패했습니다.',
                 );
             } finally {
                 setLoading(false);
@@ -102,7 +102,7 @@ const AdminDashboard = () => {
 
     // --- 유틸리티 함수: 날짜 포맷팅 ---
     const formatDate = (dateString) => {
-        if (!dateString) return 'N/A';
+        if (!dateString) return '-';
         const date = new Date(dateString);
         return date.toLocaleString('ko-KR', {
             year: 'numeric',
@@ -319,8 +319,8 @@ const AdminDashboard = () => {
                         isMobile
                             ? 'p-4 overflow-x-hidden'
                             : isTablet
-                                ? 'max-w-4xl mx-auto p-4 overflow-x-hidden'
-                                : 'max-w-6xl mx-auto p-6 overflow-x-hidden'
+                              ? 'max-w-4xl mx-auto p-4 overflow-x-hidden'
+                              : 'max-w-6xl mx-auto p-6 overflow-x-hidden'
                     }
                     style={{
                         backgroundColor: '#111827',
@@ -335,8 +335,8 @@ const AdminDashboard = () => {
                             isMobile
                                 ? 'text-xl font-bold mb-4 text-center break-words animate-shimmer-text'
                                 : isTablet
-                                    ? 'text-2xl font-bold mb-5 text-center break-words animate-shimmer-text'
-                                    : 'text-4xl font-bold mb-6 text-center break-words animate-shimmer-text'
+                                  ? 'text-2xl font-bold mb-5 text-center break-words animate-shimmer-text'
+                                  : 'text-4xl font-bold mb-6 text-center break-words animate-shimmer-text'
                         }
                         style={{
                             color: '#FFFFFF', // 이 색상은 text-transparent로 오버라이드될 것임
@@ -368,8 +368,8 @@ const AdminDashboard = () => {
                             padding: isMobile
                                 ? '40px 20px'
                                 : isTablet
-                                    ? '50px 30px'
-                                    : '60px 40px',
+                                  ? '50px 30px'
+                                  : '60px 40px',
                             textAlign: 'center',
                             maxWidth: isMobile ? '100%' : '600px',
                             margin: '0 auto',
@@ -419,8 +419,8 @@ const AdminDashboard = () => {
                         isMobile
                             ? 'p-4 overflow-x-hidden'
                             : isTablet
-                                ? 'max-w-4xl mx-auto p-4 overflow-x-hidden'
-                                : 'max-w-6xl mx-auto p-6 overflow-x-hidden'
+                              ? 'max-w-4xl mx-auto p-4 overflow-x-hidden'
+                              : 'max-w-6xl mx-auto p-6 overflow-x-hidden'
                     }
                     style={{
                         backgroundColor: '#111827',
@@ -490,8 +490,8 @@ const AdminDashboard = () => {
                     isMobile
                         ? 'p-4 overflow-x-hidden'
                         : isTablet
-                            ? 'max-w-4xl mx-auto p-4 overflow-x-hidden'
-                            : 'max-w-6xl mx-auto p-6 overflow-x-hidden'
+                          ? 'max-w-4xl mx-auto p-4 overflow-x-hidden'
+                          : 'max-w-6xl mx-auto p-6 overflow-x-hidden'
                 }
                 style={{
                     backgroundColor: '#111827',
@@ -506,8 +506,8 @@ const AdminDashboard = () => {
                         isMobile
                             ? 'text-xl font-bold mb-4 text-center break-words'
                             : isTablet
-                                ? 'text-2xl font-bold mb-5 text-center break-words'
-                                : 'text-4xl font-bold mb-6 text-center break-words'
+                              ? 'text-2xl font-bold mb-5 text-center break-words'
+                              : 'text-4xl font-bold mb-6 text-center break-words'
                     }
                     style={{
                         color: '#FFFFFF',
@@ -539,7 +539,6 @@ const AdminDashboard = () => {
                     {' 및 판매자 관리를 수행하세요'}
                 </p>
 
-
                 {/* 콘텐츠 영역 */}
                 <div
                     className={`space-y-${isMobile ? '4' : isTablet ? '5' : '8'}`}
@@ -553,8 +552,8 @@ const AdminDashboard = () => {
                             padding: isMobile
                                 ? '24px'
                                 : isTablet
-                                    ? '28px'
-                                    : '32px',
+                                  ? '28px'
+                                  : '32px',
                         }}
                     >
                         <div className="text-6xl mb-4">👑</div>
@@ -586,8 +585,8 @@ const AdminDashboard = () => {
                                 isMobile
                                     ? 'grid-cols-1'
                                     : isTablet
-                                        ? 'grid-cols-2'
-                                        : 'grid-cols-3'
+                                      ? 'grid-cols-2'
+                                      : 'grid-cols-3'
                             }`}
                         >
                             {/* adminQuickActions 배열을 map하여 카드 렌더링 */}
@@ -614,26 +613,50 @@ const AdminDashboard = () => {
                                     `}
                                     style={{
                                         // 배경색 변경: isComingSoon이면 #243447, 아니면 #1f2937
-                                        backgroundColor: action.isComingSoon ? '#243447' : '#1f2937',
+                                        backgroundColor: action.isComingSoon
+                                            ? '#243447'
+                                            : '#1f2937',
                                         border: '1px solid #374151', // 기본 테두리색 (gray-700)
-                                        minHeight: action.isComingSoon ? '100px' : (isMobile ? '120px' : '140px'),
+                                        minHeight: action.isComingSoon
+                                            ? '100px'
+                                            : isMobile
+                                              ? '120px'
+                                              : '140px',
                                         // isComingSoon이면 그림자/변형 제거 (hover 효과와 맞춤)
-                                        boxShadow: action.isComingSoon ? 'none' : '0 4px 6px rgba(0, 0, 0, 0.1)',
-                                        transform: action.isComingSoon ? 'none' : 'translateY(0)',
+                                        boxShadow: action.isComingSoon
+                                            ? 'none'
+                                            : '0 4px 6px rgba(0, 0, 0, 0.1)',
+                                        transform: action.isComingSoon
+                                            ? 'none'
+                                            : 'translateY(0)',
                                         // 중앙 정렬을 위한 flexbox (colSpan이 3일 때)
-                                        display: action.colSpan === 3 ? 'flex' : 'block',
-                                        flexDirection: action.colSpan === 3 ? 'column' : 'row',
-                                        alignItems: action.colSpan === 3 ? 'center' : 'flex-start',
-                                        justifyContent: action.colSpan === 3 ? 'center' : 'flex-start',
+                                        display:
+                                            action.colSpan === 3
+                                                ? 'flex'
+                                                : 'block',
+                                        flexDirection:
+                                            action.colSpan === 3
+                                                ? 'column'
+                                                : 'row',
+                                        alignItems:
+                                            action.colSpan === 3
+                                                ? 'center'
+                                                : 'flex-start',
+                                        justifyContent:
+                                            action.colSpan === 3
+                                                ? 'center'
+                                                : 'flex-start',
                                     }}
                                     onMouseEnter={(e) => {
                                         if (!action.isComingSoon && !isMobile) {
-                                            e.currentTarget.style.borderColor = action.color;
+                                            e.currentTarget.style.borderColor =
+                                                action.color;
                                         }
                                     }}
                                     onMouseLeave={(e) => {
                                         if (!action.isComingSoon && !isMobile) {
-                                            e.currentTarget.style.borderColor = '#374151';
+                                            e.currentTarget.style.borderColor =
+                                                '#374151';
                                         }
                                     }}
                                     disabled={action.isComingSoon} // 커밍순 카드는 클릭 불가하도록 비활성화
@@ -641,13 +664,22 @@ const AdminDashboard = () => {
                                     {action.isComingSoon ? (
                                         <>
                                             {/* 큰 아이콘과 텍스트 중앙 배치 */}
-                                            <span className="text-5xl mb-2" style={{ color: action.color }}>
+                                            <span
+                                                className="text-5xl mb-2"
+                                                style={{ color: action.color }}
+                                            >
                                                 {action.icon}
                                             </span>
-                                            <h4 className="font-bold text-white mb-1 text-2xl text-center" style={{ opacity: 0.8 }}>
+                                            <h4
+                                                className="font-bold text-white mb-1 text-2xl text-center"
+                                                style={{ opacity: 0.8 }}
+                                            >
                                                 {action.title}
                                             </h4>
-                                            <p className="text-gray-300 text-base text-center" style={{ opacity: 0.8 }}>
+                                            <p
+                                                className="text-gray-300 text-base text-center"
+                                                style={{ opacity: 0.8 }}
+                                            >
                                                 {action.description}
                                             </p>
                                         </>
@@ -657,7 +689,8 @@ const AdminDashboard = () => {
                                             <div
                                                 className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
                                                 style={{
-                                                    backgroundColor: action.color,
+                                                    backgroundColor:
+                                                        action.color,
                                                 }}
                                             >
                                                 <span className="text-xl">
@@ -728,54 +761,77 @@ const AdminDashboard = () => {
                             <div className="overflow-x-auto">
                                 <table className="min-w-full divide-y divide-gray-700">
                                     <thead className="bg-[#243447]">
-                                    <tr>
-                                        <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                            유저
-                                        </th>
-                                        <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                            액션
-                                        </th>
-                                        <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                            일시
-                                        </th>
-                                        <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                            상세
-                                        </th>
-                                    </tr>
+                                        <tr>
+                                            <th className="px-3 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                유저
+                                            </th>
+                                            {/* 기존 '액션' 컬럼을 '타입'으로 변경 */}
+                                            <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider min-w-[80px]">
+                                                타입
+                                            </th>
+                                            {/* '사유' 컬럼 새로 추가 및 최소 너비 설정 */}
+                                            <th className="px-6 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider min-w-[120px]">
+                                                사유
+                                            </th>
+                                            <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                일시
+                                            </th>
+                                            <th className="px-3 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                상세
+                                            </th>
+                                        </tr>
                                     </thead>
                                     <tbody className="bg-[#1a232f] divide-y divide-gray-700">
-                                    {recentActivities.map((activity) => (
-                                        <tr key={activity.id}>
-                                            <td className="px-4 py-3 whitespace-nowrap text-sm text-white">
-                                                {activity.username} (
-                                                {activity.userNickname})
-                                            </td>
-                                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">
-                                                {getHistoryTypeLabel(
-                                                    activity.type,
-                                                )}
-                                                {activity.reason &&
-                                                    ` (${activity.reason})`}
-                                            </td>
-                                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">
-                                                {formatDate(
-                                                    activity.createdAt,
-                                                )}
-                                            </td>
-                                            <td className="px-4 py-3 whitespace-nowrap text-center text-sm">
-                                                <Button
-                                                    onClick={() =>
-                                                        navigate(
-                                                            `/admin/history?userId=${activity.userId}`,
-                                                        )
-                                                    }
-                                                    className="bg-purple-500 hover:bg-purple-700 text-white px-3 py-1 text-xs"
-                                                >
-                                                    이력 보기
-                                                </Button>
-                                            </td>
-                                        </tr>
-                                    ))}
+                                        {recentActivities.map((activity) => (
+                                            <tr key={activity.id}>
+                                                <td className="px-3 py-3 text-center whitespace-nowrap text-sm text-white">
+                                                    {activity.username} (
+                                                    {activity.userNickname})
+                                                </td>
+                                                {/* '타입' 내용 표시 */}
+                                                <td className="px-4 py-3 text-center whitespace-nowrap text-sm text-gray-300">
+                                                    {getHistoryTypeLabel(
+                                                        activity.type,
+                                                    )}
+                                                </td>
+                                                {/* '사유' 내용 표시 및 툴팁 적용 */}
+                                                <td className="px-6 py-3 text-center text-sm text-gray-300 relative">
+                                                    <span className="inline-block whitespace-nowrap overflow-hidden text-ellipsis max-w-[15ch] group">
+                                                        {activity.reason || '-'}
+                                                        {/* 툴팁: 사유가 존재하고, 15글자 초과할 때만 표시 */}
+                                                        {activity.reason &&
+                                                            activity.reason
+                                                                .length >
+                                                                15 && (
+                                                                <span className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-3 py-1 bg-gray-700 text-white text-xs rounded-md whitespace-normal opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-20 w-max max-w-xs">
+                                                                    {
+                                                                        activity.reason
+                                                                    }
+                                                                    {/* 툴팁 화살표 */}
+                                                                    <span className="absolute left-1/2 -translate-x-1/2 -top-1 w-0 h-0 border-x-4 border-x-transparent border-b-4 border-b-gray-700"></span>
+                                                                </span>
+                                                            )}
+                                                    </span>
+                                                </td>
+                                                <td className="px-4 py-3 text-center whitespace-nowrap text-sm text-gray-300">
+                                                    {formatDate(
+                                                        activity.createdAt,
+                                                    )}
+                                                </td>
+                                                <td className="px-3 py-3 text-center whitespace-nowrap text-center text-sm">
+                                                    <Button
+                                                        onClick={() =>
+                                                            navigate(
+                                                                `/admin/history?userId=${activity.userId}`,
+                                                            )
+                                                        }
+                                                        className="bg-purple-600 hover:bg-purple-800 text-white px-3 py-1 text-xs"
+                                                    >
+                                                        이력 보기
+                                                    </Button>
+                                                </td>
+                                            </tr>
+                                        ))}
                                     </tbody>
                                 </table>
                             </div>
@@ -825,7 +881,7 @@ const AdminDashboard = () => {
                             )}
                         </div>
 
-                        <div className="mb-4 text-gray-200 space-y-1 p-4 border border-gray-600 rounded-lg">
+                        <div className="mb-4 text-center text-s text-gray-200 space-y-1 p-4 border border-gray-600 rounded-lg">
                             <p>
                                 <strong>업체명:</strong>{' '}
                                 {pendingAppToProcess.companyName}
@@ -869,62 +925,92 @@ const AdminDashboard = () => {
 
                         {pendingAppToProcess.userHistorySummary &&
                             pendingAppToProcess.userHistorySummary.length >
-                            0 && (
+                                0 && (
                                 <div className="mb-4 border border-gray-600 rounded p-2">
-                                    <p className="text-sm font-semibold mb-2 text-white">
-                                        최근 이력 요약:
+                                    <p className="text-sm mt-1 text-center font-semibold mb-2 text-white">
+                                        <u>&nbsp;최근 이력 요약&nbsp;</u>
                                     </p>
-                                    <div className="overflow-x-auto">
-                                        <table className="min-w-full text-xs divide-y divide-gray-700">
+                                    <div className="overflow-x-auto mx-1.5 my-3 ">
+                                        <table className="min-w-full text-xs divide-y border border-gray-700 divide-gray-700">
                                             <thead>
-                                            <tr className="bg-[#243447]">
-                                                <th className="px-2 py-1 text-center text-gray-300">
-                                                    상태(사유)
-                                                </th>
-                                                <th className="px-2 py-1 text-center text-gray-300">
-                                                    이력 발생 일시
-                                                </th>
-                                            </tr>
+                                                <tr className="bg-[#243447]">
+                                                    <th className="px-6 py-1 border-r-2 border-dashed border-gray-600 border-opacity-60 text-center text-gray-300">
+                                                        상태
+                                                    </th>
+                                                    <th className="px-8 py-1 border-r-2 border-dashed border-gray-600 border-opacity-60 text-center text-gray-300 min-w-[120px]">
+                                                        사유{' '}
+                                                        {/* 헤더를 '사유'로 유지 */}
+                                                    </th>
+                                                    <th className="px-2 py-1 text-center text-gray-300">
+                                                        이력 발생 일시
+                                                    </th>
+                                                </tr>
                                             </thead>
                                             <tbody className="divide-y divide-gray-700">
-                                            {/* 최근 5개만 표시하도록 slice 적용 */}
-                                            {pendingAppToProcess.userHistorySummary
-                                                .slice(0, 5)
-                                                .map((history) => (
-                                                    <tr key={history.id}>
-                                                        <td className="px-2 py-1 text-gray-300 text-left">
-                                                            {getHistoryTypeLabel(
-                                                                history.type,
-                                                            )}
-                                                            {history.reason &&
-                                                                ` (${history.reason})`}
-                                                        </td>
-                                                        <td className="px-2 py-1 text-gray-300 text-center">
-                                                            {formatDate(
-                                                                history.createdAt,
-                                                            )}
-                                                        </td>
-                                                    </tr>
-                                                ))}
+                                                {/* 최근 5개만 표시하도록 slice 적용 */}
+                                                {pendingAppToProcess.userHistorySummary
+                                                    .slice(0, 5)
+                                                    .map((history) => (
+                                                        <tr key={history.id}>
+                                                            <td className="px-6 py-1 border-r-2 border-dashed border-gray-600 border-opacity-60 text-center text-gray-300 text-left">
+                                                                {getHistoryTypeLabel(
+                                                                    history.type,
+                                                                )}
+                                                            </td>
+                                                            {/* '사유' 내용 표시 및 툴팁 적용 */}
+                                                            {/* max-w-[15ch] 추가하여 15글자 이상일 때 말줄임표 적용 */}
+                                                            <td className="px-8 py-1 border-r-2 border-dashed border-gray-600 border-opacity-60 text-center text-gray-300 text-left relative">
+                                                                <span className="inline-block whitespace-nowrap overflow-hidden text-ellipsis max-w-[15ch] group">
+                                                                    {' '}
+                                                                    {/* max-w-[15ch] 추가 */}
+                                                                    {history.reason ||
+                                                                        '-'}
+                                                                    {/* 툴팁: 사유가 존재하고, 15글자 초과할 때만 표시 */}
+                                                                    {history.reason &&
+                                                                        history
+                                                                            .reason
+                                                                            .length >
+                                                                            15 && (
+                                                                            <span className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-3 py-1 bg-gray-700 text-white text-xs rounded-md whitespace-normal opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-20 w-max max-w-xs">
+                                                                                {
+                                                                                    history.reason
+                                                                                }
+                                                                                {/* 툴팁 화살표 */}
+                                                                                <span className="absolute left-1/2 -translate-x-1/2 -top-1 w-0 h-0 border-x-4 border-x-transparent border-b-4 border-b-gray-700"></span>
+                                                                            </span>
+                                                                        )}
+                                                                </span>
+                                                            </td>
+                                                            <td className="px-2 py-1 text-gray-300 text-center">
+                                                                {formatDate(
+                                                                    history.createdAt,
+                                                                )}
+                                                            </td>
+                                                        </tr>
+                                                    ))}
                                             </tbody>
                                         </table>
                                     </div>
-                                    <Button
-                                        onClick={() => {
-                                            setShowProcessPendingModal(false);
-                                            navigate(
-                                                `/admin/history?userId=${pendingAppToProcess.userId}`,
-                                            );
-                                        }}
-                                        className="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1 text-xs mt-2"
-                                    >
-                                        이력 전체 보기 (총{' '}
-                                        {
-                                            pendingAppToProcess
-                                                .userHistorySummary.length
-                                        }
-                                        건)
-                                    </Button>
+                                    <div className="text-center">
+                                        <Button
+                                            onClick={() => {
+                                                setShowProcessPendingModal(
+                                                    false,
+                                                );
+                                                navigate(
+                                                    `/admin/history?userId=${pendingAppToProcess.userId}`,
+                                                );
+                                            }}
+                                            className="bg-gray-700 hover:bg-gray-600 text-center text-white px-3 py-0.5 text-xs mt-1 mb-2.5"
+                                        >
+                                            이력 전체 보기 (총{' '}
+                                            {
+                                                pendingAppToProcess
+                                                    .userHistorySummary.length
+                                            }
+                                            건)
+                                        </Button>
+                                    </div>
                                 </div>
                             )}
 
@@ -1001,7 +1087,7 @@ const AdminDashboard = () => {
                             />
                             <Button
                                 onClick={executeQuickSearch}
-                                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg self-end"
+                                className="bg-blue-700 hover:bg-blue-900 text-white px-4 py-2 rounded-lg self-end"
                                 disabled={searchModalLoading}
                             >
                                 {searchModalLoading ? '검색 중...' : '검색'}
@@ -1015,71 +1101,93 @@ const AdminDashboard = () => {
 
                         {searchResults.length > 0 && (
                             <div className="mt-4 overflow-x-auto">
-                                <h4 className="text-lg font-semibold mb-2 text-white">
-                                    검색 결과
-                                </h4>
+                                <div className="flex justify-between items-center mb-2">
+                                    <h4 className="text-lg font-semibold text-white">
+                                        검색 결과
+                                    </h4>
+                                    {/* 새로운 "이력 보기" 버튼 추가 */}
+                                    <Button
+                                        onClick={() => {
+                                            setShowSearchModal(false); // 모달 닫기
+                                            // 검색 키워드를 그대로 이력 페이지로 전달
+                                            navigate(
+                                                `/admin/history?keyword=${encodeURIComponent(searchKeyword)}`,
+                                            );
+                                        }}
+                                        className="bg-gray-700 hover:bg-blue-400 text-white px-3 py-1 text-xs"
+                                    >
+                                        이력 보기
+                                    </Button>
+                                </div>
                                 <table className="min-w-full divide-y divide-gray-700">
                                     <thead className="bg-[#243447]">
-                                    <tr>
-                                        <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                            유저 ID
-                                        </th>
-                                        <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                            아이디
-                                        </th>
-                                        <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                            닉네임
-                                        </th>
-                                        <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                            타입
-                                        </th>
-                                        <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                            일시
-                                        </th>
-                                        <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                            액션
-                                        </th>
-                                    </tr>
+                                        <tr>
+                                            <th className="px-5 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                유저 ID
+                                            </th>
+                                            <th className="px-5 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                아이디
+                                            </th>
+                                            <th className="px-5 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                닉네임
+                                            </th>
+                                            <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                타입
+                                            </th>
+                                            {/* '사유' 컬럼 헤더 추가 및 최소 너비 설정 */}
+                                            <th className="px-6 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider min-w-[120px]">
+                                                사유
+                                            </th>
+                                            <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                일시
+                                            </th>
+                                            {/* 기존 '액션' 컬럼 제거 */}
+                                        </tr>
                                     </thead>
                                     <tbody className="bg-[#1a232f] divide-y divide-gray-700">
-                                    {searchResults.map((result) => (
-                                        <tr key={result.id}>
-                                            <td className="px-4 py-3 whitespace-nowrap text-sm text-white">
-                                                {result.userId}
-                                            </td>
-                                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">
-                                                {result.username}
-                                            </td>
-                                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">
-                                                {result.userNickname}
-                                            </td>
-                                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">
-                                                {getHistoryTypeLabel(
-                                                    result.type,
-                                                )}
-                                            </td>
-                                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">
-                                                {formatDate(
-                                                    result.createdAt,
-                                                )}
-                                            </td>
-                                            <td className="px-4 py-3 whitespace-nowrap text-center text-sm font-medium">
-                                                <Button
-                                                    onClick={() => {
-                                                        setShowSearchModal(
-                                                            false,
-                                                        );
-                                                        navigate(
-                                                            `/admin/history?userId=${result.userId}`,
-                                                        );
-                                                    }}
-                                                    className="bg-purple-500 hover:bg-purple-700 text-white px-3 py-1 text-xs"
-                                                >
-                                                    이력 보기
-                                                </Button>
-                                            </td>
-                                        </tr>
-                                    ))}
+                                        {searchResults.map((result) => (
+                                            <tr key={result.id}>
+                                                <td className="px-3 py-3 text-center whitespace-nowrap text-sm text-white">
+                                                    {result.userId}
+                                                </td>
+                                                <td className="px-3 py-3 text-center whitespace-nowrap text-sm text-gray-300">
+                                                    {result.username}
+                                                </td>
+                                                <td className="px-3 py-3 text-center whitespace-nowrap text-sm text-gray-300">
+                                                    {result.userNickname}
+                                                </td>
+                                                <td className="px-4 py-3 text-center whitespace-nowrap text-sm text-gray-300">
+                                                    {getHistoryTypeLabel(
+                                                        result.type,
+                                                    )}
+                                                </td>
+                                                {/* '사유' 내용 표시 및 툴팁 적용 */}
+                                                <td className="px-6 py-3 text-center text-sm text-gray-300 relative">
+                                                    {/* max-w-[15ch]로 너비를 제한하여 말줄임표 작동 보장 */}
+                                                    <span className="inline-block whitespace-nowrap overflow-hidden text-ellipsis max-w-[30ch] group">
+                                                        {result.reason || '-'}
+                                                        {/* 툴팁: 사유가 존재하고, 15글자 초과할 때만 표시 */}
+                                                        {result.reason &&
+                                                            result.reason
+                                                                .length >
+                                                                10 && (
+                                                                <span className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-3 py-1 bg-gray-700 text-white text-xs rounded-md whitespace-normal opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-20 w-max max-w-xs">
+                                                                    {
+                                                                        result.reason
+                                                                    }
+                                                                    {/* 툴팁 화살표 */}
+                                                                    <span className="absolute left-1/2 -translate-x-1/2 -top-1 w-0 h-0 border-x-4 border-x-transparent border-b-4 border-b-gray-700"></span>
+                                                                </span>
+                                                            )}
+                                                    </span>
+                                                </td>
+                                                <td className="px-4 py-3 text-center whitespace-nowrap text-sm text-gray-300">
+                                                    {formatDate(
+                                                        result.createdAt,
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        ))}
                                     </tbody>
                                 </table>
                             </div>

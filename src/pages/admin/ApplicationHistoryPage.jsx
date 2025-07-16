@@ -654,7 +654,7 @@ const ApplicationHistoryPage = () => {
                         overflowWrap: 'break-word',
                     }}
                 >
-                    판매자 권한 이력 조회
+                    {getDynamicTitle()} {/* 👈 이 부분을 수정했습니다! */}
                 </h1>
 
                 {/* 부제목 */}
@@ -759,16 +759,20 @@ const ApplicationHistoryPage = () => {
                                                 <br />
                                                 ID
                                             </th>
-                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                            <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
                                                 닉네임 (아이디)
                                             </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                                상태(사유)
+                                            <th className="px-6 py-3 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                상태
                                             </th>
-                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                            <th className="px-6 py-3 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                사유
+                                            </th>
+
+                                            <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
                                                 일시
                                             </th>
-                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                            <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
                                                 상세보기
                                             </th>
                                         </tr>
@@ -776,26 +780,45 @@ const ApplicationHistoryPage = () => {
                                     <tbody className="bg-[#1a232f] divide-y divide-gray-700">
                                         {allHistory.map((history) => (
                                             <tr key={history.id}>
-                                                <td className="px-3 py-3 whitespace-nowrap text-sm font-medium text-white">
+                                                <td className="px-3 py-3 text-center whitespace-nowrap text-sm font-medium text-white">
                                                     {history.id}
                                                 </td>
-                                                <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-300">
+                                                <td className="px-3 py-3 text-center whitespace-nowrap text-sm text-gray-300">
                                                     {history.userId}
                                                 </td>
-                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300 text-left">
+                                                <td className="px-4 py-3 text-center whitespace-nowrap text-sm text-gray-300 text-left">
                                                     {history.userNickname}
                                                     <br />({history.username})
                                                 </td>
-                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-left text-gray-300">
-                                                    {history.type ===
-                                                        'REJECTED' ||
-                                                    history.type === 'REVOKED'
-                                                        ? `${STATUS_LABELS[history.type]} (${history.reason || '사유 없음'})`
-                                                        : STATUS_LABELS[
-                                                              history.type
-                                                          ] || history.type}
+                                                <td className="px-4 py-3 text-center whitespace-nowrap text-sm text-left text-gray-300">
+                                                    {STATUS_LABELS[
+                                                        history.type
+                                                    ] || history.type}
                                                 </td>
-                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300 text-left">
+                                                <td className="px-4 py-3 text-center whitespace-nowrap text-sm text-left text-gray-300">
+                                                    {history.reason ? (
+                                                        history.reason.length >
+                                                        20 ? (
+                                                            <span
+                                                                title={
+                                                                    history.reason
+                                                                }
+                                                            >
+                                                                {history.reason.slice(
+                                                                    0,
+                                                                    20,
+                                                                )}
+                                                                ...
+                                                            </span>
+                                                        ) : (
+                                                            history.reason
+                                                        )
+                                                    ) : (
+                                                        '-'
+                                                    )}
+                                                </td>
+
+                                                <td className="px-4 py-3 text-center whitespace-nowrap text-sm text-gray-300 text-left">
                                                     {new Date(
                                                         history.createdAt,
                                                     ).toLocaleDateString()}{' '}
@@ -805,7 +828,7 @@ const ApplicationHistoryPage = () => {
                                                     ).toLocaleTimeString()}
                                                     )
                                                 </td>
-                                                <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
+                                                <td className="px-4 py-3 text-center whitespace-nowrap text-sm font-medium">
                                                     <Button
                                                         onClick={() =>
                                                             handleViewUserHistory(
@@ -907,68 +930,134 @@ const ApplicationHistoryPage = () => {
                     onClose={() => setShowHistoryModal(false)}
                     title={`'${selectedUserHistory.username}' (${selectedUserHistory.userNickname}) 님의 이력 상세`}
                     size="large"
-                    modalClassName="bg-[#1a232f]" // 모달 배경색
+                    modalClassName="bg-[#1a232f]"
                 >
-                    {/* 신청서 상세 정보 (API-04-07로 가져온 데이터) */}
+                    {/* InfoRow 컴포넌트 정의 */}
+                    <div className="hidden">
+                        {/* 이 위치가 아니라도 되며 컴포넌트 바깥에서도 가능 */}
+                        <script type="text/jsx">
+                            {`
+          const InfoRow = ({ label, value }) => (
+            <div className="flex flex-row items-start gap-2">
+              <div className="w-32 min-w-[100px] text-white font-semibold">{label}:</div>
+              <div className="flex-1 text-gray-300">{value || 'N/A'}</div>
+            </div>
+          );
+        `}
+                        </script>
+                    </div>
+
+                    {/* 신청서 상세 정보 */}
                     <div className="mb-6">
-                        <h3 className="text-white font-semibold mb-2">
+                        <h3 className="text-white text-center font-semibold mb-3 text-lg">
                             신청서 상세 정보
                         </h3>
+
                         {detailedApplication ? (
-                            <div className="text-gray-300 text-sm space-y-1 border border-gray-600 rounded p-4 bg-[#1a232f]">
-                                <p>
-                                    <strong>신청서 ID:</strong>{' '}
-                                    {detailedApplication.applicationId}
-                                </p>
-                                <p>
-                                    <strong>업체명:</strong>{' '}
-                                    {detailedApplication.companyName}
-                                </p>
-                                <p>
-                                    <strong>사업자번호:</strong>{' '}
-                                    {formatBusinessNumber(
-                                        detailedApplication.businessNumber,
-                                    )}
-                                </p>
-                                <p>
-                                    <strong>대표자명:</strong>{' '}
-                                    {detailedApplication.representativeName}
-                                </p>
-                                <p>
-                                    <strong>담당자 연락처:</strong>{' '}
-                                    {formatPhoneNumber(
-                                        detailedApplication.representativePhone,
-                                    )}
-                                </p>
-                                {detailedApplication.uploadedFileUrl && (
-                                    <p>
-                                        <strong>제출 서류:</strong>{' '}
-                                        <a
-                                            href={
-                                                detailedApplication.uploadedFileUrl
+                            <div className="bg-[#1f2937] border border-gray-600 rounded-lg p-6 text-sm space-y-4">
+                                {/* 그리드 */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-y-3 gap-x-8">
+                                    <div className="flex items-start gap-2">
+                                        <div className="w-32 min-w-[100px] text-white font-semibold">
+                                            신청서 ID:
+                                        </div>
+                                        <div>
+                                            {detailedApplication.applicationId}
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start gap-2">
+                                        <div className="w-32 min-w-[100px] text-white font-semibold">
+                                            업체명:
+                                        </div>
+                                        <div>
+                                            {detailedApplication.companyName}
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start gap-2">
+                                        <div className="w-32 min-w-[100px] text-white font-semibold">
+                                            사업자번호:
+                                        </div>
+                                        <div>
+                                            {formatBusinessNumber(
+                                                detailedApplication.businessNumber,
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start gap-2">
+                                        <div className="w-32 min-w-[100px] text-white font-semibold">
+                                            대표자명:
+                                        </div>
+                                        <div>
+                                            {
+                                                detailedApplication.representativeName
                                             }
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-blue-400 hover:underline"
-                                        >
-                                            보기
-                                        </a>
-                                    </p>
-                                )}
-                                <p>
-                                    <strong>신청 일시:</strong>{' '}
-                                    {formatDate(detailedApplication.createdAt)}
-                                </p>
-                                <p>
-                                    <strong>최종 수정 일시:</strong>{' '}
-                                    {formatDate(detailedApplication.updatedAt)}
-                                </p>
-                                <p>
-                                    <strong>현재 상태:</strong>{' '}
-                                    {STATUS_LABELS[
-                                        detailedApplication.status
-                                    ] || detailedApplication.status}
-                                </p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start gap-2">
+                                        <div className="w-32 min-w-[100px] text-white font-semibold">
+                                            담당자 연락처:
+                                        </div>
+                                        <div>
+                                            {formatPhoneNumber(
+                                                detailedApplication.representativePhone,
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start gap-2">
+                                        <div className="w-32 min-w-[100px] text-white font-semibold">
+                                            제출 서류:
+                                        </div>
+                                        <div>
+                                            {detailedApplication.uploadedFileUrl ? (
+                                                <a
+                                                    href={
+                                                        detailedApplication.uploadedFileUrl
+                                                    }
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-blue-400 underline hover:text-blue-300"
+                                                >
+                                                    보기
+                                                </a>
+                                            ) : (
+                                                '없음'
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start gap-2">
+                                        <div className="w-32 min-w-[100px] text-white font-semibold">
+                                            신청 일시:
+                                        </div>
+                                        <div>
+                                            {formatDate(
+                                                detailedApplication.createdAt,
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start gap-2">
+                                        <div className="w-32 min-w-[100px] text-white font-semibold">
+                                            최종 수정 일시:
+                                        </div>
+                                        <div>
+                                            {formatDate(
+                                                detailedApplication.updatedAt,
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="pt-3 border-t border-gray-700">
+                                    <div className="flex items-start gap-2">
+                                        <div className="w-32 min-w-[100px] text-white font-semibold">
+                                            신청서 상태:
+                                        </div>
+                                        <div>
+                                            {STATUS_LABELS[
+                                                detailedApplication.status
+                                            ] || detailedApplication.status}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         ) : (
                             <p className="text-gray-400">
@@ -986,34 +1075,34 @@ const ApplicationHistoryPage = () => {
                         <table className="min-w-full divide-y divide-gray-700 text-left">
                             <thead className="bg-[#243447]">
                                 <tr>
-                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-300">
+                                    <th className="px-4 py-2 text-center text-xs font-medium text-gray-300">
                                         이력 ID
                                     </th>
-                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-300">
+                                    <th className="px-4 py-2 text-center text-xs font-medium text-gray-300">
                                         상태
                                     </th>
-                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-300">
+                                    <th className="px-4 py-2 text-center text-xs font-medium text-gray-300">
                                         사유
                                     </th>
-                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-300">
+                                    <th className="px-4 py-2 text-center text-xs font-medium text-gray-300">
                                         일시
                                     </th>
                                 </tr>
                             </thead>
                             <tbody className="bg-[#1a232f] divide-y divide-gray-700">
                                 <tr className="cursor-pointer hover:bg-gray-800">
-                                    <td className="px-4 py-3 text-sm text-white">
+                                    <td className="px-4 py-3 text-center text-sm text-white">
                                         {selectedUserHistory.id}
                                     </td>
-                                    <td className="px-4 py-3 text-sm text-gray-300">
+                                    <td className="px-4 py-3 text-center text-sm text-gray-300">
                                         {STATUS_LABELS[
                                             selectedUserHistory.type
                                         ] || selectedUserHistory.type}
                                     </td>
-                                    <td className="px-4 py-3 text-sm text-gray-300">
-                                        {selectedUserHistory.reason || 'N/A'}
+                                    <td className="px-4 py-3 text-center text-sm text-gray-300">
+                                        {selectedUserHistory.reason || '-'}
                                     </td>
-                                    <td className="px-4 py-3 text-sm text-gray-300">
+                                    <td className="px-4 py-3 text-center text-sm text-gray-300">
                                         {new Date(
                                             selectedUserHistory.createdAt,
                                         ).toLocaleString()}

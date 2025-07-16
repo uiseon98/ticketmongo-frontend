@@ -37,7 +37,7 @@ const useResponsive = () => {
 // 상태 한글명 매핑
 const STATUS_LABELS = {
     ALL: '전체',
-    REQUEST: '신청 대기 중',
+    REQUEST: '승인 대기 중',
     APPROVED: '승인됨',
     REJECTED: '반려됨',
     WITHDRAWN: '자발적 철회',
@@ -58,6 +58,10 @@ const SellerApproval = () => {
     const [selectedUser, setSelectedUser] = useState(null); // 모달에 표시할 유저 정보
     const [processReason, setProcessReason] = useState(''); // 반려 사유
     const [formErrors, setFormErrors] = useState({}); // 모달 폼 에러
+
+    // 제출 서류 뷰어 모달 관련 상태
+    const [showFileModal, setShowFileModal] = useState(false); // 제출 서류 뷰어 모달
+    const [currentFileUrl, setCurrentFileUrl] = useState(''); // 현재 보고 있는 파일 URL
 
     // --- 데이터 페칭 함수 ---
     const fetchPendingApplications = useCallback(async () => {
@@ -116,6 +120,12 @@ const SellerApproval = () => {
         }
     };
 
+    // --- 제출 서류 보기 핸들러 (팝업으로 열기) ---
+    const handleViewFileClick = (url) => {
+        setCurrentFileUrl(url);
+        setShowFileModal(true);
+    };
+
     // --- 유틸리티 함수: 날짜 포맷팅 ---
     const formatDate = (dateString) => {
         if (!dateString) return 'N/A';
@@ -130,13 +140,26 @@ const SellerApproval = () => {
         });
     };
 
+    // --- 유틸리티 함수: 사업자 번호 포맷팅 ---
+    const formatBusinessNumber = (numberString) => {
+        if (!numberString) return 'N/A';
+        const cleaned = numberString.replace(/\D/g, ''); // 숫자만 남기기
+        if (cleaned.length === 10) {
+            // 000-00-00000 형식
+            return `${cleaned.substring(0, 3)}-${cleaned.substring(
+                3,
+                5,
+            )}-${cleaned.substring(5, 10)}`;
+        }
+        return numberString; // 10자리가 아니면 원본 반환
+    };
+
     // --- 로딩 및 에러 처리 UI ---
     if (loading) {
-        // 로딩 스피너를 중앙에 배치하고 배경색 설정
         return (
             <div
                 style={{
-                    backgroundColor: '#111827', // gray-900
+                    backgroundColor: '#111827',
                     minHeight: '100vh',
                     width: '100vw',
                     margin: 0,
@@ -159,7 +182,6 @@ const SellerApproval = () => {
                         boxSizing: 'border-box',
                     }}
                 >
-                    {/* 페이지 제목 */}
                     <h1
                         className={
                             isMobile
@@ -177,8 +199,6 @@ const SellerApproval = () => {
                     >
                         판매자 신청 승인/반려 관리로 이동 중...
                     </h1>
-
-                    {/* 부제목 */}
                     <p
                         className={`text-center mb-${isMobile ? '6' : isTablet ? '8' : '10'} text-gray-400`}
                         style={{
@@ -188,8 +208,6 @@ const SellerApproval = () => {
                     >
                         대기 중인 판매자 신청을 검토하고 처리합니다.
                     </p>
-
-                    {/* 로딩 카드 */}
                     <div
                         className="rounded-xl shadow-md"
                         style={{
@@ -231,7 +249,6 @@ const SellerApproval = () => {
     }
 
     if (error) {
-        // 에러 메시지를 중앙에 배치하고 배경색 설정
         return (
             <div
                 style={{
@@ -394,31 +411,31 @@ const SellerApproval = () => {
                                     <table className="min-w-full divide-y divide-gray-700">
                                         <thead className="bg-[#243447]">
                                             <tr>
-                                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
                                                     신청 ID
                                                 </th>
-                                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
                                                     유저 ID
                                                 </th>
-                                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
                                                     아이디
                                                 </th>
-                                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
                                                     닉네임
                                                 </th>
-                                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
                                                     업체명
                                                 </th>
-                                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
                                                     사업자번호
                                                 </th>
-                                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
                                                     제출 서류
                                                 </th>
-                                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
                                                     신청일
                                                 </th>
-                                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                <th className="px-4 py-2 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
                                                     작업
                                                 </th>
                                             </tr>
@@ -426,46 +443,48 @@ const SellerApproval = () => {
                                         <tbody className="bg-[#1a232f] divide-y divide-gray-700">
                                             {pendingApplications.map((app) => (
                                                 <tr key={app.applicationId}>
-                                                    <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-white">
+                                                    <td className="px-4 py-3 text-center whitespace-nowrap text-sm font-medium text-white">
                                                         {app.applicationId}
                                                     </td>
-                                                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">
+                                                    <td className="px-4 py-3 text-center whitespace-nowrap text-sm text-gray-300">
                                                         {app.userId}
                                                     </td>
-                                                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">
+                                                    <td className="px-4 py-3 text-center whitespace-nowrap text-sm text-gray-300">
                                                         {app.username}
                                                     </td>
-                                                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">
+                                                    <td className="px-4 py-3 text-center whitespace-nowrap text-sm text-gray-300">
                                                         {app.userNickname}
                                                     </td>
-                                                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">
+                                                    <td className="px-4 py-3 text-center whitespace-nowrap text-sm text-gray-300">
                                                         {app.companyName}
                                                     </td>
-                                                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">
-                                                        {app.businessNumber}
+                                                    <td className="px-4 py-3 text-center whitespace-nowrap text-sm text-gray-300">
+                                                        {formatBusinessNumber(
+                                                            app.businessNumber,
+                                                        )}
                                                     </td>
-                                                    <td className="px-4 py-3 whitespace-nowrap text-sm">
+                                                    <td className="px-4 py-3 text-center whitespace-nowrap text-sm">
                                                         {app.uploadedFileUrl ? (
-                                                            <a
-                                                                href={
-                                                                    app.uploadedFileUrl
+                                                            <button
+                                                                onClick={() =>
+                                                                    handleViewFileClick(
+                                                                        app.uploadedFileUrl,
+                                                                    )
                                                                 }
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                className="text-blue-400 hover:underline"
+                                                                className="text-blue-400 hover:underline bg-transparent border-none cursor-pointer p-0"
                                                             >
                                                                 보기
-                                                            </a>
+                                                            </button>
                                                         ) : (
                                                             '없음'
                                                         )}
                                                     </td>
-                                                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">
+                                                    <td className="px-4 py-3 text-center whitespace-nowrap text-sm text-gray-300">
                                                         {formatDate(
                                                             app.createdAt,
                                                         )}
                                                     </td>
-                                                    <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
+                                                    <td className="px-4 py-3 text-center whitespace-nowrap text-right text-sm font-medium">
                                                         <div className="flex space-x-2 justify-end">
                                                             <Button
                                                                 onClick={() =>
@@ -515,7 +534,7 @@ const SellerApproval = () => {
                             ? '판매자 신청 승인'
                             : '판매자 신청 반려'
                     }
-                    modalClassName="bg-[#1a232f]" // 모달 배경색
+                    modalClassName="bg-[#1a232f]"
                 >
                     <p className="mb-4 text-gray-300">
                         &apos;{selectedUser.username}&apos;(
@@ -523,19 +542,19 @@ const SellerApproval = () => {
                         {selectedUser.approveAction ? '승인' : '반려'}
                         하시겠습니까?
                     </p>
-                    {!selectedUser.approveAction && ( // 반려 시에만 사유 입력 필드
+                    {!selectedUser.approveAction && (
                         <InputField
                             label="반려 사유"
                             name="processReason"
                             value={processReason}
                             onChange={(e) => {
                                 setProcessReason(e.target.value);
-                                setFormErrors({}); // 입력 시 에러 메시지 초기화
+                                setFormErrors({});
                             }}
                             placeholder="반려 사유를 입력하세요"
                             error={formErrors.reason}
                             required={true}
-                            className="mb-4 text-white" // text-white 추가
+                            className="mb-4 text-white"
                         />
                     )}
                     <div className="flex justify-end space-x-2">
@@ -561,6 +580,52 @@ const SellerApproval = () => {
                                 ? '승인하기'
                                 : '반려하기'}
                         </Button>
+                    </div>
+                </Modal>
+            )}
+
+            {/* --- 제출 서류 뷰어 모달 --- */}
+            {showFileModal && (
+                <Modal
+                    isOpen={showFileModal}
+                    onClose={() => setShowFileModal(false)}
+                    title="제출 서류"
+                    modalClassName="bg-[#1a232f] max-w-xl lg:max-w-3xl xl:max-w-4xl p-0"
+                >
+                    {currentFileUrl ? (
+                        <div
+                            className="flex justify-center items-center w-full h-full" // remove p-4 here
+                            style={{
+                                maxHeight: '85vh',
+                                overflow: 'hidden', // change to hidden to prevent scrolling of the container
+                            }}
+                        >
+                            <img
+                                src={currentFileUrl}
+                                alt="제출 서류"
+                                className="object-contain" // use object-contain to scale down while preserving aspect ratio
+                                style={{
+                                    maxWidth: '100%', // ensure it doesn't exceed the container width
+                                    maxHeight: 'calc(100vh - 100px)', // adjust based on modal header and button height
+                                }}
+                            />
+                        </div>
+                    ) : (
+                        <p className="text-gray-300 text-center py-4">
+                            표시할 파일이 없습니다.
+                        </p>
+                    )}
+                    <div className="flex justify-center p-4 border-t border-gray-700">
+                        {currentFileUrl && (
+                            <Button
+                                onClick={() =>
+                                    window.open(currentFileUrl, '_blank')
+                                }
+                                className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 text-sm"
+                            >
+                                크게 보기 (새 탭)
+                            </Button>
+                        )}
                     </div>
                 </Modal>
             )}
