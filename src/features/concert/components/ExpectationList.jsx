@@ -1,8 +1,7 @@
-// src/features/concert/components/ExpectationList.jsx (Responsive Version)
+// src/features/concert/components/ExpectationList.jsx (Responsive Version - 페이지 크기 변경 기능 제거)
 
 // ===== IMPORT 섹션 =====
 import React, { useCallback, useState, useEffect } from 'react';
-// useCallback: 이벤트 핸들러 최적화
 
 // 기대평 관련 타입과 상수들을 import
 import {
@@ -17,7 +16,7 @@ import {
  * 🎯 주요 역할:
  * 1. **기대평 목록 표시**: 콘서트의 관람 전 기대평 목록을 카드 형태로 렌더링
  * 2. **기대점수 시각화**: 1-5점 기대점수를 별과 이모지로 표시
- * 3. **페이지네이션**: 페이지 이동 및 페이지 크기 변경 기능
+ * 3. **페이지네이션**: 페이지 이동 기능 (고정 페이지 크기)
  * 4. **상태 관리**: 로딩, 에러, 빈 상태 처리
  * 5. **기대평 액션**: 개별 기대평 클릭, 수정, 삭제 기능
  * 6. **완전 반응형**: 모바일, 태블릿, 데스크톱 최적화
@@ -27,15 +26,10 @@ import {
  * - 자동 페이지네이션 처리
  * - 기대평 액션 이벤트 전달
  *
- * 💡 리뷰와의 차이점:
- * - 기대평: 관람 **전** 작성, 기대점수(1-5), 정렬 옵션 없음, 노란색 테마
- * - 리뷰: 관람 **후** 작성, 평점(1-5), 다양한 정렬 옵션, 파란색 테마
- *
- * 📱 반응형 특징:
- * - 모바일 우선 설계
- * - 터치 친화적 인터페이스
- * - 적응형 레이아웃
- * - 스크린 크기별 최적화
+ * 🗑️ 제거된 기능:
+ * - 페이지 크기 변경 (10개씩/20개씩/50개씩 보기)
+ * - onPageSizeChange 핸들러
+ * - changePageSize 관련 로직
  */
 const ExpectationList = ({
     // ===== 데이터 props (useExpectations hook에서) =====
@@ -47,12 +41,11 @@ const ExpectationList = ({
     currentPage = 0, // 현재 페이지 (useExpectations.currentPage)
     totalPages = 0, // 전체 페이지 수 (useExpectations.totalPages)
     totalElements = 0, // 전체 기대평 수 (useExpectations.totalElements)
-    pageSize = 10, // 페이지 크기 (useExpectations.pageSize)
+    pageSize = 10, // 페이지 크기 (읽기 전용)
 
     // ===== 액션 props =====
     onExpectationClick, // 기대평 클릭 핸들러 (상세보기 또는 수정)
     onPageChange, // 페이지 변경 핸들러 (useExpectations.goToPage)
-    onPageSizeChange, // 페이지 크기 변경 핸들러 (useExpectations.changePageSize)
     onRefresh, // 새로고침 핸들러 (useExpectations.refresh)
     currentUserId, // 현재 사용자 ID
     onEditClick, // 수정 버튼 클릭 핸들러
@@ -97,19 +90,6 @@ const ExpectationList = ({
             }
         },
         [onPageChange],
-    );
-
-    /**
-     * 페이지 크기 변경 핸들러
-     */
-    const handlePageSizeChange = useCallback(
-        (event) => {
-            const newSize = parseInt(event.target.value, 10);
-            if (onPageSizeChange && typeof onPageSizeChange === 'function') {
-                onPageSizeChange(newSize);
-            }
-        },
-        [onPageSizeChange],
     );
 
     /**
@@ -655,6 +635,16 @@ const ExpectationList = ({
                     >
                         관람 전
                     </span>
+                    {/* 🆕 추가: 페이지 크기 표시 */}
+                    <span
+                        style={{
+                            fontSize: isMobile ? '11px' : '10px',
+                            color: '#9ca3af',
+                            fontWeight: 'normal',
+                        }}
+                    >
+                        (페이지당 {pageSize}개)
+                    </span>
                 </div>
 
                 <div style={actionContainerStyles}>
@@ -1013,33 +1003,7 @@ const ExpectationList = ({
                 </div>
             )}
 
-            {/* 페이지 크기 선택 - 반응형 */}
-            {showPagination && totalElements > 10 && (
-                <div
-                    style={{
-                        textAlign: 'center',
-                        marginTop: '12px',
-                    }}
-                >
-                    <select
-                        value={pageSize}
-                        onChange={handlePageSizeChange}
-                        style={{
-                            padding: isMobile ? '8px 12px' : '6px 10px',
-                            border: '1px solid #6b7280',
-                            borderRadius: '6px',
-                            fontSize: isMobile ? '16px' : '12px',
-                            backgroundColor: '#374151',
-                            color: '#ffffff',
-                            minHeight: isMobile ? '44px' : 'auto',
-                        }}
-                    >
-                        <option value={10}>10개씩 보기</option>
-                        <option value={20}>20개씩 보기</option>
-                        <option value={50}>50개씩 보기</option>
-                    </select>
-                </div>
-            )}
+            {/* 🗑️ 제거: 페이지 크기 선택 드롭다운 */}
 
             {/* 기대평 vs 리뷰 안내 - 반응형 */}
             {!compact && totalElements > 0 && (

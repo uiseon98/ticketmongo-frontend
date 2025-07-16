@@ -65,9 +65,6 @@ function Footer() {
     return (
         <footer className="bg-gray-900 border-t border-gray-700 mt-auto">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                {/* 구분선 */}
-                <div className="border-t border-gray-700"></div>
-
                 {/* 하단 카피라이트 및 추가 정보 */}
                 <div className={`py-${isMobile ? '4' : '6'}`}>
                     <div
