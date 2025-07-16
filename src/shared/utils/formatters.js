@@ -38,3 +38,22 @@ export const formatBusinessNumber = (businessNumber) => {
     }
     return cleaned; // 형식에 맞지 않으면 숫자만 반환
 };
+
+// /**
+//  * 날짜 문자열을 지정된 로케일과 형식으로 포맷팅합니다.
+//  * @param {string} dateString - 포맷팅할 날짜 문자열
+//  * @returns {string} 포맷팅된 날짜 문자열 또는 'N/A'
+//  */
+// export const formatDate = (dateString) => {
+//     if (!dateString) return 'N/A';
+//     const date = new Date(dateString);
+//     if (isNaN(date.getTime())) return 'N/A'; // 유효하지 않은 날짜 처리
+//     return date.toLocaleString('ko-KR', {
+//         year: 'numeric',
+//         month: '2-digit',
+//         day: '2-digit',
+//         hour: '2-digit',
+//         minute: '2-digit',
+//         hour12: false,
+//     });
+// };

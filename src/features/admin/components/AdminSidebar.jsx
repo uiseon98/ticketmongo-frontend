@@ -1,19 +1,12 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 
-// isMobile, sidebarOpen, setSidebarOpen props를 받습니다.
 const AdminSidebar = ({
     isMobile,
     sidebarOpen, // eslint-disable-line no-unused-vars
     setSidebarOpen,
 }) => {
-    // sidebarOpen prop은 AdminLayout에서 <aside> 태그의 스타일을 제어하는 데 사용되므로, AdminSidebar 내부에서는 직접 사용되지 않아 ESLint 경고가 발생합니다.
-    // 이는 의도된 구조이므로, 해당 경고를 무시합니다.
-
-    const location = useLocation();
-    // location은 NavLink의 isActive prop 계산에 간접적으로 사용되지만, 이 컴포넌트 내부의 다른 로직에서 직접 참조되지 않아 ESLint 경고가 발생합니다.
-    // 이는 의도된 구조이므로, 해당 경고를 무시합니다.
-
+    useLocation();
     // 네비게이션 링크 클릭 시 모바일에서 사이드바 닫기
     const handleNavClick = () => {
         if (isMobile && setSidebarOpen) {
@@ -23,7 +16,7 @@ const AdminSidebar = ({
 
     return (
         <div
-            className="flex flex-col bg-gray-900 border-r border-gray-700 h-full w-full" // 배경색 및 테두리 SellerLayout과 통일
+            className="flex flex-col bg-gray-900 border-r border-gray-700 h-full w-full"
             style={{
                 backgroundColor: '#111827', // 기존 AdminSidebar의 배경색 유지 (더 어둡게)
                 borderRight: '1px solid #374151', // 기존 AdminSidebar의 테두리 유지
@@ -36,7 +29,7 @@ const AdminSidebar = ({
                         관리자 메뉴
                     </h2>
                     <button
-                        onClick={() => setSidebarOpen(false)} // setSidebarOpen prop 사용
+                        onClick={() => setSidebarOpen(false)}
                         className="text-gray-400 hover:text-white transition-colors p-1"
                         aria-label="사이드바 닫기"
                     >
@@ -57,7 +50,8 @@ const AdminSidebar = ({
                 </div>
             )}
 
-            <div className="flex-1 flex flex-col gap-2 py-4 overflow-y-auto">
+            {/* 네비게이션 메뉴 */}
+            <div className="flex-1 flex flex-col gap-2 p-4 overflow-y-auto">
                 {/* Dashboard 메뉴 */}
                 <NavLink
                     to="/admin"
@@ -67,7 +61,7 @@ const AdminSidebar = ({
                         `flex items-center gap-3 px-3 py-2 rounded-lg text-left text-white text-sm font-medium transition-colors ${
                             isActive
                                 ? 'bg-gray-700 text-blue-400'
-                                : 'hover:bg-gray-700' // 색상 SellerSidebar와 통일
+                                : 'hover:bg-gray-700'
                         }`
                     }
                 >
@@ -76,7 +70,7 @@ const AdminSidebar = ({
                         alt="Dashboard Icon"
                         className="w-6 h-6"
                     />
-                    Dashboard
+                    관리자 대시보드
                 </NavLink>
                 {/* Seller Approval 메뉴 */}
                 <NavLink
@@ -95,7 +89,7 @@ const AdminSidebar = ({
                         alt="Seller Approval Icon"
                         className="w-6 h-6"
                     />
-                    Seller Approval
+                    판매자 권한 신청 처리
                 </NavLink>
                 {/* Seller Management 메뉴 */}
                 <NavLink
@@ -114,7 +108,7 @@ const AdminSidebar = ({
                         alt="Seller Management Icon"
                         className="w-6 h-6"
                     />
-                    Seller Management
+                    판매자 관리
                 </NavLink>
                 {/* Application History 메뉴 */}
                 <NavLink
@@ -133,27 +127,27 @@ const AdminSidebar = ({
                         alt="Application History Icon"
                         className="w-6 h-6"
                     />
-                    Application History
+                    판매자 권한 처리 이력
                 </NavLink>
-                {/* Settings 메뉴 */}
-                <NavLink
-                    to="/admin/settings"
-                    onClick={handleNavClick}
-                    className={({ isActive }) =>
-                        `flex items-center gap-3 px-3 py-2 rounded-lg text-left text-white text-sm font-medium transition-colors ${
-                            isActive
-                                ? 'bg-gray-700 text-blue-400'
-                                : 'hover:bg-gray-700'
-                        }`
-                    }
-                >
-                    <img
-                        src="/admin-vector-04.svg"
-                        alt="Settings Icon"
-                        className="w-6 h-6"
-                    />
-                    Settings
-                </NavLink>
+                {/*/!* Settings 메뉴(추후 확장 예정) *!/*/}
+                {/*<NavLink*/}
+                {/*    to="/admin/settings"*/}
+                {/*    onClick={handleNavClick}*/}
+                {/*    className={({ isActive }) =>*/}
+                {/*        `flex items-center gap-3 px-3 py-2 rounded-lg text-left text-white text-sm font-medium transition-colors ${*/}
+                {/*            isActive*/}
+                {/*                ? 'bg-gray-700 text-blue-400'*/}
+                {/*                : 'hover:bg-gray-700'*/}
+                {/*        }`*/}
+                {/*    }*/}
+                {/*>*/}
+                {/*    <img*/}
+                {/*        src="/admin-vector-04.svg"*/}
+                {/*        alt="Settings Icon"*/}
+                {/*        className="w-6 h-6"*/}
+                {/*    />*/}
+                {/*    Settings*/}
+                {/*</NavLink>*/}
             </div>
         </div>
     );
