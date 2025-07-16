@@ -5,14 +5,14 @@ import {
     reserveSeat,
     releaseSeat,
     fetchAllSeatStatus,
+    extendAccessKey,
+    invalidateAccessKey,
 } from '../services/bookingService';
 import {
     getPollingInterval,
     isBackendPollingSupported,
-    pollSeatStatus,
     createStablePollingManager,
 } from '../services/seatService';
-import apiClient from '../../../shared/utils/apiClient';
 
 export const useSeatReservation = (concertId, options = {}) => {
     const { enablePolling = true } = options;
@@ -275,6 +275,30 @@ export const useSeatReservation = (concertId, options = {}) => {
         return () => clearInterval(interval);
     }, [timer]);
 
+    useEffect(() => {
+        // 1분에 한 번씩 액세스키 연장 API를 호출하는 인터벌 설정
+        const EXTENSION_INTERVAL_MS = 60 * 1000; // 1분
+
+        console.log('[AccessKey] 페이지 진입. 자동 연장 시스템을 시작합니다.');
+        const intervalId = setInterval(() => {
+            console.log('[AccessKey] 주기적인 자동 연장을 시도합니다.');
+            extendAccessKey(concertId).catch((err) => {
+                console.warn(
+                    '액세스 키 자동 연장에 실패했습니다:',
+                    err.message,
+                );
+            });
+        }, EXTENSION_INTERVAL_MS);
+
+        // 페이지를 이탈하면(언마운트 시) 인터벌을 정리합니다.
+        return () => {
+            console.log(
+                '[AccessKey] 페이지 이탈. 자동 연장 시스템을 중단합니다.',
+            );
+            clearInterval(intervalId);
+        };
+    }, [concertId]);
+
     // 언마운트 시 좌석 해제 및 폴링 정리
     useEffect(() => {
         return () => {
@@ -285,13 +309,13 @@ export const useSeatReservation = (concertId, options = {}) => {
             if (pollingManagerRef.current) {
                 pollingManagerRef.current.stopPolling();
             }
-
-            // 좌석 해제
-            if (selectedSeatsRef.current.length > 0) {
-                selectedSeatsRef.current.forEach((seat) => {
-                    releaseSeat(concertId, seat.seatId).catch(console.error);
-                });
-            }
+            console.log('[AccessKey] 페이지 이탈. 액세스키를 폐기합니다.');
+            invalidateAccessKey(concertId).catch((err) => {
+                console.warn(
+                    '페이지 이탈 시 액세스키 폐기 중 오류 발생:',
+                    err.message,
+                );
+            });
         };
     }, [concertId]);
 
