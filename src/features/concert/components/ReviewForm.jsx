@@ -1,4 +1,4 @@
-// src/features/concert/components/ReviewForm.jsx
+// src/features/concert/components/ReviewForm.jsx (Responsive Version)
 
 // ===== IMPORT 섹션 =====
 import React, { useState, useCallback, useEffect } from 'react';
@@ -14,7 +14,7 @@ import {
 } from '../types/review.js';
 
 /**
- * ===== ReviewForm 컴포넌트 =====
+ * ===== Responsive ReviewForm 컴포넌트 =====
  *
  * 🎯 주요 역할:
  * 1. **리뷰 작성**: 새로운 콘서트 후기 작성 폼
@@ -22,26 +22,19 @@ import {
  * 3. **유효성 검증**: 실시간 입력 검증 및 에러 표시
  * 4. **별점 입력**: 인터랙티브한 별점 선택 UI
  * 5. **글자 수 카운터**: 제목/내용 글자 수 실시간 표시
+ * 6. **완전 반응형**: 모바일, 태블릿, 데스크톱 최적화
  *
  * 🔄 Hook 연동:
  * - useReviews.createReview (새 리뷰 작성)
  * - useReviews.updateReview (기존 리뷰 수정)
  * - useReviews.actionLoading (작업 중 상태)
  *
- * 💡 사용 방법:
- * // 새 리뷰 작성
- * <ReviewForm
- *   mode="create"
- *   onSubmit={createReview}
- *   loading={actionLoading}
- * />
- *
- * // 기존 리뷰 수정
- * <ReviewForm
- *   mode="edit"
- *   initialData={existingReview}
- *   onSubmit={updateReview}
- * />
+ * 📱 반응형 특징:
+ * - 모바일 우선 설계
+ * - 터치 친화적 별점 인터페이스
+ * - 적응형 레이아웃
+ * - 스크린 크기별 최적화
+ * - 키보드 호환성
  */
 const ReviewForm = ({
     // ===== 모드 props =====
@@ -69,6 +62,18 @@ const ReviewForm = ({
     compact = false, // 컴팩트 모드
 }) => {
     // ===== 상태 관리 =====
+    const [isMobile, setIsMobile] = useState(false);
+
+    // 화면 크기 감지
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth < 768);
+        };
+
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     /**
      * 폼 데이터 상태 (ReviewFormData 형식)
@@ -248,18 +253,25 @@ const ReviewForm = ({
     );
 
     /**
-     * 별점 호버 핸들러
+     * 별점 호버 핸들러 (데스크톱용)
      */
-    const handleRatingHover = useCallback((rating) => {
-        setHoveredRating(rating);
-    }, []);
+    const handleRatingHover = useCallback(
+        (rating) => {
+            if (!isMobile) {
+                setHoveredRating(rating);
+            }
+        },
+        [isMobile],
+    );
 
     /**
-     * 별점 호버 해제 핸들러
+     * 별점 호버 해제 핸들러 (데스크톱용)
      */
     const handleRatingLeave = useCallback(() => {
-        setHoveredRating(0);
-    }, []);
+        if (!isMobile) {
+            setHoveredRating(0);
+        }
+    }, [isMobile]);
 
     /**
      * 폼 제출 핸들러
@@ -290,8 +302,7 @@ const ReviewForm = ({
                 // 부모 컴포넌트의 제출 함수 호출
                 if (onSubmit && typeof onSubmit === 'function') {
                     if (mode === 'edit' && initialData?.id) {
-                        // 수정 모드: reviewId와 함께 전달
-                        await onSubmit(initialData.id, formData);
+                        await onSubmit(formData);
                     } else {
                         // 작성 모드: 폼 데이터만 전달
                         await onSubmit(formData);
@@ -372,15 +383,17 @@ const ReviewForm = ({
         if (percentage >= 1) return '#dc2626'; // 빨간색 (초과)
         if (percentage >= 0.9) return '#f59e0b'; // 주황색 (90% 이상)
         if (percentage >= 0.7) return '#10b981'; // 초록색 (70% 이상)
-        return '#6b7280'; // 회색 (일반)
+        return '#9ca3af'; // 회색 (일반)
     }, []);
 
     /**
-     * 별점 표시용 별 렌더링
+     * 별점 표시용 별 렌더링 (반응형)
      */
     const renderStars = useCallback(() => {
         const stars = [];
         const displayRating = hoveredRating || formData.rating;
+        const starSize = isMobile ? '28px' : compact ? '24px' : '32px';
+        const starPadding = isMobile ? '8px' : '4px';
 
         for (let i = 1; i <= 5; i++) {
             stars.push(
@@ -393,11 +406,16 @@ const ReviewForm = ({
                     style={{
                         background: 'none',
                         border: 'none',
-                        fontSize: compact ? '24px' : '32px',
-                        color: i <= displayRating ? '#fbbf24' : '#e5e7eb',
+                        fontSize: starSize,
+                        color: i <= displayRating ? '#fbbf24' : '#4b5563',
                         cursor: disabled ? 'not-allowed' : 'pointer',
                         transition: 'color 0.2s ease',
-                        padding: '4px',
+                        padding: starPadding,
+                        minHeight: isMobile ? '44px' : 'auto', // 터치 친화적
+                        minWidth: isMobile ? '44px' : 'auto',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
                     }}
                     disabled={disabled}
                     aria-label={`${i}점`}
@@ -413,66 +431,73 @@ const ReviewForm = ({
         formData.rating,
         compact,
         disabled,
+        isMobile,
         handleRatingClick,
         handleRatingHover,
         handleRatingLeave,
     ]);
 
-    // ===== 스타일 정의 =====
+    // ===== 반응형 스타일 정의 =====
 
     /**
-     * 컨테이너 스타일
+     * 컨테이너 스타일 (반응형)
      */
     const containerStyles = {
-        backgroundColor: '#ffffff',
+        backgroundColor: '#1E293B',
         borderRadius: '8px',
-        border: '1px solid #e5e7eb',
-        padding: compact ? '16px' : '24px',
-        maxWidth: '600px',
+        border: '1px solid #4b5563',
+        padding: isMobile ? '16px' : compact ? '16px' : '24px',
+        maxWidth: isMobile ? '100%' : '600px',
         margin: '0 auto',
+        color: '#FFFFFF',
+        width: '100%',
+        boxSizing: 'border-box',
     };
 
     /**
-     * 제목 스타일
+     * 제목 스타일 (반응형)
      */
     const titleStyles = {
-        fontSize: compact ? '18px' : '20px',
+        fontSize: isMobile ? '18px' : compact ? '18px' : '20px',
         fontWeight: 'bold',
-        color: '#1f2937',
-        marginBottom: compact ? '16px' : '20px',
+        color: '#FFFFFF',
+        marginBottom: isMobile ? '16px' : compact ? '16px' : '20px',
         textAlign: 'center',
+        lineHeight: '1.4',
     };
 
     /**
-     * 폼 그룹 스타일
+     * 폼 그룹 스타일 (반응형)
      */
     const formGroupStyles = {
-        marginBottom: compact ? '16px' : '20px',
+        marginBottom: isMobile ? '20px' : compact ? '16px' : '20px',
     };
 
     /**
-     * 라벨 스타일
+     * 라벨 스타일 (반응형)
      */
     const labelStyles = {
         display: 'block',
-        fontSize: compact ? '14px' : '16px',
+        fontSize: isMobile ? '16px' : compact ? '14px' : '16px',
         fontWeight: '600',
-        color: '#374151',
-        marginBottom: '6px',
+        color: '#D1D5DB',
+        marginBottom: '8px',
     };
 
     /**
-     * 입력 필드 기본 스타일
+     * 입력 필드 기본 스타일 (반응형)
      */
     const inputBaseStyles = {
         width: '100%',
-        padding: compact ? '8px 12px' : '12px 16px',
-        border: '2px solid #d1d5db',
+        padding: isMobile ? '12px 16px' : compact ? '8px 12px' : '12px 16px',
+        border: '2px solid #4B5563',
         borderRadius: '6px',
-        fontSize: compact ? '14px' : '16px',
-        backgroundColor: disabled ? '#f3f4f6' : '#ffffff',
-        color: disabled ? '#9ca3af' : '#1f2937',
+        fontSize: isMobile ? '16px' : compact ? '14px' : '16px', // iOS 줌 방지
+        backgroundColor: disabled ? '#374151' : '#374151',
+        color: disabled ? '#9CA3AF' : '#FFFFFF',
         transition: 'border-color 0.2s ease',
+        minHeight: isMobile ? '44px' : 'auto', // 터치 친화적
+        boxSizing: 'border-box',
     };
 
     /**
@@ -482,104 +507,141 @@ const ReviewForm = ({
         const hasError = touched[fieldName] && errors[fieldName];
         return {
             ...inputBaseStyles,
-            borderColor: hasError ? '#ef4444' : '#d1d5db',
+            borderColor: hasError ? '#ef4444' : '#4b5563',
         };
     };
 
     /**
-     * 텍스트영역 스타일
+     * 텍스트영역 스타일 (반응형)
      */
     const textareaStyles = {
         ...getInputStyles('description'),
-        minHeight: compact ? '80px' : '120px',
+        minHeight: isMobile ? '120px' : compact ? '80px' : '120px',
         resize: 'vertical',
+        fontFamily: 'inherit',
     };
 
     /**
-     * 에러 메시지 스타일
+     * 에러 메시지 스타일 (반응형)
      */
     const errorStyles = {
-        fontSize: '12px',
+        fontSize: isMobile ? '14px' : '12px',
         color: '#ef4444',
-        marginTop: '4px',
+        marginTop: '6px',
+        lineHeight: '1.4',
     };
 
     /**
-     * 글자 수 카운터 스타일
+     * 글자 수 카운터 스타일 (반응형)
      */
     const getCounterStyles = (fieldName, maxLength) => ({
-        fontSize: '12px',
+        fontSize: isMobile ? '14px' : '12px',
         color: getCharacterCountColor(formData[fieldName], maxLength),
         textAlign: 'right',
-        marginTop: '4px',
+        marginTop: '6px',
     });
 
     /**
-     * 별점 섹션 스타일
+     * 별점 섹션 스타일 (반응형)
      */
     const ratingContainerStyles = {
         textAlign: 'center',
-        padding: compact ? '12px' : '16px',
-        backgroundColor: '#f8fafc',
+        padding: isMobile ? '16px' : compact ? '12px' : '16px',
+        backgroundColor: '#374151',
         borderRadius: '6px',
-        border: '1px solid #e2e8f0',
+        border: '1px solid #4B5563',
     };
 
     /**
-     * 별점 라벨 스타일
+     * 별점 라벨 스타일 (반응형)
      */
     const ratingLabelStyles = {
-        fontSize: compact ? '14px' : '16px',
-        color: '#1e40af',
+        fontSize: isMobile ? '16px' : compact ? '14px' : '16px',
+        color: '#3b82f6',
         marginTop: '8px',
         fontWeight: '600',
+        lineHeight: '1.4',
     };
 
     /**
-     * 버튼 기본 스타일
+     * 버튼 기본 스타일 (반응형)
      */
     const buttonBaseStyles = {
-        padding: compact ? '8px 16px' : '12px 24px',
+        padding: isMobile ? '12px 20px' : compact ? '8px 16px' : '12px 24px',
         borderRadius: '6px',
-        fontSize: compact ? '14px' : '16px',
+        fontSize: isMobile ? '16px' : compact ? '14px' : '16px',
         fontWeight: '600',
         border: 'none',
         cursor: disabled || loading ? 'not-allowed' : 'pointer',
         transition: 'all 0.2s ease',
         opacity: disabled ? 0.6 : 1,
+        minHeight: isMobile ? '48px' : 'auto', // 터치 친화적
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '4px',
     };
 
     /**
-     * 제출 버튼 스타일
+     * 제출 버튼 스타일 (반응형)
      */
     const submitButtonStyles = {
         ...buttonBaseStyles,
         backgroundColor: loading ? '#9ca3af' : '#3b82f6',
         color: '#ffffff',
-        marginRight: '12px',
+        flex: isMobile ? 1 : 'none',
+        marginRight: isMobile ? '8px' : '12px',
     };
 
     /**
-     * 취소 버튼 스타일
+     * 취소 버튼 스타일 (반응형)
      */
     const cancelButtonStyles = {
         ...buttonBaseStyles,
         backgroundColor: 'transparent',
-        color: '#6b7280',
-        border: '1px solid #d1d5db',
+        color: '#9ca3af',
+        border: '1px solid #6b7280',
+        flex: isMobile ? 1 : 'none',
+    };
+
+    /**
+     * 버튼 컨테이너 스타일 (반응형)
+     */
+    const buttonContainerStyles = {
+        display: 'flex',
+        flexDirection: isMobile ? 'row' : 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: isMobile ? '24px' : compact ? '20px' : '24px',
+        gap: isMobile ? '0' : '0',
     };
 
     // ===== JSX 렌더링 =====
 
     return (
         <div className={`review-form ${className}`} style={containerStyles}>
-            {/* 폼 제목 */}
+            {/* 폼 제목 - 반응형 */}
             <h2 style={titleStyles}>
-                {mode === 'edit' ? '📝 리뷰 수정' : '✍️ 리뷰 작성'}
+                {mode === 'edit' ? <>✨ 관람평 수정</> : <>✍️ 관람평 작성</>}
+                <span
+                    style={{
+                        fontSize: isMobile ? '12px' : '11px',
+                        backgroundColor: '#eff6ff',
+                        color: '#1e40af',
+                        padding: '2px 6px',
+                        borderRadius: '10px',
+                        fontWeight: 'normal',
+                        marginLeft: '8px',
+                        display: isMobile ? 'block' : 'inline',
+                        marginTop: isMobile ? '4px' : '0',
+                    }}
+                >
+                    관람 후
+                </span>
             </h2>
 
             <form onSubmit={handleSubmit}>
-                {/* 제목 입력 */}
+                {/* 제목 입력 - 반응형 */}
                 <div style={formGroupStyles}>
                     <label htmlFor="review-title" style={labelStyles}>
                         리뷰 제목 *
@@ -610,15 +672,28 @@ const ReviewForm = ({
                     </div>
                 </div>
 
-                {/* 별점 입력 */}
+                {/* 별점 입력 - 반응형 */}
                 <div style={formGroupStyles}>
                     <label style={labelStyles}>평점 *</label>
                     <div style={ratingContainerStyles}>
-                        <div style={{ marginBottom: '8px' }}>
+                        <div
+                            style={{
+                                marginBottom: '12px',
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                flexWrap: isMobile ? 'nowrap' : 'nowrap',
+                                gap: isMobile ? '4px' : '0',
+                            }}
+                        >
                             {renderStars()}
                         </div>
                         <div style={ratingLabelStyles}>
-                            {RatingEmojis[hoveredRating || formData.rating]}{' '}
+                            <span
+                                style={{ fontSize: isMobile ? '20px' : '18px' }}
+                            >
+                                {RatingEmojis[hoveredRating || formData.rating]}
+                            </span>{' '}
                             {RatingLabels[hoveredRating || formData.rating]} (
                             {hoveredRating || formData.rating}/5)
                         </div>
@@ -628,7 +703,7 @@ const ReviewForm = ({
                     )}
                 </div>
 
-                {/* 내용 입력 */}
+                {/* 내용 입력 - 반응형 */}
                 <div style={formGroupStyles}>
                     <label htmlFor="review-description" style={labelStyles}>
                         리뷰 내용 *
@@ -658,7 +733,7 @@ const ReviewForm = ({
                     </div>
                 </div>
 
-                {/* 닉네임 입력 (수정 가능) */}
+                {/* 닉네임 입력 - 반응형 */}
                 <div style={formGroupStyles}>
                     <label htmlFor="review-nickname" style={labelStyles}>
                         닉네임 *
@@ -689,14 +764,8 @@ const ReviewForm = ({
                     </div>
                 </div>
 
-                {/* 버튼 영역 */}
-                <div
-                    style={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        marginTop: compact ? '20px' : '24px',
-                    }}
-                >
+                {/* 버튼 영역 - 반응형 */}
+                <div style={buttonContainerStyles}>
                     <button
                         type="submit"
                         disabled={disabled || loading}
@@ -704,7 +773,17 @@ const ReviewForm = ({
                     >
                         {loading ? (
                             <>
-                                ⏳{' '}
+                                <span
+                                    style={{
+                                        width: '16px',
+                                        height: '16px',
+                                        border: '2px solid #ffffff',
+                                        borderTop: '2px solid transparent',
+                                        borderRadius: '50%',
+                                        animation: 'spin 1s linear infinite',
+                                        marginRight: '6px',
+                                    }}
+                                ></span>
                                 {mode === 'edit' ? '수정 중...' : '작성 중...'}
                             </>
                         ) : (
@@ -729,22 +808,32 @@ const ReviewForm = ({
                 </div>
             </form>
 
-            {/* 안내 메시지 */}
+            {/* 안내 메시지 - 반응형 */}
             {!compact && (
                 <div
                     style={{
-                        marginTop: '16px',
-                        padding: '12px',
-                        backgroundColor: '#eff6ff',
+                        marginTop: '20px',
+                        padding: isMobile ? '16px' : '12px',
+                        backgroundColor: '#374151',
                         borderRadius: '6px',
-                        fontSize: '12px',
-                        color: '#1e40af',
+                        fontSize: isMobile ? '14px' : '12px',
+                        color: '#D1D5DB',
+                        lineHeight: '1.5',
+                        textAlign: isMobile ? 'center' : 'left',
                     }}
                 >
                     💡 작성하신 리뷰는 다른 관람객들에게 큰 도움이 됩니다.
                     정직하고 자세한 후기를 작성해주세요!
                 </div>
             )}
+
+            {/* CSS 애니메이션 */}
+            <style>{`
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+            `}</style>
         </div>
     );
 };

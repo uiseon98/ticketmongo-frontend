@@ -41,9 +41,8 @@ export const AuthProvider = ({ children }) => {
 
     // 로그아웃 요청 및 상태 초기화
     const logout = async () => {
-        const logoutUrl = `${import.meta.env.VITE_APP_API_URL.replace('/api', '')}/auth/logout`;
         try {
-            await fetch(logoutUrl, {
+            await fetch(`${API_BASE_URL}/auth/logout`, {
                 method: 'POST',
                 credentials: 'include',
             });

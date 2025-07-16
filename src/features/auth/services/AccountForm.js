@@ -24,12 +24,7 @@ const MESSAGES = {
 
 // 파일 업로드
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-const ALLOWED_TYPES = [
-    'image/jpeg',
-    'image/png',
-    'image/webp',
-    'application/pdf',
-];
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 // 2. 각 필드별 유효성 검사 함수 분리
 const validators = {
@@ -71,6 +66,13 @@ const validators = {
 
 // 3. 단일 필드 유효성 검증 함수
 const validateField = (field, value, formData = {}) => {
+    if (
+        Boolean(formData.isSocialUser) &&
+        (field === 'password' || field === 'confirmPassword')
+    ) {
+        return;
+    }
+
     const validator = validators[field];
     return validator ? validator(value, formData) : '';
 };
@@ -105,7 +107,7 @@ const validateImageFile = (file) => {
 
     // 파일 타입 제한
     if (!ALLOWED_TYPES.includes(file.type)) {
-        return '지원하지 않는 파일 형식입니다. (JPEG, PNG, WEBP, PDF만 허용)';
+        return '지원하지 않는 파일 형식입니다. (JPEG, PNG, WEBP 허용)';
     }
 };
 

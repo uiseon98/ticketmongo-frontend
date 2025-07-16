@@ -3,14 +3,41 @@
 // ===== IMPORT 섹션 =====
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 
+// 🎯 반응형 Hook 추가
+const useResponsive = () => {
+    const [isMobile, setIsMobile] = useState(false);
+    const [screenWidth, setScreenWidth] = useState(
+        typeof window !== 'undefined' ? window.innerWidth : 1200,
+    );
+
+    useEffect(() => {
+        const handleResize = () => {
+            const width = window.innerWidth;
+            setScreenWidth(width);
+            setIsMobile(width <= 768);
+        };
+
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    return {
+        isMobile,
+        isTablet: screenWidth <= 1024 && screenWidth > 768,
+        isDesktop: screenWidth > 1024,
+        screenWidth,
+    };
+};
+
 /**
- * ===== SearchBar 컴포넌트 (한국어 입력 문제 해결 버전) =====
+ * ===== SearchBar 컴포넌트 (반응형 개선 버전) =====
  *
  * 🎯 주요 개선사항:
- * 1. IME(한국어 입력) 처리 완전 개선
- * 2. onClear 함수 제대로 작동하도록 수정
- * 3. 한국어 입력 중 엔터키 중복 실행 방지
- * 4. 검색어 지우기 버튼 완전 수정
+ * 1. 모바일에서 터치 친화적인 크기와 레이아웃
+ * 2. 반응형 폰트 크기 및 패딩
+ * 3. 모바일에서 버튼 배치 최적화
+ * 4. iOS zoom 방지를 위한 16px 폰트 사이즈 유지
  */
 const SearchBar = ({
     // ===== 필수 props =====
@@ -29,8 +56,9 @@ const SearchBar = ({
     onClear, // useSearch.clearSearch와 연동
     className = '',
 }) => {
-    // ===== 상태 관리 섹션 =====
+    const { isMobile, isTablet } = useResponsive(); // 🎯 반응형 Hook 사용
 
+    // ===== 상태 관리 섹션 =====
     const isExternallyControlled = value !== undefined;
     const [internalSearchTerm, setInternalSearchTerm] = useState(initialValue);
     const currentSearchTerm = isExternallyControlled
@@ -140,61 +168,84 @@ const SearchBar = ({
         setIsFocused(false);
     }, []);
 
-    // ===== 스타일 정의 섹션 =====
+    // ===== 🎯 반응형 스타일 정의 섹션 =====
 
     const containerStyles = {
         display: 'flex',
         alignItems: 'center',
         width: '100%',
-        maxWidth: '600px',
+        maxWidth: isMobile ? '100%' : '600px', // 🎯 모바일에서 full width
         position: 'relative',
-        border: `2px solid ${isFocused ? '#3b82f6' : '#d1d5db'}`,
-        borderRadius: '8px',
-        backgroundColor: disabled ? '#f3f4f6' : '#ffffff',
+        border: `2px solid ${isFocused ? '#3B82F6' : '#374151'}`,
+        borderRadius: isMobile ? '12px' : '8px', // 🎯 모바일에서 더 둥글게
+        backgroundColor: disabled ? '#374151' : '#1E293B',
         boxShadow: isFocused
             ? '0 0 0 3px rgba(59, 130, 246, 0.1)'
-            : '0 1px 3px rgba(0, 0, 0, 0.1)',
+            : '0 1px 3px rgba(0, 0, 0, 0.3)',
         transition: 'all 0.2s ease-in-out',
         opacity: disabled ? 0.6 : 1,
         cursor: disabled ? 'not-allowed' : 'text',
+        // 🎯 모바일에서 최소 높이 확보 (터치 친화적)
+        minHeight: isMobile ? '52px' : '44px',
+        // 🎯 박스 사이징
+        boxSizing: 'border-box',
     };
 
     const inputStyles = {
         flex: 1,
-        padding: '12px 16px',
+        // 🎯 반응형 패딩
+        padding: isMobile ? '16px 20px' : isTablet ? '14px 16px' : '12px 16px',
         border: 'none',
         outline: 'none',
+        // 🎯 iOS zoom 방지를 위해 16px 유지 (모바일에서도)
         fontSize: '16px',
         fontFamily: 'inherit',
         backgroundColor: 'transparent',
-        color: disabled ? '#9ca3af' : '#1f2937',
+        color: disabled ? '#9ca3af' : '#FFFFFF',
+        // 🎯 플레이스홀더 색상
+        '::placeholder': {
+            color: '#9CA3AF',
+        },
+        // 🎯 박스 사이징
+        boxSizing: 'border-box',
     };
 
     const buttonBaseStyles = {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '8px',
-        margin: '0 4px',
-        width: '40px',
-        height: '40px',
+        // 🎯 반응형 패딩과 크기
+        padding: isMobile ? '12px' : '8px',
+        margin: isMobile ? '0 6px' : '0 4px',
+        width: isMobile ? '48px' : '40px', // 🎯 모바일에서 더 큰 터치 영역
+        height: isMobile ? '48px' : '40px',
         border: 'none',
-        borderRadius: '6px',
+        borderRadius: isMobile ? '10px' : '6px',
         backgroundColor: 'transparent',
         cursor: disabled ? 'not-allowed' : 'pointer',
         transition: 'all 0.2s ease',
-        opacity: disabled ? 0.5 : 1,
+        opacity: disabled || loading ? 0.5 : 1,
+        // 🎯 최소 터치 영역 확보
+        minWidth: isMobile ? '44px' : '36px',
+        minHeight: isMobile ? '44px' : '36px',
     };
 
     const searchButtonStyles = {
         ...buttonBaseStyles,
         color: loading ? '#9ca3af' : '#3b82f6',
+        // 🎯 모바일에서 배경색 추가 (더 명확한 구분)
+        backgroundColor: isMobile ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
     };
 
     const clearButtonStyles = {
         ...buttonBaseStyles,
         color: '#6b7280',
+        // 🎯 모바일에서 배경색 추가
+        backgroundColor: isMobile ? 'rgba(107, 114, 128, 0.1)' : 'transparent',
     };
+
+    // 🎯 아이콘 크기 (반응형)
+    const iconSize = isMobile ? 24 : 20;
 
     // ===== JSX 렌더링 섹션 =====
 
@@ -211,16 +262,23 @@ const SearchBar = ({
                 type="text"
                 value={currentSearchTerm}
                 onChange={handleInputChange}
-                onKeyDown={handleKeyDown} // 🔥 keyPress 대신 keyDown 사용
+                onKeyDown={handleKeyDown}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
-                placeholder={placeholder}
+                placeholder={
+                    isMobile
+                        ? '콘서트, 아티스트 검색...' // 🎯 모바일에서 간단한 플레이스홀더
+                        : placeholder
+                }
                 disabled={disabled}
                 style={inputStyles}
                 aria-label="검색어 입력"
                 aria-describedby="search-help"
                 autoComplete="off"
                 autoFocus={autoFocus}
+                // 🎯 모바일에서 가상 키보드 최적화
+                inputMode={isMobile ? 'search' : undefined}
+                enterKeyHint={isMobile ? 'search' : undefined}
             />
 
             {/* 🔥 검색어 지우기 버튼 (조건 수정) */}
@@ -231,10 +289,27 @@ const SearchBar = ({
                     style={clearButtonStyles}
                     aria-label="검색어 지우기"
                     title="검색어 지우기 (ESC)"
+                    // 🎯 모바일에서 터치 피드백
+                    onTouchStart={
+                        isMobile
+                            ? (e) => {
+                                  e.currentTarget.style.backgroundColor =
+                                      'rgba(107, 114, 128, 0.2)';
+                              }
+                            : undefined
+                    }
+                    onTouchEnd={
+                        isMobile
+                            ? (e) => {
+                                  e.currentTarget.style.backgroundColor =
+                                      'rgba(107, 114, 128, 0.1)';
+                              }
+                            : undefined
+                    }
                 >
                     <svg
-                        width="20"
-                        height="20"
+                        width={iconSize}
+                        height={iconSize}
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
@@ -256,12 +331,33 @@ const SearchBar = ({
                 style={searchButtonStyles}
                 aria-label="검색 실행"
                 title="검색 실행 (Enter)"
+                // 🎯 모바일에서 터치 피드백
+                onTouchStart={
+                    isMobile
+                        ? (e) => {
+                              if (!disabled && !loading) {
+                                  e.currentTarget.style.backgroundColor =
+                                      'rgba(59, 130, 246, 0.2)';
+                              }
+                          }
+                        : undefined
+                }
+                onTouchEnd={
+                    isMobile
+                        ? (e) => {
+                              if (!disabled && !loading) {
+                                  e.currentTarget.style.backgroundColor =
+                                      'rgba(59, 130, 246, 0.1)';
+                              }
+                          }
+                        : undefined
+                }
             >
                 {loading ? (
                     // 로딩 스피너
                     <svg
-                        width="20"
-                        height="20"
+                        width={iconSize}
+                        height={iconSize}
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
@@ -277,8 +373,8 @@ const SearchBar = ({
                 ) : (
                     // 돋보기 아이콘
                     <svg
-                        width="20"
-                        height="20"
+                        width={iconSize}
+                        height={iconSize}
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
@@ -310,15 +406,30 @@ const SearchBar = ({
 
             {/* CSS 애니메이션 */}
             <style>{`
-        @keyframes spin {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(360deg);
-          }
-        }
-      `}</style>
+                @keyframes spin {
+                    from {
+                        transform: rotate(0deg);
+                    }
+                    to {
+                        transform: rotate(360deg);
+                    }
+                }
+
+                /* 🎯 모바일에서 플레이스홀더 스타일 */
+                @media (max-width: 768px) {
+                    .search-bar input::placeholder {
+                        font-size: 15px;
+                        color: #9CA3AF;
+                    }
+                }
+
+                /* 🎯 터치 디바이스에서 호버 효과 비활성화 */
+                @media (hover: hover) {
+                    .search-bar button:hover {
+                        transform: scale(1.05);
+                    }
+                }
+            `}</style>
         </div>
     );
 };
