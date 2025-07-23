@@ -115,7 +115,7 @@ export default function BookingDetail() {
                 );
             }
         } finally {
-            setIsCancelling(false);
+            setIsLoading(false);
             setShowCancelConfirm(false);
         }
     };
