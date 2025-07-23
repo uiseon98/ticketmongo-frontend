@@ -42,7 +42,10 @@ export function PaymentSection({
                     <div className="flex justify-between items-center py-2">
                         <span className="text-gray-400">결제 방법</span>
                         <span className="font-medium text-white">
-                            {PAYMENT_METHOD[paymentMethod]}
+                            {paymentMethod
+                                ? (PAYMENT_METHOD[paymentMethod] ??
+                                  paymentMethod)
+                                : '정보 없음'}
                         </span>
                     </div>
                     <div className="flex justify-between items-center py-2">
