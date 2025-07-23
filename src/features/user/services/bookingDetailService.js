@@ -21,6 +21,7 @@ export const PAYMENT_STATUS = {
 
 export const PAYMENT_METHOD = {
     CARD: '카드',
+    EASY_PAY: '간편결제',
 };
 
 export const formatDate = (dateString) => {
