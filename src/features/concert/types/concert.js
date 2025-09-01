@@ -35,6 +35,33 @@ export const ConcertStatusColors = {
 };
 
 /**
+ * 콘서트 정렬 옵션 배열
+ */
+export const ConcertSortOptions = [
+    { value: 'concertDate', label: '공연일순' },
+    { value: 'createdAt', label: '최신순' },
+    { value: 'title', label: '제목순' },
+    { value: 'artist', label: '아티스트순' },
+];
+
+/**
+ * 정렬 방향 옵션
+ */
+export const SortDirectionOptions = [
+    { value: 'asc', label: '오름차순' },
+    { value: 'desc', label: '내림차순' },
+];
+
+/**
+ * 콘서트 목록 조회 파라미터 (확장)
+ * @typedef {Object} ConcertListParams
+ * @property {number} page - 페이지 번호 (0부터 시작)
+ * @property {number} size - 페이지 크기 (1-100)
+ * @property {string} sortBy - 정렬 기준 (concertDate, createdAt, title, artist)
+ * @property {string} sortDir - 정렬 방향 (asc, desc)
+ */
+
+/**
  * 콘서트 정보 타입 (백엔드 ConcertDTO 기반)
  * @typedef {Object} Concert
  * @property {number} concertId - 콘서트 ID

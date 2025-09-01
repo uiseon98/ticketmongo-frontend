@@ -89,22 +89,33 @@ export default function BookingDetail() {
             );
             return;
         }
+
         setIsLoading(true);
         try {
             await userService.cancelBooking(bookingDetail.bookingId);
             const updated = await userService.getBookingDetail(bookingNumber);
             setBookingDetail(updated);
+
             showNotification(
-                '예매가 취소되었습니다.',
+                '예매가 정상적으로 취소되었습니다.',
                 NOTIFICATION_TYPE.SUCCESS,
             );
+            window.location.reload();
         } catch (error) {
-            showNotification(
-                `${error}` || '예매 취소 중 오류가 발생했습니다.',
-                NOTIFICATION_TYPE.ERROR,
-            );
+            const status = error.response?.status;
+            if (status === 409) {
+                showNotification(
+                    '이미 취소된 예매입니다.',
+                    NOTIFICATION_TYPE.ERROR,
+                );
+                setBookingDetail((prev) => ({ ...prev, status: 'CANCELED' }));
+            } else {
+                showNotification(
+                    error.response?.data?.message || error.message,
+                );
+            }
         } finally {
-            setIsLoading(false);
+            setIsCancelling(false);
             setShowCancelConfirm(false);
         }
     };
