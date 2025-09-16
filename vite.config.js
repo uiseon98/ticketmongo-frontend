@@ -1,10 +1,41 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { VitePWA } from 'vite-plugin-pwa'; // ★ 1. PWA 플러그인 import
 
-// https://vite.dev/config/
 export default defineConfig({
-    plugins: [react()],
+  plugins: [
+    react(),
+    VitePWA({ // ★ 2. PWA 플러그인 설정 추가
+      registerType: 'autoUpdate', // 서비스 워커 자동 업데이트
+      devOptions: {
+        enabled: true // 개발 환경에서도 활성화
+      },
+      manifest: {
+        name: 'ticketmongo',
+        short_name: 'ticketmongo',
+        description: '더 쉽고 즐거운 티켓 예매',
+        theme_color: '#ffffff',
+        background_color: '#ffffff',
+        display: 'standalone',
+        scope: '/',
+        start_url: '/',
+        icons: [
+          {
+            src: 'pwa-192x192.png',
+            sizes: '192x192',
+            type: 'image/png'
+          },
+          {
+            src: 'pwa-512x512.png',
+            sizes: '512x512',
+            type: 'image/png'
+          }
+        ]
+      }
+    })
+  ],
 });
+
 
 // // https 설정
 // import { defineConfig } from 'vite';
