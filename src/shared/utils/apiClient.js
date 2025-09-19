@@ -1,12 +1,13 @@
-//API 클라이언트 설정 - 수정된 버전
-
 import axios from 'axios';
 
-// VITE_APP_API_URL이 이미 /api를 포함하고 있는지 확인하고 처리
+// .env 파일에 VITE_APP_API_URL=https://api.ticketmongo.store/api 로 설정했으므로
+// 더 이상 임시방편 코드는 필요 없습니다.
 const API_BASE_URL = import.meta.env.VITE_APP_API_URL;
 
+console.log('🔧 API Base URL:', API_BASE_URL); // 디버깅용
+
 const apiClient = axios.create({
-    baseURL: API_BASE_URL,,
+    baseURL: API_BASE_URL,
     withCredentials: true,
     headers: {
         'Content-Type': 'application/json',
