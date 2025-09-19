@@ -14,19 +14,13 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const res = await fetch(`${API_BASE_URL}/auth/me`, {
-                    credentials: 'include', // 🔥 중요! 쿠키 포함
-                });
-                if (res.ok) {
-                    const data = await res.json();
-                    // console.log('AuthContext: Fetched user data:', data);
-                    setUser(data); // 로그인 상태로 설정
+                const data = await fetchCurrentUser(); // 중앙화된 API 함수 호출
+                if (data) {
+                    setUser(data);
                 } else {
                     setUser(null);
                 }
             } catch {
-                // catch(error) {
-                //         console.error('AuthContext: Failed to fetch user data:', error);
                 setUser(null);
             } finally {
                 setLoading(false);

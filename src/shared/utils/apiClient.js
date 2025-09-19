@@ -5,15 +5,8 @@ import axios from 'axios';
 // VITE_APP_API_URL이 이미 /api를 포함하고 있는지 확인하고 처리
 const API_BASE_URL = import.meta.env.VITE_APP_API_URL;
 
-// URL 중복 방지: 만약 API_BASE_URL이 이미 /api로 끝나면 중복 제거
-const cleanedBaseURL = API_BASE_URL.endsWith('/api')
-    ? API_BASE_URL
-    : `${API_BASE_URL}/api`;
-
-console.log('🔧 API Base URL:', cleanedBaseURL); // 디버깅용
-
 const apiClient = axios.create({
-    baseURL: cleanedBaseURL,
+    baseURL: API_BASE_URL,,
     withCredentials: true,
     headers: {
         'Content-Type': 'application/json',
